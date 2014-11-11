@@ -43,11 +43,11 @@ if plotme
   titles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'Lum'};
   figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - Colour Planes');
   subplot(3, 5, 2);
-  imshow(ImageRGB, []);
+  imshow(ImageRGB);
   title('Org');
   subplot(3, 5, 4);
   ColouredBelongingImage = ColourBelongingImage(BelongingImage);
-  imshow(ColouredBelongingImage, []);
+  imshow(ColouredBelongingImage);
   title('Max');
   for i = 1:nelpisd + 1
     subplot(3, 5, i + 5);
