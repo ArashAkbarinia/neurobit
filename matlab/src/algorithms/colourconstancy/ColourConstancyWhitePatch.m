@@ -2,7 +2,7 @@ function ColourConstantImage = ColourConstancyWhitePatch(InputImage)
 %ColourConstancyWhitePatch applies the white patch algorithm to the input.
 %
 % Inputs
-%   InputImage   the input image.
+%   InputImage  the input image.
 %
 % Outputs
 %   ColourConstantImage  the colour constant image in range of [0, 1].
