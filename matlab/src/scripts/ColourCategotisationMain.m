@@ -4,30 +4,36 @@ clearvars;
 close all;
 clc;
 
+dociwam = 0;
+
 ImageRGB = imread('Macbeth.png');
 
 %% CIWaM
 
-MidaMin = 4; % it must be power of 2. it's recommended not to use 1 ;)
-nplans = floor(log(max(size(ImageRGB(:, :, 1)) - 1) / MidaMin) / log(2)) + 1;
-
-WindowSize = [3, 6];
-nu0 = 3;
-gamma = 1;
-sRGBFlag = 0;
-
-PerceivedImage = CIWaM(ImageRGB, WindowSize, nplans, gamma, sRGBFlag, nu0);
-minv = min(PerceivedImage(:));
-maxv = max(PerceivedImage(:));
-PerceivedImage = uint8(255 .* (PerceivedImage - minv) / (maxv - minv));
-
-figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - CIWaM');
-subplot(1, 2, 1);
-imshow(ImageRGB);
-title('Original Image');
-subplot(1, 2, 2);
-imshow(PerceivedImage);
-title('Perceived Image');
+if dociwam
+  MidaMin = 4; % it must be power of 2. it's recommended not to use 1 ;)
+  nplans = floor(log(max(size(ImageRGB(:, :, 1)) - 1) / MidaMin) / log(2)) + 1;
+  
+  WindowSize = [3, 6];
+  nu0 = 3;
+  gamma = 1;
+  sRGBFlag = 0;
+  
+  PerceivedImage = CIWaM(ImageRGB, WindowSize, nplans, gamma, sRGBFlag, nu0);
+  minv = min(PerceivedImage(:));
+  maxv = max(PerceivedImage(:));
+  PerceivedImage = uint8(255 .* (PerceivedImage - minv) / (maxv - minv));
+  
+  figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - CIWaM');
+  subplot(1, 2, 1);
+  imshow(ImageRGB);
+  title('Original Image');
+  subplot(1, 2, 2);
+  imshow(PerceivedImage);
+  title('Perceived Image');
+else
+  PerceivedImage = ImageRGB;
+end
 
 %% Colour categorisation
 

@@ -1,5 +1,5 @@
 function ColouredImage = ColourLabelImage(LabeledImage, colours)
-%LabelImage Summary of this function goes here
+%ColourLabelImage Summary of this function goes here
 %   Detailed explanation goes here
 
 [rows, cols, ~] = size(LabeledImage);
