@@ -13,11 +13,12 @@ else
   mynargin = nargin;
 end
 
-
-close all;
 %frontiers_2014;
-organize_frontiers;
-lsY_limits;
+% TODO: move white reference to the matfile
+% reference white used in our experiments
+WhiteReference = [116.5366, 124.6721, 125.4563];
+lsYFrontiers = organize_frontiers('rawdata_Lab.mat', WhiteReference);
+% lsY_limits;
 %load('CRT_gamut_all');
 varargin = lower(varargin);
 R = [1 0 0]; G = [0 1 0]; B = [0 0 1]; Y = [1 1 0]; Pp = [0.7 0 0.7];
@@ -44,9 +45,9 @@ for pp = 1:mynargin
     case {'g', 'green'}
       FittingData.category = 'green';
       kolor = G;
-      FittingData.data36 = [lsY_36_G_B; lsY_36_Br_G; lsY_36_W_G];
-      FittingData.data58 = [lsY_58_G_B; lsY_58_Y_G;  lsY_58_W_G];
-      FittingData.data81 = [lsY_81_G_B; lsY_81_Y_G;  lsY_81_W_G];
+      FittingData.data36 = [lsYFrontiers.lsY_36_G_B; lsYFrontiers.lsY_36_Br_G; lsYFrontiers.lsY_36_W_G];
+      FittingData.data58 = [lsYFrontiers.lsY_58_G_B; lsYFrontiers.lsY_58_Y_G;  lsYFrontiers.lsY_58_W_G];
+      FittingData.data81 = [lsYFrontiers.lsY_81_G_B; lsYFrontiers.lsY_81_Y_G;  lsYFrontiers.lsY_81_W_G];
       plot3(FittingData.data36(:, 1), FittingData.data36(:, 2), FittingData.data36(:, 3), '.', 'Color', kolor * 0.36); hold on;
       plot3(FittingData.data58(:, 1), FittingData.data58(:, 2), FittingData.data58(:, 3), '.', 'Color', kolor * 0.58); hold on;
       plot3(FittingData.data81(:, 1), FittingData.data81(:, 2), FittingData.data81(:, 3), '.', 'Color', kolor * 0.81); hold on;
@@ -72,9 +73,9 @@ for pp = 1:mynargin
     case {'b', 'blue'}
       FittingData.category = 'blue';
       kolor = B;
-      FittingData.data36 = [lsY_36_G_B; lsY_36_B_Pp; lsY_36_W_B];
-      FittingData.data58 = [lsY_58_G_B; lsY_58_B_Pp; lsY_58_W_B];
-      FittingData.data81 = [lsY_81_G_B; lsY_81_B_Pp; lsY_81_W_B];
+      FittingData.data36 = [lsYFrontiers.lsY_36_G_B; lsYFrontiers.lsY_36_B_Pp; lsYFrontiers.lsY_36_W_B];
+      FittingData.data58 = [lsYFrontiers.lsY_58_G_B; lsYFrontiers.lsY_58_B_Pp; lsYFrontiers.lsY_58_W_B];
+      FittingData.data81 = [lsYFrontiers.lsY_81_G_B; lsYFrontiers.lsY_81_B_Pp; lsYFrontiers.lsY_81_W_B];
       plot3(FittingData.data36(:, 1), FittingData.data36(:, 2), FittingData.data36(:, 3), '.', 'Color', kolor * 0.36); hold on;
       plot3(FittingData.data58(:, 1), FittingData.data58(:, 2), FittingData.data58(:, 3), '.', 'Color', kolor * 0.58); hold on;
       plot3(FittingData.data81(:, 1), FittingData.data81(:, 2), FittingData.data81(:, 3), '.', 'Color', kolor * 0.81); hold on;
@@ -100,9 +101,9 @@ for pp = 1:mynargin
     case {'pp', 'purple'}
       FittingData.category = 'purple';
       kolor = Pp;
-      FittingData.data36 = [lsY_36_B_Pp; lsY_36_Pp_Pk; lsY_36_W_Pp];
-      FittingData.data58 = [lsY_58_B_Pp; lsY_58_Pp_Pk; lsY_58_W_Pp];
-      FittingData.data81 = [lsY_81_B_Pp; lsY_81_Pp_Pk; lsY_81_W_Pp];
+      FittingData.data36 = [lsYFrontiers.lsY_36_B_Pp; lsYFrontiers.lsY_36_Pp_Pk; lsYFrontiers.lsY_36_W_Pp];
+      FittingData.data58 = [lsYFrontiers.lsY_58_B_Pp; lsYFrontiers.lsY_58_Pp_Pk; lsYFrontiers.lsY_58_W_Pp];
+      FittingData.data81 = [lsYFrontiers.lsY_81_B_Pp; lsYFrontiers.lsY_81_Pp_Pk; lsYFrontiers.lsY_81_W_Pp];
       plot3(FittingData.data36(:,1), FittingData.data36(:,2), FittingData.data36(:,3), '.', 'Color', kolor * 0.36); hold on;
       plot3(FittingData.data58(:,1), FittingData.data58(:,2), FittingData.data58(:,3), '.', 'Color', kolor * 0.58); hold on;
       plot3(FittingData.data81(:,1), FittingData.data81(:,2), FittingData.data81(:,3), '.', 'Color', kolor * 0.81); hold on;
@@ -128,9 +129,9 @@ for pp = 1:mynargin
     case {'pk', 'pink'}
       FittingData.category = 'pink';
       kolor = Pk;
-      FittingData.data36 = [lsY_36_Pp_Pk; lsY_36_Pk_R;  lsY_36_W_Pk];
-      FittingData.data58 = [lsY_58_Pp_Pk; lsY_58_Pk_R;  lsY_58_W_Pk];
-      FittingData.data81 = [lsY_81_Pp_Pk; lsY_81_Pk_O;  lsY_81_W_Pk];
+      FittingData.data36 = [lsYFrontiers.lsY_36_Pp_Pk; lsYFrontiers.lsY_36_Pk_R;  lsYFrontiers.lsY_36_W_Pk];
+      FittingData.data58 = [lsYFrontiers.lsY_58_Pp_Pk; lsYFrontiers.lsY_58_Pk_R;  lsYFrontiers.lsY_58_W_Pk];
+      FittingData.data81 = [lsYFrontiers.lsY_81_Pp_Pk; lsYFrontiers.lsY_81_Pk_O;  lsYFrontiers.lsY_81_W_Pk];
       plot3(FittingData.data36(:,1), FittingData.data36(:,2), FittingData.data36(:,3), '.', 'Color', kolor * 0.36); hold on;
       plot3(FittingData.data58(:,1), FittingData.data58(:,2), FittingData.data58(:,3), '.', 'Color', kolor * 0.58); hold on;
       plot3(FittingData.data81(:,1), FittingData.data81(:,2), FittingData.data81(:,3), '.', 'Color', kolor * 0.81); hold on;
@@ -156,8 +157,8 @@ for pp = 1:mynargin
     case {'r', 'red'}
       FittingData.category = 'red';
       kolor = R;
-      FittingData.data36 = [lsY_36_Pk_R; lsY_36_R_Br;  lsY_36_W_R];
-      FittingData.data58 = [lsY_58_Pk_R; lsY_58_R_O;   lsY_58_W_R];
+      FittingData.data36 = [lsYFrontiers.lsY_36_Pk_R; lsYFrontiers.lsY_36_R_Br;  lsYFrontiers.lsY_36_W_R];
+      FittingData.data58 = [lsYFrontiers.lsY_58_Pk_R; lsYFrontiers.lsY_58_R_O;   lsYFrontiers.lsY_58_W_R];
       FittingData.data81 = [];
       plot3(FittingData.data36(:,1), FittingData.data36(:,2), FittingData.data36(:,3), '.', 'Color', kolor * 0.36); hold on;
       plot3(FittingData.data58(:,1), FittingData.data58(:,2), FittingData.data58(:,3), '.', 'Color', kolor * 0.58); hold on;
@@ -184,8 +185,8 @@ for pp = 1:mynargin
       FittingData.category = 'orange';
       kolor = O;
       FittingData.data36 = [];
-      FittingData.data58 = [lsY_58_R_O; lsY_58_O_Y;   lsY_58_W_O];
-      FittingData.data81 = [lsY_81_Pk_O; lsY_81_O_Y;  lsY_81_W_O];
+      FittingData.data58 = [lsYFrontiers.lsY_58_R_O;  lsYFrontiers.lsY_58_O_Y;  lsYFrontiers.lsY_58_W_O];
+      FittingData.data81 = [lsYFrontiers.lsY_81_Pk_O; lsYFrontiers.lsY_81_O_Y;  lsYFrontiers.lsY_81_W_O];
       plot3(FittingData.data58(:,1), FittingData.data58(:,2), FittingData.data58(:,3), '.', 'Color', kolor * 0.58); hold on;
       plot3(FittingData.data81(:,1), FittingData.data81(:,2), FittingData.data81(:,3), '.', 'Color', kolor * 0.81); hold on;
       FittingData.allstd = std([FittingData.data36;FittingData.data58;FittingData.data81]);  FittingData.allstd(3) = 90;%150;
@@ -211,8 +212,8 @@ for pp = 1:mynargin
       FittingData.category = 'yellow';
       kolor = Y;
       FittingData.data36 = [];
-      FittingData.data58 = [lsY_58_O_Y; lsY_58_Y_G;   lsY_58_W_Y];
-      FittingData.data81 = [lsY_81_O_Y; lsY_81_Y_G;   lsY_81_W_Y];
+      FittingData.data58 = [lsYFrontiers.lsY_58_O_Y; lsYFrontiers.lsY_58_Y_G;   lsYFrontiers.lsY_58_W_Y];
+      FittingData.data81 = [lsYFrontiers.lsY_81_O_Y; lsYFrontiers.lsY_81_Y_G;   lsYFrontiers.lsY_81_W_Y];
       plot3(FittingData.data58(:,1), FittingData.data58(:,2), FittingData.data58(:,3), '.', 'Color', kolor * 0.58); hold on;
       plot3(FittingData.data81(:,1), FittingData.data81(:,2), FittingData.data81(:,3), '.', 'Color', kolor * 0.81); hold on;
       FittingData.allstd = std([FittingData.data36;FittingData.data58;FittingData.data81]); FittingData.allstd(3) = 90;
@@ -237,7 +238,7 @@ for pp = 1:mynargin
     case {'br', 'brown'}
       FittingData.category = 'brown';
       kolor = Br;
-      FittingData.data36 = [lsY_36_R_Br; lsY_36_Br_G; lsY_36_W_Br];
+      FittingData.data36 = [lsYFrontiers.lsY_36_R_Br; lsYFrontiers.lsY_36_Br_G; lsYFrontiers.lsY_36_W_Br];
       FittingData.data58 = [];
       FittingData.data81 = [];
       plot3(FittingData.data36(:,1), FittingData.data36(:,2), FittingData.data36(:,3), '.', 'Color', kolor * 0.36); hold on;
@@ -263,9 +264,9 @@ for pp = 1:mynargin
     case {'gr', 'grey'}
       FittingData.category = 'grey';
       kolor = Gr;
-      FittingData.data36 = [lsY_36_W_G; lsY_36_W_B; lsY_36_W_Pp; lsY_36_W_Pk; lsY_36_W_R; lsY_36_W_Br];
-      FittingData.data58 = [lsY_58_W_G; lsY_58_W_B; lsY_58_W_Pp; lsY_58_W_Pk; lsY_58_W_R; lsY_58_W_O; lsY_58_W_Y];
-      FittingData.data81 = [lsY_81_W_G; lsY_81_W_B; lsY_81_W_Pp; lsY_81_W_Pk; lsY_81_W_O; lsY_81_W_Y];
+      FittingData.data36 = [lsYFrontiers.lsY_36_W_G; lsYFrontiers.lsY_36_W_B; lsYFrontiers.lsY_36_W_Pp; lsYFrontiers.lsY_36_W_Pk; lsYFrontiers.lsY_36_W_R; lsYFrontiers.lsY_36_W_Br];
+      FittingData.data58 = [lsYFrontiers.lsY_58_W_G; lsYFrontiers.lsY_58_W_B; lsYFrontiers.lsY_58_W_Pp; lsYFrontiers.lsY_58_W_Pk; lsYFrontiers.lsY_58_W_R; lsYFrontiers.lsY_58_W_O; lsYFrontiers.lsY_58_W_Y];
+      FittingData.data81 = [lsYFrontiers.lsY_81_W_G; lsYFrontiers.lsY_81_W_B; lsYFrontiers.lsY_81_W_Pp; lsYFrontiers.lsY_81_W_Pk; lsYFrontiers.lsY_81_W_O; lsYFrontiers.lsY_81_W_Y];
       plot3(FittingData.data36(:,1), FittingData.data36(:,2), FittingData.data36(:,3), '.', 'Color', kolor * 0.36); hold on;
       plot3(FittingData.data58(:,1), FittingData.data58(:,2), FittingData.data58(:,3), '.', 'Color', kolor * 0.58); hold on;
       plot3(FittingData.data81(:,1), FittingData.data81(:,2), FittingData.data81(:,3), '.', 'Color', kolor * 0.81); hold on;
