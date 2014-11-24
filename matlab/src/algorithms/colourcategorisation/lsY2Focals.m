@@ -1,5 +1,4 @@
-
-%Table 3 of D. Cao et al. / Vision Research 45 (2005) 1929�1934
+%Table 3 of D. Cao et al. / Vision Research 45 (2005) 1929-1934
 %The cone chromaticities of the focal colors
 % Focal color       L/(L + M)       S/(L + M)
 % Red               0.777           0.54
@@ -15,7 +14,6 @@
 %
 
 function [G, B, Pp, Pk, R, O, Y, Br, Gr, Ach] = lsY2Focals(lsY)
-
 
 if exist('2014_ellipsoid_params.mat','file')
   load 2014_ellipsoid_params.mat;
@@ -44,16 +42,16 @@ for Colour = 1:9
   belongings(:,:,Colour) = reshape(bng, n, m, 1);
 end
 
-G   = belongings(:,:,1);
-B   = belongings(:,:,2);
-Pp   = belongings(:,:,3);
-Pk   = belongings(:,:,4);
-R   = belongings(:,:,5);
-O  = belongings(:,:,6);
-Y   = belongings(:,:,7);
-Br  = belongings(:,:,8);
-Gr  = belongings(:,:,9);
-Ach = belongings(:,:,10);
+G   = belongings(:, :, 1);
+B   = belongings(:, :, 2);
+Pp  = belongings(:, :, 3);
+Pk  = belongings(:, :, 4);
+R   = belongings(:, :, 5);
+O   = belongings(:, :, 6);
+Y   = belongings(:, :, 7);
+Br  = belongings(:, :, 8);
+Gr  = belongings(:, :, 9);
+Ach = belongings(:, :, 10);
 
 
 % Temp = lsY - repmat([Focal_Red,maxlum],[n2,1]);
