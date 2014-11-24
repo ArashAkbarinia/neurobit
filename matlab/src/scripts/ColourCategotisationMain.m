@@ -39,9 +39,11 @@ end
 
 ConfigsMat = load('2014_ellipsoid_params');
 ColourEllipsoids = ConfigsMat.ellipsoids;
+EllipsoidsRGBs = ConfigsMat.RGBValues;
+EllipsoidsTitles = ConfigsMat.RGBTitles;
 
 PlotResults = 1;
-[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(PerceivedImage, ColourEllipsoids, PlotResults);
+[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(PerceivedImage, ColourEllipsoids, PlotResults, EllipsoidsRGBs, EllipsoidsTitles);
 
 %% Noise removal
 
@@ -50,18 +52,7 @@ PlotResults = 1;
 
 FilteresInds = medfilt2(inds, 'symmetric');
 
-% TODO: add this titles to the ellipsoids themselves
-colors(1, :) = [0, 255, 0];
-colors(2, :) = [0, 0, 255];
-colors(3, :) = [128, 0, 128];
-colors(4, :) = [188, 84, 150];
-colors(5, :) = [255, 0, 0];
-colors(6, :) = [255, 165, 0];
-colors(7, :) = [255, 255, 0];
-colors(8, :) = [115, 81, 67];
-colors(9, :) = [128, 128, 128];
-
-NoiseRemovedImg = ColourLabelImage(FilteresInds, colors);
+NoiseRemovedImg = ColourLabelImage(FilteresInds, EllipsoidsRGBs);
 
 figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - Noise Removal');
 subplot(1, 2, 1);

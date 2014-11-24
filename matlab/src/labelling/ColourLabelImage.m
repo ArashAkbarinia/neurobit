@@ -5,6 +5,12 @@ function ColouredImage = ColourLabelImage(LabeledImage, colours)
 [rows, cols, ~] = size(LabeledImage);
 chns = size(colours, 1);
 
+minv = min(min(colours));
+maxv = max(max(colours));
+if minv >= 0.0 && minv <= 1.0 && maxv >= 0.0 && maxv <= 1.0
+  colours = colours * 255;
+end
+
 ColouredImage = zeros(rows, cols, 3);
 LabeledImage(:, :, 2) = LabeledImage(:, :, 1);
 LabeledImage(:, :, 3) = LabeledImage(:, :, 1);

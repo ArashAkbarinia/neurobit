@@ -13,17 +13,27 @@ else
   mynargin = nargin;
 end
 
+R  = [1.0, 0.0, 0.0];
+G  = [0.0, 1.0, 0.0];
+B  = [0.0, 0.0, 1.0];
+Y  = [1.0, 1.0, 0.0];
+Pp = [0.7, 0.0, 0.7];
+O  = [1.0, 0.5, 0.0];
+Pk = [1.0, 0.0, 1.0];
+Br = [1.0, 0.5, 0.0] * 0.75;
+W  = [1.0, 1.0, 1.0];
+Gr = [0.5, 0.5, 0.5];
+RGB = [G; B; Pp; Pk; R; O; Y; Br; Gr; W];
+RGBValues = [G; B; Pp; Pk; R; O; Y; Br; Gr];
+RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'Lum'};
+
 %frontiers_2014;
 lsYFrontiers = organize_frontiers('rawdata_Lab.mat');
 % lsY_limits;
 %load('CRT_gamut_all');
 varargin = lower(varargin);
-R = [1 0 0]; G = [0 1 0]; B = [0 0 1]; Y = [1 1 0]; Pp = [0.7 0 0.7];
-O = [1 0.5 0]; Pk = [1 0 1]; Br = [1 0.5 0] * 0.75; W = [1 1 1];
-Gr= [0.5 0.5 0.5];
-RGB = [G; B; Pp; Pk; R; O; Y; Br; Gr; W];
-myxx= zeros(9, 7);
-myRSS= zeros(9, 2);
+myxx = zeros(9, 7);
+myRSS = zeros(9, 2);
 tested = [];
 figure;
 % D65 XYZ cordinates calculated according to the CIE Judd-Vos corrected
@@ -301,15 +311,17 @@ end
 %  plot3([Viewsonic(1:3,1);Viewsonic(1,1)], [Viewsonic(1:3,2);Viewsonic(1,2)], [Viewsonic(1:3,3);Viewsonic(1,3)]);
 %  Draw_CRT_Gamut(Points_XYZ_Viewsonic,'lsy');
 ellipsoids = [myxx, myRSS(:, 2)];
+
 if mynargin == 9
-  save('2014_ellipsoid_params.mat', 'ellipsoids');
+  save('2014_ellipsoid_params.mat', 'ellipsoids', 'RGBValues', 'RGBTitles');
 end
 
 
 %=========================generate mesh ===================================
+
 for kk = tested
   [x, y, z] = alej_ellipsoid(myxx(kk, 1:3), myxx(kk, 4:6), W_axis_orient, rad2deg(myxx(kk, 7)), myxx(kk, 1:3));
-  mesh(x, y, z,'EdgeColor', RGB(kk,:)); alpha(.4); hold on;
+  mesh(x, y, z,'EdgeColor', RGB(kk,:)); alpha(0.4); hold on;
 end
 if mynargin == 9
   cateq = 'all categories';
