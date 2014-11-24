@@ -14,10 +14,7 @@ else
 end
 
 %frontiers_2014;
-% TODO: move white reference to the matfile
-% reference white used in our experiments
-WhiteReference = [116.5366, 124.6721, 125.4563];
-lsYFrontiers = organize_frontiers('rawdata_Lab.mat', WhiteReference);
+lsYFrontiers = organize_frontiers('rawdata_Lab.mat');
 % lsY_limits;
 %load('CRT_gamut_all');
 varargin = lower(varargin);

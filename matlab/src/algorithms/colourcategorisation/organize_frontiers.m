@@ -1,6 +1,6 @@
-function lsYFrontiers = organize_frontiers(FilePath, WhiteReference, XYZ2lsYChoise)
+function lsYFrontiers = organize_frontiers(FilePath, XYZ2lsYChoise)
 
-if nargin < 3
+if nargin < 2
   XYZ2lsYChoise = 'evenly_ditributed_stds';
 end
 
@@ -9,6 +9,9 @@ saturated_chrom_Lab = RawDataMat.saturated_chrom_Lab;
 saturated_achrom_Lab = RawDataMat.saturated_achrom_Lab;
 unsaturated_chrom_Lab = RawDataMat.unsaturated_chrom_Lab;
 unsaturated_achrom_Lab = RawDataMat.unsaturated_achrom_Lab;
+
+% reference white used in the experiments
+WhiteReference = RawDataMat.WhiteReference;
 
 %=======================================
 
