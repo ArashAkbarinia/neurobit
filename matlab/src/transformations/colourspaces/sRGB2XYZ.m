@@ -1,24 +1,18 @@
-function  XYZ = sRGB2XYZ(CIERGB, gammacorrect, scaled, maxXYZ)
+function XYZ = sRGB2XYZ(CIERGB, gammacorrect, maxXYZ)
 
 % Matrix Obtained from http://en.wikipedia.org/wiki/SRGB_color_space
-% CIERGB is expected to have values in the range [0 1] unless the factor
-% "scaled = false" is provided. In this case it expects the input to be in
-% the range [0 255] and does the scalling;
+% CIERGB is scaled to [0 1]
 % The output of this function is in the range [0 1] unless the vector
 % "maxXYZ" is provided. Then the output is in the range [0 maxXYZ]
 
 % if gammacorrect = false, it assumes the input is already linearised.
 
-if nargin < 4
-  maxXYZ = [1 1 1];
+if nargin < 3
+  maxXYZ = [1, 1, 1];
   disp('Warning: XYZ output normalised to 1');
 end
 
-if nargin < 3 %|| (scaled == []);
-  scaled = false;
-end
-
-if nargin < 2 %|| (gammacorrect == [])
+if nargin < 2
   gammacorrect = true;
 end
 
@@ -33,24 +27,22 @@ CIERGB2XYZ_D65 = ...
   0.0193339  0.1191920  0.9503041
   ];
 
-if ~scaled %scale it to be between [0 1]
-  CIERGB = double(CIERGB) ./ 255;
-end
+% scale it to be between [0 1]
+CIERGB = im2double(CIERGB);
 
-[lines, cols, planes] = size(CIERGB);
-%RGB = zeros(lines,cols,planes);
+[rows, cols, chns] = size(CIERGB);
 
-if planes == 1
-  if (lines ~= 1 && cols ~= 3)
+if chns == 1
+  if (rows ~= 1 && cols ~= 3)
     disp('Wrong XYZ matrix size... correcting');
-    if (lines == 3 && cols == 1)
+    if (rows == 3 && cols == 1)
       CIERGB = CIERGB';
     else
       error('Can''t correct');
     end
   end
-elseif planes == 3
-  CIERGB = double(reshape(CIERGB, lines * cols, 3));
+elseif chns == 3
+  CIERGB = reshape(CIERGB, rows * cols, 3);
 else
   error('wrong number of planes');
 end
@@ -61,18 +53,16 @@ end
 
 XYZ = CIERGB * CIERGB2XYZ_D65';
 
-if ~isequal(maxXYZ,[1 1 1]);
-  if planes == 3
-    XYZ = XYZ .* repmat(maxXYZ, lines * cols, 1);
+if ~isequal(maxXYZ, [1, 1, 1]);
+  if chns == 3
+    XYZ = XYZ .* repmat(maxXYZ, rows * cols, 1);
   else
-    XYZ = XYZ .* repmat(maxXYZ, lines, 1);
+    XYZ = XYZ .* repmat(maxXYZ, rows, 1);
   end
 end
 
-%XYZ=truncate(XYZ,[0 1],0);
-
-if planes == 3
-  XYZ = reshape(XYZ, lines, cols, 3);
+if chns == 3
+  XYZ = reshape(XYZ, rows, cols, 3);
 end
 
 end

@@ -1,5 +1,5 @@
 function [BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(ImageRGB, ColourEllipsoids, plotme, EllipsoidsRGBs, EllipsoidsTitles)
-%RGB2COLOURNAMING Summary of this function goes here
+%RGB2ColourNaming Summary of this function goes here
 %   Detailed explanation goes here
 
 if nargin < 3
@@ -9,7 +9,7 @@ end
 [nelpisd, ~] = size(ColourEllipsoids);
 
 % gammacorrect = true, max pix value > 1, max luminance = daylight
-lsYImage = XYZ2lsY(sRGB2XYZ(ImageRGB, true, false, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
+lsYImage = XYZ2lsY(sRGB2XYZ(ImageRGB, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
 
 BelongingImage = lsY2Focals(lsYImage, ColourEllipsoids);
 

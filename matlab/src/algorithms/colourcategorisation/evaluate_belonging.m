@@ -40,39 +40,36 @@ steepness = 5; % steepness of the sigmoidal transition.
 % Centre the points relatively to the ellipsoid.
 lsY_points = lsY_points - repmat([cl, cs, 0], [lines, 1]);
 %Points with luminance value larger than c don't belone to the ellipsoid
-do_belong = (abs(lsY_points(:,3))<= c);
+do_belong = (abs(lsY_points(:, 3)) <= c);
 %rotate all points an angle -alpha_rad so that we can reduce the problem to
 %one of canonical ellipsoids
 sa = sin(alpha_rad);
 ca = cos(alpha_rad);
 rot = [ca -sa 0; sa ca 0; 0 0 1];
 lsY_points = lsY_points * rot;
+lsYPointsSqr = lsY_points .^ 2;
 
 % calculate the distance from each point to the ellipsoid
-
-zz = lsY_points(:,2).^2 ./ lsY_points(:,1).^2;
-aa = a*a;
-bb = b*b;
-
-x1 = (1-lsY_points(:,3)./c) ./ sqrt( 1/aa + 1/bb .* zz);
+x1 = (1 - lsY_points(:, 3) ./ c) ./ sqrt(1 / (a .^ 2) + 1 / (b .^ 2) .* (lsYPointsSqr(:, 2) ./ lsYPointsSqr(:, 1)));
 x2 = -x1;
-y1 = lsY_points(:,2) ./ lsY_points(:,1) .* x1;
-y2 = - y1;
-%distances between the lsY_points and the closest in the ellipse
-d1 = sqrt((lsY_points(:,1)-x1).^2 + (lsY_points(:,2)-y1).^2);
-d1 = d1.*isreal(d1) + realmax .* ~isreal(d1);
-d2 = sqrt((lsY_points(:,1)-x2).^2 + (lsY_points(:,2)-y2).^2);
-d2 = d2.*isreal(d2) + realmax .* ~isreal(d2);
-%closest points in the ellipse
-p = [x1,y1] .* [(d1<=d2),(d1<=d2)] + [x2,y2] .* [(d1>=d2),(d1>=d2)];
-%distances from the centre to the closest points in the ellipse
-H = sqrt(p(:,1).^2 + p(:,2).^2);
-% distances from the centre to the lsY points
-X = sqrt(lsY_points(:,1).^2 + lsY_points(:,2).^2);
-%growth rate (width of the sigmoidal section)
-G = steepness/sqrt(RSS);
+y1 = lsY_points(:, 2) ./ lsY_points(:, 1) .* x1;
+y2 = -y1;
 
-belonging =  1./(1+exp(G.*(abs(X)-H)));
+%distances between the lsY_points and the closest in the ellipse
+d1 = sqrt((lsY_points(:, 1) - x1) .^ 2 + (lsY_points(:, 2) - y1) .^ 2);
+d1 = d1 .* isreal(d1) + realmax .* ~isreal(d1);
+d2 = sqrt((lsY_points(:, 1) - x2) .^ 2 + (lsY_points(:, 2) - y2) .^ 2);
+d2 = d2 .* isreal(d2) + realmax .* ~isreal(d2);
+%closest points in the ellipse
+p = [x1, y1] .* [(d1 <= d2), (d1 <= d2)] + [x2, y2] .* [(d1 >= d2), (d1 >= d2)];
+%distances from the centre to the closest points in the ellipse
+H = sqrt(p(:, 1) .^ 2 + p(:, 2) .^ 2);
+% distances from the centre to the lsY points
+X = sqrt(lsYPointsSqr(:, 1) + lsYPointsSqr(:, 2));
+%growth rate (width of the sigmoidal section)
+G = steepness / sqrt(RSS);
+
+belonging =  1 ./ (1 + exp(G .* (abs(X) - H)));
 belonging = belonging .* do_belong;
 
 end
