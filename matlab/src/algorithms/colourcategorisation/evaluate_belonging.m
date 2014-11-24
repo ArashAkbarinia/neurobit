@@ -23,13 +23,22 @@
 
 % FIXME: why are we here in 3D and in point_to_ellipse in 2D.
 
-function belonging = evaluate_belonging(lsY_points, cl, cs, cY, a, b, c, alpha_rad, RSS)
+function belonging = evaluate_belonging(lsY_points, ellipsoid)
+
+cl = ellipsoid(1);
+cs = ellipsoid(2);
+% cv = ColourEllipsoids(3);
+a = ellipsoid(4);
+b = ellipsoid(5);
+c = ellipsoid(6);
+alpha_rad = ellipsoid(7);
+RSS = ellipsoid(8);
 
 steepness = 5; % steepness of the sigmoidal transition.
 
-[lines,cols] = size(lsY_points);
+[lines, ~] = size(lsY_points);
 % Centre the points relatively to the ellipsoid.
-lsY_points = lsY_points - repmat([cl cs 0],[lines,1]);
+lsY_points = lsY_points - repmat([cl, cs, 0], [lines, 1]);
 %Points with luminance value larger than c don't belone to the ellipsoid
 do_belong = (abs(lsY_points(:,3))<= c);
 %rotate all points an angle -alpha_rad so that we can reduce the problem to

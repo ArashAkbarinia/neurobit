@@ -26,17 +26,10 @@ BelongingImage = zeros(rows, cols, nelpisd + 1);
 %   OutputImage(:, :, i) = reshape(belonging, rows, cols);
 % end
 
-[G, B, Pp, Pk, R, O, Y, Br, Gr, Ach] = sRGB2Focals(ImageRGB);
-BelongingImage(:, :, 1) = G;
-BelongingImage(:, :, 2) = B;
-BelongingImage(:, :, 3) = Pp;
-BelongingImage(:, :, 4) = Pk;
-BelongingImage(:, :, 5) = R;
-BelongingImage(:, :, 6) = O;
-BelongingImage(:, :, 7) = Y;
-BelongingImage(:, :, 8) = Br;
-BelongingImage(:, :, 9) = Gr;
-BelongingImage(:, :, 10) = Ach;
+% gammacorrect = true, max pix value > 1, max luminance = daylight
+lsY = XYZ2lsY(sRGB2XYZ(ImageRGB, true, false, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
+
+BelongingImage = lsY2Focals(lsY, ColourEllipsoids);
 
 if plotme
   % TODO: add this titles to the ellipsoids themselves
