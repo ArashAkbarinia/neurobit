@@ -25,6 +25,7 @@ W  = [1.0, 1.0, 1.0];
 Gr = [0.5, 0.5, 0.5];
 RGB = [G; B; Pp; Pk; R; O; Y; Br; Gr; W];
 RGBValues = [G; B; Pp; Pk; R; O; Y; Br; Gr];
+% TODO: remove LUM as it's not one of the ellipsoids
 RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'Lum'};
 
 %frontiers_2014;

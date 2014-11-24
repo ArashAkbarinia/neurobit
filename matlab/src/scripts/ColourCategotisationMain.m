@@ -6,6 +6,7 @@ clc;
 
 dociwam = 0;
 
+% FIXME: it doesnt work with the im2double image
 ImageRGB = imread('Macbeth.png');
 
 %% CIWaM
