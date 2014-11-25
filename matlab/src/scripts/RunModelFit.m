@@ -1,14 +1,15 @@
-function ellipsoids = RunModelFit(varargin)
+function ellipsoids = RunModelFit(WhichColours, plotme, saveme)
 
 if nargin < 1
-  varargin{1} = 'a';
+  WhichColours = {'a'};
+end
+if nargin < 2
+  plotme = 1;
+  saveme = 0;
 end
 
-if strcmp(varargin{1}, 'a')
-  varargin = {'G' 'B' 'Pp' 'Pk' 'R' 'O' 'Y' 'Br' 'Gr'};
-  mynargin = 9;
-else
-  mynargin = nargin;
+if strcmpi(WhichColours{1}, 'a')
+  WhichColours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr'};
 end
 
 R  = [1.0, 0.0, 0.0];
@@ -26,11 +27,13 @@ Gr = [0.5, 0.5, 0.5];
 lsYFrontiers = organize_frontiers('rawdata_Lab.mat');
 % lsY_limits;
 %load('CRT_gamut_all');
-varargin = lower(varargin);
+WhichColours = lower(WhichColours);
 ellipses = zeros(9, 7);
 RSSes = zeros(9, 2);
 tested = [];
-figure;
+if plotme
+  figure;
+end
 % D65 XYZ cordinates calculated according to the CIE Judd-Vos corrected
 % Colour Matching Functions
 JV_D65 = [116.5366244	124.6721208	125.456254];
@@ -39,11 +42,11 @@ FittingData = struct();
 FittingData.Y_level36 = levelsXYZ(1, 2);
 FittingData.Y_level58 = levelsXYZ(2, 2);
 FittingData.Y_level81 = levelsXYZ(3, 2);
-options = optimset('MaxIter', 1e6,'TolFun', 1e-10, 'MaxFunEvals', 1e6);
+options = optimset('MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
 
 %========================= generate results ================================
-for pp = 1:mynargin
-  switch varargin{pp}
+for pp = 1:length(WhichColours)
+  switch WhichColours{pp}
     case {'g', 'green'}
       FittingData.category = 'green';
       FittingData.kolor = G;
@@ -62,7 +65,7 @@ for pp = 1:mynargin
       W_axis_rotation = 40; %(*) in degrees counterclockwise
       W_axis_rotation = deg2rad(W_axis_rotation);
       initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
-      [ellipses(1, :), RSSes(1, :)] = DoColour(FittingData, initial, options);
+      [ellipses(1, :), RSSes(1, :)] = DoColour(FittingData, initial, options, plotme);
       tested = [tested, 1];
     case {'b', 'blue'}
       FittingData.category = 'blue';
@@ -82,7 +85,7 @@ for pp = 1:mynargin
       W_axis_rotation = 18; %(*) in degrees counterclockwise
       W_axis_rotation = deg2rad(W_axis_rotation);
       initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
-      [ellipses(2, :), RSSes(2, :)] = DoColour(FittingData, initial, options);
+      [ellipses(2, :), RSSes(2, :)] = DoColour(FittingData, initial, options, plotme);
       tested = [tested, 2];
     case {'pp', 'purple'}
       FittingData.category = 'purple';
@@ -102,7 +105,7 @@ for pp = 1:mynargin
       W_axis_rotation= -10; %(*) in degrees counterclockwise
       W_axis_rotation = deg2rad(W_axis_rotation);
       initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
-      [ellipses(3, :), RSSes(3, :)] = DoColour(FittingData, initial, options);
+      [ellipses(3, :), RSSes(3, :)] = DoColour(FittingData, initial, options, plotme);
       tested = [tested, 3];
     case {'pk', 'pink'}
       FittingData.category = 'pink';
@@ -122,7 +125,7 @@ for pp = 1:mynargin
       W_axis_rotation= 10; %(*) in degrees counterclockwise
       W_axis_rotation = deg2rad(W_axis_rotation);
       initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
-      [ellipses(4, :), RSSes(4, :)] = DoColour(FittingData, initial, options);
+      [ellipses(4, :), RSSes(4, :)] = DoColour(FittingData, initial, options, plotme);
       tested = [tested, 4];
     case {'r', 'red'}
       FittingData.category = 'red';
@@ -142,7 +145,7 @@ for pp = 1:mynargin
       W_axis_rotation= -15; %(*) in degrees counterclockwise
       W_axis_rotation = deg2rad(W_axis_rotation);
       initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
-      [ellipses(5, :), RSSes(5, :)] = DoColour(FittingData, initial, options);
+      [ellipses(5, :), RSSes(5, :)] = DoColour(FittingData, initial, options, plotme);
       tested = [tested, 5];
     case {'o', 'orange'}
       FittingData.category = 'orange';
@@ -162,7 +165,7 @@ for pp = 1:mynargin
       W_axis_rotation= 53; %(*) in degrees counterclockwise
       W_axis_rotation = deg2rad(W_axis_rotation);
       initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
-      [ellipses(6, :), RSSes(6, :)] = DoColour(FittingData, initial, options);
+      [ellipses(6, :), RSSes(6, :)] = DoColour(FittingData, initial, options, plotme);
       tested = [tested, 6];
     case {'y', 'yellow'}
       FittingData.category = 'yellow';
@@ -182,7 +185,7 @@ for pp = 1:mynargin
       W_axis_rotation= 25; %(*) in degrees counterclockwise
       W_axis_rotation = deg2rad(W_axis_rotation);
       initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
-      [ellipses(7, :), RSSes(7, :)] = DoColour(FittingData, initial, options);
+      [ellipses(7, :), RSSes(7, :)] = DoColour(FittingData, initial, options, plotme);
       tested = [tested, 7];
     case {'br', 'brown'}
       FittingData.category = 'brown';
@@ -202,7 +205,7 @@ for pp = 1:mynargin
       W_axis_rotation= 57; %(*) in degrees counterclockwise
       W_axis_rotation = deg2rad(W_axis_rotation);
       initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
-      [ellipses(8, :), RSSes(8, :)] = DoColour(FittingData, initial, options);
+      [ellipses(8, :), RSSes(8, :)] = DoColour(FittingData, initial, options, plotme);
       tested = [tested, 8];
     case {'gr', 'grey'}
       FittingData.category = 'grey';
@@ -222,7 +225,7 @@ for pp = 1:mynargin
       W_axis_rotation= 45; %(*) in degrees counterclockwise
       W_axis_rotation = deg2rad(W_axis_rotation);
       initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
-      [ellipses(9, :), RSSes(9, :)] = DoColour(FittingData, initial, options);
+      [ellipses(9, :), RSSes(9, :)] = DoColour(FittingData, initial, options, plotme);
       tested = [tested, 9]; %#ok<*AGROW>
     otherwise
       disp('Wrong category, quitting...');
@@ -232,7 +235,7 @@ end
 
 ellipsoids = [ellipses, RSSes(:, 2)];
 
-if mynargin == 9
+if saveme
   RGBValues = [G; B; Pp; Pk; R; O; Y; Br; Gr];
   % TODO: remove LUM as it's not one of the ellipsoids
   RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'Lum'};
@@ -242,22 +245,26 @@ end
 
 %=========================generate mesh ===================================
 
-RGB = [G; B; Pp; Pk; R; O; Y; Br; Gr; W];
-W_axis_orient = [0 0 1];
-PlotEllipsoids(ellipses, RGB, tested, W_axis_orient, varargin);
+if plotme
+  RGB = [G; B; Pp; Pk; R; O; Y; Br; Gr; W];
+  W_axis_orient = [0, 0, 1];
+  PlotEllipsoids(ellipses, RGB, tested, W_axis_orient, WhichColours);
+end
 
 end
 
-function [ellipsoid, RSS] = DoColour(FittingData, initial, options)
+function [ellipsoid, RSS] = DoColour(FittingData, initial, options, plotme)
 
-if ~isempty(FittingData.data36)
-  plot3(FittingData.data36(:, 1), FittingData.data36(:, 2), FittingData.data36(:, 3), '.', 'Color', FittingData.kolor * 0.36); hold on;
-end
-if ~isempty(FittingData.data58)
-  plot3(FittingData.data58(:, 1), FittingData.data58(:, 2), FittingData.data58(:, 3), '.', 'Color', FittingData.kolor * 0.58); hold on;
-end
-if ~isempty(FittingData.data81)
-  plot3(FittingData.data81(:, 1), FittingData.data81(:, 2), FittingData.data81(:, 3), '.', 'Color', FittingData.kolor * 0.81); hold on;
+if plotme
+  if ~isempty(FittingData.data36)
+    plot3(FittingData.data36(:, 1), FittingData.data36(:, 2), FittingData.data36(:, 3), '.', 'Color', FittingData.kolor * 0.36); hold on;
+  end
+  if ~isempty(FittingData.data58)
+    plot3(FittingData.data58(:, 1), FittingData.data58(:, 2), FittingData.data58(:, 3), '.', 'Color', FittingData.kolor * 0.58); hold on;
+  end
+  if ~isempty(FittingData.data81)
+    plot3(FittingData.data81(:, 1), FittingData.data81(:, 2), FittingData.data81(:, 3), '.', 'Color', FittingData.kolor * 0.81); hold on;
+  end
 end
 
 RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData); % if you need to edit, do it below!
@@ -270,51 +277,50 @@ showme_results(output, ellipsoid, RSS, exitflag, FittingData);
 
 end
 
-function PlotEllipsoids(ellipses, RGB, tested, W_axis_orient, varargin)
+function PlotEllipsoids(ellipses, RGB, tested, W_axis_orient, WhichColours)
 
 for kk = tested
   [x, y, z] = alej_ellipsoid(ellipses(kk, 1:3), ellipses(kk, 4:6), W_axis_orient, rad2deg(ellipses(kk, 7)), ellipses(kk, 1:3));
   mesh(x, y, z,'EdgeColor', RGB(kk, :)); alpha(0.4); hold on;
 end
-if mynargin == 9
+
+if length(WhichColours) == 9
   cateq = 'all categories';
-elseif mynargin > 1
+else
   cateq = [];
-  for pq = 1:mynargin
-    switch varargin{pq}
-      case {'g','green'}
+  for pq = 1:length(WhichColours)
+    switch WhichColours{pq}
+      case {'g', 'green'}
         cateq = [cateq, 'green, '];
-      case {'b','blue'}
+      case {'b', 'blue'}
         cateq = [cateq, 'blue, '];
-      case {'pp','purple'}
+      case {'pp', 'purple'}
         cateq = [cateq, 'purple, '];
-      case {'pk','pink'}
+      case {'pk', 'pink'}
         cateq = [cateq, 'pink, '];
-      case {'r','red'}
+      case {'r', 'red'}
         cateq = [cateq, 'red, '];
-      case {'o','orange'}
+      case {'o', 'orange'}
         cateq = [cateq, 'orange, '];
-      case {'y','yellow'}
+      case {'y', 'yellow'}
         cateq = [cateq, 'yellow, '];
-      case {'br','brown'}
+      case {'br', 'brown'}
         cateq = [cateq, 'brown, '];
-      case {'gr','grey'}
+      case {'gr', 'grey'}
         cateq = [cateq, 'achromatic, '];
     end
   end
-  cateq(size(cateq,2)) = '';
-  cateq(size(cateq,2)) = '';
-else
-  cateq = FittingData.category;
+  cateq(size(cateq, 2)) = '';
+  cateq(size(cateq, 2)) = '';
 end
 
 title(['Category boundaries (', cateq, ') - best elipsod fits']);
 xlabel('l');
 ylabel('s');
 zlabel('Y');
-view(-19,54);
+view(-19, 54);
 grid on;
-set(gcf,'color',[1 1 1]);
+set(gcf, 'color', [1, 1, 1]);
 hold off;
 
 end
