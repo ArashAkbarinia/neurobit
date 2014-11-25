@@ -5,9 +5,26 @@ close all;
 clc;
 
 dociwam = 0;
+docolourconstancy = 1;
 
-% FIXME: it doesnt work with the im2double image
-ImageRGB = imread('Macbeth.png');
+ImageRGB = imread('0000059.jpg');
+
+%% Colour constancy
+
+if docolourconstancy
+  ColourConstantImage = ColourConstancyACE(ImageRGB);
+  CategorisationInput = ColourConstantImage;
+  
+  figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - ACE');
+  subplot(1, 2, 1);
+  imshow(ImageRGB);
+  title('Original Image');
+  subplot(1, 2, 2);
+  imshow(ColourConstantImage);
+  title('Colour constancy ACE');
+else
+  CategorisationInput = ImageRGB;
+end
 
 %% CIWaM
 
@@ -20,20 +37,21 @@ if dociwam
   gamma = 1;
   sRGBFlag = 0;
   
-  PerceivedImage = CIWaM(ImageRGB, WindowSize, nplans, gamma, sRGBFlag, nu0);
-  minv = min(PerceivedImage(:));
-  maxv = max(PerceivedImage(:));
-  PerceivedImage = uint8(255 .* (PerceivedImage - minv) / (maxv - minv));
+  CIWaMImage = CIWaM(ImageRGB, WindowSize, nplans, gamma, sRGBFlag, nu0);
+  minv = min(CIWaMImage(:));
+  maxv = max(CIWaMImage(:));
+  CIWaMImage = uint8(255 .* (CIWaMImage - minv) / (maxv - minv));
+  CategorisationInput = CIWaMImage;
   
   figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - CIWaM');
   subplot(1, 2, 1);
   imshow(ImageRGB);
   title('Original Image');
   subplot(1, 2, 2);
-  imshow(PerceivedImage);
+  imshow(CIWaMImage);
   title('Perceived Image');
 else
-  PerceivedImage = ImageRGB;
+  CategorisationInput = ImageRGB;
 end
 
 %% Colour categorisation
@@ -44,7 +62,7 @@ EllipsoidsRGBs = ConfigsMat.RGBValues;
 EllipsoidsTitles = ConfigsMat.RGBTitles;
 
 PlotResults = 1;
-[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(PerceivedImage, ColourEllipsoids, PlotResults, EllipsoidsRGBs, EllipsoidsTitles);
+[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(CategorisationInput, ColourEllipsoids, PlotResults, EllipsoidsRGBs, EllipsoidsTitles);
 
 %% Noise removal
 
