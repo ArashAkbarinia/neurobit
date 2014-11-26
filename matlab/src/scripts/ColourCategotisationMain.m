@@ -5,9 +5,9 @@ close all;
 clc;
 
 dociwam = 0;
-docolourconstancy = 1;
+docolourconstancy = 0;
 
-ImageRGB = imread('0000059.jpg');
+ImageRGB = imread('Macbeth.png');
 
 %% Colour constancy
 

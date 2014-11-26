@@ -30,46 +30,46 @@ end
 % ellipses.
 %==================================
 
-x0 = 0; %ParG(1);
-y0 = 0; %ParG(2);
-a = ParG(3);
-b = ParG(4);
-Angle = ParG(5); %in radians!
+CentreL = ParG(1);
+CentreS = ParG(2);
+AxisL = ParG(3);
+AxisS = ParG(4);
+RotY = ParG(5); %in radians!
 [rows, ~, ~] = size(XY);
 %  Matrix Q for rotating the points and the ellipse to the canonical system
-s = sin(Angle);
-c = cos(Angle);
+s = sin(RotY);
+c = cos(RotY);
 Q = [c -s; s c];
 %  data points in canonical coordinates
 
-XY0 = [XY(:, 1) - ParG(1) XY(:, 2) - ParG(2)] * Q;
+% centre the points and rotate it
+XY0 = [XY(:, 1) - CentreL XY(:, 2) - CentreS] * Q;
 Px = XY0(:, 1);
 Py = XY0(:, 2);
-hold = (Px == 0);
-Px = Px + hold .* realmin; %avoids division by zero
-x1 = sqrt(1 ./ ((1 ./ a .^ 2) + (Py ./ Px ./ b) .^ 2));
-x2 = -x1; %sqrt( 1 ./ ((1./a.^2) + (Py./Px./b).^2) );
-y1 = Py ./ Px .* x1 + hold .* b; %avoids discontinuities when x=0;
-y2 = -y1; %Py./Px .* x2 - hold.*b;
+ToKeepPxs = (Px == 0);
+Px = Px + ToKeepPxs .* realmin; %avoids division by zero
 
+x1 = 1 ./ sqrt(1 ./ (AxisL .^ 2) + (Py ./ Px ./ AxisS) .^ 2);
+x2 = -x1;
+y1 = Py ./ Px .* x1 + ToKeepPxs .* AxisS; %avoids discontinuities when x=0;
+y2 = -y1;
+
+% TODO: I think here we should take sqrt of d1 and d2
 d1 = (x1 - Px) .^ 2 + (y1 - Py) .^ 2;
 d2 = (x2 - Px) .^ 2 + (y2 - Py) .^ 2;
 d = min(d1, d2);
-p = [x1,y1] .* [(d1<=d2),(d1<=d2)] + [x2,y2] .* [(d1>=d2),(d1>=d2)];
 
-%  The Frobenius norm, sometimes also called the Euclidean norm (which may
-%  cause confusion with the vector L^2-norm which also sometimes known as
-%  the Euclidean norm), is matrix norm of an m�n matrix  A defined as the
-%  square root of the sum of the absolute squares of its elements
-% RSS = norm(d,'fro') .^ 2;
+p = [x1, y1] .* [(d1 <= d2), (d1 <= d2)] + [x2, y2] .* [(d1 >= d2), (d1 >= d2)];
 
 % FIXME: if there are more than one poitns maybe disable plotting
 if plotme
+  x0 = 0; %ParG(1);
+  y0 = 0; %ParG(2);
   x = x1 .* (d1 <= d2) + x2 .* (d2 <= d1);
   y = y1 .* (d1 <= d2) + y2 .* (d2 <= d1);
   t = linspace(0, 2 * pi); % Generate ellipse parametrically
-  XX = x0 + a * cos(t);
-  YY = y0 + b * sin(t);
+  XX = x0 + AxisL * cos(t);
+  YY = y0 + AxisS * sin(t);
   q = [c s; -s c];
   XR = [XX' YY'] * q; % ellipse in canonical coordinates
   XcR = [Px Py] * q; % datapoints in canonical coordinates

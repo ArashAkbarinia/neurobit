@@ -25,48 +25,61 @@
 
 function belonging = evaluate_belonging(lsY_points, ellipsoid)
 
-cl = ellipsoid(1);
-cs = ellipsoid(2);
-% cv = ColourEllipsoids(3);
-a = ellipsoid(4);
-b = ellipsoid(5);
-c = ellipsoid(6);
-alpha_rad = ellipsoid(7);
+CentreL = ellipsoid(1);
+CentreS = ellipsoid(2);
+% CentreY = ellipsoid(3);
+AxisL = ellipsoid(4);
+AxisS = ellipsoid(5);
+AxisY = ellipsoid(6);
+RotY = ellipsoid(7);
 RSS = ellipsoid(8);
 
 steepness = 5; % steepness of the sigmoidal transition.
 
 [lines, ~] = size(lsY_points);
 % Centre the points relatively to the ellipsoid.
-lsY_points = lsY_points - repmat([cl, cs, 0], [lines, 1]);
-%Points with luminance value larger than c don't belone to the ellipsoid
-do_belong = (abs(lsY_points(:, 3)) <= c);
-%rotate all points an angle -alpha_rad so that we can reduce the problem to
-%one of canonical ellipsoids
-sa = sin(alpha_rad);
-ca = cos(alpha_rad);
-rot = [ca -sa 0; sa ca 0; 0 0 1];
+lsY_points = lsY_points - repmat([CentreL, CentreS, 0], [lines, 1]);
+% Points with luminance value larger than c don't belone to the ellipsoid
+do_belong = (abs(lsY_points(:, 3)) <= AxisY);
+% rotate all points an angle alpha so that we can reduce the problem to
+% one of canonical ellipsoids
+s = sin(RotY);
+c = cos(RotY);
+rot = [c -s 0; s c 0; 0 0 1];
 lsY_points = lsY_points * rot;
-lsYPointsSqr = lsY_points .^ 2;
+% TODO: if you want to have it faster you can pre calculate the power 2
+% lsYPointsSqr = lsY_points .^ 2;
+Px = lsY_points(:, 1);
+Py = lsY_points(:, 2);
+Pz = lsY_points(:, 3);
+
+% FIXME: should we check for px and b are not 0 for devision.
 
 % calculate the distance from each point to the ellipsoid
-x1 = (1 - lsY_points(:, 3) ./ c) ./ sqrt(1 / (a .^ 2) + 1 / (b .^ 2) .* (lsYPointsSqr(:, 2) ./ lsYPointsSqr(:, 1)));
+% TODO: why here (1 - Pz ./ c) is different from point_to_ellipse
+x1 = (1 - Pz ./ AxisY) ./ sqrt(1 ./ (AxisL .^ 2) + (Py ./ Px ./ AxisS) .^ 2);
 x2 = -x1;
-y1 = lsY_points(:, 2) ./ lsY_points(:, 1) .* x1;
+y1 = Py ./ Px .* x1;
 y2 = -y1;
 
 %distances between the lsY_points and the closest in the ellipse
-d1 = sqrt((lsY_points(:, 1) - x1) .^ 2 + (lsY_points(:, 2) - y1) .^ 2);
+% FIXME: in the point_to_ellipse there is no sqrt for distance
+d1 = sqrt((Px - x1) .^ 2 + (Py - y1) .^ 2);
+% TODO: why d1 shouldn't be real?
 d1 = d1 .* isreal(d1) + realmax .* ~isreal(d1);
-d2 = sqrt((lsY_points(:, 1) - x2) .^ 2 + (lsY_points(:, 2) - y2) .^ 2);
+d2 = sqrt((Px - x2) .^ 2 + (Py - y2) .^ 2);
 d2 = d2 .* isreal(d2) + realmax .* ~isreal(d2);
-%closest points in the ellipse
+
+% closest points in the ellipse
 p = [x1, y1] .* [(d1 <= d2), (d1 <= d2)] + [x2, y2] .* [(d1 >= d2), (d1 >= d2)];
-%distances from the centre to the closest points in the ellipse
+
+% distances from the centre to the closest points in the ellipse
 H = sqrt(p(:, 1) .^ 2 + p(:, 2) .^ 2);
+
 % distances from the centre to the lsY points
-X = sqrt(lsYPointsSqr(:, 1) + lsYPointsSqr(:, 2));
-%growth rate (width of the sigmoidal section)
+X = sqrt(Px .^ 2 + Py .^ 2);
+
+% growth rate (width of the sigmoidal section)
 G = steepness / sqrt(RSS);
 
 belonging =  1 ./ (1 + exp(G .* (abs(X) - H)));

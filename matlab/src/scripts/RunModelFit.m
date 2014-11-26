@@ -257,13 +257,16 @@ function [ellipsoid, RSS] = DoColour(FittingData, initial, options, plotme)
 
 if plotme
   if ~isempty(FittingData.data36)
-    plot3(FittingData.data36(:, 1), FittingData.data36(:, 2), FittingData.data36(:, 3), '.', 'Color', FittingData.kolor * 0.36); hold on;
+    plot3(FittingData.data36(:, 1), FittingData.data36(:, 2), FittingData.data36(:, 3), '.', 'Color', FittingData.kolor * 0.36);
+    hold on;
   end
   if ~isempty(FittingData.data58)
-    plot3(FittingData.data58(:, 1), FittingData.data58(:, 2), FittingData.data58(:, 3), '.', 'Color', FittingData.kolor * 0.58); hold on;
+    plot3(FittingData.data58(:, 1), FittingData.data58(:, 2), FittingData.data58(:, 3), '.', 'Color', FittingData.kolor * 0.58);
+    hold on;
   end
   if ~isempty(FittingData.data81)
-    plot3(FittingData.data81(:, 1), FittingData.data81(:, 2), FittingData.data81(:, 3), '.', 'Color', FittingData.kolor * 0.81); hold on;
+    plot3(FittingData.data81(:, 1), FittingData.data81(:, 2), FittingData.data81(:, 3), '.', 'Color', FittingData.kolor * 0.81);
+    hold on;
   end
 end
 
@@ -281,7 +284,9 @@ function PlotEllipsoids(ellipses, RGB, tested, W_axis_orient, WhichColours)
 
 for kk = tested
   [x, y, z] = alej_ellipsoid(ellipses(kk, 1:3), ellipses(kk, 4:6), W_axis_orient, rad2deg(ellipses(kk, 7)), ellipses(kk, 1:3));
-  mesh(x, y, z,'EdgeColor', RGB(kk, :)); alpha(0.4); hold on;
+  mesh(x, y, z,'EdgeColor', RGB(kk, :));
+  alpha(0.4);
+  hold on;
 end
 
 if length(WhichColours) == 9
