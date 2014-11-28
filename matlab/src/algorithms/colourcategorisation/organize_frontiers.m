@@ -263,93 +263,69 @@ lsY_81_W_Y   = [lsY_81_W_Y_c;   lsY_81_W_Y_a];
 
 % putting them in a struct for the output
 
-lsYFrontiers= struct();
-lsYFrontiers.lsY_36_G_B   = lsY_36_G_B;
-lsYFrontiers.lsY_36_B_Pp  = lsY_36_B_Pp;
-lsYFrontiers.lsY_36_Pp_Pk = lsY_36_Pp_Pk;
-lsYFrontiers.lsY_36_Pk_R  = lsY_36_Pk_R;
-lsYFrontiers.lsY_36_R_Br  = lsY_36_R_Br;
-lsYFrontiers.lsY_36_Br_G  = lsY_36_Br_G;
-lsYFrontiers.lsY_58_G_B   = lsY_58_G_B;
-lsYFrontiers.lsY_58_B_Pp  = lsY_58_B_Pp;
-lsYFrontiers.lsY_58_Pp_Pk = lsY_58_Pp_Pk;
-lsYFrontiers.lsY_58_Pk_R  = lsY_58_Pk_R;
-lsYFrontiers.lsY_58_R_O   = lsY_58_R_O;
-lsYFrontiers.lsY_58_O_Y   = lsY_58_O_Y;
-lsYFrontiers.lsY_58_Y_G   = lsY_58_Y_G;
-lsYFrontiers.lsY_81_G_B   = lsY_81_G_B;
-lsYFrontiers.lsY_81_B_Pp  = lsY_81_B_Pp;
-lsYFrontiers.lsY_81_Pp_Pk = lsY_81_Pp_Pk;
-lsYFrontiers.lsY_81_Pk_O  = lsY_81_Pk_O;
-lsYFrontiers.lsY_81_O_Y   = lsY_81_O_Y;
-lsYFrontiers.lsY_81_Y_G   = lsY_81_Y_G;
-lsYFrontiers.lsY_36_W_G   = lsY_36_W_G;
-lsYFrontiers.lsY_36_W_B   = lsY_36_W_B;
-lsYFrontiers.lsY_36_W_Pp  = lsY_36_W_Pp;
-lsYFrontiers.lsY_36_W_Pk  = lsY_36_W_Pk;
-lsYFrontiers.lsY_36_W_R   = lsY_36_W_R;
-lsYFrontiers.lsY_36_W_Br  = lsY_36_W_Br;
-lsYFrontiers.lsY_58_W_G   = lsY_58_W_G;
-lsYFrontiers.lsY_58_W_B   = lsY_58_W_B;
-lsYFrontiers.lsY_58_W_Pp  = lsY_58_W_Pp;
-lsYFrontiers.lsY_58_W_Pk  = lsY_58_W_Pk;
-lsYFrontiers.lsY_58_W_R   = lsY_58_W_R;
-lsYFrontiers.lsY_58_W_O   = lsY_58_W_O;
-lsYFrontiers.lsY_58_W_Y   = lsY_58_W_Y;
-lsYFrontiers.lsY_81_W_G   = lsY_81_W_G;
-lsYFrontiers.lsY_81_W_B   = lsY_81_W_B;
-lsYFrontiers.lsY_81_W_Pp  = lsY_81_W_Pp;
-lsYFrontiers.lsY_81_W_Pk  = lsY_81_W_Pk;
-lsYFrontiers.lsY_81_W_O   = lsY_81_W_O;
-lsYFrontiers.lsY_81_W_Y   = lsY_81_W_Y;
+lsYFrontiers = struct();
 
-lsY_frontiers_all_c = ...
-  [
-  lsY_36_G_B_c;
-  lsY_36_B_Pp_c;
-  lsY_36_Pp_Pk_c;
-  lsY_36_Pk_R_c;
-  lsY_36_R_Br_c;
-  lsY_36_Br_G_c;
-  lsY_58_G_B_c;
-  lsY_58_B_Pp_c;
-  lsY_58_Pp_Pk_c;
-  lsY_58_Pk_R_c;
-  lsY_58_R_O_c;
-  lsY_58_O_Y_c;
-  lsY_58_Y_G_c;
-  lsY_81_G_B_c;
-  lsY_81_B_Pp_c;
-  lsY_81_Pp_Pk_c;
-  lsY_81_Pk_O_c;
-  lsY_81_O_Y_c;
-  lsY_81_Y_G_c
-  ];
+% green
+green = struct();
+green.data36 = [lsY_36_G_B; lsY_36_Br_G; lsY_36_W_G];
+green.data58 = [lsY_58_G_B; lsY_58_Y_G;  lsY_58_W_G];
+green.data81 = [lsY_81_G_B; lsY_81_Y_G;  lsY_81_W_G];
+lsYFrontiers.green = green;
 
-lsY_frontiers_all_a = ...
-  [
-  lsY_36_G_B_a;
-  lsY_36_B_Pp_a;
-  lsY_36_Pp_Pk_a;
-  lsY_36_Pk_R_a;
-  lsY_36_R_Br_a;
-  lsY_36_Br_G_a;
-  lsY_58_G_B_a;
-  lsY_58_B_Pp_a;
-  lsY_58_Pp_Pk_a;
-  lsY_58_Pk_R_a;
-  lsY_58_R_O_a;
-  lsY_58_O_Y_a;
-  lsY_58_Y_G_a;
-  lsY_81_G_B_a;
-  lsY_81_B_Pp_a;
-  lsY_81_Pp_Pk_a;
-  lsY_81_Pk_O_a;
-  lsY_81_O_Y_a;
-  lsY_81_Y_G_a
-  ];
+% blue
+blue = struct();
+blue.data36 = [lsY_36_G_B; lsY_36_B_Pp; lsY_36_W_B];
+blue.data58 = [lsY_58_G_B; lsY_58_B_Pp; lsY_58_W_B];
+blue.data81 = [lsY_81_G_B; lsY_81_B_Pp; lsY_81_W_B];
+lsYFrontiers.blue = blue;
 
-lsYFrontiers.lsY_frontiers_all_c = lsY_frontiers_all_c;
-lsYFrontiers.lsY_frontiers_all_a = lsY_frontiers_all_a;
+% purple
+purple = struct();
+purple.data36 = [lsY_36_B_Pp; lsY_36_Pp_Pk; lsY_36_W_Pp];
+purple.data58 = [lsY_58_B_Pp; lsY_58_Pp_Pk; lsY_58_W_Pp];
+purple.data81 = [lsY_81_B_Pp; lsY_81_Pp_Pk; lsY_81_W_Pp];
+lsYFrontiers.purple = purple;
+
+% pink
+pink = struct();
+pink.data36 = [lsY_36_Pp_Pk; lsY_36_Pk_R; lsY_36_W_Pk];
+pink.data58 = [lsY_58_Pp_Pk; lsY_58_Pk_R; lsY_58_W_Pk];
+pink.data81 = [lsY_81_Pp_Pk; lsY_81_Pk_O; lsY_81_W_Pk];
+lsYFrontiers.pink = pink;
+
+% red
+red = struct();
+red.data36 = [lsY_36_Pk_R; lsY_36_R_Br; lsY_36_W_R];
+red.data58 = [lsY_58_Pk_R; lsY_58_R_O;  lsY_58_W_R];
+red.data81 = [];
+lsYFrontiers.red = red;
+
+% orange
+orange = struct();
+orange.data36 = [];
+orange.data58 = [lsY_58_R_O;  lsY_58_O_Y; lsY_58_W_O];
+orange.data81 = [lsY_81_Pk_O; lsY_81_O_Y; lsY_81_W_O];
+lsYFrontiers.orange = orange;
+
+% yellow
+yellow = struct();
+yellow.data36 = [];
+yellow.data58 = [lsY_58_O_Y; lsY_58_Y_G; lsY_58_W_Y];
+yellow.data81 = [lsY_81_O_Y; lsY_81_Y_G; lsY_81_W_Y];
+lsYFrontiers.yellow = yellow;
+
+% brown
+brown = struct();
+brown.data36 = [lsY_36_R_Br; lsY_36_Br_G; lsY_36_W_Br];
+brown.data58 = [];
+brown.data81 = [];
+lsYFrontiers.brown = brown;
+
+% grey
+grey = struct();
+grey.data36 = [lsY_36_W_G; lsY_36_W_B; lsY_36_W_Pp; lsY_36_W_Pk; lsY_36_W_R; lsY_36_W_Br];
+grey.data58 = [lsY_58_W_G; lsY_58_W_B; lsY_58_W_Pp; lsY_58_W_Pk; lsY_58_W_R; lsY_58_W_O; lsY_58_W_Y];
+grey.data81 = [lsY_81_W_G; lsY_81_W_B; lsY_81_W_Pp; lsY_81_W_Pk; lsY_81_W_O; lsY_81_W_Y];
+lsYFrontiers.grey = grey;
 
 end
