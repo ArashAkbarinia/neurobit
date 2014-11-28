@@ -7,7 +7,7 @@ clc;
 dociwam = 0;
 docolourconstancy = 0;
 
-ImageRGB = imread('Macbeth.png');
+ImageRGB = MacbethColourChecker();
 
 %% Colour constancy
 

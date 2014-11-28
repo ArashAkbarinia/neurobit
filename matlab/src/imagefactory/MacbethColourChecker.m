@@ -1,6 +1,18 @@
-function MacbethImage = MacbethColourChecker( scale )
-%MACBETHCOLOURCHECKER Summary of this function goes here
-%   Detailed explanation goes here
+function MacbethImage = MacbethColourChecker(scale)
+%MacbethColourChecker creates Macbeth colour checker board.
+%   Explanation http://en.wikipedia.org/wiki/ColorChecker
+%
+% Inputs
+%   scale  should the 4x6 board be scaled, default is 1.
+%
+% Outputs
+%   MacbethImage  the Macbeth colour checker if scale is not given in size
+%                 4x6.
+%
+
+if nargin < 1
+  scale = 1;
+end
 
 Macbeth = zeros(4, 6, 3);
 Macbeth(:, :, 1) = [115, 196,  93,  90, 130,  99; 220,  72, 195,  91, 160, 229;  43,  71, 176, 238, 188,   0; 245, 200, 160, 120, 83, 50];
