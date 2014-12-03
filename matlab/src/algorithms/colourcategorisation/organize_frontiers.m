@@ -332,13 +332,13 @@ lsYFrontiers.brown = ColourBrown;
 lsYFrontiers.grey = ColourGrey;
 
 if plotme
-  % TODO: move it to a class
-  % TODO: draw based on a colour between them.
-  
   figure('NumberTitle', 'Off', 'Name', 'Colour Frontiers');
   hold on;
   PlotColourBorders(AllBordersColour);
   PlotColourBorders(AllBordersGrey);
+  xlabel('l');
+  ylabel('s');
+  zlabel('Y');
 end
 
 end
