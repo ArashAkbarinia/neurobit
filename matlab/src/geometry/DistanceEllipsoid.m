@@ -43,7 +43,7 @@ y2 = -y1;
 z1 = pz ./ px .* x1;
 z2 = -z1;
 
-% calculating the distance to the centre
+% calculating the distance to the point
 d1 = sqrt((px - x1) .^ 2 + (py - y1) .^ 2 + (pz - z1) .^ 2);
 d2 = sqrt((px - x2) .^ 2 + (py - y2) .^ 2 + (pz - z2) .^ 2);
 distance = min(d1, d2);
