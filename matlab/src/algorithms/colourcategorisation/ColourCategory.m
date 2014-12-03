@@ -18,10 +18,22 @@ classdef ColourCategory
       obj.borders = [obj.borders; borders];
     end
     
-    function borders = GetBorders(obj, luminance)
+    function borders = GetBorder(obj, luminance)
       borders = [];
       for i = 1:length(obj.borders)
-        borders = [borders; obj.borders(i).points.(['lum', num2str(luminance)])]; %#ok<AGROW>
+        for j = 1:length(luminance)
+          borders = [borders; obj.borders(i).points.(['lum', num2str(luminance(j))])]; %#ok<AGROW>
+        end
+      end
+    end
+    
+    function borders = GetAllBorders(obj)
+      borders = [];
+      for i = 1:length(obj.borders)
+        luminance = fieldnames(obj.borders(i).points);
+        for j = 1:numel(luminance)
+          borders = [borders; obj.borders(i).points.(luminance{j})]; %#ok<AGROW>
+        end
       end
     end
   end

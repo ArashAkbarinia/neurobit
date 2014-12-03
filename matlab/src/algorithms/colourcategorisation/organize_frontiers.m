@@ -339,6 +339,7 @@ if plotme
   xlabel('l');
   ylabel('s');
   zlabel('Y');
+  grid on;
 end
 
 end
@@ -357,18 +358,7 @@ function [] = PlotColourBorders(borders)
 
 for i = 1:length(borders)
   borderi = borders{i};
-  colour = (borderi.colour1.rgb + borderi.colour2.rgb) / 2;
-  PlotDataColour(borderi.points.lum36, colour, 0.36);
-  PlotDataColour(borderi.points.lum58, colour, 0.58);
-  PlotDataColour(borderi.points.lum81, colour, 0.81);
-end
-
-end
-
-function [] = PlotDataColour(data, colour, luminance)
-
-if ~isempty(data)
-  plot3(data(:, 1), data(:, 2), data(:, 3), '.', 'Color', colour * luminance);
+  borderi.PlotBorders();
 end
 
 end

@@ -25,6 +25,8 @@ if nargin < 2
 end
 
 %check whether fminsearch is doing a good job===========================
+global doproperdistance;
+if doproperdistance
 [carryon, PlotAxes] = DoSomething(FittingData, x, verbose);
 
 if carryon
@@ -55,6 +57,9 @@ if carryon
 else
   RSS = 100;
 end
+else
+  RSS = FitData([FittingData.data36; FittingData.data58; FittingData.data81], FittingData.Y_level81, x);
+end
 
 end
 
@@ -62,15 +67,20 @@ function RSS = FitData(data, ylevel, x)
 
 % TODO: if speed matters we pass some of the parameters to the function
 
+global doproperdistance;
 if ~isempty(data)
-  centre = x(1:3);
-  axes = x(4:6);
-  rotation = x(7);
-  % TODO: why multiplication shouldn't we just sum?
-  axes(:, 1:2) = real(axes(:, 1:2) .* sqrt(1 - ((ylevel - centre(3)) ./ axes(3)) .^ 2));
-  
-  lscolumns = data(:, 1:2);
-  RSS = norm_points_to_ellipse(lscolumns, [centre(1), centre(2), axes(1), axes(2), rotation]);
+  if doproperdistance
+    centre = x(1:3);
+    axes = x(4:6);
+    rotation = x(7);
+    % TODO: why multiplication shouldn't we just sum?
+    axes(:, 1:2) = real(axes(:, 1:2) .* sqrt(1 - ((ylevel - centre(3)) ./ axes(3)) .^ 2));
+    
+    lscolumns = data(:, 1:2);
+    RSS = norm_points_to_ellipse(lscolumns, [centre(1), centre(2), axes(1), axes(2), rotation]);
+  else
+    RSS = norm_points_to_ellipse(data, x);
+  end
 else
   RSS = 0;
 end
@@ -262,12 +272,21 @@ if nargin < 3
   plotme = 0;
 end
 
-distances = point_to_ellipse(XY, ParG, plotme);
+global doproperdistance;
+if doproperdistance
+  distances = point_to_ellipse(XY, ParG, plotme);
+  RSS = norm(distances, 'fro') .^ 2;
+%   RSS = mean(distances) .^ 2;
+else
+  distances = DistanceEllipsoid(XY, ParG, plotme);
+  RSS = norm(distances .^ 2, 'fro') .^ 2;
+%   RSS = mean(distances);
+end
 
 %  The Frobenius norm, sometimes also called the Euclidean norm (which may
 %  cause confusion with the vector L^2-norm which also sometimes known as
-%  the Euclidean norm), is matrix norm of an m�n matrix  A defined as the
+%  the Euclidean norm), is matrix norm of an min matrix  A defined as the
 %  square root of the sum of the absolute squares of its elements
-RSS = norm(distances, 'fro') .^ 2;
+% RSS = norm(distances, 'fro') .^ 2;
 
 end

@@ -12,6 +12,9 @@ if strcmpi(WhichColours{1}, 'a')
   WhichColours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr'};
 end
 
+global doproperdistance;
+doproperdistance = 1;
+
 R  = [1.0, 0.0, 0.0];
 G  = [0.0, 1.0, 0.0];
 B  = [0.0, 0.0, 1.0];
@@ -42,7 +45,11 @@ FittingData = struct();
 FittingData.Y_level36 = levelsXYZ(1, 2);
 FittingData.Y_level58 = levelsXYZ(2, 2);
 FittingData.Y_level81 = levelsXYZ(3, 2);
-options = optimset('MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
+if doproperdistance
+  options = optimset('MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
+else
+  options = optimoptions(@fmincon,'Algorithm', 'sqp', 'Display', 'iter');
+end
 
 %========================= generate results ================================
 for pp = 1:length(WhichColours)
@@ -50,9 +57,9 @@ for pp = 1:length(WhichColours)
     case {'g', 'green'}
       FittingData.category = 'green';
       FittingData.kolor = G;
-      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorders(36);
-      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorders(58);
-      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorders(81);
+      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorder(36);
+      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorder(58);
+      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorder(81);
       FittingData.allstd = std([FittingData.data36; FittingData.data58; FittingData.data81]);
       FittingData.allstd(3) = 100;
       FittingData.allmeans = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
@@ -70,9 +77,9 @@ for pp = 1:length(WhichColours)
     case {'b', 'blue'}
       FittingData.category = 'blue';
       FittingData.kolor = B;
-      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorders(36);
-      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorders(58);
-      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorders(81);
+      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorder(36);
+      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorder(58);
+      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorder(81);
       FittingData.allstd = std([FittingData.data36; FittingData.data58; FittingData.data81]);
       FittingData.allstd(3) = 200;
       FittingData.allmeans = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
@@ -90,9 +97,9 @@ for pp = 1:length(WhichColours)
     case {'pp', 'purple'}
       FittingData.category = 'purple';
       FittingData.kolor = Pp;
-      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorders(36);
-      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorders(58);
-      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorders(81);
+      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorder(36);
+      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorder(58);
+      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorder(81);
       FittingData.allstd = std([FittingData.data36; FittingData.data58; FittingData.data81]);
       FittingData.allstd(3) = 100;
       FittingData.allmeans = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
@@ -110,9 +117,9 @@ for pp = 1:length(WhichColours)
     case {'pk', 'pink'}
       FittingData.category = 'pink';
       FittingData.kolor = Pk;
-      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorders(36);
-      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorders(58);
-      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorders(81);
+      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorder(36);
+      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorder(58);
+      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorder(81);
       FittingData.allstd = std([FittingData.data36; FittingData.data58; FittingData.data81]);
       FittingData.allstd(3) = 100;
       FittingData.allmeans = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
@@ -130,9 +137,9 @@ for pp = 1:length(WhichColours)
     case {'r', 'red'}
       FittingData.category = 'red';
       FittingData.kolor = R;
-      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorders(36);
-      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorders(58);
-      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorders(81);
+      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorder(36);
+      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorder(58);
+      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorder(81);
       FittingData.allstd = std([FittingData.data36;FittingData.data58;FittingData.data81]);
       FittingData.allstd(3) = 50;
       FittingData.allmeans = mean([FittingData.data36;FittingData.data58;FittingData.data81]);
@@ -150,9 +157,9 @@ for pp = 1:length(WhichColours)
     case {'o', 'orange'}
       FittingData.category = 'orange';
       FittingData.kolor = O;
-      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorders(36);
-      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorders(58);
-      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorders(81);
+      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorder(36);
+      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorder(58);
+      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorder(81);
       FittingData.allstd = std([FittingData.data36; FittingData.data58; FittingData.data81]);
       FittingData.allstd(3) = 90;%150;
       FittingData.allmeans = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
@@ -170,9 +177,9 @@ for pp = 1:length(WhichColours)
     case {'y', 'yellow'}
       FittingData.category = 'yellow';
       FittingData.kolor = Y;
-      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorders(36);
-      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorders(58);
-      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorders(81);
+      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorder(36);
+      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorder(58);
+      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorder(81);
       FittingData.allstd = std([FittingData.data36; FittingData.data58; FittingData.data81]);
       FittingData.allstd(3) = 90;
       FittingData.allmeans = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
@@ -190,9 +197,9 @@ for pp = 1:length(WhichColours)
     case {'br', 'brown'}
       FittingData.category = 'brown';
       FittingData.kolor = Br;
-      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorders(36);
-      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorders(58);
-      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorders(81);
+      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorder(36);
+      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorder(58);
+      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorder(81);
       FittingData.allstd = std([FittingData.data36; FittingData.data58; FittingData.data81]);
       FittingData.allstd(3) = 55;
       FittingData.allmeans = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
@@ -210,9 +217,9 @@ for pp = 1:length(WhichColours)
     case {'gr', 'grey'}
       FittingData.category = 'grey';
       FittingData.kolor = Gr;
-      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorders(36);
-      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorders(58);
-      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorders(81);
+      FittingData.data36 = lsYFrontiers.(FittingData.category).GetBorder(36);
+      FittingData.data58 = lsYFrontiers.(FittingData.category).GetBorder(58);
+      FittingData.data81 = lsYFrontiers.(FittingData.category).GetBorder(81);
       FittingData.allstd = std([FittingData.data36; FittingData.data58; FittingData.data81]);
       FittingData.allstd(3) = 200;
       FittingData.allmeans = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
@@ -236,9 +243,9 @@ end
 ellipsoids = [ellipses, RSSes(:, 2)];
 
 if saveme
-  RGBValues = [G; B; Pp; Pk; R; O; Y; Br; Gr];
+  RGBValues = [G; B; Pp; Pk; R; O; Y; Br; Gr]; %#ok
   % TODO: remove LUM as it's not one of the ellipsoids
-  RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'Lum'};
+  RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'Lum'}; %#ok
   save('2014_ellipsoid_params.mat', 'ellipsoids', 'RGBValues', 'RGBTitles');
 end
 
@@ -269,14 +276,35 @@ if plotme
   end
 end
 
-RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData); % if you need to edit, do it below!
-[tmpellips, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, options);
-ellipsoid = [tmpellips(1:6), 0, 0, tmpellips(7)];
+global doproperdistance;
+if doproperdistance
+  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData); % if you need to edit, do it below!
+  [tmpellips, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, options);
+  ellipsoid = [tmpellips(1:6), 0, 0, tmpellips(7)];
+else
+  fs = std([FittingData.data36; FittingData.data58; FittingData.data81]);
+  fm = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
+  initial = [fm, fs, 0, 0, 0];
+  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData); % if you need to edit, do it below!
+  lb = [fm - fs, 0, 0, 0, 0, 0, 0];
+  ub = [fm + fs, 1, 1, 100, pi, pi, pi];
+  A = [];
+  [ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, [], [], [], [], lb, ub, @EllipsoidEq, options);
+end
 
 disp ('================================================================');
 disp (['         Colour category: ', FittingData.category]);
 disp ('================================================================');
 showme_results(output, ellipsoid, RSS, exitflag, FittingData);
+
+end
+
+function [c, ceq] = EllipsoidEq(x)
+
+c = [];
+x = x .^ 2;
+ceq = x(1) / x(4) + x(2) / x(5) + x(3) / x(6) - 1;
+% ceq = [];
 
 end
 
