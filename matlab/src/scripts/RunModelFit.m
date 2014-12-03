@@ -28,7 +28,7 @@ lsYFrontiers = organize_frontiers('rawdata_Lab.mat');
 % lsY_limits;
 %load('CRT_gamut_all');
 WhichColours = lower(WhichColours);
-ellipses = zeros(9, 7);
+ellipses = zeros(9, 9);
 RSSes = zeros(9, 2);
 tested = [];
 if plotme
@@ -270,7 +270,8 @@ if plotme
 end
 
 RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData); % if you need to edit, do it below!
-[ellipsoid, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, options);
+[tmpellips, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, options);
+ellipsoid = [tmpellips(1:6), 0, 0, tmpellips(7)];
 
 disp ('================================================================');
 disp (['         Colour category: ', FittingData.category]);
@@ -282,8 +283,7 @@ end
 function PlotEllipsoids(ellipses, RGB, tested, WhichColours)
 
 for i = tested
-  elli = [ellipses(i, 1:6), 0, 0, ellipses(i, 7)];
-  DrawEllipsoid(elli, 'FaceColor', [1, 1, 1], 'EdgeColor', RGB(i, :), 'FaceAlpha', 0.3);
+  DrawEllipsoid(ellipses(i, :), 'FaceColor', [1, 1, 1], 'EdgeColor', RGB(i, :), 'FaceAlpha', 0.3);
   hold on;
 end
 

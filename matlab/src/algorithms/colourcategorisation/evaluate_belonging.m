@@ -31,8 +31,10 @@ CentreS = ellipsoid(2);
 AxisL = ellipsoid(4);
 AxisS = ellipsoid(5);
 AxisY = ellipsoid(6);
-RotY = ellipsoid(7);
-RSS = ellipsoid(8);
+% RotL = ellipsoid(7);
+% RotS = ellipsoid(8);
+RotY = ellipsoid(9);
+RSS = ellipsoid(10);
 
 steepness = 5; % steepness of the sigmoidal transition.
 
