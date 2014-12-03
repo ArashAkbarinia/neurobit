@@ -247,8 +247,7 @@ end
 
 if plotme
   RGB = [G; B; Pp; Pk; R; O; Y; Br; Gr; W];
-  W_axis_orient = [0, 0, 1];
-  PlotEllipsoids(ellipses, RGB, tested, W_axis_orient, WhichColours);
+  PlotEllipsoids(ellipses, RGB, tested, WhichColours);
 end
 
 end
@@ -280,12 +279,11 @@ showme_results(output, ellipsoid, RSS, exitflag, FittingData);
 
 end
 
-function PlotEllipsoids(ellipses, RGB, tested, W_axis_orient, WhichColours)
+function PlotEllipsoids(ellipses, RGB, tested, WhichColours)
 
-for kk = tested
-  [x, y, z] = alej_ellipsoid(ellipses(kk, 1:3), ellipses(kk, 4:6), W_axis_orient, rad2deg(ellipses(kk, 7)), ellipses(kk, 1:3));
-  mesh(x, y, z,'EdgeColor', RGB(kk, :));
-  alpha(0.4);
+for i = tested
+  elli = [ellipses(i, 1:6), 0, 0, ellipses(i, 7)];
+  DrawEllipsoid(elli, 'FaceColor', [1, 1, 1], 'EdgeColor', RGB(i, :), 'FaceAlpha', 0.3);
   hold on;
 end
 

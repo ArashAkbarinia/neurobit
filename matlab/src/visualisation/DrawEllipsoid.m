@@ -8,8 +8,10 @@ nphi = 32;
 % number of parallels
 ntheta = 16;
 
+PlotAlpha = 0.1;
+
 % default set of options for drawing meshes
-options = {'FaceColor', 'y', 'linestyle', 'none'};
+options = {'linestyle', '-'};
 
 % extract input arguments
 while length(varargin) > 1
@@ -19,6 +21,9 @@ while length(varargin) > 1
       
     case 'ntheta'
       ntheta = varargin{2};
+      
+    case 'alpha'
+      PlotAlpha = varargin{2};
       
     otherwise
       % assumes this is drawing option
@@ -67,6 +72,6 @@ MeshPoints = TransformPoint3(MeshPoints, trans');
 % drawing
 mesh(MeshPoints(:, :, 1), MeshPoints(:, :, 2), MeshPoints(:, :, 3), options{:});
 
-alpha(0.4);
+alpha(PlotAlpha);
 
 end
