@@ -1,17 +1,16 @@
+function [] = ColourFrontiersExperimentArch()
+
 %% initialisation
 
-clearvars;
-crsStartup;
-
 % cleaning the workspace
-clear expjunk rawjunk;
+clearvars;
 close all;
 
 % number of samples in the mondrian background
 numsamples = 200;
 
 % invoque the list of nameable colours from the literature
-[CartFocals, PolarFocals] = FocalColours();
+[~, PolarFocals] = FocalColours();
 
 resultsdir = 'D:\Results\ColorCategorizationMondrian\';
 [y_ding , Fs_ding , nbits_ding] = wavread('D:\MatLab_m-files\Visage\Jordi\sound\sound_ding.wav'); %#ok
@@ -20,6 +19,7 @@ resultsdir = 'D:\Results\ColorCategorizationMondrian\';
 %% CRS setup
 
 % setting the monitor up
+crsStartup;
 crsSet24bitColourMode;
 crsSetColourSpace(CRS.CS_RGB);
 % crsSetVideoMode( CRS.TRUECOLOURMODE+CRS.GAMMACORRECT ) ;
@@ -43,7 +43,7 @@ which_level = '58';
 % x = -1  --> does only luminance mondrians
 % x = -2  --> does colour mondrians
 % a white "frame" is present in all conditions
-blacknwhite = 0;
+BackgroundType = 0;
 
 % time in seconds for the dark adaptation period (should be 120)
 darkadaptation = 10;
@@ -98,7 +98,7 @@ expjunk.times = zeros(numfrontiers, numcolconditions);
 anglelimits = zeros(numfrontiers, 2);
 
 %% start of experiment
-StartExperiment();
+SubjectName = StartExperiment(blackpalette, CRS, Black_palette_name, answer, darkadaptation, junkpalette);
 
 disp('Finding possible radioes. Please wait....');
 % find the largest radious possible within the limits of the monitor
@@ -127,61 +127,61 @@ for borderNr = conditions
   switch borderNr
     case 1
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Green', 'Blue', plotresults, labplane1, minradius, h1, 1);
+        ArchColour(archs, PolarFocals, 'Green', 'Blue', plotresults, labplane1, minradius, h1, 1);
     case 2
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Blue', 'Purple', plotresults, labplane1, minradius, h1, 1);
+        ArchColour(archs, PolarFocals, 'Blue', 'Purple', plotresults, labplane1, minradius, h1, 1);
     case 3
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Purple', 'Pink', plotresults, labplane1, minradius, h1, 1);
+        ArchColour(archs, PolarFocals, 'Purple', 'Pink', plotresults, labplane1, minradius, h1, 1);
     case 4
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Pink', 'Red', plotresults, labplane1, minradius, h1, 1);
+        ArchColour(archs, PolarFocals, 'Pink', 'Red', plotresults, labplane1, minradius, h1, 1);
     case 5
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Red', 'Brown', plotresults, labplane1, minradius, h1, 1);
+        ArchColour(archs, PolarFocals, 'Red', 'Brown', plotresults, labplane1, minradius, h1, 1);
     case 6
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Brown', 'Green', plotresults, labplane1, minradius, h1, 1);
+        ArchColour(archs, PolarFocals, 'Brown', 'Green', plotresults, labplane1, minradius, h1, 1);
     case 7
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Green', 'Blue', plotresults, labplane2, minradius, h2, 2);
+        ArchColour(archs, PolarFocals, 'Green', 'Blue', plotresults, labplane2, minradius, h2, 2);
     case 8
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Blue', 'Purple', plotresults, labplane2, minradius, h2, 2);
+        ArchColour(archs, PolarFocals, 'Blue', 'Purple', plotresults, labplane2, minradius, h2, 2);
     case 9
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Purple', 'Pink', plotresults, labplane2, minradius, h2, 2);
+        ArchColour(archs, PolarFocals, 'Purple', 'Pink', plotresults, labplane2, minradius, h2, 2);
     case 10
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Pink', 'Red', plotresults, labplane2, minradius, h2, 2);
+        ArchColour(archs, PolarFocals, 'Pink', 'Red', plotresults, labplane2, minradius, h2, 2);
     case 11
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Red', 'Orange', plotresults, labplane2, minradius, h2, 2);
+        ArchColour(archs, PolarFocals, 'Red', 'Orange', plotresults, labplane2, minradius, h2, 2);
     case 12
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Orange', 'Yellow', plotresults, labplane2, minradius, h2, 2);
+        ArchColour(archs, PolarFocals, 'Orange', 'Yellow', plotresults, labplane2, minradius, h2, 2);
     case 13
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Yellow', 'Green', plotresults, labplane2, minradius, h2, 2);
+        ArchColour(archs, PolarFocals, 'Yellow', 'Green', plotresults, labplane2, minradius, h2, 2);
     case 14
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Green', 'Blue', plotresults, labplane3, minradius, h3, 3);
+        ArchColour(archs, PolarFocals, 'Green', 'Blue', plotresults, labplane3, minradius, h3, 3);
     case 15
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Blue', 'Purple', plotresults, labplane3, minradius, h3, 3);
+        ArchColour(archs, PolarFocals, 'Blue', 'Purple', plotresults, labplane3, minradius, h3, 3);
     case 16
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Purple', 'Pink', plotresults, labplane3, minradius, h3, 3);
+        ArchColour(archs, PolarFocals, 'Purple', 'Pink', plotresults, labplane3, minradius, h3, 3);
     case 17
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Pink', 'Orange', plotresults, labplane3, minradius, h3, 3);
+        ArchColour(archs, PolarFocals, 'Pink', 'Orange', plotresults, labplane3, minradius, h3, 3);
     case 18
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Orange', 'Yellow', plotresults, labplane3, minradius, h3, 3);
+        ArchColour(archs, PolarFocals, 'Orange', 'Yellow', plotresults, labplane3, minradius, h3, 3);
     case 19
       [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArachColour(archs, PolarFocals, 'Yellow', 'Green', plotresults, labplane3, minradius, h3, 3);
+        ArchColour(archs, PolarFocals, 'Yellow', 'Green', plotresults, labplane3, minradius, h3, 3);
   end
   
   if plotresults
@@ -206,9 +206,10 @@ for borderNr = conditions
   %==========================================================================
   %                GENERATE MONDRIAN
   %==========================================================================
-  
-  arashground = blacknwhite;
-  GenerateMondrian();
+  [mondrianmeanlum, RGB_colors, mymondrian, palette, Height, Width] = ...
+    GenerateMondrian(BackgroundType, refillum, numsamples, MondrianParameters, CRS, ExperimentParameters, ...
+    Black_palette_name, Central_patch_name, current_angle, current_radius, frame_name, shadow_name, D65_RGB, ...
+    theplane);
   
   crsDrawString([-(Width / 2 - textposition_x), Height / 2 - textposition_y], startcolourname);
   crsDrawString([ (Width / 2 - textposition_x), Height / 2 - textposition_y], endcolourname);
@@ -220,8 +221,8 @@ for borderNr = conditions
   disp('===================================');
   disp(['Current colour border: ', startcolourname,' - ', endcolourname]);
   disp(['Radious #', num2str(radioNr), ' : ', num2str(current_radius)]);
-  disp([startcolourname, ' Lab colour:  ', num2str(Alej_pol2cart([start_ang, current_radius, theplane], 1))]);
-  disp([endcolourname,   ' Lab colour:  ', num2str(Alej_pol2cart([end_ang,   current_radius, theplane], 1))]);
+  disp([startcolourname, ' Lab colour:  ', num2str(pol2cart3([start_ang, current_radius, theplane], 1))]);
+  disp([endcolourname,   ' Lab colour:  ', num2str(pol2cart3([end_ang,   current_radius, theplane], 1))]);
   disp(['Luminance Plane: ', num2str(theplane)]);
   disp(['Start up angle: ', num2str(current_angle), ' rad']);
   disp(['There are still ', num2str(totnumruns - currentrun), ' runs to go (', num2str(round(currentrun / totnumruns * 100)), '% completed).']);
@@ -257,7 +258,7 @@ for borderNr = conditions
       condition_elapsedtime = crsGetTimer() - condition_starttime;
       wavplay(y_ding , Fs_ding);
       if plotresults
-        pp = Alej_pol2cart([current_angle, current_radius]);
+        pp = pol2cart3([current_angle, current_radius]);
         plot(pp(1), pp(2), 'or');
         hold on;
         refresh
@@ -269,7 +270,7 @@ for borderNr = conditions
       %   order to slow the adquisition process.
       pause(joystickdelay);
       if plotresults
-        pp = Alej_pol2cart([current_angle, current_radius]);
+        pp = pol2cart3([current_angle, current_radius]);
         plot(pp(1),pp(2),'.b');
         hold on;
         refresh;
@@ -295,12 +296,12 @@ for borderNr = conditions
       rawcolours(rawdataindex) = current_angle;
       rawdataindex = rawdataindex+1;
       %   Update the CRT.
-      testcolourRGB=Lab2CRSRGB(Alej_pol2cart([current_angle, current_radius, theplane],1),refillum);
+      testcolourRGB=Lab2CRSRGB(pol2cart3([current_angle, current_radius, theplane],1),refillum);
       palette(Central_patch_name,:)= testcolourRGB ;
       crsPaletteSet(palette');
       %disp(['          Current angle: ', num2str(current_angle), ' rad']);
       if plotresults
-        pp = Alej_pol2cart([current_angle, current_radius]);
+        pp = pol2cart3([current_angle, current_radius]);
         plot(pp(1),pp(2),'.r');
         hold on;
         refresh;
@@ -313,7 +314,7 @@ for borderNr = conditions
   crsPaletteSet(junkpalette);
   crsSetDisplayPage(3);
   disp(['Selected angle: ', num2str(current_angle), ' rad']);
-  disp(['Final Lab colour:  ', num2str(Alej_pol2cart([current_angle, current_radius, theplane],1))]);
+  disp(['Final Lab colour:  ', num2str(pol2cart3([current_angle, current_radius, theplane],1))]);
   disp(['Time elapsed: ', num2str(condition_elapsedtime/1000000), ' secs']);
   currentrun = currentrun+1;
   %==================================================================
@@ -335,10 +336,12 @@ for borderNr = conditions
 end
 
 CollectResults();
-expjunk.constants.blacknwhite = blacknwhite;
+expjunk.constants.blacknwhite = BackgroundType;
 expjunk.constants.anglelimits = anglelimits;
 
 %% cleaning and saving
 
 ExperimentType = '';
-CleanAndSave();
+CleanAndSave(junkpalette, y_DingDong, Fs_DingDong, resultsdir, SubjectName, ExperimentType, expjunk, endexppause);
+
+end

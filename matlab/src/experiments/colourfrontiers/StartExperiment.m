@@ -1,4 +1,4 @@
-close all;
+function SubjectName = StartExperiment(blackpalette, CRS, Black_palette_name, answer, darkadaptation, junkpalette)
 
 disp('Experiment starting...');
 
@@ -15,7 +15,7 @@ promptstr = {'Enter Subject�s name'};
 if isempty(answer)
   inistr = {'Nobody'};
 else
-  inistr = {SubjectName};
+  inistr = {answer{1}};
 end
 titlestr = 'Subject info';
 nlines = 1;
@@ -23,8 +23,7 @@ ok2 = false;
 while ok2 == false
   answer = inputdlg(promptstr, titlestr, nlines, inistr);
   if isempty(answer)
-    ButtonName = questdlg('You will lose data. Are u sure?', ...
-      'Exit now?', 'Immediately!', 'No thanks', 'No thanks');
+    ButtonName = questdlg('You will lose data. Are u sure?', 'Exit now?', 'Immediately!', 'No thanks', 'No thanks');
     if strcmp(ButtonName, 'Immediately!')
       error('Experiment cancelled');
     end
@@ -35,4 +34,6 @@ while ok2 == false
     disp(['Subject name: ', SubjectName]);
     ok2 = true;
   end
+end
+
 end

@@ -1,3 +1,5 @@
+function [] = CleanAndSave(junkpalette, y_DingDong, Fs_DingDong, resultsdir, SubjectName, ExperimentType, expjunk, endexppause)
+
 crsPaletteSet(junkpalette);
 crsSetDisplayPage(4);
 
@@ -23,3 +25,5 @@ pause(endexppause)
 junkpalette = zeros(3, 256);
 crsPaletteSet(junkpalette);
 disp('Ended OK');
+
+end

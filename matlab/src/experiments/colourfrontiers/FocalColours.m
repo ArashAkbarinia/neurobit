@@ -189,7 +189,7 @@ end
 
 PolarFocals = struct();
 for i = 1:numel(ColourNames)
-  PolarFocals.(ColourNames{i}) = Alej_cart2pol([CartFocals.(ColourNames{i})(:, 2:3), CartFocals.(ColourNames{i})(:, 1)]);
+  PolarFocals.(ColourNames{i}) = cart2pol3([CartFocals.(ColourNames{i})(:, 2:3), CartFocals.(ColourNames{i})(:, 1)]);
 end
 
 end

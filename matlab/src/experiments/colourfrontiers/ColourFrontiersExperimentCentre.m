@@ -1,20 +1,19 @@
+function [] = ColourFrontiersExperimentCentre()
+
 %% initialisation
 
-clearvars;
-crsStartup;
-
 % cleaning the workspace
-clear expjunk rawjunk;
+clearvars;
 close all;
 
 % creating the colour frontiers
-[FrontierNames, FrontierAngles, DesaturatedFrontiers] = ColourFrontiers();
+[FrontierNames, FrontierAngles, ~] = ColourFrontiers();
 
 % number of samples in the mondrian background
 numsamples = 200;
 
 % invoque the list of nameable colours from the literature
-[CartFocals, PolarFocals] = FocalColours();
+[CartFocals, ~] = FocalColours();
 
 resultsdir = 'D:\Results\ColorCategorizationMondrian\';
 [y_ding, Fs_ding, nbits_ding] = wavread('D:\MatLab_m-files\Visage\Jordi\sound\sound_ding.wav'); %#ok
@@ -23,6 +22,7 @@ resultsdir = 'D:\Results\ColorCategorizationMondrian\';
 %% CRS setup
 
 % setting the monitor up
+crsStartup;
 % crsSet24bitColourMode ;
 crsSetColourSpace(CRS.CS_RGB);
 % crsSetVideoMode( CRS.TRUECOLOURMODE+CRS.GAMMACORRECT ) ;
@@ -48,7 +48,7 @@ which_level = '81';
 % x = -1  --> does only luminance mondrians
 % x = -2  --> does colour mondrians
 % a white "frame" is present in all conditions
-mybackground = 0;
+BackgroundType = 0;
 
 % time in seconds for the dark adaptation period (should be 120)
 darkadaptation = 10;
@@ -58,13 +58,13 @@ endexppause = 15;
 numcolconditions = 10;
 
 %% preparing the experiment
-if mybackground == -1
+if BackgroundType == -1
   blacknwhite = 1;
   bkg = 'Coloured mondrians background';
-elseif mybackground == -2
+elseif BackgroundType == -2
   blacknwhite = 2;
   bkg = 'Greylevel mondrians background';
-elseif mybackground >= 0
+elseif BackgroundType >= 0
   blacknwhite = 2;
   bkg = 'Plain grey background';
 end
@@ -134,32 +134,32 @@ expjunk.meanluminance = zeros(numfrontiers,numcolconditions)-1;
 %anglelimits = zeros(numfrontiers,2)-1;
 
 %% start of experiment
-StartExperiment();
+SubjectName = StartExperiment(blackpalette, CRS, Black_palette_name, answer, darkadaptation, junkpalette);
 
 if plotresults
   if strcmp(which_level, '36') || strcmp(which_level, 'all')
     h1= figure;
-    pp = Alej_pol2cart([FrontierAngles(1,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(1,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.green(1,2)./2,CartFocals.green(1,3)./2, FrontierNames{1,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(2,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(2,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.blue(1,2)./2,CartFocals.blue(1,3)./2, FrontierNames{2,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(3,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(3,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.purple(1,2)./2,CartFocals.purple(1,3)./2, FrontierNames{3,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(4,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(4,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.pink(1,2)./2.5,CartFocals.pink(1,3)./2.5, FrontierNames{4,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(5,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(5,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.red(1,2)./3,CartFocals.red(1,3)./3, FrontierNames{5,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(6,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(6,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.brown(1,2)./2,CartFocals.brown(1,3)./2, FrontierNames{6,3}, 'color', 'r');
     set(h1,'Name','Plane L= 36','NumberTitle','off');
@@ -167,58 +167,58 @@ if plotresults
   
   if strcmp(which_level, '58') || strcmp(which_level, 'all')
     h2= figure;
-    pp = Alej_pol2cart([FrontierAngles(7,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(7,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.green(2,2)./2,CartFocals.green(2,3)./2, FrontierNames{7,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(8,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(8,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.blue(2,2)./2,CartFocals.blue(2,3)./2, FrontierNames{8,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(9,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(9,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.purple(2,2)./2,CartFocals.purple(2,3)./2, FrontierNames{9,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(10,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(10,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.pink(2,2)./2.5,CartFocals.pink(2,3)./2.5, FrontierNames{10,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(11,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(11,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.red(2,2)./3,CartFocals.red(2,3)./3, FrontierNames{11,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(12,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(12,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.orange(2,2)./3,CartFocals.orange(2,3)./3, FrontierNames{12,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(13,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(13,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.yellow(2,2)./4,CartFocals.yellow(2,3)./4, FrontierNames{13,3}, 'color', 'r');
     set(h2,'Name','Plane L= 58','NumberTitle','off');
   end
   if strcmp(which_level, '81') || strcmp(which_level, 'all')
     h3= figure; %axis([-maxradius maxradius -maxradius maxradius]), axis ('square');
-    pp = Alej_pol2cart([FrontierAngles(14,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(14,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.green(3,2)./2,CartFocals.green(3,3)./2, FrontierNames{14,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(15,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(15,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.blue(3,2)./2,CartFocals.blue(3,3)./2, FrontierNames{15,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(16,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(16,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.purple(3,2)./2,CartFocals.purple(3,3)./2, FrontierNames{16,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(17,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(17,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.pink(3,2)./2.5,CartFocals.pink(3,3)./2.5, FrontierNames{17,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(18,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(18,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.orange(3,2)./3,CartFocals.orange(3,3)./3, FrontierNames{18,3}, 'color', 'r');
     
-    pp = Alej_pol2cart([FrontierAngles(19,blacknwhite), maxradius + 10]);
+    pp = pol2cart3([FrontierAngles(19,blacknwhite), maxradius + 10]);
     plot([pp(1),0],[pp(2),0],'r'); hold on;
     text(CartFocals.yellow(3,2)./3.5,CartFocals.yellow(3,3)./3.5, FrontierNames{19,3}, 'color', 'r');
     set(h3,'Name','Plane L= 81','NumberTitle','off');
@@ -254,10 +254,10 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   %==========================================================================
   %                GENERATE MONDRIAN
   %==========================================================================
-  
-  arashground = mybackground;
-  
-  GenerateMondrian();
+  [mondrianmeanlum, RGB_colors, mymondrian, palette, Height, Width] = ...
+    GenerateMondrian(BackgroundType, refillum, numsamples, MondrianParameters, CRS, ExperimentParameters, ...
+    Black_palette_name, Central_patch_name, current_angle, current_radius, frame_name, shadow_name, D65_RGB, ...
+    theplane);
   
   %==========================================================================
   %                USER INPUT
@@ -268,13 +268,13 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   if  round(rand)
     startcolourname = FrontierNames{conditions(angleNr),3};
     endcolourname = 'Grey';
-    disp([startcolourname,' Lab colour:  ', num2str(Alej_pol2cart([current_angle, current_radius, theplane],1))]);
+    disp([startcolourname,' Lab colour:  ', num2str(pol2cart3([current_angle, current_radius, theplane],1))]);
     disp([endcolourname,' Lab colour:  0 0 ', num2str(theplane) ]);
   else
     endcolourname = FrontierNames{conditions(angleNr),3};
     startcolourname = 'Grey';
     disp([startcolourname,' Lab colour:  0 0 ', num2str(theplane) ]);
-    disp([endcolourname,' Lab colour:  ', num2str(Alej_pol2cart([current_angle, current_radius, theplane],1))]);
+    disp([endcolourname,' Lab colour:  ', num2str(pol2cart3([current_angle, current_radius, theplane],1))]);
   end
   disp(['Luminance Plane: ',num2str(theplane)]);
   disp(['Start up radius: ', num2str(current_radius), ' Lab units']);
@@ -316,7 +316,7 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
       condition_elapsedtime = crsGetTimer() - condition_starttime;
       wavplay( y_ding , Fs_ding ) ;
       if plotresults
-        pp = Alej_pol2cart([current_angle, current_radius]);
+        pp = pol2cart3([current_angle, current_radius]);
         plot(pp(1),pp(2),'or');
         hold on;
         refresh
@@ -328,7 +328,7 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
       %   order to slow the adquisition process.
       pause( joystickdelay ) ;
       if plotresults
-        pp = Alej_pol2cart([current_angle, current_radius]);
+        pp = pol2cart3([current_angle, current_radius]);
         plot(pp(1),pp(2),'.b');
         hold on;
         refresh;
@@ -352,12 +352,12 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
       rawradius(rawdataindex) = current_radius;
       rawdataindex = rawdataindex+1;
       %   Update the CRT.
-      testcolourRGB=Lab2CRSRGB(Alej_pol2cart([current_angle, current_radius, theplane],1),refillum);
+      testcolourRGB=Lab2CRSRGB(pol2cart3([current_angle, current_radius, theplane],1),refillum);
       palette(Central_patch_name,:)= testcolourRGB ;
       crsPaletteSet(palette');
       %disp(['          Current angle: ', num2str(current_angle), ' rad']);
       if plotresults
-        pp = Alej_pol2cart([current_angle, current_radius]);
+        pp = pol2cart3([current_angle, current_radius]);
         plot(pp(1),pp(2),'.r');
         hold on;
         refresh;
@@ -370,7 +370,7 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   crsPaletteSet(junkpalette);
   crsSetDisplayPage(3);
   disp(['Selected radius: ', num2str(current_radius), ' Lab units']);
-  disp(['Final Lab colour:  ', num2str(Alej_pol2cart([current_angle, current_radius, theplane],1))]);
+  disp(['Final Lab colour:  ', num2str(pol2cart3([current_angle, current_radius, theplane],1))]);
   disp(['Time elapsed: ', num2str(condition_elapsedtime/1000000), ' secs']);
   currentrun = currentrun+1;
   
@@ -409,10 +409,12 @@ end
 
 CollectResults();
 expjunk.constants.radialstep =  ini_radialstep;
-expjunk.constants.mybackground = mybackground;
+expjunk.constants.mybackground = BackgroundType;
 %expjunk.constants.anglelimits = anglelimits;
 
 %% cleaning and saving
 
 ExperimentType = ' (low-saturated frontiers)';
-CleanAndSave();
+CleanAndSave(junkpalette, y_DingDong, Fs_DingDong, resultsdir, SubjectName, ExperimentType, expjunk, endexppause);
+
+end
