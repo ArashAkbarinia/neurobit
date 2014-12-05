@@ -141,6 +141,7 @@ if ExperimentParameters.plotresults
   title(['Subject: ', SubjectName, '; Background: ', bkg]);
   axis([-maxradius maxradius -maxradius maxradius]);
 end
+
 crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.GAMMACORRECT); %CRS.HYPERCOLOURMODE );
 crsResetTimer();
 

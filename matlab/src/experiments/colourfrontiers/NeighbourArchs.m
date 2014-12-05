@@ -1,5 +1,8 @@
 function archs = NeighbourArchs(PolarFocals, labplane1, labplane2, labplane3, maxradius)
 
+% FIXME: make it for each luminance
+% FIXME: make the names authomatic based on the colours
+
 archs.green_blue_radius_p1    = find_max_rad_allowed(PolarFocals.green(1, 1),  PolarFocals.blue(1, 1),   labplane1);
 archs.blue_purple_radius_p1   = find_max_rad_allowed(PolarFocals.blue(1, 1),   PolarFocals.purple(1, 1), labplane1);
 archs.purple_pink_radius_p1   = find_max_rad_allowed(PolarFocals.purple(1, 1), PolarFocals.pink(1, 1),   labplane1);

@@ -32,8 +32,8 @@ labplane2 = 58;
 labplane3 = 81;
 numfrontiers = 19;
 
-minradius = 10;
-maxradius = 50;
+ExperimentParameters.minradius = 10;
+ExperimentParameters.maxradius = 50;
 % (the margin the observer is allowed to wander outside the focus colour bracket (in radians)
 ang_margin_fraction = 0.1;
 ini_angularstep = 0.01; % one jnd (?)
@@ -66,6 +66,7 @@ switch ExperimentParameters.which_level
       conditions = [conditions, randomisevector((14:19))];
     end
 end
+
 totnumruns = length(conditions);%.* ExperimentParameters.numcolconditions;
 expjunk.expresults = zeros(numfrontiers, ExperimentParameters.numcolconditions);
 expjunk.startangles = zeros(numfrontiers, ExperimentParameters.numcolconditions);
@@ -79,8 +80,10 @@ SubjectName = StartExperiment(ExperimentParameters);
 
 disp('Finding possible radioes. Please wait....');
 % find the largest radious possible within the limits of the monitor
-archs = NeighbourArchs(PolarFocals, labplane1, labplane2, labplane3, maxradius);
+archs = NeighbourArchs(PolarFocals, labplane1, labplane2, labplane3, ExperimentParameters.maxradius);
+
 if ExperimentParameters.plotresults
+  % FIXME: only show the figures which is necesarry
   h1 = figure;
   set(h1, 'Name', ['Plane L= ', num2str(labplane1)], 'NumberTitle', 'off', 'Position', leftfigposition);
   h2 = figure;
@@ -106,65 +109,9 @@ for borderNr = conditions
   %======================================================================
   radioNr = floor(flag / (length(conditions) ./ ExperimentParameters.numcolconditions)) + 1;
   flag = flag + 1;
-  switch borderNr
-    case 1
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Green', 'Blue', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-    case 2
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Blue', 'Purple', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-    case 3
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Purple', 'Pink', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-    case 4
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Pink', 'Red', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-    case 5
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Red', 'Brown', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-    case 6
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Brown', 'Green', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-    case 7
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Green', 'Blue', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-    case 8
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Blue', 'Purple', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-    case 9
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Purple', 'Pink', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-    case 10
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Pink', 'Red', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-    case 11
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Red', 'Orange', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-    case 12
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Orange', 'Yellow', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-    case 13
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Yellow', 'Green', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-    case 14
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Green', 'Blue', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-    case 15
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Blue', 'Purple', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-    case 16
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Purple', 'Pink', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-    case 17
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Pink', 'Orange', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-    case 18
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Orange', 'Yellow', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-    case 19
-      [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-        ArchColour(archs, PolarFocals, 'Yellow', 'Green', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-  end
+
+  [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+    SelectColourBorder(borderNr, archs, PolarFocals, ExperimentParameters, labplane1, labplane2, labplane3, h1, h2, h3);
   
   if start_ang > end_ang
     end_ang = end_ang + 2 * pi();
@@ -183,7 +130,7 @@ for borderNr = conditions
   %==========================================================================
   [mondrianmeanlum, RGB_colors, mymondrian, palette] = ...
     GenerateMondrian(ExperimentParameters, current_angle, current_radius, theplane, startcolourname, endcolourname);
-
+  
   wavplay(ExperimentParameters.y_DingDong, ExperimentParameters.Fs_DingDong); %#ok
   condition_starttime = crsGetTimer();
   
@@ -209,7 +156,7 @@ for borderNr = conditions
   angularstep = ini_angularstep;
   
   while QuitButtonPressed == 0
-    %   Get the joystick response.
+    % get the joystick response.
     new_buttons = joystick('get' , all_buttons);
     Shift = 0 ;
     if new_buttons(1)
@@ -287,7 +234,7 @@ for borderNr = conditions
   expjunk.lumplanes(borderNr, radioNr) = theplane;
   expjunk.meanluminance(borderNr, radioNr) = mondrianmeanlum;
   rawjunk(borderNr, radioNr).mondrian_RGB_colors = RGB_colors;
-  rawjunk(borderNr, radioNr).times = rawtimes/1000000;
+  rawjunk(borderNr, radioNr).times = rawtimes / 1000000;
   rawjunk(borderNr, radioNr).colours = rawcolours;
   rawjunk(borderNr, radioNr).mondrian = mymondrian;
   rawjunk(borderNr, radioNr).palette = palette;
@@ -302,5 +249,75 @@ expjunk.constants.anglelimits = anglelimits;
 %% cleaning and saving
 
 CleanAndSave(ExperimentParameters, SubjectName, expjunk);
+
+end
+
+%% other function
+
+function [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+  SelectColourBorder(borderNr, archs, PolarFocals, ExperimentParameters, labplane1, labplane2, labplane3, h1, h2, h3)
+
+minradius = ExperimentParameters.minradius;
+
+% FIXME: make it based on luminance, dont pass all to it
+switch borderNr
+  case 1
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Green', 'Blue', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
+  case 2
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Blue', 'Purple', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
+  case 3
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Purple', 'Pink', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
+  case 4
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Pink', 'Red', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
+  case 5
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Red', 'Brown', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
+  case 6
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Brown', 'Green', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
+  case 7
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Green', 'Blue', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
+  case 8
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Blue', 'Purple', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
+  case 9
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Purple', 'Pink', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
+  case 10
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Pink', 'Red', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
+  case 11
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Red', 'Orange', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
+  case 12
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Orange', 'Yellow', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
+  case 13
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Yellow', 'Green', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
+  case 14
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Green', 'Blue', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
+  case 15
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Blue', 'Purple', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
+  case 16
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Purple', 'Pink', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
+  case 17
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Pink', 'Orange', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
+  case 18
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Orange', 'Yellow', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
+  case 19
+    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
+      ArchColour(archs, PolarFocals, 'Yellow', 'Green', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
+end
 
 end
