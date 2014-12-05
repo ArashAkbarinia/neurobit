@@ -1,22 +1,20 @@
-function SubjectName = StartExperiment(blackpalette, CRS, Black_palette_name, answer, darkadaptation, junkpalette)
+function SubjectName = StartExperiment(ExperimentParameters)
 
 disp('Experiment starting...');
 
-crsPaletteSet(blackpalette);
-crsSetDrawPage(CRS.VIDEOPAGE, 2, Black_palette_name);
+CRS = ExperimentParameters.CRS;
+
+crsPaletteSet(ExperimentParameters.blackpalette);
+crsSetDrawPage(CRS.VIDEOPAGE, 2, ExperimentParameters.Black_palette_name);
 crsDrawString([0, 0], 'Experiment starting...');
-crsSetDrawPage(CRS.VIDEOPAGE, 3, Black_palette_name);
+crsSetDrawPage(CRS.VIDEOPAGE, 3, ExperimentParameters.Black_palette_name);
 crsDrawString([0, 0], 'Experiment updating...');
-crsSetDrawPage(CRS.VIDEOPAGE, 4, Black_palette_name);
+crsSetDrawPage(CRS.VIDEOPAGE, 4, ExperimentParameters.Black_palette_name);
 crsDrawString([0, 0], 'Experiment finished...');
 crsSetDisplayPage(2);
 
-promptstr = {'Enter Subject�s name'};
-if isempty(answer)
-  inistr = {'Nobody'};
-else
-  inistr = {answer{1}};
-end
+promptstr = {'Enter Subject''s name'};
+inistr = {'Somebody'};
 titlestr = 'Subject info';
 nlines = 1;
 ok2 = false;
@@ -29,8 +27,8 @@ while ok2 == false
     end
   else
     SubjectName = answer{1};
-    pause(darkadaptation);
-    crsPaletteSet(junkpalette);
+    pause(ExperimentParameters.darkadaptation);
+    crsPaletteSet(ExperimentParameters.junkpalette);
     disp(['Subject name: ', SubjectName]);
     ok2 = true;
   end

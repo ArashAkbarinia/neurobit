@@ -1,23 +1,44 @@
-function [mondrianmeanlum, RGB_colors, mymondrian, palette, Height, Width] = ...
-  GenerateMondrian(BackgroundType, refillum, numsamples, MondrianParameters, CRS, ExperimentParameters, ...
-  Black_palette_name, Central_patch_name, current_angle, current_radius, frame_name, shadow_name, D65_RGB, ...
-  theplane)
+function [mondrianmeanlum, RGB_colors, mymondrian, palette] = GenerateMondrian ...
+  (ExperimentParameters, current_angle, current_radius, theplane, startcolourname, endcolourname)
+
+ExperimentParametersMondrian.Mondrian3D = 1;
+
+% number of samples in the mondrian background
+numsamples = 200;
+
+CRS = ExperimentParameters.CRS;
+BackgroundType = ExperimentParameters.BackgroundType;
+
+D65_XYZ = ExperimentParameters.refillum;
+D65_RGB = crsSpaceToSpace(CRS.CS_CIE1931, XYZ2xyLum(D65_XYZ), CRS.CS_RGB, 0);
+
+MondrianParameters.SquareNumber = 600;
+MondrianParameters.MeanSize = 80;
+MondrianParameters.ColorNumber = 36;
+MondrianParameters.NameableRate = 0; % this parameter is useless
+MondrianParameters.Id_ColourList = [0, 1, 0]; % indicates the list to read
+
+frame_name = 1;
+shadow_name = 2;
+
+textposition_x = 75;
+textposition_y = 30;
 
 if BackgroundType >= 0 %make a grey background Lum = BackgroundType
-  testedcolours = Lab2CRSRGB([BackgroundType, 0, 0], refillum);
+  testedcolours = Lab2CRSRGB([BackgroundType, 0, 0], ExperimentParameters.refillum);
   RGB_colors = repmat(testedcolours, numsamples, 1);
   mondrianmeanlum = BackgroundType;
 elseif BackgroundType == -1 % make a greyscale mondrian
-  [testedcolours, mondrianmeanlum] = sample_lab_space(numsamples, refillum);
+  [testedcolours, mondrianmeanlum] = sample_lab_space(numsamples, ExperimentParameters.refillum);
   testedcolours(:, 2) = 0;
   testedcolours(:, 3) = 0;
-  RGB_colors = Lab2CRSRGB(testedcolours, refillum);
+  RGB_colors = Lab2CRSRGB(testedcolours, ExperimentParameters.refillum);
 elseif BackgroundType == -2 % make the normal colour mondrian
-  [testedcolours, mondrianmeanlum] = sample_lab_space(numsamples, refillum);
-  RGB_colors = Lab2CRSRGB(testedcolours, refillum);
+  [testedcolours, mondrianmeanlum] = sample_lab_space(numsamples, ExperimentParameters.refillum);
+  RGB_colors = Lab2CRSRGB(testedcolours, ExperimentParameters.refillum);
 end
 
-[~, Colour_assignment, ~, mymondrian] = get_simple_mondrian(MondrianParameters, CRS, ExperimentParameters);
+[~, Colour_assignment, ~, mymondrian] = get_simple_mondrian(MondrianParameters, CRS, ExperimentParametersMondrian);
 
 kk = 1;
 for i = 1:length(Colour_assignment(:, 1))
@@ -51,7 +72,7 @@ fin_h = Central_h + Width_Central_Patch_h;
 ini_w = Central_w - Width_Central_Patch_w;
 fin_w = Central_w + Width_Central_Patch_w;
 
-mymondrian(ini_h:fin_h , ini_w:fin_w) = Black_palette_name;
+mymondrian(ini_h:fin_h , ini_w:fin_w) = ExperimentParameters.Black_palette_name;
 
 offset_black_patch_frame = 10;
 ini_h = ini_h + offset_black_patch_frame;
@@ -59,9 +80,9 @@ fin_h = fin_h - offset_black_patch_frame;
 ini_w = ini_w + offset_black_patch_frame;
 fin_w = fin_w - offset_black_patch_frame;
 
-mymondrian(ini_h:fin_h, ini_w:fin_w) = Central_patch_name;
-startingLabcolour = Lab2CRSRGB(pol2cart3([current_angle, current_radius, theplane], 1), refillum); %D65_RGB*0.5;
-palette(Central_patch_name, :) = startingLabcolour;
+mymondrian(ini_h:fin_h, ini_w:fin_w) = ExperimentParameters.Central_patch_name;
+startingLabcolour = Lab2CRSRGB(pol2cart3([current_angle, current_radius, theplane], 1), ExperimentParameters.refillum); %D65_RGB*0.5;
+palette(ExperimentParameters.Central_patch_name, :) = startingLabcolour;
 
 % drawing the white frame and the shadow.
 offline_h = 80;
@@ -81,5 +102,8 @@ crsPaletteSet(palette');
 crsSetDrawPage(1);
 crsDrawMatrixPalettised(mymondrian);
 crsSetDisplayPage(1);
+
+crsDrawString([-(Width / 2 - textposition_x), Height / 2 - textposition_y], startcolourname);
+crsDrawString([ (Width / 2 - textposition_x), Height / 2 - textposition_y], endcolourname);
 
 end

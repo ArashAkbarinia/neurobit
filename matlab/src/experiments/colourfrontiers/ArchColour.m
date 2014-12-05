@@ -23,6 +23,7 @@ if plotresults
   text(pp(1), pp(2), endcolourname, 'color','r');
   hold on;
   axis([-50, 50, -50, 50]);
+  refresh;
 end
 
 end
