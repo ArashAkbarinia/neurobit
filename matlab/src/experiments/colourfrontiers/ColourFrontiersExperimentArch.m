@@ -7,6 +7,9 @@ clearvars;
 close all;
 clc;
 
+% creating the colour frontiers
+FrontierTable = ColourFrontiers();
+
 % invoque the list of nameable colours from the literature
 [~, PolarFocals] = FocalColours();
 
@@ -27,9 +30,6 @@ ExperimentParameters = CreateExperimentParameters(CRS, '');
 %% preparing the experiment
 
 % PrepareExperiment();
-labplane1 = 36;
-labplane2 = 58;
-labplane3 = 81;
 numfrontiers = 19;
 
 ExperimentParameters.minradius = 10;
@@ -37,37 +37,24 @@ ExperimentParameters.maxradius = 50;
 % (the margin the observer is allowed to wander outside the focus colour bracket (in radians)
 ang_margin_fraction = 0.1;
 ini_angularstep = 0.01; % one jnd (?)
-leftfigposition   = [-9,   514, 560, 420];
-centrefigposition = [562,  467, 560, 420];
-rightfigposition  = [1125, 515, 560, 420];
 
-conditions = [];
-switch ExperimentParameters.which_level
-  case 'all'
-    for i = 1:ExperimentParameters.numcolconditions
-      conditions = [conditions, randomisevector((1:numfrontiers))];
-    end
-    
-  case 'binomials' %borders that gave binomial distributions using the previous paradigm
-    for i = 1:ExperimentParameters.numcolconditions
-      conditions = [conditions, randomisevector([1, 3, 5, 7, 9, 10, 14, 15, 16])];
-    end
-    
-  case '36'
-    for i = 1:ExperimentParameters.numcolconditions
-      conditions = [conditions, randomisevector((1:6))];
-    end
-  case '58'
-    for i = 1:ExperimentParameters.numcolconditions
-      conditions = [conditions, randomisevector((7:13))];
-    end
-  case '81'
-    for i = 1:ExperimentParameters.numcolconditions
-      conditions = [conditions, randomisevector((14:19))];
-    end
+% FIXME: should I add this 'binomials'?
+[FrontierTableLumX, conditions] = GetExperimentConditions(FrontierTable, ExperimentParameters);
+
+disp('Finding possible radioes. Please wait....');
+% find the largest radious possible within the limits of the monitor
+FrontierTableLumXArchs = NeighbourArchs(ExperimentParameters, PolarFocals, FrontierTableLumX);
+
+if ExperimentParameters.plotresults
+  FigurePlanes = unique(FrontierTableLumX(:, 1));
+  for i = 1:length(FigurePlanes)
+    FigurePlanes{i, 2} = figure;
+    % TODO: add figure position
+    set(FigurePlanes{i, 2}, 'Name', ['Plane L= ', FigurePlanes{i}], 'NumberTitle', 'off');
+  end
 end
 
-totnumruns = length(conditions);%.* ExperimentParameters.numcolconditions;
+totnumruns = length(conditions);
 expjunk.expresults = zeros(numfrontiers, ExperimentParameters.numcolconditions);
 expjunk.startangles = zeros(numfrontiers, ExperimentParameters.numcolconditions);
 expjunk.radioes = zeros(numfrontiers, ExperimentParameters.numcolconditions);
@@ -77,20 +64,6 @@ anglelimits = zeros(numfrontiers, 2);
 
 %% start of experiment
 SubjectName = StartExperiment(ExperimentParameters);
-
-disp('Finding possible radioes. Please wait....');
-% find the largest radious possible within the limits of the monitor
-archs = NeighbourArchs(PolarFocals, labplane1, labplane2, labplane3, ExperimentParameters.maxradius);
-
-if ExperimentParameters.plotresults
-  % FIXME: only show the figures which is necesarry
-  h1 = figure;
-  set(h1, 'Name', ['Plane L= ', num2str(labplane1)], 'NumberTitle', 'off', 'Position', leftfigposition);
-  h2 = figure;
-  set(h2, 'Name', ['Plane L= ', num2str(labplane2)], 'NumberTitle', 'off', 'Position', centrefigposition);
-  h3 = figure;
-  set(h3, 'Name', ['Plane L= ', num2str(labplane3)], 'NumberTitle', 'off', 'Position', rightfigposition);
-end
 
 crsResetTimer();
 
@@ -107,12 +80,12 @@ for borderNr = conditions
   %======================================================================
   %                    Select border interfase
   %======================================================================
-  radioNr = floor(flag / (length(conditions) ./ ExperimentParameters.numcolconditions)) + 1;
+  radioNr = floor(flag / (totnumruns ./ ExperimentParameters.numcolconditions)) + 1;
   flag = flag + 1;
 
   [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-    SelectColourBorder(borderNr, archs, PolarFocals, ExperimentParameters, labplane1, labplane2, labplane3, h1, h2, h3);
-  
+      ArchColour(FrontierTableLumXArchs(borderNr, :), PolarFocals, ExperimentParameters, FigurePlanes);
+
   if start_ang > end_ang
     end_ang = end_ang + 2 * pi();
   end
@@ -206,7 +179,7 @@ for borderNr = conditions
       rawdataindex = rawdataindex + 1;
       
       % update the CRT
-      palette(ExperimentParameters.Central_patch_name, :) = Lab2CRSRGB(pol2cart3([current_angle, current_radius, theplane], 1), ExperimentParameters.refillum);
+      palette(ExperimentParameters.Central_patch_name, :) = Lab2CRSRGB(ExperimentParameters.CRS, pol2cart3([current_angle, current_radius, theplane], 1), ExperimentParameters.refillum);
       crsPaletteSet(palette');
       UpdatePlot(current_angle, current_radius, ExperimentParameters.plotresults, '.r');
     end
@@ -242,7 +215,7 @@ end
 
 % CollectResults();
 expjunk.conditions = conditions;
-reshape(conditions, ceil(length(conditions) ./ ExperimentParameters.numcolconditions), ExperimentParameters.numcolconditions);
+reshape(conditions, ceil(totnumruns ./ ExperimentParameters.numcolconditions), ExperimentParameters.numcolconditions);
 expjunk.constants.blacknwhite = ExperimentParameters.BackgroundType;
 expjunk.constants.anglelimits = anglelimits;
 
@@ -252,72 +225,27 @@ CleanAndSave(ExperimentParameters, SubjectName, expjunk);
 
 end
 
-%% other function
+%% other functions
 
-function [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-  SelectColourBorder(borderNr, archs, PolarFocals, ExperimentParameters, labplane1, labplane2, labplane3, h1, h2, h3)
+function [FrontierTableLumX, conditions] = GetExperimentConditions(FrontierTable, ExperimentParameters)
 
-minradius = ExperimentParameters.minradius;
+luminance = ExperimentParameters.which_level;
+nconditions = ExperimentParameters.numcolconditions;
 
-% FIXME: make it based on luminance, dont pass all to it
-switch borderNr
-  case 1
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Green', 'Blue', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-  case 2
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Blue', 'Purple', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-  case 3
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Purple', 'Pink', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-  case 4
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Pink', 'Red', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-  case 5
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Red', 'Brown', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-  case 6
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Brown', 'Green', ExperimentParameters.plotresults, labplane1, minradius, h1, 1);
-  case 7
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Green', 'Blue', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-  case 8
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Blue', 'Purple', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-  case 9
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Purple', 'Pink', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-  case 10
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Pink', 'Red', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-  case 11
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Red', 'Orange', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-  case 12
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Orange', 'Yellow', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-  case 13
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Yellow', 'Green', ExperimentParameters.plotresults, labplane2, minradius, h2, 2);
-  case 14
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Green', 'Blue', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-  case 15
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Blue', 'Purple', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-  case 16
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Purple', 'Pink', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-  case 17
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Pink', 'Orange', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-  case 18
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Orange', 'Yellow', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
-  case 19
-    [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(archs, PolarFocals, 'Yellow', 'Green', ExperimentParameters.plotresults, labplane3, minradius, h3, 3);
+if strcmp(luminance, 'all')
+  FrontierTableLumX = FrontierTable;
+else
+  indeces = ~cellfun('isempty', strfind(FrontierTable(:, 1), luminance));
+  FrontierTableLumX = FrontierTable(indeces, :);
+end
+
+nfrontiers = size(FrontierTableLumX, 1);
+
+conditions = zeros(1, nconditions * nfrontiers);
+for i = 1:nconditions
+  j = (i - 1) * nfrontiers;
+  indeces = (j + 1):(j + nfrontiers);
+  conditions(indeces) = randomisevector(1:nfrontiers);
 end
 
 end

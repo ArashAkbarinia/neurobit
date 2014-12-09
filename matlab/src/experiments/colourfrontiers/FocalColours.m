@@ -1,5 +1,5 @@
 function [CartFocals, PolarFocals] = FocalColours()
-%FOCALCOLOURS Summary of this function goes here
+%FocalColours Summary of this function goes here
 %   Detailed explanation goes here
 
 %% black
@@ -168,7 +168,7 @@ namlab81 = ...
   namyellow;
   ];
 
-%% putting them in struct
+%% putting cartesian in struct
 CartFocals = struct;
 CartFocals.black  = [mean(namlab36(1:6,   :)); mean(namlab58(1:6,   :)); [0, 0, 0]];
 CartFocals.blue   = [mean(namlab36(7:11,  :)); mean(namlab58(7:12,  :)); mean(namlab81(1:5,   :))];
@@ -187,6 +187,7 @@ for i = 1:numel(ColourNames)
   CartFocals.(ColourNames{i})(:, 1) = [36; 58; 81];
 end
 
+%% converting them to polar
 PolarFocals = struct();
 for i = 1:numel(ColourNames)
   PolarFocals.(ColourNames{i}) = cart2pol3([CartFocals.(ColourNames{i})(:, 2:3), CartFocals.(ColourNames{i})(:, 1)]);
