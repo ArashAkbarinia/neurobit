@@ -16,8 +16,8 @@ function polarnum = cart2pol3(cartesiannum)
 %   See also CART2SPH, SPH2CART, POL2CART.
 %
 
-x= cartesiannum(:, 1);
-y= cartesiannum(:, 2);
+x = cartesiannum(:, 1);
+y = cartesiannum(:, 2);
 
 th = atan2(y, x);
 
@@ -26,7 +26,7 @@ th = (th < 0) .* (th + 2 .* pi()) + (th >= 0) .* th;
 
 r = hypot(x, y);
 if size(cartesiannum, 2) == 3
-  polarnum= [th, r,cartesiannum(:, 3)];
+  polarnum= [th, r, cartesiannum(:, 3)];
 else
   polarnum= [th, r];
 end
