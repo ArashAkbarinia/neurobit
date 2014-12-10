@@ -2,6 +2,8 @@ function [CartFocals, PolarFocals] = FocalColours()
 %FocalColours Summary of this function goes here
 %   Detailed explanation goes here
 
+% TODO: add other luminances here
+
 %% black
 namblack = ...
   [
@@ -123,64 +125,19 @@ namyellow = ...
   81  1.65  72.030;  %  Yellow  S&W
   ];
 
-%% luminance 36
-namlab36 = ...
-  [
-  namblack;
-  namblue([1:4, 6], :);
-  nambrown;
-  namgreen([1:4, 6], :);
-  namgrey;
-  namorange([1:3, 6], :);
-  nampink(1:4, :);
-  nampurple(1:4, :);
-  namred([1:3, 6], :);
-  namyellow(4, :);
-  ];
-
-%% luminance 58
-namlab58 = ...
-  [
-  namblack;
-  namblue;
-  nambrown;
-  namgreen;
-  namgrey;
-  namorange;
-  nampink;
-  nampurple;
-  namred;
-  namwhite;
-  namyellow;
-  ];
-
-%% luminance 81
-namlab81 = ...
-  [
-  namblue([1:3, 5:6], :);
-  namgreen([1:3, 5:6], :);
-  namgrey;
-  namorange;
-  nampink(3:6, :);
-  nampurple(3:6, :);
-  namred(4:6, :);
-  namwhite;
-  namyellow;
-  ];
-
 %% putting cartesian in struct
 CartFocals = struct;
-CartFocals.black  = [mean(namlab36(1:6,   :)); mean(namlab58(1:6,   :)); [0, 0, 0]];
-CartFocals.blue   = [mean(namlab36(7:11,  :)); mean(namlab58(7:12,  :)); mean(namlab81(1:5,   :))];
-CartFocals.brown  = [mean(namlab36(12:17, :)); mean(namlab58(13:18, :)); [0, 0, 0]];
-CartFocals.green  = [mean(namlab36(18:22, :)); mean(namlab58(19:24, :)); mean(namlab81(6:10,  :))];
-CartFocals.grey   = [mean(namlab36(23:28, :)); mean(namlab58(25:30, :)); mean(namlab81(11:16, :))];
-CartFocals.orange = [mean(namlab36(29:32, :)); mean(namlab58(31:36, :)); mean(namlab81(17:22, :))];
-CartFocals.pink   = [mean(namlab36(33:36, :)); mean(namlab58(37:42, :)); mean(namlab81(23:26, :))];
-CartFocals.purple = [mean(namlab36(37:40, :)); mean(namlab58(43:48, :)); mean(namlab81(27:30, :))];
-CartFocals.red    = [mean(namlab36(41:44, :)); mean(namlab58(49:54, :)); mean(namlab81(31:33, :))];
-CartFocals.white  = [[0, 0, 0];                mean(namlab58(55:60, :)); mean(namlab81(34:39, :))];
-CartFocals.yellow = [namlab36(45, :);          mean(namlab58(61:66, :)); mean(namlab81(40:45, :))];
+CartFocals.black  = [mean(namblack);               mean(namblack);  [0, 0, 0]];
+CartFocals.blue   = [mean(namblue([1:4, 6], :));   mean(namblue);   mean(namblue([1:3, 5:6], :))];
+CartFocals.brown  = [mean(nambrown);               mean(nambrown);  [0, 0, 0]];
+CartFocals.green  = [mean(namgreen([1:4, 6], :));  mean(namgreen);  mean(namgreen([1:3, 5:6], :))];
+CartFocals.grey   = [mean(namgrey);                mean(namgrey);   mean(namgrey)];
+CartFocals.orange = [mean(namorange([1:3, 6], :)); mean(namorange); mean(namorange)];
+CartFocals.pink   = [mean(nampink(1:4, :));        mean(nampink);   mean(nampink(3:6, :))];
+CartFocals.purple = [mean(nampurple(1:4, :));      mean(nampurple); mean(nampurple(3:6, :))];
+CartFocals.red    = [mean(namred([1:3, 6], :));    mean(namred);    mean(namred(4:6, :))];
+CartFocals.white  = [[0, 0, 0];                    mean(namwhite);  mean(namwhite)];
+CartFocals.yellow = [namyellow(4, :);              mean(namyellow); mean(namyellow)];
 
 ColourNames = fieldnames(CartFocals);
 for i = 1:numel(ColourNames)

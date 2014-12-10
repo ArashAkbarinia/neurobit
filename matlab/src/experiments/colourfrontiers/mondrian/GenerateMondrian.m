@@ -1,8 +1,6 @@
 function [mondrianmeanlum, RGB_colors, mymondrian, palette] = GenerateMondrian ...
   (ExperimentParameters, current_angle, current_radius, theplane, startcolourname, endcolourname)
 
-ExperimentParametersMondrian.Mondrian3D = 1;
-
 % number of samples in the mondrian background
 numsamples = 200;
 
@@ -38,19 +36,17 @@ elseif BackgroundType == -2 % make the normal colour mondrian
   RGB_colors = Lab2CRSRGB(CRS, testedcolours, ExperimentParameters.refillum);
 end
 
-[~, Colour_assignment, ~, mymondrian] = get_simple_mondrian(MondrianParameters, CRS, ExperimentParametersMondrian);
+[~, Colour_assignment, ~, mymondrian] = get_simple_mondrian(MondrianParameters, CRS);
 
-kk = 1;
 for i = 1:length(Colour_assignment(:, 1))
-  mymondrian(mymondrian == Colour_assignment(i, 1)) = mod(kk, 250) + 5;
-  kk = kk + 1;
+  mymondrian(mymondrian == Colour_assignment(i, 1)) = mod(i, 250) + 5;
 end
 
 palette = zeros(256, 3);
-cont = 1 ;
+cont = 1;
 for i = 1:251
   palette(i + 4, :) = RGB_colors(cont, :);
-  cont = cont + 1 ;
+  cont = cont + 1;
   if cont > length(RGB_colors(:, 1))
     cont = 1;
   end
@@ -64,15 +60,15 @@ Width = crsGetScreenWidthPixels;
 % frist we draw a black square and then the smaller color test patch.
 Central_w = floor(Width * 0.5);
 Central_h = floor(Height * 0.5);
-Width_Central_Patch_h = 80 ;
-Width_Central_Patch_w = 80 ;
+Width_Central_Patch_h = 80;
+Width_Central_Patch_w = 80;
 
 ini_h = Central_h - Width_Central_Patch_h;
 fin_h = Central_h + Width_Central_Patch_h;
 ini_w = Central_w - Width_Central_Patch_w;
 fin_w = Central_w + Width_Central_Patch_w;
 
-mymondrian(ini_h:fin_h , ini_w:fin_w) = ExperimentParameters.Black_palette_name;
+mymondrian(ini_h:fin_h, ini_w:fin_w) = ExperimentParameters.Black_palette_name;
 
 offset_black_patch_frame = 10;
 ini_h = ini_h + offset_black_patch_frame;

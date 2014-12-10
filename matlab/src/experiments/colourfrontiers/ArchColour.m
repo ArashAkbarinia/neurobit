@@ -7,20 +7,14 @@ ColourA = lower(frontier{2});
 ColourB = lower(frontier{3});
 labplane = str2double(frontier{1});
 
-% FIXME: n is baed on 36, 58, 81
-if labplane == 36
-  n = 1;
-elseif labplane == 58
-  n = 2;
-elseif labplane == 81
-  n = 3;
-end
+PoloarColourA = PolarFocals.(ColourA)((PolarFocals.(ColourA)(:, 3) == labplane), :);
+PoloarColourB = PolarFocals.(ColourB)((PolarFocals.(ColourB)(:, 3) == labplane), :);
 
 disp(['luminance: ', frontier{1}, ', ', ColourA, '-', ColourB, ' border selected']);
-radius_pn = frontier{6};
+radius_pn = frontier{4};
 radioes = ExperimentParameters.minradius + (radius_pn - ExperimentParameters.minradius) * rand(1, 1);
-start_ang = PolarFocals.(ColourA)(n, 1);
-end_ang = PolarFocals.(ColourB)(n, 1);
+start_ang = PoloarColourA(1);
+end_ang = PoloarColourB(1);
 
 if ExperimentParameters.plotresults
   FigureIndex = ~cellfun('isempty', strfind(FigurePlanes(:, 1), frontier{1}));

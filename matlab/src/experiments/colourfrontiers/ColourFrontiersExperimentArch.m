@@ -19,18 +19,16 @@ FrontierTable = ColourFrontiers();
 crsStartup;
 crsSet24bitColourMode;
 crsSetColourSpace(CRS.CS_RGB);
-% crsSetVideoMode( CRS.TRUECOLOURMODE+CRS.GAMMACORRECT ) ;
 % Gammacorrect should be turned off when showing non-linear images
 crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.GAMMACORRECT); %CRS.HYPERCOLOURMODE );
 
 %% experiment parameters
 
-ExperimentParameters = CreateExperimentParameters(CRS, '');
+ExperimentParameters = CreateExperimentParameters(CRS, 'Arch');
 
 %% preparing the experiment
 
 % PrepareExperiment();
-numfrontiers = 19;
 
 ExperimentParameters.minradius = 10;
 ExperimentParameters.maxradius = 50;
@@ -38,7 +36,7 @@ ExperimentParameters.maxradius = 50;
 ang_margin_fraction = 0.1;
 ini_angularstep = 0.01; % one jnd (?)
 
-% FIXME: should I add this 'binomials'?
+% TODO: should I add this 'binomials'?
 [FrontierTableLumX, conditions] = GetExperimentConditions(FrontierTable, ExperimentParameters);
 
 disp('Finding possible radioes. Please wait....');
@@ -46,21 +44,28 @@ disp('Finding possible radioes. Please wait....');
 FrontierTableLumXArchs = NeighbourArchs(ExperimentParameters, PolarFocals, FrontierTableLumX);
 
 if ExperimentParameters.plotresults
-  FigurePlanes = unique(FrontierTableLumX(:, 1));
+  FigurePlanes = unique(FrontierTableLumXArchs(:, 1));
   for i = 1:length(FigurePlanes)
     FigurePlanes{i, 2} = figure;
     % TODO: add figure position
     set(FigurePlanes{i, 2}, 'Name', ['Plane L= ', FigurePlanes{i}], 'NumberTitle', 'off');
   end
+  PlaneIndex = ~cellfun('isempty', strfind(FrontierTableLumXArchs(:, 1), FigurePlanes{i, 1}));
+  PlaneTable = FrontierTableLumXArchs(PlaneIndex, :);
+  % TODO: brin the plotting out
+  % in all mode not everything is rendered
+  for j = 1:size(PlaneTable, 1)
+    ArchColour(PlaneTable(j, :), PolarFocals, ExperimentParameters, FigurePlanes);
+  end
 end
 
 totnumruns = length(conditions);
-expjunk.expresults = zeros(numfrontiers, ExperimentParameters.numcolconditions);
-expjunk.startangles = zeros(numfrontiers, ExperimentParameters.numcolconditions);
-expjunk.radioes = zeros(numfrontiers, ExperimentParameters.numcolconditions);
-expjunk.conditions = zeros(numfrontiers, ExperimentParameters.numcolconditions);
-expjunk.times = zeros(numfrontiers, ExperimentParameters.numcolconditions);
-anglelimits = zeros(numfrontiers, 2);
+expjunk.startangles = zeros(totnumruns, 1);
+expjunk.anglelimits = zeros(totnumruns, 2);
+expjunk.final_angles = zeros(totnumruns, 1);
+expjunk.radioes = zeros(totnumruns, 1);
+expjunk.times = zeros(totnumruns, 1);
+expjunk.lumplanes = zeros(totnumruns, 1);
 
 %% start of experiment
 SubjectName = StartExperiment(ExperimentParameters);
@@ -71,21 +76,15 @@ crsResetTimer();
 %                CHOOSE INITAL COLOURS
 %==========================================================================
 condition_elapsedtime = 0;
-currentrun = 0;
-flag = 0;
+ExperimentCounter = 1;
 for borderNr = conditions
-  rawtimes = [];
-  rawcolours = [];
-  
   %======================================================================
   %                    Select border interfase
   %======================================================================
-  radioNr = floor(flag / (totnumruns ./ ExperimentParameters.numcolconditions)) + 1;
-  flag = flag + 1;
-
+  
   [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ...
-      ArchColour(FrontierTableLumXArchs(borderNr, :), PolarFocals, ExperimentParameters, FigurePlanes);
-
+    ArchColour(FrontierTableLumXArchs(borderNr, :), PolarFocals, ExperimentParameters, FigurePlanes);
+  
   if start_ang > end_ang
     end_ang = end_ang + 2 * pi();
   end
@@ -96,13 +95,12 @@ for borderNr = conditions
   ang_margin = ang_margin_fraction * abs(end_ang - start_ang);
   current_radius = radioes;
   current_angle = start_ang + (end_ang - start_ang) * rand;
-  expjunk.startangles(borderNr, radioNr) = current_angle;
+  expjunk.startangles(ExperimentCounter) = current_angle;
   
   %==========================================================================
   %                GENERATE MONDRIAN
   %==========================================================================
-  [mondrianmeanlum, RGB_colors, mymondrian, palette] = ...
-    GenerateMondrian(ExperimentParameters, current_angle, current_radius, theplane, startcolourname, endcolourname);
+  [~, ~, ~, palette] = GenerateMondrian(ExperimentParameters, current_angle, current_radius, theplane, startcolourname, endcolourname);
   
   wavplay(ExperimentParameters.y_DingDong, ExperimentParameters.Fs_DingDong); %#ok
   condition_starttime = crsGetTimer();
@@ -112,19 +110,19 @@ for borderNr = conditions
   %==========================================================================
   disp('===================================');
   disp(['Current colour border: ', startcolourname,' - ', endcolourname]);
-  disp(['Radious #', num2str(radioNr), ' : ', num2str(current_radius)]);
+  disp(['Radious #', num2str(ExperimentCounter), ' : ', num2str(current_radius)]);
   disp([startcolourname, ' Lab colour:  ', num2str(pol2cart3([start_ang, current_radius, theplane], 1))]);
   disp([endcolourname,   ' Lab colour:  ', num2str(pol2cart3([end_ang,   current_radius, theplane], 1))]);
   disp(['Luminance Plane: ', num2str(theplane)]);
   disp(['Start up angle: ', num2str(current_angle), ' rad']);
-  disp(['There are still ', num2str(totnumruns - currentrun), ' runs to go (', num2str(round(currentrun / totnumruns * 100)), '% completed).']);
+  % TODO: experimentcounter should start from 0.
+  disp(['There are still ', num2str(totnumruns - ExperimentCounter), ' runs to go (', num2str(round(ExperimentCounter / totnumruns * 100)), '% completed).']);
   
   % joystick loop quit condition variable
   QuitButtonPressed = 0;
   % activate joystick
   joystick on;
   
-  rawdataindex = 1;
   all_buttons = [7, 8, 5, 6, 9];
   angularstep = ini_angularstep;
   
@@ -162,8 +160,7 @@ for borderNr = conditions
       pause(ExperimentParameters.joystickdelay);
       
       UpdatePlot(current_angle, current_radius, ExperimentParameters.plotresults, '.b');
-      rawtimes(rawdataindex) = crsGetTimer() - condition_starttime;
-      
+
       % update current angle
       current_angle = current_angle + Shift;
       if current_angle > end_ang + ang_margin
@@ -175,9 +172,6 @@ for borderNr = conditions
         angularstep = -angularstep;
       end
       
-      rawcolours(rawdataindex) = current_angle;
-      rawdataindex = rawdataindex + 1;
-      
       % update the CRT
       palette(ExperimentParameters.Central_patch_name, :) = Lab2CRSRGB(ExperimentParameters.CRS, pol2cart3([current_angle, current_radius, theplane], 1), ExperimentParameters.refillum);
       crsPaletteSet(palette');
@@ -188,7 +182,7 @@ for borderNr = conditions
   % deactivate joystick
   joystick off;
   
-  anglelimits(borderNr, :) = [start_ang - ang_margin, end_ang + ang_margin];
+  expjunk.anglelimits(ExperimentCounter, :) = [start_ang - ang_margin, end_ang + ang_margin];
   
   crsPaletteSet(ExperimentParameters.junkpalette);
   crsSetDisplayPage(3);
@@ -196,56 +190,24 @@ for borderNr = conditions
   disp(['Selected angle: ', num2str(current_angle), ' rad']);
   disp(['Final Lab colour:  ', num2str(pol2cart3([current_angle, current_radius, theplane], 1))]);
   disp(['Time elapsed: ', num2str(condition_elapsedtime / 1000000), ' secs']);
-  currentrun = currentrun + 1;
   
   %==================================================================
-  %Collect results and other junk
+  % collect results and other junk
   %==================================================================
-  expjunk.expresults(borderNr, radioNr) = current_angle;
-  expjunk.radioes(borderNr, radioNr) = current_radius;
-  expjunk.times(borderNr, radioNr) = condition_elapsedtime / 1000000;
-  expjunk.lumplanes(borderNr, radioNr) = theplane;
-  expjunk.meanluminance(borderNr, radioNr) = mondrianmeanlum;
-  rawjunk(borderNr, radioNr).mondrian_RGB_colors = RGB_colors;
-  rawjunk(borderNr, radioNr).times = rawtimes / 1000000;
-  rawjunk(borderNr, radioNr).colours = rawcolours;
-  rawjunk(borderNr, radioNr).mondrian = mymondrian;
-  rawjunk(borderNr, radioNr).palette = palette;
+  expjunk.final_angles(ExperimentCounter) = current_angle;
+  expjunk.radioes(ExperimentCounter) = current_radius;
+  expjunk.times(ExperimentCounter) = condition_elapsedtime / 1000000;
+  expjunk.lumplanes(ExperimentCounter) = theplane;
+  
+  ExperimentCounter = ExperimentCounter + 1;
 end
 
 % CollectResults();
 expjunk.conditions = conditions;
-reshape(conditions, ceil(totnumruns ./ ExperimentParameters.numcolconditions), ExperimentParameters.numcolconditions);
-expjunk.constants.blacknwhite = ExperimentParameters.BackgroundType;
-expjunk.constants.anglelimits = anglelimits;
+expjunk.blacknwhite = ExperimentParameters.BackgroundType;
 
 %% cleaning and saving
 
 CleanAndSave(ExperimentParameters, SubjectName, expjunk);
-
-end
-
-%% other functions
-
-function [FrontierTableLumX, conditions] = GetExperimentConditions(FrontierTable, ExperimentParameters)
-
-luminance = ExperimentParameters.which_level;
-nconditions = ExperimentParameters.numcolconditions;
-
-if strcmp(luminance, 'all')
-  FrontierTableLumX = FrontierTable;
-else
-  indeces = ~cellfun('isempty', strfind(FrontierTable(:, 1), luminance));
-  FrontierTableLumX = FrontierTable(indeces, :);
-end
-
-nfrontiers = size(FrontierTableLumX, 1);
-
-conditions = zeros(1, nconditions * nfrontiers);
-for i = 1:nconditions
-  j = (i - 1) * nfrontiers;
-  indeces = (j + 1):(j + nfrontiers);
-  conditions(indeces) = randomisevector(1:nfrontiers);
-end
 
 end

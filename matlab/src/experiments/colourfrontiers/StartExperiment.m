@@ -17,12 +17,13 @@ promptstr = {'Enter Subject''s name'};
 inistr = {'Somebody'};
 titlestr = 'Subject info';
 nlines = 1;
-ok2 = false;
-while ok2 == false
+ValidName = false;
+while ~ValidName
   answer = inputdlg(promptstr, titlestr, nlines, inistr);
   if isempty(answer)
     ButtonName = questdlg('You will lose data. Are u sure?', 'Exit now?', 'Immediately!', 'No thanks', 'No thanks');
     if strcmp(ButtonName, 'Immediately!')
+      % TODO: better error message
       error('Experiment cancelled');
     end
   else
@@ -30,7 +31,7 @@ while ok2 == false
     pause(ExperimentParameters.darkadaptation);
     crsPaletteSet(ExperimentParameters.junkpalette);
     disp(['Subject name: ', SubjectName]);
-    ok2 = true;
+    ValidName = true;
   end
 end
 

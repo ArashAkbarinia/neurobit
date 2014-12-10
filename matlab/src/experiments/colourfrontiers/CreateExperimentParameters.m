@@ -23,13 +23,14 @@ ExperimentParameters.BackgroundType = 0;
 ExperimentParameters.darkadaptation = 10;
 
 % the total number of conditions, it should be 50 by default
-ExperimentParameters.numcolconditions = 10;
+ExperimentParameters.numcolconditions = 2;
 
 ExperimentParameters.endexppause = 15;
 
 ExperimentParameters.ExperimentType = ExperimentType;
 
-ExperimentParameters.resultsdir = 'D:\Results\ColorCategorizationMondrian\';
+% TODO: make the paths dynamic
+ExperimentParameters.resultsdir = 'D:\Results\ColourFrontiersExperiment\';
 [y_ding, Fs_ding, ~] = wavread('D:\MatLab_m-files\Visage\Jordi\sound\sound_ding.wav'); %#ok
 [y_DingDong, Fs_DingDong, ~] = wavread('D:\MatLab_m-files\Visage\Jordi\sound\DingDong.wav'); %#ok
 ExperimentParameters.y_ding = y_ding;
@@ -51,10 +52,11 @@ ExperimentParameters.plotresults = 1;
 
 % this was actually measured!
 MinimD65 = [0.001; 0.003; 0.005];
-x = 256;
-ExperimentParameters.blackpalette = repmat(MinimD65, 1, x);
+ExperimentParameters.SquareSize = 256;
+SquareSize = ExperimentParameters.SquareSize;
+ExperimentParameters.blackpalette = repmat(MinimD65, 1, SquareSize);
 ExperimentParameters.junkpalette = ExperimentParameters.blackpalette;
-ExperimentParameters.junkpalette(:, x) = [x; x; x];
+ExperimentParameters.junkpalette(:, SquareSize) = [SquareSize; SquareSize; SquareSize];
 
 ExperimentParameters.CRS = CRS;
 
