@@ -301,12 +301,12 @@ uvp_colors_green(:, 2)= uvp_colors(:, 2)- Illum_Shift * vd_red_illum(2);
 uvp_colors_green(:, 3)= uvp_colors(:, 3);
 
 %   Translate uvp illuminated colors to lab.
-lab_colors_red = xyz2lab(uvp2xyz(uvp_colors_red), white_xyz);
-lab_colors_green = xyz2lab(uvp2xyz(uvp_colors_green), white_xyz);
+lab_colors_red = XYZ2Lab(uvp2xyz(uvp_colors_red), white_xyz);
+lab_colors_green = XYZ2Lab(uvp2xyz(uvp_colors_green), white_xyz);
 
 %   Translate lab values to rgb values.
-[~, ErrorCode_1]= Lab2CRSRGB(CRS, lab_colors_red,D65_XYZ);%Lab_To_RGB(lab_colors_red, CRS);
-[~, ErrorCode_2]= Lab2CRSRGB(CRS, lab_colors_green,D65_XYZ);%Lab_To_RGB(lab_colors_green, CRS);
+[~, ErrorCode_1]= Lab2CRSRGB(CRS, lab_colors_red, D65_XYZ);
+[~, ErrorCode_2]= Lab2CRSRGB(CRS, lab_colors_green, D65_XYZ);
 
 %   Check the transformation error codes.
 ind = zeros(size(ErrorCode_1, 1), 1);
@@ -328,6 +328,5 @@ number_of_erased_colors = length(indexs);
 if(number_of_erased_colors > 0)
   Colours(indexs, :)=[];
 end
-
 
 end
