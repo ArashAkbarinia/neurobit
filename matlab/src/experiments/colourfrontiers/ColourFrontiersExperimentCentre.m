@@ -62,10 +62,12 @@ SubjectName = StartExperiment(ExperimentParameters);
 
 if ExperimentParameters.plotresults
   FigurePlanes = unique(FrontierTable(:, 1));
-  for i = 1:length(FigurePlanes)
+  FigurePlanes{1, 2} = [];
+  for i = 1:size(FigurePlanes, 1)
+    AvailablePosition = AvailableFigurePosition(cell2mat(FigurePlanes(:, 2)));
     FigurePlanes{i, 2} = figure;
-    AvailablePosition = AvailableFigurePosition(FigurePlanes{:, 2});
     set(FigurePlanes{i, 2}, 'Name', ['Plane L= ', FigurePlanes{i, 1}], 'NumberTitle', 'off', 'position', AvailablePosition);
+    hold on;
     title(['Subject: ', SubjectName, '; Background: ', BackgroundTitle]);
     axis([-maxradius, maxradius, -maxradius, maxradius]);
     % plotting all the borders at the start
@@ -80,22 +82,17 @@ end
 crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.GAMMACORRECT); %CRS.HYPERCOLOURMODE );
 crsResetTimer();
 
-%==========================================================================
-%                CHOOSE INITAL COLOURS
-%==========================================================================
 condition_elapsedtime = 0;
 ExperimentCounter = 1;
-for borderNr = conditions %conditions contains a list of regions from 1 to 19
-  
+for borderNr = conditions
+  % selecting the figure for this condition
   if ExperimentParameters.plotresults
     FigureIndex = ~cellfun('isempty', strfind(FigurePlanes(:, 1), FrontierTable{borderNr, 1}));
     h = FigurePlanes{FigureIndex, 2};
     figure(h);
   end
   
-  %======================================================================
-  %                    Select border interfase
-  %======================================================================
+  % selection the borders of this condition
   if round(rand)
     startcolourname = FrontierTable{borderNr, 2};
     endcolourname = 'Grey';
@@ -107,7 +104,7 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   %==========================================================================
   %                CHOOSE DISTANCES TO CENTRE
   %==========================================================================
-  current_angle = FrontierTable{borderNr, randi([3, 4])};
+  current_angle = FrontierTable{borderNr, randi([3, 4])}; % TODO: what is the range we accept for angle
   theplane = str2double(FrontierTable{borderNr, 1});
   
   current_radius = minradius + (maxradius - minradius) * rand;
@@ -115,17 +112,13 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   expjunk.startangles(ExperimentCounter) = current_angle;
   expjunk.startradius(ExperimentCounter) = current_radius;
   
-  %==========================================================================
-  %                GENERATE MONDRIAN
-  %==========================================================================
+  % generating mondrian
   [~, ~, ~, palette] = GenerateMondrian(ExperimentParameters, current_angle, current_radius, theplane, startcolourname, endcolourname);
   
   audioplayer(ExperimentParameters.y_DingDong , ExperimentParameters.Fs_DingDong); %#ok
   condition_starttime = crsGetTimer();
   
-  %==========================================================================
-  %                USER INPUT
-  %==========================================================================
+  % displaying experiment information
   disp('===================================');
   disp(['Current colour zone: ', FrontierTable{borderNr, 2}]);
   disp(['radius #', num2str(ExperimentCounter), ' : ' , num2str(current_radius)]);
@@ -139,8 +132,7 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   disp(['Luminance Plane: ', num2str(theplane)]);
   disp(['Start up radius: ', num2str(current_radius), ' Lab units']);
   disp(['Test angle: ', num2str(current_angle), ' rad']);
-  % TODO: experimentcounter should start from 0.
-  disp(['There are still ', num2str(totnumruns - ExperimentCounter), ' runs to go (', num2str(round(ExperimentCounter / totnumruns * 100)), '% completed).']);
+  disp(['There are still ', num2str(totnumruns - ExperimentCounter - 1), ' runs to go (', num2str(round((ExperimentCounter - 1) / totnumruns * 100)), '% completed).']);
   
   % joystick loop quit condition variable
   QuitButtonPressed = 0;
@@ -209,13 +201,12 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   crsPaletteSet(ExperimentParameters.junkpalette);
   crsSetDisplayPage(3);
   
+  % displaying the final selected border
   disp(['Selected radius: ', num2str(current_radius), ' Lab units']);
   disp(['Final Lab colour: ', num2str(pol2cart3([current_angle, current_radius, theplane], 1))]);
   disp(['Time elapsed: ', num2str(condition_elapsedtime / 1000000), ' secs']);
   
-  %==================================================================
   % collect results and other junk
-  %==================================================================
   expjunk.final_angles(ExperimentCounter) = current_angle;
   expjunk.radioes(ExperimentCounter) = current_radius;
   expjunk.times(ExperimentCounter) = condition_elapsedtime / 1000000;
@@ -246,7 +237,7 @@ labplane = str2double(FrontierTable{1});
 % there is +2, because angles start from column 2
 pp = pol2cart3([FrontierTable{blacknwhite + 2}, maxradius + 10]);
 plot([pp(1), 0], [pp(2), 0], 'r');
-hold on;
+
 ColourName = lower(FrontierTable{2});
 colour = CartFocals.(ColourName)((CartFocals.(ColourName)(:, 1) == labplane), :);
 text(colour(2) ./ x, colour(3) ./ x, ColourName, 'color', 'r');

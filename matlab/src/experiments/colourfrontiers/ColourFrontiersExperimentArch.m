@@ -43,15 +43,17 @@ FrontierTable = NeighbourArchs(ExperimentParameters, PolarFocals, FrontierTable)
 
 if ExperimentParameters.plotresults
   FigurePlanes = unique(FrontierTable(:, 1));
-  for i = 1:length(FigurePlanes)
+  FigurePlanes{1, 2} = [];
+  for i = 1:size(FigurePlanes, 1)
+    AvailablePosition = AvailableFigurePosition(cell2mat(FigurePlanes(:, 2)));
     FigurePlanes{i, 2} = figure;
-    AvailablePosition = AvailableFigurePosition(FigurePlanes{:, 2});
     set(FigurePlanes{i, 2}, 'Name', ['Plane L= ', FigurePlanes{i, 1}], 'NumberTitle', 'off', 'position', AvailablePosition);
+    hold on;
     % plotting all the borders at the start
     PlaneIndex = ~cellfun('isempty', strfind(FrontierTable(:, 1), FigurePlanes{i, 1}));
     PlaneTable = FrontierTable(PlaneIndex, :);
     for j = 1:size(PlaneTable, 1)
-      PlotColour(PlaneTable(j, :), PolarFocals, FigurePlanes);
+      PlotColour(PlaneTable(j, :), PolarFocals);
     end
   end
 end
@@ -65,27 +67,22 @@ expjunk.times = zeros(totnumruns, 1);
 expjunk.lumplanes = zeros(totnumruns, 1);
 
 %% start of experiment
+
 SubjectName = StartExperiment(ExperimentParameters);
 
 crsResetTimer();
 
-%==========================================================================
-%                CHOOSE INITAL COLOURS
-%==========================================================================
 condition_elapsedtime = 0;
 ExperimentCounter = 1;
 for borderNr = conditions
-  
+  % selecting the figure for this condition
   if ExperimentParameters.plotresults
     FigureIndex = ~cellfun('isempty', strfind(FigurePlanes(:, 1), FrontierTable{borderNr, 1}));
     h = FigurePlanes{FigureIndex, 2};
     figure(h);
   end
   
-  %======================================================================
-  %                    Select border interfase
-  %======================================================================
-  
+  % selection the borders of this condition
   [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ArchColour(FrontierTable(borderNr, :), PolarFocals, ExperimentParameters);
   
   if start_ang > end_ang
@@ -100,26 +97,21 @@ for borderNr = conditions
   current_angle = start_ang + (end_ang - start_ang) * rand;
   expjunk.startangles(ExperimentCounter) = current_angle;
   
-  %==========================================================================
-  %                GENERATE MONDRIAN
-  %==========================================================================
+  % generating mondrian
   [~, ~, ~, palette] = GenerateMondrian(ExperimentParameters, current_angle, current_radius, theplane, startcolourname, endcolourname);
   
   wavplay(ExperimentParameters.y_DingDong, ExperimentParameters.Fs_DingDong); %#ok
   condition_starttime = crsGetTimer();
   
-  %==========================================================================
-  %                USER INPUT
-  %==========================================================================
+  % displaying experiment information
   disp('===================================');
   disp(['Current colour border: ', startcolourname,' - ', endcolourname]);
   disp(['Radious #', num2str(ExperimentCounter), ' : ', num2str(current_radius)]);
-  disp([startcolourname, ' Lab colour:  ', num2str(pol2cart3([start_ang, current_radius, theplane], 1))]);
-  disp([endcolourname,   ' Lab colour:  ', num2str(pol2cart3([end_ang,   current_radius, theplane], 1))]);
+  disp([startcolourname, ' Lab colour: ', num2str(pol2cart3([start_ang, current_radius, theplane], 1))]);
+  disp([endcolourname,   ' Lab colour: ', num2str(pol2cart3([end_ang,   current_radius, theplane], 1))]);
   disp(['Luminance Plane: ', num2str(theplane)]);
   disp(['Start up angle: ', num2str(current_angle), ' rad']);
-  % TODO: experimentcounter should start from 0.
-  disp(['There are still ', num2str(totnumruns - ExperimentCounter), ' runs to go (', num2str(round(ExperimentCounter / totnumruns * 100)), '% completed).']);
+  disp(['There are still ', num2str(totnumruns - ExperimentCounter - 1), ' runs to go (', num2str(round((ExperimentCounter - 1) / totnumruns * 100)), '% completed).']);
   
   % joystick loop quit condition variable
   QuitButtonPressed = 0;
@@ -185,22 +177,20 @@ for borderNr = conditions
   % deactivate joystick
   joystick off;
   
-  expjunk.anglelimits(ExperimentCounter, :) = [start_ang - ang_margin, end_ang + ang_margin];
-  
   crsPaletteSet(ExperimentParameters.junkpalette);
   crsSetDisplayPage(3);
   
+  % displaying the final selected border
   disp(['Selected angle: ', num2str(current_angle), ' rad']);
   disp(['Final Lab colour: ', num2str(pol2cart3([current_angle, current_radius, theplane], 1))]);
   disp(['Time elapsed: ', num2str(condition_elapsedtime / 1000000), ' secs']);
   
-  %==================================================================
   % collect results and other junk
-  %==================================================================
   expjunk.final_angles(ExperimentCounter) = current_angle;
   expjunk.radioes(ExperimentCounter) = current_radius;
   expjunk.times(ExperimentCounter) = condition_elapsedtime / 1000000;
   expjunk.lumplanes(ExperimentCounter) = theplane;
+  expjunk.anglelimits(ExperimentCounter, :) = [start_ang - ang_margin, end_ang + ang_margin];
   
   ExperimentCounter = ExperimentCounter + 1;
 end
@@ -235,7 +225,7 @@ end
 
 %% PlotColour
 
-function [] = PlotColour(frontier, PolarFocals, FigurePlanes)
+function [] = PlotColour(frontier, PolarFocals)
 
 ColourA = lower(frontier{2});
 ColourB = lower(frontier{3});
@@ -244,18 +234,13 @@ labplane = str2double(frontier{1});
 PoloarColourA = PolarFocals.(ColourA)((PolarFocals.(ColourA)(:, 3) == labplane), :);
 PoloarColourB = PolarFocals.(ColourB)((PolarFocals.(ColourB)(:, 3) == labplane), :);
 
-FigureIndex = ~cellfun('isempty', strfind(FigurePlanes(:, 1), frontier{1}));
-h = FigurePlanes{FigureIndex, 2};
-figure(h);
-hold on;
-
 pp = pol2cart3([PoloarColourA(1), frontier{4}]);
 plot([pp(1), 0], [pp(2), 0], 'r');
 text(pp(1), pp(2), ColourA, 'color', 'r');
 
 pp = pol2cart3([PoloarColourB(1), frontier{4}]);
 plot([pp(1), 0], [pp(2), 0], 'r');
-text(pp(1), pp(2), ColourB, 'color','r');
+text(pp(1), pp(2), ColourB, 'color', 'r');
 
 axis([-50, 50, -50, 50]);
 refresh;

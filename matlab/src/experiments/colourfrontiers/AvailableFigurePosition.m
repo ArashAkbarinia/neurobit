@@ -24,8 +24,8 @@ if isempty(OtherFigures)
   StartPosition = [0, 0];
   AvailablePosition = [StartPosition, FigureSize];
 else
-  ScreenSize = [1, 1, 2000, 1080];get(0, 'screensize');
-  LastFigure = get(OtherFigures(end),'Position');
+  ScreenSize = get(0, 'screensize');
+  LastFigure = get(OtherFigures(end), 'Position');
   
   % x direction
   if LastFigure(1) + LastFigure(3) + FigureSize(1) < ScreenSize(3)
