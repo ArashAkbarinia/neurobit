@@ -45,8 +45,8 @@ if ExperimentParameters.plotresults
   FigurePlanes = unique(FrontierTable(:, 1));
   for i = 1:length(FigurePlanes)
     FigurePlanes{i, 2} = figure;
-    % TODO: add figure position
-    set(FigurePlanes{i, 2}, 'Name', ['Plane L= ', FigurePlanes{i, 1}], 'NumberTitle', 'off');
+    AvailablePosition = AvailableFigurePosition(FigurePlanes{:, 2});
+    set(FigurePlanes{i, 2}, 'Name', ['Plane L= ', FigurePlanes{i, 1}], 'NumberTitle', 'off', 'position', AvailablePosition);
     % plotting all the borders at the start
     PlaneIndex = ~cellfun('isempty', strfind(FrontierTable(:, 1), FigurePlanes{i, 1}));
     PlaneTable = FrontierTable(PlaneIndex, :);
