@@ -35,12 +35,6 @@ function [Nameable_Colours, No_Nameable_Colours] = readcolours(CRS, list_id, nam
 %   20 - Green - Yellow
 %   21 - Orange - Pink
 
-%   Read Annette's Colours(No Nameable Colors)
-if list_id(1) == 1
-  Nameable_Colours = AnnetteColours(CRS);
-  No_Nameable_Colours = Nameable_Colours;
-end
-
 %   Berlin & Kay  & Sturges & Whitfield Nameable Colours.
 if list_id(2) == 1
   %  9*6 = 54;

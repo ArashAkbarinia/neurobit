@@ -1,5 +1,5 @@
-function [] = UpdatePlot(current_angle, current_radius, plotresults, appearance)
-%UpdatePlot Summary of this function goes here
+function [] = UpdatePlotCurrentBorder(current_angle, current_radius, plotresults, appearance)
+%UpdatePlotCurrentBorder Summary of this function goes here
 %   Detailed explanation goes here
 
 if nargin < 4

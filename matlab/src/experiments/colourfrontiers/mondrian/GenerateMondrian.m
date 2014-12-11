@@ -27,12 +27,12 @@ if BackgroundType >= 0 %make a grey background Lum = BackgroundType
   RGB_colors = repmat(testedcolours, numsamples, 1);
   mondrianmeanlum = BackgroundType;
 elseif BackgroundType == -1 % make a greyscale mondrian
-  [testedcolours, mondrianmeanlum] = sample_lab_space(numsamples, ExperimentParameters.refillum);
+  [testedcolours, mondrianmeanlum] = sample_lab_space(CRS, numsamples, ExperimentParameters.refillum);
   testedcolours(:, 2) = 0;
   testedcolours(:, 3) = 0;
   RGB_colors = Lab2CRSRGB(CRS, testedcolours, ExperimentParameters.refillum);
 elseif BackgroundType == -2 % make the normal colour mondrian
-  [testedcolours, mondrianmeanlum] = sample_lab_space(numsamples, ExperimentParameters.refillum);
+  [testedcolours, mondrianmeanlum] = sample_lab_space(CRS, numsamples, ExperimentParameters.refillum);
   RGB_colors = Lab2CRSRGB(CRS, testedcolours, ExperimentParameters.refillum);
 end
 

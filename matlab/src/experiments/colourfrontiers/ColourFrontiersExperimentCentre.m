@@ -29,6 +29,7 @@ crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.NOGAMMACORRECT);
 ExperimentParameters = CreateExperimentParameters(CRS, 'Centre');
 
 %% preparing the experiment
+
 if ExperimentParameters.BackgroundType == -1
   blacknwhite = 1;
   BackgroundTitle = 'Coloured mondrians background';
@@ -40,13 +41,12 @@ elseif ExperimentParameters.BackgroundType >= 0
   BackgroundTitle = 'Plain grey background';
 end
 
-% PrepareExperiment();
 minradius = 0;
 maxradius = 20;
 ini_radialstep = 0.1;
 
 % TODO: should I add this 'binomials'?
-[FrontierTableLumX, conditions] = GetExperimentConditions(FrontierTable, ExperimentParameters);
+[FrontierTable, conditions] = GetExperimentConditions(FrontierTable, ExperimentParameters);
 
 totnumruns = length(conditions);
 expjunk.startangles = zeros(totnumruns, 1);
@@ -60,7 +60,7 @@ expjunk.lumplanes = zeros(totnumruns, 1);
 SubjectName = StartExperiment(ExperimentParameters);
 
 if ExperimentParameters.plotresults
-  FigurePlanes = unique(FrontierTableLumX(:, 1));
+  FigurePlanes = unique(FrontierTable(:, 1));
   for i = 1:length(FigurePlanes)
     FigurePlanes{i, 2} = figure;
     % TODO: add figure position
@@ -68,8 +68,8 @@ if ExperimentParameters.plotresults
     title(['Subject: ', SubjectName, '; Background: ', BackgroundTitle]);
     axis([-maxradius, maxradius, -maxradius, maxradius]);
     
-    PlaneIndex = ~cellfun('isempty', strfind(FrontierTableLumX(:, 1), FigurePlanes{i, 1}));
-    PlaneTable = FrontierTableLumX(PlaneIndex, :);
+    PlaneIndex = ~cellfun('isempty', strfind(FrontierTable(:, 1), FigurePlanes{i, 1}));
+    PlaneTable = FrontierTable(PlaneIndex, :);
     for j = 1:size(PlaneTable, 1)
       PlotGrey(PlaneTable(j, :), blacknwhite, maxradius, CartFocals);
     end
@@ -87,7 +87,7 @@ ExperimentCounter = 1;
 for borderNr = conditions %conditions contains a list of regions from 1 to 19
   
   if ExperimentParameters.plotresults
-    FigureIndex = ~cellfun('isempty', strfind(FigurePlanes(:, 1), FrontierTableLumX{borderNr, 1}));
+    FigureIndex = ~cellfun('isempty', strfind(FigurePlanes(:, 1), FrontierTable{borderNr, 1}));
     h = FigurePlanes{FigureIndex, 2};
     figure(h);
   end
@@ -96,18 +96,18 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   %                    Select border interfase
   %======================================================================
   if round(rand)
-    startcolourname = FrontierTableLumX{borderNr, 2};
+    startcolourname = FrontierTable{borderNr, 2};
     endcolourname = 'Grey';
   else
-    endcolourname = FrontierTableLumX{borderNr, 2};
+    endcolourname = FrontierTable{borderNr, 2};
     startcolourname = 'Grey';
   end
   
   %==========================================================================
   %                CHOOSE DISTANCES TO CENTRE
   %==========================================================================
-  current_angle = FrontierTableLumX{borderNr, randi([3, 4])};
-  theplane = str2double(FrontierTableLumX{borderNr, 1});
+  current_angle = FrontierTable{borderNr, randi([3, 4])};
+  theplane = str2double(FrontierTable{borderNr, 1});
   
   current_radius = minradius + (maxradius - minradius) * rand;
   
@@ -126,7 +126,7 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   %                USER INPUT
   %==========================================================================
   disp('===================================');
-  disp(['Current colour zone: ', FrontierTableLumX{borderNr, 2}]);
+  disp(['Current colour zone: ', FrontierTable{borderNr, 2}]);
   disp(['radius #', num2str(ExperimentCounter), ' : ' , num2str(current_radius)]);
   if ~strcmpi(startcolourname, 'Grey')
     disp([startcolourname, ' Lab colour:  ', num2str(pol2cart3([current_angle, current_radius, theplane], 1))]);
@@ -174,7 +174,7 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
       QuitButtonPressed = 1;
       condition_elapsedtime = crsGetTimer() - condition_starttime;
       wavplay(ExperimentParameters.y_ding, ExperimentParameters.Fs_ding); %#ok
-      UpdatePlot(current_angle, current_radius, ExperimentParameters.plotresults, 'or');
+      UpdatePlotCurrentBorder(current_angle, current_radius, ExperimentParameters.plotresults, 'or');
       Shift = 0;
     end
     if Shift ~= 0
@@ -182,7 +182,7 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
       % to slow the adquisition process.
       pause(ExperimentParameters.joystickdelay);
       
-      UpdatePlot(current_angle, current_radius, ExperimentParameters.plotresults, '.b');
+      UpdatePlotCurrentBorder(current_angle, current_radius, ExperimentParameters.plotresults, '.b');
       
       % update current radius
       current_radius = current_radius + Shift;
@@ -198,7 +198,7 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
       % update the CRT
       palette(ExperimentParameters.Central_patch_name, :) = Lab2CRSRGB(ExperimentParameters.CRS, pol2cart3([current_angle, current_radius, theplane], 1), ExperimentParameters.refillum);
       crsPaletteSet(palette');
-      UpdatePlot(current_angle, current_radius, ExperimentParameters.plotresults, '.r');
+      UpdatePlotCurrentBorder(current_angle, current_radius, ExperimentParameters.plotresults, '.r');
     end
   end
   
@@ -207,12 +207,13 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   
   crsPaletteSet(ExperimentParameters.junkpalette);
   crsSetDisplayPage(3);
+  
   disp(['Selected radius: ', num2str(current_radius), ' Lab units']);
-  disp(['Final Lab colour:  ', num2str(pol2cart3([current_angle, current_radius, theplane], 1))]);
-  disp(['Time elapsed: ', num2str(condition_elapsedtime/1000000), ' secs']);
+  disp(['Final Lab colour: ', num2str(pol2cart3([current_angle, current_radius, theplane], 1))]);
+  disp(['Time elapsed: ', num2str(condition_elapsedtime / 1000000), ' secs']);
   
   %==================================================================
-  %Collect results and other junk
+  % collect results and other junk
   %==================================================================
   expjunk.final_angles(ExperimentCounter) = current_angle;
   expjunk.radioes(ExperimentCounter) = current_radius;
@@ -222,7 +223,6 @@ for borderNr = conditions %conditions contains a list of regions from 1 to 19
   ExperimentCounter = ExperimentCounter + 1;
 end
 
-% CollectResults();
 expjunk.conditions = conditions;
 expjunk.constants.radialstep = ini_radialstep;
 expjunk.constants.mybackground = ExperimentParameters.BackgroundType;
@@ -233,7 +233,7 @@ CleanAndSave(ExperimentParameters, SubjectName, expjunk);
 
 end
 
-%% other functions
+%% PlotGrey
 
 function [] = PlotGrey(FrontierTable, blacknwhite, maxradius, CartFocals)
 

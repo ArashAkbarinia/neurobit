@@ -6,8 +6,9 @@ order = 0;
 mondrian_index = 1;
 IlluminantShift = 0;
 
-ImageParameters.Height = 768;
-ImageParameters.Width = 1024;
+% TODO: get the size authomatically from the monitor
+ImageParameters.Height = 600;
+ImageParameters.Width = 800;
 ImageParameters.center_h = ImageParameters.Height / 2;
 ImageParameters.center_w = ImageParameters.Width / 2;
 
