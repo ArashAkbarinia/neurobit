@@ -69,7 +69,6 @@ if ExperimentParameters.plotresults
     set(FigurePlanes{i, 2}, 'Name', ['Plane L= ', FigurePlanes{i, 1}], 'NumberTitle', 'off', 'position', AvailablePosition);
     hold on;
     title(['Subject: ', SubjectName, '; Background: ', BackgroundTitle]);
-    axis([-maxradius, maxradius, -maxradius, maxradius]);
     % plotting all the borders at the start
     PlaneIndex = ~cellfun('isempty', strfind(FrontierTable(:, 1), FigurePlanes{i, 1}));
     PlaneTable = FrontierTable(PlaneIndex, :);
@@ -104,7 +103,15 @@ for borderNr = conditions
   %==========================================================================
   %                CHOOSE DISTANCES TO CENTRE
   %==========================================================================
-  current_angle = FrontierTable{borderNr, randi([3, 4])}; % TODO: what is the range we accept for angle
+  ColourRad = FrontierTable{borderNr, blacknwhite + 2};
+  BorderIndices1 = ~cellfun('isempty', strfind(FrontierTable(:, 1), FrontierTable{borderNr, 1}));
+  BorderIndices2 = ~cellfun('isempty', strfind(FrontierTable(:, 2), FrontierTable{borderNr, 5}));
+  BorderColour = FrontierTable(BorderIndices1 & BorderIndices2, :);
+  BorderRad = BorderColour{blacknwhite + 2};
+  if ColourRad < BorderRad
+    ColourRad = ColourRad + 2 * pi;
+  end
+  current_angle = (BorderRad - ColourRad) .* rand + ColourRad;
   theplane = str2double(FrontierTable{borderNr, 1});
   
   current_radius = minradius + (maxradius - minradius) * rand;
