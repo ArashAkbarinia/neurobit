@@ -25,28 +25,28 @@
 
 function belonging = evaluate_belonging(lsY_points, ellipsoid)
 
-CentreL = ellipsoid(1);
-CentreS = ellipsoid(2);
-% CentreY = ellipsoid(3);
-AxisL = ellipsoid(4);
-AxisS = ellipsoid(5);
-AxisY = ellipsoid(6);
-% RotL = ellipsoid(7);
-% RotS = ellipsoid(8);
-RotY = ellipsoid(9);
+CentreX = ellipsoid(1);
+CentreY = ellipsoid(2);
+% CentreZ = ellipsoid(3);
+AxisX = ellipsoid(4);
+AxisY = ellipsoid(5);
+AxisZ = ellipsoid(6);
+% RotX = ellipsoid(7);
+% RotY = ellipsoid(8);
+RotZ = ellipsoid(9);
 RSS = ellipsoid(10);
 
 steepness = 5; % steepness of the sigmoidal transition.
 
 [lines, ~] = size(lsY_points);
 % Centre the points relatively to the ellipsoid.
-lsY_points = lsY_points - repmat([CentreL, CentreS, 0], [lines, 1]);
+lsY_points = lsY_points - repmat([CentreX, CentreY, 0], [lines, 1]);
 % Points with luminance value larger than c don't belone to the ellipsoid
-do_belong = (abs(lsY_points(:, 3)) <= AxisY);
+do_belong = (abs(lsY_points(:, 3)) <= AxisZ);
 % rotate all points an angle alpha so that we can reduce the problem to
 % one of canonical ellipsoids
-s = sin(RotY);
-c = cos(RotY);
+s = sin(RotZ);
+c = cos(RotZ);
 rot = [c -s 0; s c 0; 0 0 1];
 lsY_points = lsY_points * rot;
 % TODO: if you want to have it faster you can pre calculate the power 2
@@ -59,7 +59,7 @@ Pz = lsY_points(:, 3);
 
 % calculate the distance from each point to the ellipsoid
 % TODO: why here (1 - Pz ./ c) is different from point_to_ellipse
-x1 = (1 - Pz ./ AxisY) ./ sqrt(1 ./ (AxisL .^ 2) + (Py ./ Px ./ AxisS) .^ 2);
+x1 = (1 - Pz ./ AxisZ) ./ sqrt(1 ./ (AxisX .^ 2) + (Py ./ Px ./ AxisY) .^ 2);
 x2 = -x1;
 y1 = Py ./ Px .* x1;
 y2 = -y1;
