@@ -103,7 +103,6 @@ orange81 = ...
 
 CartFocals.orange = ...
   [
-  47, 33, 56;
   mean(orange58);
   70, 34, 50;
   mean(orange81);

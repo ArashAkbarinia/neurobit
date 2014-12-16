@@ -26,13 +26,13 @@ crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.GAMMACORRECT); %CRS.HYPERCOLOURMOD
 
 ExperimentParameters = CreateExperimentParameters(CRS, 'Arch');
 
-%% preparing the experiment
-
 ExperimentParameters.minradius = 10;
 ExperimentParameters.maxradius = 50;
 % (the margin the observer is allowed to wander outside the focus colour bracket (in radians)
 ang_margin_fraction = 0.1;
 ini_angularstep = 0.01; % one jnd (?)
+
+%% preparing the experiment
 
 % TODO: should I add this 'binomials'?
 [FrontierTable, conditions] = GetExperimentConditions(FrontierTable, ExperimentParameters);
@@ -59,12 +59,17 @@ if ExperimentParameters.plotresults
 end
 
 totnumruns = length(conditions);
+
+% the parameters that we save in excel
+expjunk.angles = zeros(totnumruns, 1);
+expjunk.radii = zeros(totnumruns, 1);
+expjunk.luminances = zeros(totnumruns, 1);
+expjunk.times = zeros(totnumruns, 1);
+expjunk.conditions = conditions;
+
 expjunk.startangles = zeros(totnumruns, 1);
 expjunk.anglelimits = zeros(totnumruns, 2);
-expjunk.final_angles = zeros(totnumruns, 1);
-expjunk.radioes = zeros(totnumruns, 1);
-expjunk.times = zeros(totnumruns, 1);
-expjunk.lumplanes = zeros(totnumruns, 1);
+expjunk.blacknwhite = ExperimentParameters.BackgroundType;
 
 %% start of experiment
 
@@ -89,12 +94,11 @@ for borderNr = conditions
     end_ang = end_ang + 2 * pi();
   end
   
-  %==========================================================================
-  %                CHOOSE DISTANCES TO CENTRE
-  %==========================================================================
+  % choose distance to centre
   ang_margin = ang_margin_fraction * abs(end_ang - start_ang);
   current_radius = radioes;
-  current_angle = start_ang + (end_ang - start_ang) * rand;
+  % randomise between 0.5 to 1.0 so we wont be close to grey
+  current_angle = start_ang + (end_ang - start_ang) * (0.5 * rand + 0.5);
   expjunk.startangles(ExperimentCounter) = current_angle;
   
   % generating mondrian
@@ -186,17 +190,15 @@ for borderNr = conditions
   disp(['Time elapsed: ', num2str(condition_elapsedtime / 1000000), ' secs']);
   
   % collect results and other junk
-  expjunk.final_angles(ExperimentCounter) = current_angle;
-  expjunk.radioes(ExperimentCounter) = current_radius;
+  expjunk.angles(ExperimentCounter) = current_angle;
+  expjunk.radii(ExperimentCounter) = current_radius;
+  expjunk.luminances(ExperimentCounter) = theplane;
   expjunk.times(ExperimentCounter) = condition_elapsedtime / 1000000;
-  expjunk.lumplanes(ExperimentCounter) = theplane;
+  
   expjunk.anglelimits(ExperimentCounter, :) = [start_ang - ang_margin, end_ang + ang_margin];
   
   ExperimentCounter = ExperimentCounter + 1;
 end
-
-expjunk.conditions = conditions;
-expjunk.blacknwhite = ExperimentParameters.BackgroundType;
 
 %% cleaning and saving
 

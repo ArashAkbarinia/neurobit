@@ -28,8 +28,15 @@ crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.NOGAMMACORRECT);
 
 ExperimentParameters = CreateExperimentParameters(CRS, 'Centre');
 
+AngleMargin = 0.1;
+
+minradius = 0;
+maxradius = 20;
+ini_radialstep = 0.1;
+
 %% preparing the experiment
 
+% TODO: should I remove grey level mondrian
 if ExperimentParameters.BackgroundType == -1
   blacknwhite = 1;
   BackgroundTitle = 'Coloured mondrians background';
@@ -41,20 +48,22 @@ elseif ExperimentParameters.BackgroundType >= 0
   BackgroundTitle = 'Plain grey background';
 end
 
-minradius = 0;
-maxradius = 20;
-ini_radialstep = 0.1;
-
 % TODO: should I add this 'binomials'?
 [FrontierTable, conditions] = GetExperimentConditions(FrontierTable, ExperimentParameters);
 
 totnumruns = length(conditions);
+
+% the parameters that we save in excel
+expjunk.angles = zeros(totnumruns, 1);
+expjunk.radii = zeros(totnumruns, 1);
+expjunk.luminances = zeros(totnumruns, 1);
+expjunk.times = zeros(totnumruns, 1);
+expjunk.conditions = conditions;
+
 expjunk.startangles = zeros(totnumruns, 1);
 expjunk.startradius = zeros(totnumruns, 1);
-expjunk.final_angles = zeros(totnumruns, 1);
-expjunk.radioes = zeros(totnumruns, 1);
-expjunk.times = zeros(totnumruns, 1);
-expjunk.lumplanes = zeros(totnumruns, 1);
+expjunk.radialstep = ini_radialstep;
+expjunk.mybackground = ExperimentParameters.BackgroundType;
 
 %% start of experiment
 
@@ -100,18 +109,17 @@ for borderNr = conditions
     startcolourname = 'Grey';
   end
   
-  %==========================================================================
-  %                CHOOSE DISTANCES TO CENTRE
-  %==========================================================================
+  % choose distance to centre
   ColourRad = FrontierTable{borderNr, blacknwhite + 2};
-  BorderIndices1 = ~cellfun('isempty', strfind(FrontierTable(:, 1), FrontierTable{borderNr, 1}));
-  BorderIndices2 = ~cellfun('isempty', strfind(FrontierTable(:, 2), FrontierTable{borderNr, 5}));
-  BorderColour = FrontierTable(BorderIndices1 & BorderIndices2, :);
-  BorderRad = BorderColour{blacknwhite + 2};
-  if ColourRad < BorderRad
-    ColourRad = ColourRad + 2 * pi;
-  end
-  current_angle = (BorderRad - ColourRad) .* rand + ColourRad;
+  %   BorderIndices1 = ~cellfun('isempty', strfind(FrontierTable(:, 1), FrontierTable{borderNr, 1}));
+  %   BorderIndices2 = ~cellfun('isempty', strfind(FrontierTable(:, 2), FrontierTable{borderNr, 5}));
+  %   BorderColour = FrontierTable(BorderIndices1 & BorderIndices2, :);
+  %   BorderRad = BorderColour{blacknwhite + 2};
+  %   if ColourRad < BorderRad
+  %     ColourRad = ColourRad + 2 * pi;
+  %   end
+  %   current_angle = (BorderRad - ColourRad) .* rand + ColourRad;
+  current_angle = (-2 * AngleMargin * rand + 1 + AngleMargin) * ColourRad;
   theplane = str2double(FrontierTable{borderNr, 1});
   
   current_radius = minradius + (maxradius - minradius) * rand;
@@ -128,7 +136,6 @@ for borderNr = conditions
   % displaying experiment information
   disp('===================================');
   disp(['Current colour zone: ', FrontierTable{borderNr, 2}]);
-  disp(['radius #', num2str(ExperimentCounter), ' : ' , num2str(current_radius)]);
   if ~strcmpi(startcolourname, 'Grey')
     disp([startcolourname, ' Lab colour:  ', num2str(pol2cart3([current_angle, current_radius, theplane], 1))]);
     disp([endcolourname, ' Lab colour:  0 0 ', num2str(theplane)]);
@@ -214,17 +221,13 @@ for borderNr = conditions
   disp(['Time elapsed: ', num2str(condition_elapsedtime / 1000000), ' secs']);
   
   % collect results and other junk
-  expjunk.final_angles(ExperimentCounter) = current_angle;
-  expjunk.radioes(ExperimentCounter) = current_radius;
+  expjunk.angles(ExperimentCounter) = current_angle;
+  expjunk.radii(ExperimentCounter) = current_radius;
+  expjunk.luminances(ExperimentCounter) = theplane;
   expjunk.times(ExperimentCounter) = condition_elapsedtime / 1000000;
-  expjunk.lumplanes(ExperimentCounter) = theplane;
   
   ExperimentCounter = ExperimentCounter + 1;
 end
-
-expjunk.conditions = conditions;
-expjunk.constants.radialstep = ini_radialstep;
-expjunk.constants.mybackground = ExperimentParameters.BackgroundType;
 
 %% cleaning and saving
 
