@@ -29,6 +29,7 @@ if chns == 3
 end
 
 for i = 1:nelpisd
+%   ibelonging = EllipsoidEvaluateBelonging(lsYVector, ColourEllipsoids(i, :));
   ibelonging = evaluate_belonging(lsYVector, ColourEllipsoids(i, :));
   
   belongings(:, :, i) = reshape(ibelonging, rows, cols, 1);

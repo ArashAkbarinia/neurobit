@@ -48,7 +48,7 @@ FittingData.Y_level81 = levelsXYZ(3, 2);
 if doproperdistance
   options = optimset('MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
 else
-  options = optimoptions(@fmincon,'Algorithm', 'sqp', 'Display', 'iter');
+  options = optimoptions(@fmincon,'Algorithm', 'sqp', 'Display', 'iter', 'MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
 end
 
 %========================= generate results ================================
@@ -284,12 +284,13 @@ if doproperdistance
 else
   fs = std([FittingData.data36; FittingData.data58; FittingData.data81]);
   fm = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
-  initial = [fm, fs, 0, 0, 0];
+  initial = [initial(1:6), 0, 0, initial(7)];
+%   initial = [fm, fs, 0, 0, 0];
   RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData); % if you need to edit, do it below!
-  lb = [fm - fs, 0, 0, 0, 0, 0, 0];
-  ub = [fm + fs, 1, 1, 100, pi, pi, pi];
-  A = [];
-  [ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, [], [], [], [], lb, ub, @EllipsoidEq, options);
+  lb = [-1, -1, 0, 0, 0,   0,  0,  0,  0];
+  ub = [ 1,  1,  100, 1, 1, 100, pi, pi, pi];
+  [ellipsoid, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, options);
+%   [ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, [], [], [], [], lb, ub, @EllipsoidEq, options);
 end
 
 disp ('================================================================');
