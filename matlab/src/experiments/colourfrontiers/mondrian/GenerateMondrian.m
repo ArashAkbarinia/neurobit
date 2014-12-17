@@ -70,7 +70,9 @@ fin_w = Central_w + Width_Central_Patch_w;
 
 mymondrian(ini_h:fin_h, ini_w:fin_w) = ExperimentParameters.Black_palette_name;
 
-offset_black_patch_frame = 10;
+% TODO: make it a parameter for the function
+% do we want a black border?
+offset_black_patch_frame = 0;
 ini_h = ini_h + offset_black_patch_frame;
 fin_h = fin_h - offset_black_patch_frame;
 ini_w = ini_w + offset_black_patch_frame;
@@ -84,8 +86,10 @@ palette(ExperimentParameters.Central_patch_name, :) = startingLabcolour;
 offline_h = 80;
 offline_w = offline_h;
 
-shadow_width = 10;
-shadow_offset = 10; %this should be smaller than offline_h
+% TODO: make it a parameter
+% do we need a shadow
+shadow_width = 0;
+shadow_offset = 0; %this should be smaller than offline_h
 
 mymondrian(1:Height, 1:offline_w) = frame_name;
 mymondrian(1:Height, Width - offline_w:Width) = frame_name;
