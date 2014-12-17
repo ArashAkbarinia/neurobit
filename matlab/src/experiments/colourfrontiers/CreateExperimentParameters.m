@@ -10,7 +10,7 @@ ExperimentParameters = struct();
 % '81'         --> does only the hight luminance borders
 % 'binomials'  --> does only the borders that gave binomial distributions
 %                  using the previous paradigm
-ExperimentParameters.which_level = '81';
+ExperimentParameters.which_level = {'25', '47', '70'};
 
 % x >= 0  --> no mondrians, presents colours on a grey background with
 %             luminance 'x'.
@@ -20,10 +20,10 @@ ExperimentParameters.which_level = '81';
 ExperimentParameters.BackgroundType = 0;
 
 % time in seconds for the dark adaptation period (should be 120)
-ExperimentParameters.darkadaptation = 10;
+ExperimentParameters.darkadaptation = 120;
 
 % the total number of conditions, it should be 50 by default
-ExperimentParameters.numcolconditions = 2;
+ExperimentParameters.numcolconditions = 10;
 
 ExperimentParameters.endexppause = 15;
 

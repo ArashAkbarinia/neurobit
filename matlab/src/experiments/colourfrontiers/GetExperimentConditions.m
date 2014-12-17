@@ -6,7 +6,10 @@ nconditions = ExperimentParameters.numcolconditions;
 if strcmp(luminance, 'all')
   FrontierTableLumX = FrontierTable;
 else
-  indeces = ~cellfun('isempty', strfind(FrontierTable(:, 1), luminance));
+  indeces = false(size(FrontierTable, 1), 1);
+  for i = 1:length(luminance)
+    indeces = indeces | ~cellfun('isempty', strfind(FrontierTable(:, 1), luminance{i}));
+  end
   FrontierTableLumX = FrontierTable(indeces, :);
 end
 

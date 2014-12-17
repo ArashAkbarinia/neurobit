@@ -21,7 +21,7 @@ crsStartup;
 crsSet24bitColourMode;
 crsSetColourSpace(CRS.CS_RGB);
 % Gammacorrect should be turned off when showing non-linear images
-crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.GAMMACORRECT); %CRS.HYPERCOLOURMODE );
+crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.NOGAMMACORRECT);
 
 %% experiment parameters
 

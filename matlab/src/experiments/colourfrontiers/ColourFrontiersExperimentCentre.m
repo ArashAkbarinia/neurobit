@@ -90,7 +90,6 @@ if ExperimentParameters.plotresults
   end
 end
 
-crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.GAMMACORRECT); %CRS.HYPERCOLOURMODE );
 crsResetTimer();
 
 condition_elapsedtime = 0;
