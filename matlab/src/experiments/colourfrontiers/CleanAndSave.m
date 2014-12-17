@@ -1,4 +1,4 @@
-function [] = CleanAndSave(ExperimentParameters, SubjectName, expjunk)
+function [] = CleanAndSave(ExperimentParameters, SubjectName, ExperimentResults)
 
 junkpalette = ExperimentParameters.junkpalette;
 crsPaletteSet(junkpalette);
@@ -14,14 +14,14 @@ end
 
 pathname = strcat(ExperimentParameters.resultsdir, SubjectName, '\');
 filename = strcat(lower('Colour Frontiers Experiment_'), ExperimentParameters.ExperimentType, '_', datestr(now, 'yyyy-mm-dd_HH.MM.SS'));
-save(char(strcat(pathname, filename, '.mat')), 'expjunk');
+save(char(strcat(pathname, filename, '.mat')), 'ExperimentResults');
 
 warning off MATLAB:xlswrite:AddSheet;
-[~, ~] = xlswrite(char(strcat(pathname, filename, '.xls')), [expjunk.angles],     'angles');
-[~, ~] = xlswrite(char(strcat(pathname, filename, '.xls')), [expjunk.radii],      'radii');
-[~, ~] = xlswrite(char(strcat(pathname, filename, '.xls')), [expjunk.luminances], 'luminances');
-[~, ~] = xlswrite(char(strcat(pathname, filename, '.xls')), [expjunk.times],      'elapsed_times');
-[~, ~] = xlswrite(char(strcat(pathname, filename, '.xls')), [expjunk.conditions], 'presentation_order');
+[~, ~] = xlswrite(char(strcat(pathname, filename, '.xls')), [ExperimentResults.angles],     'angles');
+[~, ~] = xlswrite(char(strcat(pathname, filename, '.xls')), [ExperimentResults.radii],      'radii');
+[~, ~] = xlswrite(char(strcat(pathname, filename, '.xls')), [ExperimentResults.luminances], 'luminances');
+[~, ~] = xlswrite(char(strcat(pathname, filename, '.xls')), [ExperimentResults.times],      'elapsed_times');
+[~, ~] = xlswrite(char(strcat(pathname, filename, '.xls')), [ExperimentResults.conditions], 'presentation_order');
 
 hold off;
 pause(ExperimentParameters.endexppause)
