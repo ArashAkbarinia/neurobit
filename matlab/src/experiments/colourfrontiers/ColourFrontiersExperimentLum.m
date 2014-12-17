@@ -25,10 +25,9 @@ crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.GAMMACORRECT); %CRS.HYPERCOLOURMOD
 
 %% experiment parameters
 
-ExperimentParameters = CreateExperimentParameters(CRS, 'Lum');
+ExperimentParameters = CreateExperimentParameters(CRS, 'Luminance');
 % TODO, this should be always all and -2 or -1, move it from experiment parameters
 ExperimentParameters.which_level = 'all';
-ExperimentParameters.BackgroundType = -2;
 
 LuminanceStep = 0.5;
 
@@ -38,7 +37,7 @@ LuminanceStep = 0.5;
 
 if ExperimentParameters.plotresults
   [UniqueAB, ~, UniqueABIndeces] = unique(cell2mat(FrontierTable(:, 3:4)), 'rows');
-  FigurePlanes = cell(length(UniqueAB), 2);
+  FigurePlanes = cell(size(UniqueAB, 1), 2);
   FigurePlanes{1, 2} = [];
   for i = 1:size(FigurePlanes, 1)
     AvailablePosition = AvailableFigurePosition(cell2mat(FigurePlanes(:, 2)));
@@ -58,13 +57,14 @@ end
 totnumruns = length(conditions);
 
 % the parameters that we save in excel
-expjunk.angles = zeros(totnumruns, 1);
-expjunk.radii = zeros(totnumruns, 1);
-expjunk.luminances = zeros(totnumruns, 1);
-expjunk.times = zeros(totnumruns, 1);
-expjunk.conditions = conditions;
-
-expjunk.BackgroundType = ExperimentParameters.BackgroundType;
+ExperimentResults.angles = zeros(totnumruns, 1);
+ExperimentResults.radii = zeros(totnumruns, 1);
+ExperimentResults.luminances = zeros(totnumruns, 1);
+ExperimentResults.times = zeros(totnumruns, 1);
+ExperimentResults.conditions = conditions;
+ExperimentResults.type = ExperimentParameters.ExperimentType;
+ExperimentResults.background = ExperimentParameters.BackgroundType;
+ExperimentResults.FrontierColours = cell(totnumruns, 2);
 
 %% start of experiment
 
@@ -87,6 +87,7 @@ for nborder = conditions
   % TODO: add here the a and b ...
   ColourA = lower(FrontierTable{nborder, 1});
   ColourB = lower(FrontierTable{nborder, 2});
+  ExperimentResults.FrontierColours(ExperimentCounter, :) = {ColourA, ColourB};
   StartLuminance = (FrontierTable{nborder, 5} - FrontierTable{nborder, 6}) / 2;
   PolarColour = cart2pol3([FrontierTable{nborder, 3} - 0.5, FrontierTable{nborder, 4} - 0.5, StartLuminance]);
   CurrentAngle = PolarColour(1);
@@ -182,17 +183,17 @@ for nborder = conditions
   disp(['Time elapsed: ', num2str(condition_elapsedtime / 1000000), ' secs']);
   
   % collect results and other junk
-  expjunk.angles(ExperimentCounter) = CurrentAngle;
-  expjunk.radii(ExperimentCounter) = CurrentRadius;
-  expjunk.luminances(ExperimentCounter) = CurrentLuminance;
-  expjunk.times(ExperimentCounter) = condition_elapsedtime / 1000000;
+  ExperimentResults.angles(ExperimentCounter) = CurrentAngle;
+  ExperimentResults.radii(ExperimentCounter) = CurrentRadius;
+  ExperimentResults.luminances(ExperimentCounter) = CurrentLuminance;
+  ExperimentResults.times(ExperimentCounter) = condition_elapsedtime / 1000000;
   
   ExperimentCounter = ExperimentCounter + 1;
 end
 
 %% cleaning and saving
 
-CleanAndSave(ExperimentParameters, SubjectName, expjunk);
+CleanAndSave(ExperimentParameters, SubjectName, ExperimentResults);
 
 end
 

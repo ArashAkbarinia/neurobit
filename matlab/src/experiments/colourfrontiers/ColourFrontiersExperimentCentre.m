@@ -11,7 +11,7 @@ clc;
 FrontierTable = GreyFrontiers();
 
 % invoque the list of nameable colours from the literature
-[CartFocals, ~] = FocalColours();
+[CartFocals, PolarFocals] = FocalColours();
 
 %% CRS setup
 
@@ -28,42 +28,45 @@ crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.NOGAMMACORRECT);
 
 ExperimentParameters = CreateExperimentParameters(CRS, 'Centre');
 
-AngleMargin = 0.1;
-
+ExperimentParameters.AngleMargin = 0.1;
+ExperimentParameters.maxradius = 50;
 minradius = 0;
-maxradius = 20;
 ini_radialstep = 0.1;
 
 %% preparing the experiment
 
 % TODO: should I remove grey level mondrian
 if ExperimentParameters.BackgroundType == -1
-  blacknwhite = 1;
   BackgroundTitle = 'Coloured mondrians background';
 elseif ExperimentParameters.BackgroundType == -2
-  blacknwhite = 2;
   BackgroundTitle = 'Greylevel mondrians background';
 elseif ExperimentParameters.BackgroundType >= 0
-  blacknwhite = 2;
   BackgroundTitle = 'Plain grey background';
 end
 
 % TODO: should I add this 'binomials'?
 [FrontierTable, conditions] = GetExperimentConditions(FrontierTable, ExperimentParameters);
 
+disp('Finding possible radioes. Please wait....');
+% find the largest radious possible within the limits of the monitor
+FrontierTable = FindMaximumRadius(ExperimentParameters, PolarFocals, FrontierTable);
+
 totnumruns = length(conditions);
 
 % the parameters that we save in excel
-expjunk.angles = zeros(totnumruns, 1);
-expjunk.radii = zeros(totnumruns, 1);
-expjunk.luminances = zeros(totnumruns, 1);
-expjunk.times = zeros(totnumruns, 1);
-expjunk.conditions = conditions;
+ExperimentResults.angles = zeros(totnumruns, 1);
+ExperimentResults.radii = zeros(totnumruns, 1);
+ExperimentResults.luminances = zeros(totnumruns, 1);
+ExperimentResults.times = zeros(totnumruns, 1);
+ExperimentResults.conditions = conditions;
+ExperimentResults.type = ExperimentParameters.ExperimentType;
+ExperimentResults.background = ExperimentParameters.BackgroundType;
+ExperimentResults.background = ExperimentParameters.BackgroundType;
+ExperimentResults.FrontierColours = cell(totnumruns, 2);
 
-expjunk.startangles = zeros(totnumruns, 1);
-expjunk.startradius = zeros(totnumruns, 1);
-expjunk.radialstep = ini_radialstep;
-expjunk.mybackground = ExperimentParameters.BackgroundType;
+ExperimentResults.startangles = zeros(totnumruns, 1);
+ExperimentResults.startradius = zeros(totnumruns, 1);
+ExperimentResults.radialstep = ini_radialstep;
 
 %% start of experiment
 
@@ -82,7 +85,7 @@ if ExperimentParameters.plotresults
     PlaneIndex = ~cellfun('isempty', strfind(FrontierTable(:, 1), FigurePlanes{i, 1}));
     PlaneTable = FrontierTable(PlaneIndex, :);
     for j = 1:size(PlaneTable, 1)
-      PlotGrey(PlaneTable(j, :), blacknwhite, maxradius, CartFocals);
+      PlotGrey(PlaneTable(j, :), CartFocals);
     end
   end
 end
@@ -108,24 +111,20 @@ for borderNr = conditions
     endcolourname = FrontierTable{borderNr, 2};
     startcolourname = 'Grey';
   end
+  ExperimentResults.FrontierColours(ExperimentCounter, :) = {startcolourname, endcolourname};
   
   % choose distance to centre
-  ColourRad = FrontierTable{borderNr, blacknwhite + 2};
-  %   BorderIndices1 = ~cellfun('isempty', strfind(FrontierTable(:, 1), FrontierTable{borderNr, 1}));
-  %   BorderIndices2 = ~cellfun('isempty', strfind(FrontierTable(:, 2), FrontierTable{borderNr, 5}));
-  %   BorderColour = FrontierTable(BorderIndices1 & BorderIndices2, :);
-  %   BorderRad = BorderColour{blacknwhite + 2};
-  %   if ColourRad < BorderRad
-  %     ColourRad = ColourRad + 2 * pi;
-  %   end
-  %   current_angle = (BorderRad - ColourRad) .* rand + ColourRad;
-  current_angle = (-2 * AngleMargin * rand + 1 + AngleMargin) * ColourRad;
+  maxradius = FrontierTable{borderNr, 3};
   theplane = str2double(FrontierTable{borderNr, 1});
+  CurrentColourName = lower(FrontierTable{borderNr, 2});
+  CurrentPolar = PolarFocals.(CurrentColourName)((PolarFocals.(CurrentColourName)(:, 3) == theplane), :);
+  ColourRad = CurrentPolar(1, 1);
+  current_angle = (-2 * ExperimentParameters.AngleMargin * rand + 1 + ExperimentParameters.AngleMargin) * ColourRad;
   
   current_radius = minradius + (maxradius - minradius) * rand;
   
-  expjunk.startangles(ExperimentCounter) = current_angle;
-  expjunk.startradius(ExperimentCounter) = current_radius;
+  ExperimentResults.startangles(ExperimentCounter) = current_angle;
+  ExperimentResults.startradius(ExperimentCounter) = current_radius;
   
   % generating mondrian
   [~, ~, ~, palette] = GenerateMondrian(ExperimentParameters, current_angle, current_radius, theplane, startcolourname, endcolourname);
@@ -221,35 +220,56 @@ for borderNr = conditions
   disp(['Time elapsed: ', num2str(condition_elapsedtime / 1000000), ' secs']);
   
   % collect results and other junk
-  expjunk.angles(ExperimentCounter) = current_angle;
-  expjunk.radii(ExperimentCounter) = current_radius;
-  expjunk.luminances(ExperimentCounter) = theplane;
-  expjunk.times(ExperimentCounter) = condition_elapsedtime / 1000000;
+  ExperimentResults.angles(ExperimentCounter) = current_angle;
+  ExperimentResults.radii(ExperimentCounter) = current_radius;
+  ExperimentResults.luminances(ExperimentCounter) = theplane;
+  ExperimentResults.times(ExperimentCounter) = condition_elapsedtime / 1000000;
   
   ExperimentCounter = ExperimentCounter + 1;
 end
 
 %% cleaning and saving
 
-CleanAndSave(ExperimentParameters, SubjectName, expjunk);
+CleanAndSave(ExperimentParameters, SubjectName, ExperimentResults);
 
 end
 
 %% PlotGrey
 
-function [] = PlotGrey(FrontierTable, blacknwhite, maxradius, CartFocals)
+function [] = PlotGrey(FrontierTable, CartFocals)
 
 % TODO: should we change it based on the colour?
 x = 2;
 
 labplane = str2double(FrontierTable{1});
-
-% there is +2, because angles start from column 2
-pp = pol2cart3([FrontierTable{blacknwhite + 2}, maxradius + 10]);
-plot([pp(1), 0], [pp(2), 0], 'r');
-
 ColourName = lower(FrontierTable{2});
 colour = CartFocals.(ColourName)((CartFocals.(ColourName)(:, 1) == labplane), :);
+
+pp = colour(2:3);
+plot([pp(1), 0], [pp(2), 0], 'r');
+
 text(colour(2) ./ x, colour(3) ./ x, ColourName, 'color', 'r');
+
+end
+
+%% FindMaximumRadius
+
+function FrontierTableArchs = FindMaximumRadius(ExperimentParameters, PolarFocals, FrontierTable)
+
+crs = ExperimentParameters.CRS;
+
+[rows, cols] = size(FrontierTable);
+FrontierTableArchs = cell(rows, cols + 1);
+
+for i = 1:rows
+  labplane = str2double(lower(FrontierTable{i, 1}));
+  ColourA = lower(FrontierTable{i, 2});
+  PolarColourA = PolarFocals.(ColourA)((PolarFocals.(ColourA)(:, 3) == labplane), :);
+  MinAngle = PolarColourA(1) - ExperimentParameters.AngleMargin;
+  MaxAngle = PolarColourA(1) + ExperimentParameters.AngleMargin;
+  MaxRadiusAllowed = find_max_rad_allowed(crs, MinAngle, MaxAngle, labplane);
+  % adding the last column and the allowed radius
+  FrontierTableArchs(i, :) = {FrontierTable{i, :}, min(MaxRadiusAllowed, ExperimentParameters.maxradius)};
+end
 
 end

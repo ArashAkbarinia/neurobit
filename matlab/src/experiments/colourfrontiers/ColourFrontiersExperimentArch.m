@@ -61,15 +61,18 @@ end
 totnumruns = length(conditions);
 
 % the parameters that we save in excel
-expjunk.angles = zeros(totnumruns, 1);
-expjunk.radii = zeros(totnumruns, 1);
-expjunk.luminances = zeros(totnumruns, 1);
-expjunk.times = zeros(totnumruns, 1);
-expjunk.conditions = conditions;
+ExperimentResults.angles = zeros(totnumruns, 1);
+ExperimentResults.radii = zeros(totnumruns, 1);
+ExperimentResults.luminances = zeros(totnumruns, 1);
+ExperimentResults.times = zeros(totnumruns, 1);
+ExperimentResults.conditions = conditions;
+ExperimentResults.type = ExperimentParameters.ExperimentType;
+ExperimentResults.background = ExperimentParameters.BackgroundType;
+ExperimentResults.background = ExperimentParameters.BackgroundType;
+ExperimentResults.FrontierColours = cell(totnumruns, 2);
 
-expjunk.startangles = zeros(totnumruns, 1);
-expjunk.anglelimits = zeros(totnumruns, 2);
-expjunk.blacknwhite = ExperimentParameters.BackgroundType;
+ExperimentResults.startangles = zeros(totnumruns, 1);
+ExperimentResults.anglelimits = zeros(totnumruns, 2);
 
 %% start of experiment
 
@@ -89,6 +92,7 @@ for borderNr = conditions
   
   % selection the borders of this condition
   [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ArchColour(FrontierTable(borderNr, :), PolarFocals, ExperimentParameters);
+  ExperimentResults.FrontierColours(ExperimentCounter, :) = {startcolourname, endcolourname};
   
   if start_ang > end_ang
     end_ang = end_ang + 2 * pi();
@@ -99,7 +103,7 @@ for borderNr = conditions
   current_radius = radioes;
   % randomise between 0.5 to 1.0 so we wont be close to grey
   current_angle = start_ang + (end_ang - start_ang) * (0.5 * rand + 0.5);
-  expjunk.startangles(ExperimentCounter) = current_angle;
+  ExperimentResults.startangles(ExperimentCounter) = current_angle;
   
   % generating mondrian
   [~, ~, ~, palette] = GenerateMondrian(ExperimentParameters, current_angle, current_radius, theplane, startcolourname, endcolourname);
@@ -190,19 +194,19 @@ for borderNr = conditions
   disp(['Time elapsed: ', num2str(condition_elapsedtime / 1000000), ' secs']);
   
   % collect results and other junk
-  expjunk.angles(ExperimentCounter) = current_angle;
-  expjunk.radii(ExperimentCounter) = current_radius;
-  expjunk.luminances(ExperimentCounter) = theplane;
-  expjunk.times(ExperimentCounter) = condition_elapsedtime / 1000000;
+  ExperimentResults.angles(ExperimentCounter) = current_angle;
+  ExperimentResults.radii(ExperimentCounter) = current_radius;
+  ExperimentResults.luminances(ExperimentCounter) = theplane;
+  ExperimentResults.times(ExperimentCounter) = condition_elapsedtime / 1000000;
   
-  expjunk.anglelimits(ExperimentCounter, :) = [start_ang - ang_margin, end_ang + ang_margin];
+  ExperimentResults.anglelimits(ExperimentCounter, :) = [start_ang - ang_margin, end_ang + ang_margin];
   
   ExperimentCounter = ExperimentCounter + 1;
 end
 
 %% cleaning and saving
 
-CleanAndSave(ExperimentParameters, SubjectName, expjunk);
+CleanAndSave(ExperimentParameters, SubjectName, ExperimentResults);
 
 end
 
@@ -265,7 +269,7 @@ for i = 1:rows
   PoloarColourA = PolarFocals.(ColourA)((PolarFocals.(ColourA)(:, 3) == labplane), :);
   PoloarColourB = PolarFocals.(ColourB)((PolarFocals.(ColourB)(:, 3) == labplane), :);
   MaxRadiusAllowed = find_max_rad_allowed(crs, PoloarColourA(1), PoloarColourB(1), labplane);
-  % adding the sixth column and the allowed radius
+  % adding the last column and the allowed radius
   FrontierTableArchs(i, :) = {FrontierTable{i, :}, min(MaxRadiusAllowed, ExperimentParameters.maxradius)};
 end
 
