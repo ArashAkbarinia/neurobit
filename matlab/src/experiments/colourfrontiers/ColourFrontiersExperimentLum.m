@@ -13,6 +13,13 @@ clc;
 FrontierTable = LuminanceFrontiers();
 % bringing the luminance from 0 to 100
 FrontierTable(:, 5:6) = cellfun(@(x) x * 100, FrontierTable(:, 5:6), 'un', 0);
+% rescale a and b to -100 to 100
+OldMax =  1.0;
+OldMin =  0.0;
+NewMax =  100;
+NewMin = -100;
+FrontierTable(:, 3:4) = cellfun(@(x) (NewMax - NewMin) / (OldMax - OldMin) * (x - OldMin) + NewMin, FrontierTable(:, 3:4), 'un', 0);
+
 
 %% CRS setup
 
@@ -88,8 +95,8 @@ for nborder = conditions
   ColourA = lower(FrontierTable{nborder, 1});
   ColourB = lower(FrontierTable{nborder, 2});
   ExperimentResults.FrontierColours(ExperimentCounter, :) = {ColourA, ColourB};
-  StartLuminance = (FrontierTable{nborder, 5} - FrontierTable{nborder, 6}) / 2;
-  PolarColour = cart2pol3([FrontierTable{nborder, 3} - 0.5, FrontierTable{nborder, 4} - 0.5, StartLuminance]);
+  StartLuminance = (FrontierTable{nborder, 5} + FrontierTable{nborder, 6}) / 2;
+  PolarColour = cart2pol3([FrontierTable{nborder, 3}, FrontierTable{nborder, 4}, StartLuminance]);
   CurrentAngle = PolarColour(1);
   CurrentRadius = PolarColour(2);
   MinLum = FrontierTable{nborder, 5};
