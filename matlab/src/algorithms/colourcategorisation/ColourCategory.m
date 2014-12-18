@@ -36,6 +36,12 @@ classdef ColourCategory
         end
       end
     end
+    
+    function [] = PlotBorders(obj)
+      for i = 1:length(obj.borders)
+        obj.borders(i).PlotBorders();
+      end
+    end
   end
   
 end
