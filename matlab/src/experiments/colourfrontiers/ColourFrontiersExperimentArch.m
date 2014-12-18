@@ -26,7 +26,6 @@ crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.NOGAMMACORRECT);
 
 ExperimentParameters = CreateExperimentParameters(CRS, 'Arch');
 
-ExperimentParameters.minradius = 10;
 ExperimentParameters.maxradius = 50;
 % (the margin the observer is allowed to wander outside the focus colour bracket (in radians)
 ang_margin_fraction = 0.1;
@@ -223,7 +222,8 @@ PoloarColourB = PolarFocals.(ColourB)((PolarFocals.(ColourB)(:, 3) == labplane),
 
 disp(['luminance: ', frontier{1}, ', ', ColourA, '-', ColourB, ' border selected']);
 radius_pn = frontier{4};
-radioes = ExperimentParameters.minradius + (radius_pn - ExperimentParameters.minradius) * rand(1, 1);
+minradius = 0.7 * ExperimentParameters.maxradius;
+radioes = minradius + (radius_pn - minradius) * rand(1, 1);
 start_ang = PoloarColourA(1);
 end_ang = PoloarColourB(1);
 
@@ -248,7 +248,6 @@ pp = pol2cart3([PoloarColourB(1), frontier{4}]);
 plot([pp(1), 0], [pp(2), 0], 'r');
 text(pp(1), pp(2), ColourB, 'color', 'r');
 
-axis([-50, 50, -50, 50]);
 refresh;
 
 end
