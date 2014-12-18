@@ -14,7 +14,10 @@ FrontierTable = ...
   %colour1    colour2       a       b       lum1     lum2
   'Black',     'Grey',      0.5,    0.5,    0.00,    0.50;
   'Grey',      'White',     0.5,    0.5,    0.50,    1.00;
-  %   'Red',       'Pink',      1.0,    0.5,    0.00,    0.50;
+  'Brown',     'Red',       1.0,    0.5,    0.00,    0.50;
+  'Red',       'Pink',      1.0,    0.5,    0.50,    1.00;
+  'Orange',    'Yellow',    0.5,    1.0,    0.50,    1.00;
+
   %   'Red',       'Orange',    1.0,    1.0,    0.50,    1.00;
   %   'Brown',     'Orange',    0.5,    1.0,    0.50,    1.00;
   %   'Brown',     'Yellow',    0.5,    1.0,    0.10,    1.00;
