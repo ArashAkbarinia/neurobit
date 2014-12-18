@@ -16,13 +16,11 @@ FrontierTable = ...
   'Grey',      'White',     0.5,    0.5,    0.50,    1.00;
   'Brown',     'Red',       1.0,    0.5,    0.00,    0.50;
   'Red',       'Pink',      1.0,    0.5,    0.50,    1.00;
-  'Orange',    'Yellow',    0.5,    1.0,    0.50,    1.00;
-
+  'Brown',     'Orange',    0.5,    1.0,    0.50,    0.75;
+  'Orange',    'Yellow',    0.5,    1.0,    0.75,    1.00;
+  
+  % maybe
   %   'Red',       'Orange',    1.0,    1.0,    0.50,    1.00;
-  %   'Brown',     'Orange',    0.5,    1.0,    0.50,    1.00;
-  %   'Brown',     'Yellow',    0.5,    1.0,    0.10,    1.00;
-  %
-  %   % maybe
   %   'Brown',     'Green',     0.5,    1.0,    0.10,    1.00;
   %   'Green',     'Yellow',    0.5,    1.0,    0.10,    1.00;
   %   'Green',     'Blue',      0.5,    1.0,    0.10,    1.00;
