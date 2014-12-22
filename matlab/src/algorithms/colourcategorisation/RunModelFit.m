@@ -9,7 +9,7 @@ if nargin < 2
 end
 
 if strcmpi(WhichColours{1}, 'a')
-  WhichColours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr'};
+  WhichColours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'};
 end
 
 global doproperdistance;
@@ -25,26 +25,21 @@ Pk = [1.0, 0.0, 1.0];
 Br = [1.0, 0.5, 0.0] * 0.75;
 W  = [1.0, 1.0, 1.0];
 Gr = [0.5, 0.5, 0.5];
+Bl  = [0.0, 0.0, 0.0];
 
-%frontiers_2014;
 lsYFrontiers = organize_frontiers('rawdata_Lab.mat');
 % lsY_limits;
 %load('CRT_gamut_all');
 WhichColours = lower(WhichColours);
-ellipses = zeros(9, 9);
-RSSes = zeros(9, 2);
+ncolours = length(WhichColours);
+ellipses = zeros(ncolours, 9);
+RSSes = zeros(ncolours, 2);
 tested = [];
 if plotme
   figure;
 end
-% D65 XYZ cordinates calculated according to the CIE Judd-Vos corrected
-% Colour Matching Functions
-JV_D65 = [116.5366244	124.6721208	125.456254];
-levelsXYZ = [Lab2XYZ([36, 0, 0], JV_D65); Lab2XYZ([58, 0, 0], JV_D65); Lab2XYZ([81, 0, 0], JV_D65)];
+
 FittingData = struct();
-FittingData.Y_level36 = levelsXYZ(1, 2);
-FittingData.Y_level58 = levelsXYZ(2, 2);
-FittingData.Y_level81 = levelsXYZ(3, 2);
 if doproperdistance
   options = optimset('MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
 else
@@ -52,7 +47,7 @@ else
 end
 
 %========================= generate results ================================
-for pp = 1:length(WhichColours)
+for pp = 1:ncolours
   switch WhichColours{pp}
     case {'g', 'green'}
       FittingData.category = 'green';
@@ -171,6 +166,18 @@ for pp = 1:length(WhichColours)
       
       [ellipses(9, :), RSSes(9, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 9]; %#ok<*AGROW>
+    case {'w', 'white'}
+      FittingData.category = 'white';
+      points = lsYFrontiers.(FittingData.category).GetAllBorders();
+      ellipses(10, :) = [mean(points), 0.1, 0.1, std(points(:, 3)), 0, 0, 0];
+      RSSes(10, :) = norm(DistanceEllipsoid(points, ellipses(10, :)), 'fro') .^ 2;
+      tested = [tested, 10]; %#ok<*AGROW>
+    case {'bl', 'black'}
+      FittingData.category = 'black';
+      points = lsYFrontiers.(FittingData.category).GetAllBorders();
+      ellipses(11, :) = [mean(points), 0.1, 0.1, std(points(:, 3)), 0, 0, 0];
+      RSSes(11, :) = norm(DistanceEllipsoid(points, ellipses(11, :)), 'fro') .^ 2;
+      tested = [tested, 11]; %#ok<*AGROW>
     otherwise
       disp('Wrong category, quitting...');
       return;
@@ -180,15 +187,14 @@ end
 ellipsoids = [ellipses, RSSes(:, 2)];
 
 if saveme
-  RGBValues = [G; B; Pp; Pk; R; O; Y; Br; Gr]; %#ok
-  % TODO: remove LUM as it's not one of the ellipsoids
-  RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'Lum'}; %#ok
+  RGBValues = [G; B; Pp; Pk; R; O; Y; Br; Gr; W; Bl]; %#ok
+  RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'}; %#ok
   save('2014_ellipsoid_params_arash.mat', 'ellipsoids', 'RGBValues', 'RGBTitles');
 end
 
 
 if plotme
-  RGB = [G; B; Pp; Pk; R; O; Y; Br; Gr; W];
+  RGB = [G; B; Pp; Pk; R; O; Y; Br; Gr; W; Bl];
   PlotEllipsoids(ellipses, RGB, tested, WhichColours);
 end
 
@@ -196,14 +202,22 @@ end
 
 function [ellipsoid, RSS] = DoColour(FittingParams, FittingData, options, plotme)
 
-FittingData.kolor = FittingParams.colour.rgb;
-FittingData.data36 = FittingParams.colour.GetBorder(36);
-FittingData.data58 = FittingParams.colour.GetBorder(58);
-FittingData.data81 = FittingParams.colour.GetBorder(81);
+% FIXME; make it dynamic
+borders = [25, 36, 47, 58, 70, 81];
+% D65 XYZ cordinates calculated according to the CIE Judd-Vos corrected
+% Colour Matching Functions
+JV_D65 = [116.5366244	124.6721208	125.456254];
+FittingData.borders = [];
+for i = borders
+  levelsXYZ = Lab2XYZ([i, 0, 0], JV_D65);
+  FittingData.(['data', num2str(i)]) = FittingParams.colour.GetBorder(i);
+  FittingData.(['ylevel', num2str(i)]) = levelsXYZ;
+  FittingData.borders = [FittingData.borders; FittingData.(['data', num2str(i)])];
+end
 
-FittingData.allstd = std([FittingData.data36; FittingData.data58; FittingData.data81]);
+FittingData.allstd = std(FittingData.borders);
 FittingData.allstd(3) = FittingParams.AllStd;
-FittingData.allmeans = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
+FittingData.allmeans = mean(FittingData.borders);
 W_centre_l = FittingParams.EstimatedCentre(1);
 W_centre_s = FittingParams.EstimatedCentre(2);
 if FittingParams.EstimatedCentre(3) == inf
@@ -218,35 +232,27 @@ W_axis_rotation = FittingParams.EstimatedAngles(3);
 initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
 
 if plotme
-  if ~isempty(FittingData.data36)
-    plot3(FittingData.data36(:, 1), FittingData.data36(:, 2), FittingData.data36(:, 3), '.', 'Color', FittingData.kolor);
-    hold on;
-  end
-  if ~isempty(FittingData.data58)
-    plot3(FittingData.data58(:, 1), FittingData.data58(:, 2), FittingData.data58(:, 3), '.', 'Color', FittingData.kolor);
-    hold on;
-  end
-  if ~isempty(FittingData.data81)
-    plot3(FittingData.data81(:, 1), FittingData.data81(:, 2), FittingData.data81(:, 3), '.', 'Color', FittingData.kolor);
+  if ~isempty(FittingData.borders)
+    plot3(FittingData.borders(:, 1), FittingData.borders(:, 2), FittingData.borders(:, 3), '.', 'Color', FittingParams.colour.rgb);
     hold on;
   end
 end
 
 global doproperdistance;
 if doproperdistance
-  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData); % if you need to edit, do it below!
-  [tmpellips, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, options);
+  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData, FittingParams); % if you need to edit, do it below!
+  [tmpellips, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData, FittingParams), initial, options);
   ellipsoid = [tmpellips(1:6), 0, 0, tmpellips(7)];
 else
   fs = std([FittingData.data36; FittingData.data58; FittingData.data81]);
   fm = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
   %   initial = [initial(1:6), 0, 0, initial(7)];
   initial = [fm, fs, 0, 0, 0];
-  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData); % if you need to edit, do it below!
+  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData, FittingParams); % if you need to edit, do it below!
   lb = [fm - fs, 0, 0, 0, 0, 0, 0];
   ub = [fm - fs, 10 * fs, 0, 0, 0];
   %   [ellipsoid, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, options);
-  [ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, [], [], [], [], lb, ub, @EllipsoidEq, options);
+  [ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData, FittingParams), initial, [], [], [], [], lb, ub, @EllipsoidEq, options);
 end
 
 disp ('================================================================');
@@ -295,7 +301,11 @@ else
       case {'br', 'brown'}
         cateq = [cateq, 'brown, '];
       case {'gr', 'grey'}
-        cateq = [cateq, 'achromatic, '];
+        cateq = [cateq, 'grey, '];
+      case {'w', 'white'}
+        cateq = [cateq, 'white, '];
+      case {'bl', 'black'}
+        cateq = [cateq, 'black, '];
     end
   end
   cateq(size(cateq, 2)) = '';

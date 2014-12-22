@@ -1,4 +1,4 @@
-function RSS = alej_fit_ellipsoid_optplot(x, plotme, verbose, FittingData)
+function RSS = alej_fit_ellipsoid_optplot(x, plotme, verbose, FittingData, FittingParams)
 % Describe the function
 % This function does the actual fitting of the three level datapoints
 % obtained by variables data36 data58 and data81 and the 3D-ellipsoid.
@@ -27,38 +27,36 @@ end
 %check whether fminsearch is doing a good job===========================
 global doproperdistance;
 if doproperdistance
-[carryon, PlotAxes] = DoSomething(FittingData, x, verbose);
-
-if carryon
-  % TODO: move the fitting data into a class rather than struct
-  RSS36 = FitData(FittingData.data36, FittingData.Y_level36, x);
-  RSS58 = FitData(FittingData.data58, FittingData.Y_level58, x);
-  RSS81 = FitData(FittingData.data81, FittingData.Y_level81, x);
+  [carryon, PlotAxes] = DoSomething(FittingData, x, verbose);
   
-  RSS = RSS36 + 2 * RSS58 + 4 * RSS81;
-  
-  if plotme
-    PlotData(FittingData.data36, FittingData.Y_level36, FittingData.kolor, x, 0.36);
-    PlotData(FittingData.data58, FittingData.Y_level58, FittingData.kolor, x, 0.58);
-    PlotData(FittingData.data81, FittingData.Y_level81, FittingData.kolor, x, 0.81);
-    
-    center = x(1:3);
-    plot3(center(1), center(2), center(3), 'LineWidth', 3);
-    axis(PlotAxes);
-    title('Best Fit');
-    xlabel('l');
-    ylabel('s');
-    zlabel('Y');
-    hold on;
-    %hold off;
-    
-    view(2);
+  if carryon
+    % FIXME; make it dynamic
+    borders = [25, 36, 47, 58, 70, 81];
+    RSS = 0;
+    for i = borders
+      RSS = RSS + FitData(FittingData.(['data', num2str(i)]), FittingData.(['ylevel', num2str(i)])(2), x);
+      
+      if plotme
+        PlotData(FittingData.data36, FittingData.Y_level36, FittingData.kolor, x, 0.36);
+        
+        center = x(1:3);
+        plot3(center(1), center(2), center(3), 'LineWidth', 3);
+        axis(PlotAxes);
+        title('Best Fit');
+        xlabel('l');
+        ylabel('s');
+        zlabel('Y');
+        hold on;
+        %hold off;
+        
+        view(2);
+      end
+    end
+  else
+    RSS = 100;
   end
 else
-  RSS = 100;
-end
-else
-  RSS = FitData([FittingData.data36; FittingData.data58; FittingData.data81], FittingData.Y_level81, x);
+  RSS = FitData(FittingData.borders, 0, x);
 end
 
 end
@@ -276,11 +274,11 @@ global doproperdistance;
 if doproperdistance
   distances = point_to_ellipse(XY, ParG, plotme);
   RSS = norm(distances, 'fro') .^ 2;
-%   RSS = mean(distances) .^ 2;
+  %   RSS = mean(distances) .^ 2;
 else
   distances = DistanceEllipsoid(XY, ParG, plotme);
   RSS = norm(distances .^ 2, 'fro') .^ 2;
-%   RSS = mean(distances);
+  %   RSS = mean(distances);
 end
 
 %  The Frobenius norm, sometimes also called the Euclidean norm (which may

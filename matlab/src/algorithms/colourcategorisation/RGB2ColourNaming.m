@@ -16,15 +16,19 @@ BelongingImage = lsY2Focals(lsYImage, ColourEllipsoids);
 if plotme
   titles = EllipsoidsTitles;
   figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - Colour Planes');
-  subplot(3, 5, 2);
+  subplot(4, 4, 1.5);
   imshow(ImageRGB);
   title('Org');
-  subplot(3, 5, 4);
+  subplot(4, 4, 3.5);
   ColouredBelongingImage = ColourBelongingImage(BelongingImage, EllipsoidsRGBs);
   imshow(ColouredBelongingImage);
   title('Max');
-  for i = 1:nelpisd + 1
-    subplot(3, 5, i + 5);
+  for i = 1:nelpisd
+    PlotIndex = i + 4;
+    if PlotIndex > 12
+      PlotIndex = PlotIndex + 0.5;
+    end
+    subplot(4, 4, PlotIndex);
     imshow(BelongingImage(:, :, i), []);
     title(titles{i});
   end
@@ -36,9 +40,7 @@ function ColouredBelongingImage = ColourBelongingImage(BelongingImage, Ellipsoid
 
 [~, ~, chns] = size(BelongingImage);
 
-% the last channel is the luminance
-ncolcats = chns - 1;
-[~, inds] = max(BelongingImage(:, :, 1:ncolcats), [], 3);
+[~, inds] = max(BelongingImage(:, :, 1:chns), [], 3);
 
 ColouredBelongingImage = ColourLabelImage(inds, EllipsoidsRGBs);
 

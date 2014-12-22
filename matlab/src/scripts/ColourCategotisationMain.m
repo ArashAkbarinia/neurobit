@@ -1,12 +1,14 @@
 %% Initialisation
 
 clearvars;
-close all;
+% close all;
 clc;
 
 dociwam = 0;
 docolourconstancy = 0;
+donoiseremoval = 0;
 
+% ImageRGB = imread('peppers.png');
 ImageRGB = MacbethColourChecker();
 
 %% Colour constancy
@@ -22,8 +24,6 @@ if docolourconstancy
   subplot(1, 2, 2);
   imshow(ColourConstantImage);
   title('Colour constancy ACE');
-else
-  CategorisationInput = ImageRGB;
 end
 
 %% CIWaM
@@ -50,33 +50,33 @@ if dociwam
   subplot(1, 2, 2);
   imshow(CIWaMImage);
   title('Perceived Image');
-else
-  CategorisationInput = ImageRGB;
 end
 
 %% Colour categorisation
 
-ConfigsMat = load('2014_ellipsoid_params');
+ConfigsMat = load('2014_ellipsoid_params_arash');
 ColourEllipsoids = ConfigsMat.ellipsoids;
 EllipsoidsRGBs = ConfigsMat.RGBValues;
 EllipsoidsTitles = ConfigsMat.RGBTitles;
 
 PlotResults = 1;
-[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(CategorisationInput, ColourEllipsoids, PlotResults, EllipsoidsRGBs, EllipsoidsTitles);
+[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(ImageRGB, ColourEllipsoids, PlotResults, EllipsoidsRGBs, EllipsoidsTitles);
 
 %% Noise removal
 
-[rows, cols, chns] = size(BelongingImage);
-[~, inds] = max(BelongingImage(:, :, 1:chns - 1), [], 3);
-
-FilteresInds = medfilt2(inds, 'symmetric');
-
-NoiseRemovedImg = ColourLabelImage(FilteresInds, EllipsoidsRGBs);
-
-figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - Noise Removal');
-subplot(1, 2, 1);
-imshow(ColouredBelongingImage);
-title('Coloured Image');
-subplot(1, 2, 2);
-imshow(NoiseRemovedImg);
-title('Noise removed Image');
+if donoiseremoval
+  [rows, cols, chns] = size(BelongingImage);
+  [~, inds] = max(BelongingImage(:, :, 1:chns), [], 3);
+  
+  FilteresInds = medfilt2(inds, 'symmetric');
+  
+  NoiseRemovedImg = ColourLabelImage(FilteresInds, EllipsoidsRGBs);
+  
+  figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - Noise Removal');
+  subplot(1, 2, 1);
+  imshow(ColouredBelongingImage);
+  title('Coloured Image');
+  subplot(1, 2, 2);
+  imshow(NoiseRemovedImg);
+  title('Noise removed Image');
+end

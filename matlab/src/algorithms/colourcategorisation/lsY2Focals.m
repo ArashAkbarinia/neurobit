@@ -18,9 +18,7 @@ function belongings = lsY2Focals(lsYImage, ColourEllipsoids)
 [nelpisd, ~] = size(ColourEllipsoids);
 [rows, cols, chns] = size(lsYImage);
 
-belongings = zeros(rows, cols, nelpisd + 1);
-% generate achromatic representation
-belongings(:, :, nelpisd + 1) = lsYImage(:, :, 3) ./ max(max(lsYImage(:, :, 3)));
+belongings = zeros(rows, cols, nelpisd);
 
 if chns == 3
   % first, convert the picture into a giant vector where every row correspond to
@@ -29,10 +27,13 @@ if chns == 3
 end
 
 for i = 1:nelpisd
-%   ibelonging = EllipsoidEvaluateBelonging(lsYVector, ColourEllipsoids(i, :));
-  ibelonging = evaluate_belonging(lsYVector, ColourEllipsoids(i, :));
+  ibelonging = EllipsoidEvaluateBelonging(lsYVector, ColourEllipsoids(i, :));
+  %   ibelonging = evaluate_belonging(lsYVector, ColourEllipsoids(i, :));
   
   belongings(:, :, i) = reshape(ibelonging, rows, cols, 1);
 end
+
+% generate achromatic representation
+% achromatic = lsYImage(:, :, 3) ./ max(max(lsYImage(:, :, 3)));
 
 end

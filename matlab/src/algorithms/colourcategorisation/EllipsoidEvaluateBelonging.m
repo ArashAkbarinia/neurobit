@@ -7,11 +7,13 @@ CentreS = ellipsoid(2);
 CentreY = ellipsoid(3);
 RSS = ellipsoid(10);
 
-steepness = 5; % steepness of the sigmoidal transition.
+AxisY = ellipsoid(6);
+
+steepness = 10 / AxisY; % steepness of the sigmoidal transition.
 
 [~, intersection] = DistanceEllipsoid(lsY_points, ellipsoid, 0);
 
-AxisY = ellipsoid(6);
+
 do_belong = (abs(lsY_points(:, 3)) <= AxisY);
 
 % distances from the centre to the closest points in the ellipse
