@@ -12,6 +12,9 @@ if ~exist(char(strcat(ExperimentParameters.resultsdir, SubjectName, '\')), 'dir'
   mkdir(char(strcat(ExperimentParameters.resultsdir, SubjectName, '\')));
 end
 
+% setting the white reference of the experiment
+ExperimentResults.WhiteReference = ExperimentParameters.refillum;
+
 pathname = strcat(ExperimentParameters.resultsdir, SubjectName, '\');
 filename = strcat(lower('Colour Frontiers Experiment_'), ExperimentParameters.ExperimentType, '_', datestr(now, 'yyyy-mm-dd_HH.MM.SS'));
 save(char(strcat(pathname, filename, '.mat')), 'ExperimentResults');
