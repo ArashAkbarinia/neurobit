@@ -10,8 +10,8 @@ cx = ellipsoid(1);
 cy = ellipsoid(2);
 cz = ellipsoid(3);
 ax = ellipsoid(4);
-ay = ellipsoid(5);
-az = ellipsoid(6);
+ay = ellipsoid(5) + 1e-10; % to avoid division by 0
+az = ellipsoid(6) + 1e-10; % to avoid division by 0
 rx = ellipsoid(7);
 ry = ellipsoid(8);
 rz = ellipsoid(9);
@@ -29,11 +29,9 @@ rotz = CreateRotationZ(rz);
 rot = rotz * roty * rotx;
 TransferedPoint = TransformPoint3(TransferedPoint, rot);
 
-px = TransferedPoint(:, 1);
+px = TransferedPoint(:, 1) + 1e-10; % to avoid division by 0
 py = TransferedPoint(:, 2);
 pz = TransferedPoint(:, 3);
-
-% FIXME: should we check for px and b are not 0 for devision.
 
 % calculate the intersection points on the surface
 x1 = 1 ./ sqrt(1 ./ (ax .^ 2) + (py ./ px ./ ay) .^ 2 + (pz ./ px ./ az) .^ 2);
