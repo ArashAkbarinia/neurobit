@@ -17,22 +17,23 @@ unsaturated_achrom_Lab = RawDataMat.unsaturated_achrom_Lab;
 % reference white used in the experiments
 WhiteReference = RawDataMat.WhiteReference;
 
+lsYFrontiers = struct();
+borders = {};
+
 % colour objects
-ColourGreen = ColourCategory('green', [0.0, 1.0, 0.0]);
-ColourBlue = ColourCategory('blue', [0.0, 0.0, 1.0]);
-ColourRed = ColourCategory('red', [1.0, 0.0, 0.0]);
-ColourYellow = ColourCategory('yellow', [1.0, 1.0, 0.0]);
-ColourPink = ColourCategory('pink', [1.0, 0.0, 1.0]);
-ColourPurple = ColourCategory('purple', [0.7, 0.0, 0.7]);
-ColourOrange = ColourCategory('orange', [1.0, 0.5, 0.0]);
-ColourBrown = ColourCategory('brown', [1.0, 0.5, 0.0] * 0.75);
-ColourGrey = ColourCategory('grey', [0.5, 0.5, 0.5]);
+lsYFrontiers.black  = ColourCategory('black');
+lsYFrontiers.blue   = ColourCategory('blue');
+lsYFrontiers.brown  = ColourCategory('brown');
+lsYFrontiers.green  = ColourCategory('green');
+lsYFrontiers.grey   = ColourCategory('grey');
+lsYFrontiers.orange = ColourCategory('orange');
+lsYFrontiers.pink   = ColourCategory('pink');
+lsYFrontiers.purple = ColourCategory('purple');
+lsYFrontiers.red    = ColourCategory('red');
+lsYFrontiers.yellow = ColourCategory('yellow');
+lsYFrontiers.white  = ColourCategory('white');
 
-%=======================================
-
-%saturated frontiers (coloured background)
-
-%=======================================
+%% saturated frontiers (coloured background)
 
 lsY_36_G_B_c   = XYZ2lsY(Lab2XYZ(saturated_chrom_Lab(:, 1:3),   WhiteReference), XYZ2lsYChoise);
 lsY_36_B_Pp_c  = XYZ2lsY(Lab2XYZ(saturated_chrom_Lab(:, 4:6),   WhiteReference), XYZ2lsYChoise);
@@ -56,11 +57,7 @@ lsY_81_Pk_O_c  = XYZ2lsY(Lab2XYZ(saturated_chrom_Lab(:, 49:51), WhiteReference),
 lsY_81_O_Y_c   = XYZ2lsY(Lab2XYZ(saturated_chrom_Lab(:, 52:54), WhiteReference), XYZ2lsYChoise);
 lsY_81_Y_G_c   = XYZ2lsY(Lab2XYZ(saturated_chrom_Lab(:, 55:57), WhiteReference), XYZ2lsYChoise);
 
-%=======================================
-
-%saturated frontiers (achromatic background)
-
-%=======================================
+%% saturated frontiers (achromatic background)
 
 lsY_36_G_B_a   = XYZ2lsY(Lab2XYZ(saturated_achrom_Lab(:, 1:3),   WhiteReference), XYZ2lsYChoise);
 lsY_36_B_Pp_a  = XYZ2lsY(Lab2XYZ(saturated_achrom_Lab(:, 4:6),   WhiteReference), XYZ2lsYChoise);
@@ -84,11 +81,7 @@ lsY_81_Pk_O_a  = XYZ2lsY(Lab2XYZ(saturated_achrom_Lab(:, 49:51), WhiteReference)
 lsY_81_O_Y_a   = XYZ2lsY(Lab2XYZ(saturated_achrom_Lab(:, 52:54), WhiteReference), XYZ2lsYChoise);
 lsY_81_Y_G_a   = XYZ2lsY(Lab2XYZ(saturated_achrom_Lab(:, 55:57), WhiteReference), XYZ2lsYChoise);
 
-%=======================================
-
-%unsaturated frontiers (chromatic background)
-
-%=======================================
+%% unsaturated frontiers (chromatic background)
 
 Lab_36_W_G_c  = unsaturated_chrom_Lab(:, 1:3);
 Lab_36_W_B_c  = unsaturated_chrom_Lab(:, 4:6);
@@ -156,11 +149,7 @@ lsY_81_W_Pk_c = XYZ2lsY(Lab2XYZ(Lab_81_W_Pk_c, WhiteReference), XYZ2lsYChoise);
 lsY_81_W_O_c  = XYZ2lsY(Lab2XYZ(Lab_81_W_O_c,  WhiteReference), XYZ2lsYChoise);
 lsY_81_W_Y_c  = XYZ2lsY(Lab2XYZ(Lab_81_W_Y_c,  WhiteReference), XYZ2lsYChoise);
 
-%=======================================
-
-%unsaturated frontiers (achromatic background)
-
-%=======================================
+%% unsaturated frontiers (achromatic background)
 
 Lab_36_W_G_a  = unsaturated_achrom_Lab(:, 1:3);
 Lab_36_W_B_a  = unsaturated_achrom_Lab(:, 4:6);
@@ -228,9 +217,7 @@ lsY_81_W_Pk_a = XYZ2lsY(Lab2XYZ(Lab_81_W_Pk_a, WhiteReference), XYZ2lsYChoise);
 lsY_81_W_O_a  = XYZ2lsY(Lab2XYZ(Lab_81_W_O_a,  WhiteReference), XYZ2lsYChoise);
 lsY_81_W_Y_a  = XYZ2lsY(Lab2XYZ(Lab_81_W_Y_a,  WhiteReference), XYZ2lsYChoise);
 
-% ========================================================
-%              all backgrounds combined
-% ========================================================
+%% all backgrounds combined
 
 lsY_36_G_B   = [lsY_36_G_B_c;   lsY_36_G_B_a];
 lsY_36_B_Pp  = [lsY_36_B_Pp_c;  lsY_36_B_Pp_a];
@@ -254,18 +241,16 @@ lsY_81_Pk_O  = [lsY_81_Pk_O_c;  lsY_81_Pk_O_a];
 lsY_81_O_Y   = [lsY_81_O_Y_c;   lsY_81_O_Y_a];
 lsY_81_Y_G   = [lsY_81_Y_G_c;   lsY_81_Y_G_a];
 
-[BorderGreenBlue, ColourGreen, ColourBlue] = AddColourBorders(ColourGreen, ColourBlue, lsY_36_G_B, lsY_58_G_B, lsY_81_G_B);
-[BorderBluePurple, ColourBlue, ColourPurple] = AddColourBorders(ColourBlue, ColourPurple, lsY_36_B_Pp, lsY_58_B_Pp, lsY_81_B_Pp);
-[BorderPurplePink, ColourPurple, ColourPink] = AddColourBorders(ColourPurple, ColourPink, lsY_36_Pp_Pk, lsY_58_Pp_Pk, lsY_81_Pp_Pk);
-[BorderPinkRed, ColourPink, ColourRed] = AddColourBorders(ColourPink, ColourRed, lsY_36_Pk_R, lsY_58_Pk_R, []);
-[BorderRedBrown, ColourRed, ColourBrown] = AddColourBorders(ColourRed, ColourBrown, lsY_36_R_Br, [], []);
-[BorderBrownGreen, ColourBrown, ColourGreen] = AddColourBorders(ColourBrown, ColourGreen, lsY_36_Br_G, [], []);
-[BorderRedOrange, ColourRed, ColourOrange] = AddColourBorders(ColourRed, ColourOrange, [], lsY_58_R_O, []);
-[BorderOrangeYellow, ColourOrange, ColourYellow] = AddColourBorders(ColourOrange, ColourYellow, [], lsY_58_O_Y, lsY_81_O_Y);
-[BorderYellowGreen, ColourYellow, ColourGreen] = AddColourBorders(ColourYellow, ColourGreen, [], lsY_58_Y_G, lsY_81_Y_G);
-[BorderPinkOrange, ColourPink, ColourOrange] = AddColourBorders(ColourPink, ColourOrange, [], [], lsY_81_Pk_O);
-
-AllBordersColour = {BorderGreenBlue, BorderBluePurple, BorderPurplePink, BorderPinkRed, BorderRedBrown, BorderBrownGreen, BorderRedOrange, BorderOrangeYellow, BorderYellowGreen, BorderPinkOrange};
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'green', 'blue', lsY_36_G_B, lsY_58_G_B, lsY_81_G_B);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'blue', 'purple', lsY_36_B_Pp, lsY_58_B_Pp, lsY_81_B_Pp);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'purple', 'pink', lsY_36_Pp_Pk, lsY_58_Pp_Pk, lsY_81_Pp_Pk);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'pink', 'red', lsY_36_Pk_R, lsY_58_Pk_R, []);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'red', 'brown', lsY_36_R_Br, [], []);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'brown', 'green', lsY_36_Br_G, [], []);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'red', 'orange', [], lsY_58_R_O, []);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'orange', 'yellow', [], lsY_58_O_Y, lsY_81_O_Y);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'yellow', 'green', [], lsY_58_Y_G, lsY_81_Y_G);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'pink', 'orange', [], [], lsY_81_Pk_O);
 
 lsY_36_W_G   = [lsY_36_W_G_c;   lsY_36_W_G_a];
 lsY_36_W_B   = [lsY_36_W_B_c;   lsY_36_W_B_a];
@@ -289,53 +274,30 @@ lsY_81_W_Pk  = [lsY_81_W_Pk_c;  lsY_81_W_Pk_a];
 lsY_81_W_O   = [lsY_81_W_O_c;   lsY_81_W_O_a];
 lsY_81_W_Y   = [lsY_81_W_Y_c;   lsY_81_W_Y_a];
 
-[BorderGreyGreen, ColourGrey, ColourGreen] = AddColourBorders(ColourGrey, ColourGreen, lsY_36_W_G, lsY_58_W_G, lsY_81_W_G);
-[BorderGreyBlue, ColourGrey, ColourBlue] = AddColourBorders(ColourGrey, ColourBlue, lsY_36_W_B, lsY_58_W_B, lsY_81_W_B);
-[BorderGreyPurple, ColourGrey, ColourPurple] = AddColourBorders(ColourGrey, ColourPurple, lsY_36_W_Pp, lsY_58_W_Pp, lsY_81_W_Pp);
-[BorderGreyPink, ColourGrey, ColourPink] = AddColourBorders(ColourGrey, ColourPink, lsY_36_W_Pk, lsY_58_W_Pk, lsY_81_W_Pk);
-[BorderGreyRed, ColourGrey, ColourRed] = AddColourBorders(ColourGrey, ColourRed, lsY_36_W_R, lsY_58_W_R, []);
-[BorderGreyBrown, ColourGrey, ColourBrown] = AddColourBorders(ColourGrey, ColourBrown, lsY_36_W_Br, [], []);
-[BorderGreyOrange, ColourGrey, ColourOrange] = AddColourBorders(ColourGrey, ColourOrange, [], lsY_58_W_O, lsY_81_W_O);
-[BorderGreyYellow, ColourGrey, ColourYellow] = AddColourBorders(ColourGrey, ColourYellow, [], lsY_58_W_Y, lsY_81_W_Y);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'green', lsY_36_W_G, lsY_58_W_G, lsY_81_W_G);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'blue', lsY_36_W_B, lsY_58_W_B, lsY_81_W_B);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'purple', lsY_36_W_Pp, lsY_58_W_Pp, lsY_81_W_Pp);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'pink', lsY_36_W_Pk, lsY_58_W_Pk, lsY_81_W_Pk);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'red', lsY_36_W_R, lsY_58_W_R, []);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'brown', lsY_36_W_Br, [], []);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'orange', [], lsY_58_W_O, lsY_81_W_O);
+[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'yellow', [], lsY_58_W_Y, lsY_81_W_Y);
 
-AllBordersGrey = {BorderGreyGreen, BorderGreyBlue, BorderGreyPurple, BorderGreyPink, BorderGreyRed, BorderGreyBrown, BorderGreyOrange, BorderGreyYellow};
+ScriptPath = mfilename('fullpath');
+DirPath = strrep(ScriptPath, 'matlab/src/algorithms/colourcategorisation/organize_frontiers', 'matlab/data/mats/results/experiments/colourfrontiers/pilot/');
 
-% putting them in a struct for the output
+MatFiles = dir([DirPath, '*.mat']);
 
-lsYFrontiers = struct();
-
-% green
-lsYFrontiers.green = ColourGreen;
-
-% blue
-lsYFrontiers.blue = ColourBlue;
-
-% purple
-lsYFrontiers.purple = ColourPurple;
-
-% pink
-lsYFrontiers.pink = ColourPink;
-
-% red
-lsYFrontiers.red = ColourRed;
-
-% orange
-lsYFrontiers.orange = ColourOrange;
-
-% yellow
-lsYFrontiers.yellow = ColourYellow;
-
-% brown
-lsYFrontiers.brown = ColourBrown;
-
-% grey
-lsYFrontiers.grey = ColourGrey;
+for i = 1:length(MatFiles)
+  i
+  CurrentMatPath = [DirPath, MatFiles(i).name];
+  [lsYFrontiers, borders] = ReadExperimentResults(lsYFrontiers, borders, CurrentMatPath);
+end
 
 if plotme
   figure('NumberTitle', 'Off', 'Name', 'Colour Frontiers');
   hold on;
-  PlotColourBorders(AllBordersColour);
-  PlotColourBorders(AllBordersGrey);
+  PlotColourBorders(borders);
   xlabel('l');
   ylabel('s');
   zlabel('Y');
@@ -344,13 +306,14 @@ end
 
 end
 
-function [border, ColourA, ColourB] = AddColourBorders(ColourA, ColourB, lum36, lum58, lum81)
+function [lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, ColourA, ColourB, lum36, lum58, lum81)
 
-border = ColourBorder(ColourA, ColourB, lum36, 36);
+border = ColourBorder(lsYFrontiers.(ColourA), lsYFrontiers.(ColourB), lum36, 36);
 border = border.AddPoints(lum58, 58);
 border = border.AddPoints(lum81, 81);
-ColourA = ColourA.AddBorder(border);
-ColourB = ColourB.AddBorder(border);
+lsYFrontiers.(ColourA) = lsYFrontiers.(ColourA).AddBorder(border);
+lsYFrontiers.(ColourB) = lsYFrontiers.(ColourB).AddBorder(border);
+borders{end + 1} = border;
 
 end
 
@@ -359,6 +322,80 @@ function [] = PlotColourBorders(borders)
 for i = 1:length(borders)
   borderi = borders{i};
   borderi.PlotBorders();
+end
+
+end
+
+function [lsYFrontiers, borders] = ReadExperimentResults(lsYFrontiers, borders, FilePath)
+
+MatFile = load(FilePath);
+ExperimentResult = MatFile.ExperimentResults;
+
+angles = ExperimentResult.angles;
+radii = ExperimentResult.radii;
+luminances = ExperimentResult.luminances;
+FrontierColours = ExperimentResult.FrontierColours;
+WhiteReference = ExperimentResult.WhiteReference;
+XYZ2lsYChoise = 'evenly_ditributed_stds';
+
+nborders = length(unique(ExperimentResult.conditions));
+nexperiments = length(angles);
+nluminances = unique(luminances);
+nconditions = nexperiments / nborders;
+
+% containts the points for different luminances
+lsys = struct();
+% counter for each luminance
+lcounter = struct();
+lsysnames = struct();
+
+for i = 1:length(nluminances)
+  LumName = ['lum', num2str(nluminances(i))];
+  lsys.(LumName) = zeros(nconditions, 3);
+  lcounter.(LumName) = 1;
+  lsysnames.(LumName) = cell(nconditions, 2);
+end
+
+for i = 1:nexperiments
+  lab = pol2cart3([angles(i), radii(i), luminances(i)], 1);
+  LumName = ['lum', num2str(luminances(i))];
+  lsys.(LumName)(lcounter.(LumName), :) = XYZ2lsY(Lab2XYZ(lab, WhiteReference), XYZ2lsYChoise);
+  ColourA = FrontierColours{i, 1};
+  ColourB = FrontierColours{i, 2};
+  lsysnames.(LumName)(lcounter.(LumName), :) = {ColourA, ColourB};
+  lcounter.(LumName) = lcounter.(LumName) + 1;
+end
+
+
+for i = 1:length(nluminances)
+  LumName = ['lum', num2str(nluminances(i))];
+  
+  for k = 1:nconditions
+    ColourA = lsysnames.(LumName){k, 1};
+    ColourB = lsysnames.(LumName){k, 2};
+    
+    border = [];
+    for j = 1:length(borders)
+      colour1 = borders{j}.colour1.name;
+      colour2 = borders{j}.colour2.name;
+      if (strcmpi(colour1, ColourA) || strcmpi(colour1, ColourB)) && ...
+          (strcmpi(colour2, ColourA) || strcmpi(colour2, ColourB))
+        border = borders{j};
+        border = border.AddPoints(lsys.(LumName)(k, :), nluminances(i));
+        lsYFrontiers.(ColourA) = lsYFrontiers.(ColourA).SetBorder(border);
+        lsYFrontiers.(ColourB) = lsYFrontiers.(ColourB).SetBorder(border);
+        borders{j} = border;
+        break;
+      end
+    end
+    
+    if isempty(border)
+      border = ColourBorder(lsYFrontiers.(ColourA), lsYFrontiers.(ColourB), lsys.(LumName)(i, :), nluminances(i));
+      lsYFrontiers.(ColourA) = lsYFrontiers.(ColourA).AddBorder(border);
+      lsYFrontiers.(ColourB) = lsYFrontiers.(ColourB).AddBorder(border);
+      borders{end + 1} = border; %#ok<AGROW>
+    end
+  end
 end
 
 end
