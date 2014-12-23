@@ -57,6 +57,7 @@ for pp = 1:ncolours
       FittingParams.MaxAxes = [inf, inf, inf];
       FittingParams.CentreDeviation = [1, 1, 1];
       FittingParams.EstimatedCentre = [0.6, 0, inf];
+      FittingParams.MinCentre = [-inf, 0, -inf];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 40]);
       FittingParams.AllStd = 100;
       
@@ -72,6 +73,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.58, 0.25, 100];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 18]);
       FittingParams.AllStd = 200;
+      FittingParams.MinCentre = [-inf, -inf, 0];
       
       [ellipses(2, :), RSSes(2, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 2];
@@ -85,6 +87,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.68, 0.20, inf];
       FittingParams.EstimatedAngles = deg2rad([0, 0, -10]);
       FittingParams.AllStd = 100;
+      FittingParams.MinCentre = [-inf, -inf, -inf];
       
       [ellipses(3, :), RSSes(3, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 3];
@@ -98,6 +101,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.8, 0.1, inf];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 10]);
       FittingParams.AllStd = 100;
+      FittingParams.MinCentre = [-inf, -inf, -inf];
       
       [ellipses(4, :), RSSes(4, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 4];
@@ -111,6 +115,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.800, 0.025, 0.000];
       FittingParams.EstimatedAngles = deg2rad([0, 0, -15]);
       FittingParams.AllStd = 50;
+      FittingParams.MinCentre = [-inf, -inf, 0];
       
       [ellipses(5, :), RSSes(5, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 5];
@@ -124,6 +129,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.74, 0.00, 100];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 53]);
       FittingParams.AllStd = 90;
+      FittingParams.MinCentre = [-inf, -inf, 100];
       
       [ellipses(6, :), RSSes(6, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 6];
@@ -137,6 +143,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.68, 0.01, 100];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 25]);
       FittingParams.AllStd = 90;
+      FittingParams.MinCentre = [-inf, -inf, 100];
       
       [ellipses(7, :), RSSes(7, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 7];
@@ -150,6 +157,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.73, 0.00, 0.00];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 57]);
       FittingParams.AllStd = 55;
+      FittingParams.MinCentre = [-inf, -inf, 0];
       
       [ellipses(8, :), RSSes(8, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 8];
@@ -161,6 +169,7 @@ for pp = 1:ncolours
       FittingParams.MaxAxes = [inf, inf, inf];
       FittingParams.CentreDeviation = [10, 10, 10];
       FittingParams.EstimatedCentre = [0.650, 0.059, inf];
+      FittingParams.MinCentre = [-inf, -inf, 0];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 45]);
       FittingParams.AllStd = 200;
       
@@ -222,6 +231,7 @@ W_centre_l = FittingParams.EstimatedCentre(1);
 W_centre_s = FittingParams.EstimatedCentre(2);
 if FittingParams.EstimatedCentre(3) == inf
   W_centre_Y = FittingData.allmeans(3);
+  FittingParams.EstimatedCentre(3) = W_centre_Y;
 else
   W_centre_Y = FittingParams.EstimatedCentre(3);
 end
@@ -240,19 +250,19 @@ end
 
 global doproperdistance;
 if doproperdistance
-  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData, FittingParams); % if you need to edit, do it below!
-  [tmpellips, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData, FittingParams), initial, options);
+  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, FittingData, FittingParams); % if you need to edit, do it below!
+  [tmpellips, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, FittingData, FittingParams), initial, options);
   ellipsoid = [tmpellips(1:6), 0, 0, tmpellips(7)];
 else
   fs = std([FittingData.data36; FittingData.data58; FittingData.data81]);
   fm = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
   %   initial = [initial(1:6), 0, 0, initial(7)];
   initial = [fm, fs, 0, 0, 0];
-  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, 0, FittingData, FittingParams); % if you need to edit, do it below!
+  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, FittingData, FittingParams); % if you need to edit, do it below!
   lb = [fm - fs, 0, 0, 0, 0, 0, 0];
   ub = [fm - fs, 10 * fs, 0, 0, 0];
-  %   [ellipsoid, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData), initial, options);
-  [ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) alej_fit_ellipsoid_optplot(x, 0, 0, FittingData, FittingParams), initial, [], [], [], [], lb, ub, @EllipsoidEq, options);
+  %   [ellipsoid, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, FittingData, FittingParams), initial, options);
+  [ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) alej_fit_ellipsoid_optplot(x, 0, FittingData, FittingParams), initial, [], [], [], [], lb, ub, @EllipsoidEq, options);
 end
 
 disp ('================================================================');

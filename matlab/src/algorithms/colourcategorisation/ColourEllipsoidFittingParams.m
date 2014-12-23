@@ -9,6 +9,7 @@ classdef ColourEllipsoidFittingParams
     MaxAxes
     CentreDeviation
     EstimatedCentre
+    MinCentre
     EstimatedAngles %(*) in degrees counterclockwise
     AllStd
   end

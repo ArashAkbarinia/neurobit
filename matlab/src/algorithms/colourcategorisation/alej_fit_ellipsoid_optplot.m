@@ -1,4 +1,4 @@
-function RSS = alej_fit_ellipsoid_optplot(x, plotme, verbose, FittingData, FittingParams)
+function RSS = alej_fit_ellipsoid_optplot(x, plotme, FittingData, FittingParams)
 % Describe the function
 % This function does the actual fitting of the three level datapoints
 % obtained by variables data36 data58 and data81 and the 3D-ellipsoid.
@@ -17,9 +17,6 @@ function RSS = alej_fit_ellipsoid_optplot(x, plotme, verbose, FittingData, Fitti
 % tends to bias the fitting. To counter this, we weighted the RSS
 % corresponding to each luminance plane.
 
-if nargin < 3
-  verbose = 0;
-end
 if nargin < 2
   plotme = 0;
 end
@@ -27,7 +24,7 @@ end
 %check whether fminsearch is doing a good job===========================
 global doproperdistance;
 if doproperdistance
-  [carryon, PlotAxes] = DoSomething(FittingData, x, verbose);
+  [carryon, PlotAxes] = DoSomething(FittingData, x, FittingParams);
   
   if carryon
     % FIXME; make it dynamic
@@ -102,164 +99,18 @@ end
 
 end
 
-function [carryon, PlotAxes] = DoSomething(FittingData, x, verbose)
+function [carryon, PlotAxes] = DoSomething(FittingData, x, FittingParams)
 
 center = x(1:3);
 radii = x(4:6);
 
 carryon = 1;
 
-switch FittingData.category
-  case 'green'
-    n1 = 10;
-    n2 = 1;
-    PlotAxes = [0.55 0.85 -0.1 0.2 0 300];
-    if  (sum(radii > n1*FittingData.allstd))
-      if verbose
-        disp(['The ellipse is larger than ',num2str(n1),' StDev']);
-      end;
-      carryon = 0;
-    elseif ((sum(abs(center-[0.60,0.00,FittingData.allmeans(3)]) > n2*FittingData.allstd)) || (center(2)<0))
-      if verbose
-        disp(['The centre is further than ',num2str(n2),' StDev from the mean of the points']);
-      end;
-      carryon = 0;
-    end
-  case 'blue'
-    n1 = 100;
-    n2 = 1;
-    PlotAxes = [0.55 0.85 -0.1 0.2 0 300];
-    if  (sum(radii > n1*FittingData.allstd))
-      if verbose
-        disp(['The ellipse is larger than ',num2str(n1),' StDev']);
-      end;
-      carryon = 0;
-    elseif ((sum(abs(center-[0.58,0.25, FittingData.allmeans(3)]) > n2*FittingData.allstd)) || (center(3)<0))
-      if verbose
-        disp(['The centre is further than ',num2str(n2),' StDev from the mean of the points']);
-      end;
-      carryon = 0;
-    end
-  case 'purple'
-    n1 = 20;
-    n2 = 0.5;
-    PlotAxes = [0.55 0.85 -0.1 0.2 0 60];
-    if  (sum(radii > n1*FittingData.allstd))% || (radii(3) > 50)
-      if verbose
-        disp(['The ellipse is larger than ',num2str(n1),' StDev']);
-      end;
-      carryon = 0;
-    elseif (sum(abs(center-[0.68, 0.20, FittingData.allmeans(3)]) > n2*FittingData.allstd))
-      if verbose
-        disp(['The centre is further than ',num2str(n2),' StDev from the mean of the points']);
-      end;
-      carryon = 0;
-    end
-  case 'pink'
-    n1 = 10; % regulates the axes
-    n2 = 1; % regulates the centre
-    PlotAxes = [0.55 0.85 -0.1 0.2 0 300];
-    if (sum(radii > n1 * FittingData.allstd)) %|| (radii(3) > 100)
-      if verbose
-        disp(['The ellipse is larger than ', num2str(n1), ' StDev']);
-      end;
-      carryon = 0;
-    elseif (sum(abs(center-[0.8, 0.1, FittingData.allmeans(3)]) > n2 * FittingData.allstd)) %|| (center(3)>100)
-      if verbose
-        disp(['The centre is further than ', num2str(n2), ' StDev from the mean of the points']);
-      end;
-      carryon = 0;
-    end
-  case 'red'
-    n1 = 10;
-    n2 = 0.5;
-    PlotAxes = [0.55 0.85 -0.1 0.2 0 60];
-    if  (sum(radii > n1*FittingData.allstd)) || (radii(3) > 80)
-      if verbose
-        disp(['The ellipse is larger than ',num2str(n1),' StDev']);
-      end;
-      carryon = 0;
-    elseif ((sum(abs(center-[0.8, 0.025, FittingData.allmeans(3)]) > n2*FittingData.allstd)) || (center(3)<0))
-      if verbose
-        disp(['The centre is further than ',num2str(n2),' StDev from the mean of the points']);
-      end;
-      carryon = 0;
-    end
-  case 'orange'
-    n1 = 10;
-    n2 = 10;
-    PlotAxes = [0.55 0.85 -0.1 0.2 0 60];
-    if  (sum(radii > n1*FittingData.allstd)) || (radii(3) > 100)
-      if verbose
-        disp(['The ellipse is larger than ',num2str(n1),' StDev']);
-      end;
-      carryon = 0;
-    elseif ((sum(abs(center-[0.74, 0.00, FittingData.allmeans(3)]) > n2*FittingData.allstd))) || (center(3) <100)
-      if verbose
-        disp(['The centre is further than ',num2str(n2),' StDev from the mean of the points']);
-      end;
-      carryon = 0;
-    end
-  case 'yellow'
-    n1 = 5;
-    n2 = 1;
-    PlotAxes = [0.55 0.85 -0.1 0.2 0 60];
-    if  (sum(radii > n1*FittingData.allstd)) || (radii(3) > 100)
-      if verbose
-        disp(['The ellipse is larger than ',num2str(n1),' StDev']);
-      end;
-      carryon = 0;
-    elseif ((sum(abs(center-[0.68, 0.01, FittingData.allmeans(3)]) > n2*FittingData.allstd)) || (center(3)<100))
-      if verbose
-        disp(['The centre is further than ',num2str(n2),' StDev from the mean of the points']);
-      end;
-      carryon = 0;
-    end
-  case 'brown'
-    n1 = 5;
-    n2 = 5;
-    PlotAxes = [0.55 0.85 -0.1 0.2 0 60];
-    if  (sum(radii > n1*FittingData.allstd))
-      if verbose
-        disp(['The ellipse is larger than ',num2str(n1),' StDev']);
-      end;
-      carryon = 0;
-    elseif ((sum(abs(center-[0.73, 0.00, FittingData.allmeans(3)]) > n2*FittingData.allstd)) || (center(3)<0))
-      if verbose
-        disp(['The centre is further than ',num2str(n2),' StDev from the mean of the points']);
-      end;
-      carryon = 0;
-    end
-  case 'grey'
-    n1 = 10;
-    n2 = 10;
-    PlotAxes = [0.55 0.85 -0.1 0.2 0 60];
-    if  (sum(radii > n1*FittingData.allstd))
-      if verbose
-        disp(['The ellipse is larger than ',num2str(n1),' StDev']);
-      end;
-      carryon = 0;
-    elseif (sum(abs(center-FittingData.allmeans) > n2*FittingData.allstd)) || (center(3) < 0)
-      if verbose
-        disp(['The centre is further than ',num2str(n2),' StDev from the mean of the points']);
-      end;
-      carryon = 0;
-    end
-  case 'white'
-    n1 = 10;
-    n2 = 10;
-    PlotAxes = [0.55 0.85 -0.1 0.2 0 60];
-    if  (sum(radii > n1*FittingData.allstd))
-      if verbose
-        disp(['The ellipse is larger than ',num2str(n1),' StDev']);
-      end;
-      carryon = 0;
-    elseif ((sum(abs(center-FittingData.allmeans) > n2*FittingData.allstd)) || (center(3)<0))
-      if verbose
-        disp(['The centre is further than ',num2str(n2),' StDev from the mean of the points']);
-      end;
-      carryon = 0;
-    end
+PlotAxes = [0.55 0.85 -0.1 0.2 0 300];
+if sum(radii > FittingParams.AxesDeviation .* FittingData.allstd) || sum(radii > FittingParams.MaxAxes)
+  carryon = 0;
+elseif sum(abs(center- FittingParams.EstimatedCentre) > FittingParams.CentreDeviation .* FittingData.allstd) || sum(center < FittingParams.MinCentre)
+  carryon = 0;
 end
 
 end
