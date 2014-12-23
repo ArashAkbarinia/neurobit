@@ -30,10 +30,17 @@ Bl  = [0.0, 0.0, 0.0];
 lsYFrontiers = organize_frontiers('rawdata_Lab.mat');
 % lsY_limits;
 %load('CRT_gamut_all');
+
 WhichColours = lower(WhichColours);
 ncolours = length(WhichColours);
-ellipses = zeros(ncolours, 9);
-RSSes = zeros(ncolours, 2);
+ellipses = zeros(11, 9);
+RSSes = zeros(11, 2);
+
+% for testing only one colour
+GoodResult = load('2014_ellipsoid_params.mat');
+ellipses(:, 1:9) = GoodResult.ellipsoids(:, 1:9);
+RSSes(:, 2) = GoodResult.ellipsoids(:, 10);
+
 tested = [];
 if plotme
   figure;
@@ -52,126 +59,117 @@ for pp = 1:ncolours
     case {'g', 'green'}
       FittingData.category = 'green';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.AxesDeviation = [10, 10, 10];
-      FittingParams.EstimatedAxes = [4, 5, 1];
+      FittingParams.AxesDeviation = [10, 10, 39];
+      FittingParams.EstimatedAxes = [4, 5, 3.94];
       FittingParams.MaxAxes = [inf, inf, inf];
-      FittingParams.CentreDeviation = [1, 1, 1];
+      FittingParams.CentreDeviation = [1, 1, 3.94];
       FittingParams.EstimatedCentre = [0.6, 0, inf];
       FittingParams.MinCentre = [-inf, 0, -inf];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 40]);
-      FittingParams.AllStd = 100;
       
       [ellipses(1, :), RSSes(1, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 1];
     case {'b', 'blue'}
       FittingData.category = 'blue';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.AxesDeviation = [100, 100, 100];
-      FittingParams.EstimatedAxes = [2, 11, 1];
+      FittingParams.AxesDeviation = [100, 100, 778];
+      FittingParams.EstimatedAxes = [2, 11, 7.78];
       FittingParams.MaxAxes = [inf, inf, inf];
-      FittingParams.CentreDeviation = [1, 1, 1];
+      FittingParams.CentreDeviation = [1, 1, 7.78];
       FittingParams.EstimatedCentre = [0.58, 0.25, 100];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 18]);
-      FittingParams.AllStd = 200;
       FittingParams.MinCentre = [-inf, -inf, 0];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 18]);
       
       [ellipses(2, :), RSSes(2, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 2];
     case {'pp', 'purple'}
       FittingData.category = 'purple';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.AxesDeviation = [20, 20, 20];
-      FittingParams.EstimatedAxes = [4, 7, 1];
+      FittingParams.AxesDeviation = [20, 20, 58];
+      FittingParams.EstimatedAxes = [4, 7, 3.89];
       FittingParams.MaxAxes = [inf, inf, inf];
-      FittingParams.CentreDeviation = [0.5, 0.5, 0.5];
+      FittingParams.CentreDeviation = [0.5, 0.5, 2];
       FittingParams.EstimatedCentre = [0.68, 0.20, inf];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, -10]);
-      FittingParams.AllStd = 100;
       FittingParams.MinCentre = [-inf, -inf, -inf];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, -10]);
       
       [ellipses(3, :), RSSes(3, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 3];
     case {'pk', 'pink'}
       FittingData.category = 'pink';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.AxesDeviation = [10, 10, 10];
-      FittingParams.EstimatedAxes = [5, 3, 1];
+      FittingParams.AxesDeviation = [10, 10, 40];
+      FittingParams.EstimatedAxes = [5, 1.5, 3.96];
       FittingParams.MaxAxes = [inf, inf, inf];
-      FittingParams.CentreDeviation = [1, 1, 1];
+      FittingParams.CentreDeviation = [1, 1, 3.96];
+      FittingParams.MinCentre = [-inf, -inf, -inf];
       FittingParams.EstimatedCentre = [0.8, 0.1, inf];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 10]);
-      FittingParams.AllStd = 100;
-      FittingParams.MinCentre = [-inf, -inf, -inf];
       
       [ellipses(4, :), RSSes(4, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 4];
     case {'r', 'red'}
       FittingData.category = 'red';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.AxesDeviation = [10, 10, 10];
-      FittingParams.EstimatedAxes = [5, 1.5, 1];
+      FittingParams.AxesDeviation = [10, 10, 47];
+      FittingParams.EstimatedAxes = [5, 1.5, 4.71];
       FittingParams.MaxAxes = [inf, inf, 80];
-      FittingParams.CentreDeviation = [0.5, 0.5, 0.5];
+      FittingParams.CentreDeviation = [0.5, 0.5, 2.5];
       FittingParams.EstimatedCentre = [0.800, 0.025, 0.000];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, -15]);
-      FittingParams.AllStd = 50;
       FittingParams.MinCentre = [-inf, -inf, 0];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, -15]);
       
       [ellipses(5, :), RSSes(5, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 5];
     case {'o', 'orange'}
       FittingData.category = 'orange';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.AxesDeviation = [10, 10, 10];
-      FittingParams.EstimatedAxes = [2, 10, 1];
+      FittingParams.AxesDeviation = [10, 10, 45];
+      FittingParams.EstimatedAxes = [2, 10, 4.50];
       FittingParams.MaxAxes = [inf, inf, 100];
-      FittingParams.CentreDeviation = [10, 10, 10];
+      FittingParams.CentreDeviation = [10, 10, 45];
       FittingParams.EstimatedCentre = [0.74, 0.00, 100];
+      FittingParams.MinCentre = [-inf, -inf, 50];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 53]);
-      FittingParams.AllStd = 90;
-      FittingParams.MinCentre = [-inf, -inf, 100];
       
       [ellipses(6, :), RSSes(6, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 6];
     case {'y', 'yellow'}
       FittingData.category = 'yellow';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.AxesDeviation = [5, 5, 5];
-      FittingParams.EstimatedAxes = [1.5, 5, 1];
+      FittingParams.AxesDeviation = [5, 5, 23];
+      FittingParams.EstimatedAxes = [1.5, 5, 4.54];
       FittingParams.MaxAxes = [inf, inf, 100];
-      FittingParams.CentreDeviation = [1, 1, 1];
+      FittingParams.CentreDeviation = [1, 1, 4.54];
       FittingParams.EstimatedCentre = [0.68, 0.01, 100];
+      FittingParams.MinCentre = [-inf, -inf, 50];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 25]);
-      FittingParams.AllStd = 90;
-      FittingParams.MinCentre = [-inf, -inf, 100];
       
       [ellipses(7, :), RSSes(7, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 7];
     case {'br', 'brown'}
       FittingData.category = 'brown';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.AxesDeviation = [5, 5, 5];
-      FittingParams.EstimatedAxes = [1, 4, 1];
+      FittingParams.AxesDeviation = [5, 5, 100];
+      FittingParams.EstimatedAxes = [1, 4, 20.39];
       FittingParams.MaxAxes = [inf, inf, inf];
-      FittingParams.CentreDeviation = [5, 5, 5];
+      FittingParams.CentreDeviation = [5, 5, 100];
       FittingParams.EstimatedCentre = [0.73, 0.00, 0.00];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 57]);
-      FittingParams.AllStd = 55;
       FittingParams.MinCentre = [-inf, -inf, 0];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 57]);
       
       [ellipses(8, :), RSSes(8, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 8];
     case {'gr', 'grey'}
       FittingData.category = 'grey';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.AxesDeviation = [10, 10, 10];
-      FittingParams.EstimatedAxes = [1, 1, 1];
+      FittingParams.AxesDeviation = [10, 10, 39];
+      FittingParams.EstimatedAxes = [4, 5, 3.91];
       FittingParams.MaxAxes = [inf, inf, inf];
-      FittingParams.CentreDeviation = [10, 10, 10];
+      FittingParams.CentreDeviation = [10, 10, 39];
       FittingParams.EstimatedCentre = [0.650, 0.059, inf];
       FittingParams.MinCentre = [-inf, -inf, 0];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 45]);
-      FittingParams.AllStd = 200;
       
       [ellipses(9, :), RSSes(9, :)] = DoColour(FittingParams, FittingData, options, plotme);
       tested = [tested, 9]; %#ok<*AGROW>
@@ -225,21 +223,21 @@ for i = borders
 end
 
 FittingData.allstd = std(FittingData.borders);
-FittingData.allstd(3) = FittingParams.AllStd;
+
 FittingData.allmeans = mean(FittingData.borders);
-W_centre_l = FittingParams.EstimatedCentre(1);
-W_centre_s = FittingParams.EstimatedCentre(2);
+CentreL = FittingParams.EstimatedCentre(1);
+CentreS = FittingParams.EstimatedCentre(2);
 if FittingParams.EstimatedCentre(3) == inf
-  W_centre_Y = FittingData.allmeans(3);
-  FittingParams.EstimatedCentre(3) = W_centre_Y;
+  CentreY = FittingData.allmeans(3);
+  FittingParams.EstimatedCentre(3) = CentreY;
 else
-  W_centre_Y = FittingParams.EstimatedCentre(3);
+  CentreY = FittingParams.EstimatedCentre(3);
 end
-W_axis_l = FittingParams.EstimatedAxes(1) * FittingData.allstd(1);
-W_axis_s = FittingParams.EstimatedAxes(2) * FittingData.allstd(2);
-W_axis_Y = FittingParams.EstimatedAxes(3) * FittingData.allstd(3);
-W_axis_rotation = FittingParams.EstimatedAngles(3);
-initial = [W_centre_l, W_centre_s, W_centre_Y, W_axis_l, W_axis_s, W_axis_Y, W_axis_rotation];
+AxisL = FittingParams.EstimatedAxes(1) * FittingData.allstd(1);
+AxisS = FittingParams.EstimatedAxes(2) * FittingData.allstd(2);
+AxisY = FittingParams.EstimatedAxes(3) * FittingData.allstd(3);
+RotY = FittingParams.EstimatedAngles(3);
+initial = [CentreL, CentreS, CentreY, AxisL, AxisS, AxisY, RotY];
 
 if plotme
   if ~isempty(FittingData.borders)
@@ -254,13 +252,16 @@ if doproperdistance
   [tmpellips, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, FittingData, FittingParams), initial, options);
   ellipsoid = [tmpellips(1:6), 0, 0, tmpellips(7)];
 else
-  fs = std([FittingData.data36; FittingData.data58; FittingData.data81]);
-  fm = mean([FittingData.data36; FittingData.data58; FittingData.data81]);
-  %   initial = [initial(1:6), 0, 0, initial(7)];
-  initial = [fm, fs, 0, 0, 0];
+  initial = [initial(1:6), 0, 0, initial(7)];
   RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, FittingData, FittingParams); % if you need to edit, do it below!
-  lb = [fm - fs, 0, 0, 0, 0, 0, 0];
-  ub = [fm - fs, 10 * fs, 0, 0, 0];
+  lb = ...
+    [
+    FittingParams.MinCentre, FittingParams.MinAxes, 0, 0, 0
+    ];
+  ub = ...
+    [
+    min(FittingParams.MaxCentre, FittingData.allstd .* FittingParams.CentreDeviation), min(FittingParams.MaxAxes, FittingData.allstd .* FittingParams.AxesDeviation), 0, 0, 2 * pi
+    ];
   %   [ellipsoid, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, FittingData, FittingParams), initial, options);
   [ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) alej_fit_ellipsoid_optplot(x, 0, FittingData, FittingParams), initial, [], [], [], [], lb, ub, @EllipsoidEq, options);
 end

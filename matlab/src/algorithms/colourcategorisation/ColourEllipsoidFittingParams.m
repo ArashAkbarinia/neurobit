@@ -1,17 +1,18 @@
 classdef ColourEllipsoidFittingParams
-  %ColourEllipsoidFittingParams Summary of this class goes here
-  %   Detailed explanation goes here
+  %ColourEllipsoidFittingParams wrapper class for the parameters of
+  %ellipsoid fitting.
   
   properties
     colour
-    AxesDeviation
-    EstimatedAxes
-    MaxAxes
-    CentreDeviation
-    EstimatedCentre
-    MinCentre
-    EstimatedAngles %(*) in degrees counterclockwise
-    AllStd
+    AxesDeviation   = [1, 1, 1];
+    EstimatedAxes   = [1, 1, 1];
+    MinAxes         = [-inf, -inf, -inf];
+    MaxAxes         = [inf, inf, inf];
+    CentreDeviation = [1, 1, 1];
+    EstimatedCentre = [0, 0, 0];
+    MinCentre       = [-inf, -inf, -inf];
+    MaxCentre       = [inf, inf, inf];
+    EstimatedAngles = [0, 0, 0];  % in degrees counterclockwise
   end
   
   methods
