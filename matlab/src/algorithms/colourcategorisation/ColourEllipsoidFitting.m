@@ -1,4 +1,4 @@
-function RSS = alej_fit_ellipsoid_optplot(x, plotme, FittingData, FittingParams)
+function RSS = ColourEllipsoidFitting(x, plotme, FittingData, FittingParams)
 % Describe the function
 % This function does the actual fitting of the three level datapoints
 % obtained by variables data36 data58 and data81 and the 3D-ellipsoid.

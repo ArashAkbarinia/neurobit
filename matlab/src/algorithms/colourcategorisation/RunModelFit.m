@@ -248,12 +248,12 @@ end
 
 global doproperdistance;
 if doproperdistance
-  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, FittingData, FittingParams); % if you need to edit, do it below!
-  [tmpellips, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, FittingData, FittingParams), initial, options);
+  RSS(1) = ColourEllipsoidFitting(initial, 0, FittingData, FittingParams); % if you need to edit, do it below!
+  [tmpellips, RSS(2), exitflag, output] = fminsearch(@(x) ColourEllipsoidFitting(x, 0, FittingData, FittingParams), initial, options);
   ellipsoid = [tmpellips(1:6), 0, 0, tmpellips(7)];
 else
   initial = [initial(1:6), 0, 0, initial(7)];
-  RSS(1) = alej_fit_ellipsoid_optplot(initial, 0, FittingData, FittingParams); % if you need to edit, do it below!
+  RSS(1) = ColourEllipsoidFitting(initial, 0, FittingData, FittingParams); % if you need to edit, do it below!
   lb = ...
     [
     FittingParams.MinCentre, FittingParams.MinAxes, 0, 0, 0
@@ -262,8 +262,8 @@ else
     [
     min(FittingParams.MaxCentre, FittingData.allstd .* FittingParams.CentreDeviation), min(FittingParams.MaxAxes, FittingData.allstd .* FittingParams.AxesDeviation), 0, 0, 2 * pi
     ];
-  %   [ellipsoid, RSS(2), exitflag, output] = fminsearch(@(x) alej_fit_ellipsoid_optplot(x, 0, FittingData, FittingParams), initial, options);
-  [ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) alej_fit_ellipsoid_optplot(x, 0, FittingData, FittingParams), initial, [], [], [], [], lb, ub, @EllipsoidEq, options);
+  %   [ellipsoid, RSS(2), exitflag, output] = fminsearch(@(x) ColourEllipsoidFitting(x, 0, FittingData, FittingParams), initial, options);
+  [ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) ColourEllipsoidFitting(x, 0, FittingData, FittingParams), initial, [], [], [], [], lb, ub, @EllipsoidEq, options);
 end
 
 disp ('================================================================');
