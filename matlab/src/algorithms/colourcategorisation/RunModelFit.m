@@ -51,7 +51,7 @@ for pp = 1:ncolours
       FittingData.category = 'green';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
       FittingParams.EstimatedAxes = [0.0771, 0.1204, 251.7392];
-      FittingParams.EstimatedCentre = [0.6, 0, 46];
+      FittingParams.EstimatedCentre = [0.6, 0, 0];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 40]);
       
       [ellipses(1, :), RSSes(1, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
@@ -59,7 +59,7 @@ for pp = 1:ncolours
     case {'b', 'blue'}
       FittingData.category = 'blue';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.0293, 0.1866, 342.2729];
+      FittingParams.EstimatedAxes = [0.0993, 0.1866, 342.2729];
       FittingParams.EstimatedCentre = [0.58, 0.25, 0];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 18]);
       
@@ -122,7 +122,7 @@ for pp = 1:ncolours
     case {'gr', 'grey'}
       FittingData.category = 'grey';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.0145, 0.0243, 91.9704];
+      FittingParams.EstimatedAxes = [0.0145, 0.0243, 120.9704];
       FittingParams.EstimatedCentre = [0.650, 0.059, 0];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 45]);
       
@@ -188,13 +188,15 @@ FittingData.allstd = std(FittingData.borders);
 FittingData.allmeans = mean(FittingData.borders);
 
 if isempty(initial)
+  FittingParams.EstimatedCentre(1:2) = FittingParams.EstimatedCentre(1:2) * 100;
+  FittingParams.EstimatedAxes(1:2) = FittingParams.EstimatedAxes(1:2) * 100;
   initial = [FittingParams.EstimatedCentre, FittingParams.EstimatedAxes, FittingParams.EstimatedAngles];
 end
 RSS(1) = ColourEllipsoidFitting(initial, FittingData);
 FittingParams.MinCentre = initial(1:3) - 0.1 .* initial(1:3);
 FittingParams.MaxCentre = initial(1:3) + 0.1 .* initial(1:3);
-FittingParams.MinAxes = initial(4:6) .* 0.8;
-FittingParams.MaxAxes = initial(4:6) .* 1.2;
+FittingParams.MinAxes = initial(4:6) .* 0.9;
+FittingParams.MaxAxes = initial(4:6) .* 1.1;
 lb = ...
   [
   FittingParams.MinCentre, FittingParams.MinAxes, 0, 0, 0

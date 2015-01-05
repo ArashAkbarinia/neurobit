@@ -11,7 +11,7 @@ AxisY = ellipsoid(6);
 
 steepness = 100; % steepness of the sigmoidal transition.
 
-[~, intersection] = DistanceEllipsoid(lsY_points, ellipsoid, 0);
+[distances, intersection] = DistanceEllipsoid(lsY_points, ellipsoid, 0);
 
 % do_belong = (abs(lsY_points(:, 3)) <= AxisY);
 
@@ -22,7 +22,9 @@ H = sqrt((intersection(:, 1) - CentreL) .^ 2 + (intersection(:, 2) - CentreS) .^
 X = sqrt((lsY_points(:, 1) - CentreL) .^ 2 + (lsY_points(:, 2) - CentreS) .^ 2 + (lsY_points(:, 3) - CentreY) .^ 2);
 
 % growth rate (width of the sigmoidal section)
-G = steepness / AxisY;
+% G = steepness / AxisY;
+% TODO: I think G = 1 must be fine.
+G = 1;
 
 belonging =  1 ./ (1 + exp(G .* (X - H)));
 % belonging = belonging .* do_belong;

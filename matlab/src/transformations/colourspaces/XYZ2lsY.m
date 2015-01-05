@@ -103,6 +103,9 @@ LMS = XYZ * T';
 
 lsY = LMS2lsY(LMS);
 
+% TODO: choose the scale more accurately trying to rescale l and s to be similar to Y
+lsY(:, 1:2) = lsY(:, 1:2) * 100;
+
 lsY = reshape(lsY, n, m, p);
 
 end
