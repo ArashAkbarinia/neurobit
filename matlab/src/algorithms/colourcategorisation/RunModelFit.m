@@ -5,7 +5,7 @@ if nargin < 1
 end
 if nargin < 2
   plotme = 1;
-  saveme = 0;
+  saveme = 1;
 end
 
 if strcmpi(WhichColours{1}, 'a')
@@ -25,8 +25,6 @@ Gr = [0.5, 0.5, 0.5];
 Bl  = [0.0, 0.0, 0.0];
 
 lsYFrontiers = organize_frontiers('rawdata_Lab.mat');
-% lsY_limits;
-%load('CRT_gamut_all');
 
 WhichColours = lower(WhichColours);
 ncolours = length(WhichColours);
@@ -56,7 +54,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.6, 0, 46];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 40]);
       
-      [ellipses(1, :), RSSes(1, :)] = DoColour(FittingParams, FittingData, options, plotme, GoodResult.ellipsoids(1, 1:9));
+      [ellipses(1, :), RSSes(1, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 1];
     case {'b', 'blue'}
       FittingData.category = 'blue';
@@ -65,7 +63,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.58, 0.25, 0];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 18]);
       
-      [ellipses(2, :), RSSes(2, :)] = DoColour(FittingParams, FittingData, options, plotme, GoodResult.ellipsoids(2, 1:9));
+      [ellipses(2, :), RSSes(2, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 2];
     case {'pp', 'purple'}
       FittingData.category = 'purple';
@@ -74,7 +72,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.68, 0.20, 72];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 170]);
       
-      [ellipses(3, :), RSSes(3, :)] = DoColour(FittingParams, FittingData, options, plotme, GoodResult.ellipsoids(3, 1:9));
+      [ellipses(3, :), RSSes(3, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 3];
     case {'pk', 'pink'}
       FittingData.category = 'pink';
@@ -83,7 +81,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.8, 0.1, 63];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 10]);
       
-      [ellipses(4, :), RSSes(4, :)] = DoColour(FittingParams, FittingData, options, plotme, GoodResult.ellipsoids(4, 1:9));
+      [ellipses(4, :), RSSes(4, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 4];
     case {'r', 'red'}
       FittingData.category = 'red';
@@ -92,7 +90,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.800, 0.025, 0.000];
       FittingParams.EstimatedAngles = deg2rad([0, 0, -15]);
       
-      [ellipses(5, :), RSSes(5, :)] = DoColour(FittingParams, FittingData, options, plotme, GoodResult.ellipsoids(5, 1:9));
+      [ellipses(5, :), RSSes(5, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 5];
     case {'o', 'orange'}
       FittingData.category = 'orange';
@@ -101,7 +99,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.74, 0.00, 100];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 53]);
       
-      [ellipses(6, :), RSSes(6, :)] = DoColour(FittingParams, FittingData, options, plotme, GoodResult.ellipsoids(6, 1:9));
+      [ellipses(6, :), RSSes(6, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 6];
     case {'y', 'yellow'}
       FittingData.category = 'yellow';
@@ -110,7 +108,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.68, 0.01, 100];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 25]);
       
-      [ellipses(7, :), RSSes(7, :)] = DoColour(FittingParams, FittingData, options, plotme, GoodResult.ellipsoids(7, 1:9));
+      [ellipses(7, :), RSSes(7, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 7];
     case {'br', 'brown'}
       FittingData.category = 'brown';
@@ -119,7 +117,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.73, 0.02, 0.00];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 57]);
       
-      [ellipses(8, :), RSSes(8, :)] = DoColour(FittingParams, FittingData, options, plotme, GoodResult.ellipsoids(8, 1:9));
+      [ellipses(8, :), RSSes(8, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 8];
     case {'gr', 'grey'}
       FittingData.category = 'grey';
@@ -128,7 +126,7 @@ for pp = 1:ncolours
       FittingParams.EstimatedCentre = [0.650, 0.059, 0];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 45]);
       
-      [ellipses(9, :), RSSes(9, :)] = DoColour(FittingParams, FittingData, options, plotme, GoodResult.ellipsoids(9, 1:9));
+      [ellipses(9, :), RSSes(9, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 9]; %#ok<*AGROW>
     case {'w', 'white'}
       %       FittingData.category = 'white';
