@@ -11,6 +11,9 @@ end
 % gammacorrect = true, max pix value > 1, max luminance = daylight
 lsYImage = XYZ2lsY(sRGB2XYZ(ImageRGB, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
 
+% just for debugging purpose for the small images
+PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs);
+
 BelongingImage = lsY2Focals(lsYImage, ColourEllipsoids);
 
 if plotme
@@ -43,5 +46,24 @@ function ColouredBelongingImage = ColourBelongingImage(BelongingImage, Ellipsoid
 [~, inds] = max(BelongingImage(:, :, 1:chns), [], 3);
 
 ColouredBelongingImage = ColourLabelImage(inds, EllipsoidsRGBs);
+
+end
+
+function [] = PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs)
+
+if size(ImageRGB, 1) == 4
+  h = figure();
+  hold on;
+  grid on;
+  for i = 1:size(lsYImage, 1)
+    for j = 1:size(lsYImage, 2)
+      plot3(lsYImage(i, j, 1), lsYImage(i, j, 2), lsYImage(i, j, 3), 'marker', 'o', 'MarkerFaceColor', im2double(ImageRGB(i, j, :)), 'MarkerEdgeColor', [0, 0, 0]);
+    end
+  end
+  PlotAllEllipsoids(ColourEllipsoids, EllipsoidsRGBs, h);
+  xlabel('l');
+  ylabel('s');
+  zlabel('Y');
+end
 
 end
