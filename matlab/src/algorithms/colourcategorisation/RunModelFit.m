@@ -192,7 +192,7 @@ FittingData.allmeans = mean(FittingData.borders);
 if isempty(initial)
   initial = [FittingParams.EstimatedCentre, FittingParams.EstimatedAxes, FittingParams.EstimatedAngles];
 end
-RSS(1) = ColourEllipsoidFitting(initial, 0, FittingData, FittingParams); % if you need to edit, do it below!
+RSS(1) = ColourEllipsoidFitting(initial, FittingData);
 FittingParams.MinCentre = initial(1:3) - 0.1 .* initial(1:3);
 FittingParams.MaxCentre = initial(1:3) + 0.1 .* initial(1:3);
 FittingParams.MinAxes = initial(4:6) .* 0.8;
@@ -205,7 +205,7 @@ ub = ...
   [
   FittingParams.MaxCentre, FittingParams.MaxAxes, 0, 0, pi
   ];
-[ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) ColourEllipsoidFitting(x, 0, FittingData, FittingParams), initial, [], [], [], [], lb, ub, [], options);
+[ellipsoid, RSS(2), exitflag, output] = fmincon(@(x) ColourEllipsoidFitting(x, FittingData), initial, [], [], [], [], lb, ub, [], options);
 
 disp ('================================================================');
 disp (['         Colour category: ', FittingData.category]);
