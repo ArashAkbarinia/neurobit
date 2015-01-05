@@ -1,7 +1,7 @@
 %% Initialisation
 
 clearvars;
-% close all;
+close all;
 clc;
 
 dociwam = 0;
@@ -54,7 +54,7 @@ end
 
 %% Colour categorisation
 
-ConfigsMat = load('2014_ellipsoid_params_arash');
+ConfigsMat = load('2014_ellipsoid_params');
 ColourEllipsoids = ConfigsMat.ellipsoids;
 EllipsoidsRGBs = ConfigsMat.RGBValues;
 EllipsoidsTitles = ConfigsMat.RGBTitles;
