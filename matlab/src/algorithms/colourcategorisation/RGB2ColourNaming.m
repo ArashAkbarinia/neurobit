@@ -9,6 +9,9 @@ end
 [nelpisd, ~] = size(ColourEllipsoids);
 
 % gammacorrect = true, max pix value > 1, max luminance = daylight
+% TODO: make a more permanent solution, this is just becuase 0 goes to the
+% end of the world
+ImageRGB = ImageRGB + 1;
 lsYImage = XYZ2lsY(sRGB2XYZ(ImageRGB, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
 
 % just for debugging purpose for the small images
