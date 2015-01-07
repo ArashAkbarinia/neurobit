@@ -13,6 +13,8 @@ classdef ColourEllipsoidFittingParams
     MinCentre       = [-inf, -inf, -inf];
     MaxCentre       = [inf, inf, inf];
     EstimatedAngles = [0, 0, 0];  % in degrees counterclockwise
+    MinAngle        = [0, 0, 0];
+    MaxAngle        = [pi, pi, pi];
   end
   
   methods
