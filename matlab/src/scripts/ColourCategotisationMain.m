@@ -9,6 +9,7 @@ docolourconstancy = 0;
 donoiseremoval = 0;
 
 % ImageRGB = imread('peppers.png');
+% ImageRGB = ColourBoxes();
 ImageRGB = MacbethColourChecker();
 
 %% Colour constancy

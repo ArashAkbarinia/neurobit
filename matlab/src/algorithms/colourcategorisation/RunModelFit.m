@@ -50,7 +50,7 @@ for pp = 1:ncolours
     case {'g', 'green'}
       FittingData.category = 'green';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.0771, 0.1204, 100];
+      FittingParams.EstimatedAxes = [0.0771, 0.1204, 80];
       FittingParams.EstimatedCentre = [0.6, 0, 0];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 40]);
       
@@ -59,9 +59,9 @@ for pp = 1:ncolours
     case {'b', 'blue'}
       FittingData.category = 'blue';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.08, 0.4, 100];
-      FittingParams.EstimatedCentre = [0.50, 0.50, 0];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 10]);
+      FittingParams.EstimatedAxes = [0.08, 0.35, 100];
+      FittingParams.EstimatedCentre = [0.50, 0.42, 0];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 5]);
       
       [ellipses(2, :), RSSes(2, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 2];
