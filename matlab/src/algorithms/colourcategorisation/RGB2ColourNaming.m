@@ -54,7 +54,7 @@ end
 
 function [] = PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs)
 
-if size(ImageRGB, 1) * size(ImageRGB, 2) < 100
+if size(ImageRGB, 1) * size(ImageRGB, 2) < 120
   h = figure();
   hold on;
   grid on;
