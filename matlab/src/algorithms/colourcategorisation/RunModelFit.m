@@ -68,9 +68,9 @@ for pp = 1:ncolours
     case {'pp', 'purple'}
       FittingData.category = 'purple';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.0589, 0.1128, 80];
-      FittingParams.EstimatedCentre = [0.73, 0.20, 10];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 30]);
+      FittingParams.EstimatedAxes = [0.08, 0.1, 35];
+      FittingParams.EstimatedCentre = [0.65, 0.18, 15];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 170]);
       
       [ellipses(3, :), RSSes(3, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 3];
