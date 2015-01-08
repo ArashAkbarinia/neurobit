@@ -77,9 +77,9 @@ for pp = 1:ncolours
     case {'pk', 'pink'}
       FittingData.category = 'pink';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.06, 0.12, 40];
-      FittingParams.EstimatedCentre = [0.8, 0.15, 40];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 10]);
+      FittingParams.EstimatedAxes = [0.07, 0.09, 35];
+      FittingParams.EstimatedCentre = [0.78, 0.13, 45];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 165]);
       
       [ellipses(4, :), RSSes(4, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 4];
