@@ -68,9 +68,9 @@ for pp = 1:ncolours
     case {'pp', 'purple'}
       FittingData.category = 'purple';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.04, 0.2, 35];
-      FittingParams.EstimatedCentre = [0.68, 0.32, 15];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 0]);
+      FittingParams.EstimatedAxes = [0.06, 0.18, 35];
+      FittingParams.EstimatedCentre = [0.7, 0.32, 15];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 5]);
       
       [ellipses(3, :), RSSes(3, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 3];
@@ -122,26 +122,30 @@ for pp = 1:ncolours
     case {'gr', 'grey'}
       FittingData.category = 'grey';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.02, 0.02, 30];
-      FittingParams.EstimatedCentre = [0.650, 0.064, 50];
+      FittingParams.EstimatedAxes = [0.022, 0.022, 30];
+      FittingParams.EstimatedCentre = [0.66, 0.067, 50];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 0]);
       
       [ellipses(9, :), RSSes(9, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
-      tested = [tested, 9]; %#ok<*AGROW>
+      ellipses(10, :) = ellipses(9, :);
+      ellipses(10, 3) = 100;
+      ellipses(10, 6) = 20;
+      ellipses(11, :) = ellipses(9, :);
+      ellipses(11, 3) = 0;
+      ellipses(11, 6) = 20;
+      tested = [tested, 9, 10, 11]; %#ok<*AGROW>
     case {'w', 'white'}
       %       FittingData.category = 'white';
       %       points = lsYFrontiers.(FittingData.category).GetAllBorders();
       %       ellipses(10, :) = [mean(points), 0.1, 0.1, std(points(:, 3)), 0, 0, 0];
       %       RSSes(10, :) = norm(DistanceEllipsoid(points, ellipses(10, :)), 'fro') .^ 2;
       %       tested = [tested, 10]; %#ok<*AGROW>
-      ellipses(10, :) = [66, 6.7, 100, 2.2, 2.2, 20, 0, 0, 5.8567];
     case {'bl', 'black'}
       %       FittingData.category = 'black';
       %       points = lsYFrontiers.(FittingData.category).GetAllBorders();
       %       ellipses(11, :) = [mean(points), 0.1, 0.1, std(points(:, 3)), 0, 0, 0];
       %       RSSes(11, :) = norm(DistanceEllipsoid(points, ellipses(11, :)), 'fro') .^ 2;
       %       tested = [tested, 11]; %#ok<*AGROW>
-      ellipses(11, :) = [66, 6.7, 0, 2.2, 2.2, 20, 0, 0, 5.8567];
     otherwise
       disp('Wrong category, quitting...');
       return;
