@@ -54,19 +54,24 @@ end
 
 function [] = PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs)
 
+AxesViews = [0, 90; 0, 0; 90, 0;];
 if size(ImageRGB, 1) * size(ImageRGB, 2) < 120
-  h = figure();
-  hold on;
-  grid on;
-  for i = 1:size(lsYImage, 1)
-    for j = 1:size(lsYImage, 2)
-      plot3(lsYImage(i, j, 1), lsYImage(i, j, 2), lsYImage(i, j, 3), 'marker', 'o', 'MarkerFaceColor', im2double(ImageRGB(i, j, :)), 'MarkerEdgeColor', [0, 0, 0]);
+  figure();
+  for k = 1:3
+    h = subplot(1, 3, k);
+    hold on;
+    grid on;
+    for i = 1:size(lsYImage, 1)
+      for j = 1:size(lsYImage, 2)
+        plot3(lsYImage(i, j, 1), lsYImage(i, j, 2), lsYImage(i, j, 3), 'marker', 'o', 'MarkerFaceColor', im2double(ImageRGB(i, j, :)), 'MarkerEdgeColor', [0, 0, 0]);
+      end
     end
+    PlotAllEllipsoids(ColourEllipsoids, EllipsoidsRGBs, h);
+    xlabel('l');
+    ylabel('s');
+    zlabel('Y');
+    view(AxesViews(k, :));
   end
-  PlotAllEllipsoids(ColourEllipsoids, EllipsoidsRGBs, h);
-  xlabel('l');
-  ylabel('s');
-  zlabel('Y');
 end
 
 end

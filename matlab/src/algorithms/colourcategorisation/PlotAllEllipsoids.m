@@ -21,11 +21,9 @@ end
 
 if FigureNumber == 0
   figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - Ellipsoids');
-else
-  figure(FigureNumber);
 end
 for i = 1:size(ellipsoids, 1)
-  DrawEllipsoid(ellipsoids(i, :), 'FaceColor', [0, 0, 0], 'EdgeColor', rgbs(i, :), 'FaceAlpha', 0.3);
+  DrawEllipsoid(ellipsoids(i, :), 'FaceColor', [0, 0, 0], 'EdgeColor', rgbs(i, :), 'FaceAlpha', 0.9);
   hold on;
 end
 
