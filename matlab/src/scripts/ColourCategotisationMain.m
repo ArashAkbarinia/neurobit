@@ -8,10 +8,10 @@ dociwam = 0;
 docolourconstancy = 0;
 donoiseremoval = 0;
 
-ImageRGB = ColourBoxes();
+% ImageRGB = ColourBoxes();
 
 ImageRGB = WcsChart();
-GroundTruth = WcsResults(true);
+GroundTruth = WcsResults();
 
 % ImageRGB = MacbethColourChecker();
 

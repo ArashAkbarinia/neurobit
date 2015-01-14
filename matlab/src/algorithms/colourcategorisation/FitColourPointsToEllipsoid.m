@@ -24,7 +24,7 @@ GoodResult = load('2014_ellipsoid_params.mat');
 ColourEllipsoids(:, 1:9) = GoodResult.ColourEllipsoids(:, 1:9);
 
 WcsColourTable = WcsChart();
-GroundTruth = WcsResults(true);
+GroundTruth = WcsResults();
 
 if plotme
   figure;
