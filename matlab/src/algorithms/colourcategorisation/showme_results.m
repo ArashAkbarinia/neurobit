@@ -1,4 +1,4 @@
-function showme_results(myoutput, myresults, RSS, myexitflag, FittingData)
+function showme_results(myoutput, myresults, RSS, myexitflag, FittingDataStd)
 
 switch myexitflag
   case 1
@@ -17,6 +17,6 @@ disp (['rotation =  (', num2str(rad2deg(myresults(7))), ', ', num2str(rad2deg(my
 disp (['RS1: ', num2str(RSS(1))]);
 disp (['RS2: ', num2str(RSS(2))]);
 disp (['RSS gain: ', num2str(RSS(1) - RSS(2))]);
-disp (['Std Dev (l,s,Y) = (', num2str(FittingData.allstd(1)), ', ', num2str(FittingData.allstd(2)), ', ', num2str(FittingData.allstd(3)), ')']);
+disp (['Std Dev (l,s,Y) = (', num2str(FittingDataStd(1)), ', ', num2str(FittingDataStd(2)), ', ', num2str(FittingDataStd(3)), ')']);
 
 end
