@@ -1,12 +1,10 @@
-function [BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(ImageRGB, ColourEllipsoids, plotme, EllipsoidsRGBs, EllipsoidsTitles)
+function [BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(ImageRGB, ColourEllipsoids, plotme, EllipsoidsRGBs, EllipsoidsTitles, GroundTruth)
 %RGB2ColourNaming Summary of this function goes here
 %   Detailed explanation goes here
 
 if nargin < 3
   plotme = 0;
 end
-
-[nelpisd, ~] = size(ColourEllipsoids);
 
 % gammacorrect = true, max pix value > 1, max luminance = daylight
 % TODO: make a more permanent solution, this is just becuase 0 goes to the
@@ -20,24 +18,35 @@ PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs);
 BelongingImage = lsY2Focals(lsYImage, ColourEllipsoids);
 
 if plotme
-  titles = EllipsoidsTitles;
-  figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - Colour Planes');
-  subplot(4, 4, 1.5);
-  imshow(ImageRGB);
-  title('Org');
-  subplot(4, 4, 3.5);
-  ColouredBelongingImage = ColourBelongingImage(BelongingImage, EllipsoidsRGBs);
-  imshow(ColouredBelongingImage);
-  title('Max');
-  for i = 1:nelpisd
-    PlotIndex = i + 4;
-    if PlotIndex > 12
-      PlotIndex = PlotIndex + 0.5;
-    end
-    subplot(4, 4, PlotIndex);
-    imshow(BelongingImage(:, :, i), []);
-    title(titles{i});
+  ColouredBelongingImage = PlotAllChannels(ImageRGB, BelongingImage, ColourEllipsoids, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
+  if ~isempty(GroundTruth)
+    PlotAllChannels(ImageRGB, GroundTruth, ColourEllipsoids, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Ground Truth');
   end
+end
+
+end
+
+function ColouredBelongingImage = PlotAllChannels(ImageRGB, BelongingImage, ColourEllipsoids, EllipsoidsTitles, EllipsoidsRGBs, FigureTitle)
+
+titles = EllipsoidsTitles;
+figure('NumberTitle', 'Off', 'Name', FigureTitle);
+subplot(4, 4, 1.5);
+imshow(ImageRGB);
+title('Org');
+subplot(4, 4, 3.5);
+ColouredBelongingImage = ColourBelongingImage(BelongingImage, EllipsoidsRGBs);
+imshow(ColouredBelongingImage);
+title('Max');
+
+[nelpisd, ~] = size(ColourEllipsoids);
+for i = 1:nelpisd
+  PlotIndex = i + 4;
+  if PlotIndex > 12
+    PlotIndex = PlotIndex + 0.5;
+  end
+  subplot(4, 4, PlotIndex);
+  imshow(BelongingImage(:, :, i), []);
+  title(titles{i});
 end
 
 end
