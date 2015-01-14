@@ -1,4 +1,4 @@
-function ellipsoids = RunModelFit(WhichColours, plotme, saveme)
+function ColourEllipsoids = RunModelFit(WhichColours, plotme, saveme)
 
 if nargin < 1
   WhichColours = {'a'};
@@ -152,12 +152,11 @@ for pp = 1:ncolours
   end
 end
 
-ellipsoids = [ellipses, RSSes(:, 2)];
+ColourEllipsoids = [ellipses, RSSes(:, 2)];
 
 if saveme
-  RGBValues = [G; B; Pp; Pk; R; O; Y; Br; Gr; W; Bl]; %#ok
   RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'}; %#ok
-  save('2014_ellipsoid_params_arash.mat', 'ellipsoids', 'RGBValues', 'RGBTitles');
+  save('2014_ellipsoid_params_arash.mat', 'ColourEllipsoids', 'RGBTitles');
 end
 
 

@@ -8,7 +8,7 @@ dociwam = 0;
 docolourconstancy = 0;
 donoiseremoval = 0;
 
-% ImageRGB = ColourBoxes();
+ImageRGB = ColourBoxes();
 
 ImageRGB = WcsChart();
 GroundTruth = WcsResults(true);
@@ -62,12 +62,11 @@ end
 %% Colour categorisation
 
 ConfigsMat = load('2014_ellipsoid_params_arash');
-ColourEllipsoids = ConfigsMat.ellipsoids;
-EllipsoidsRGBs = ConfigsMat.RGBValues;
+ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 EllipsoidsTitles = ConfigsMat.RGBTitles;
 
 PlotResults = 1;
-[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(CategorisationInput, ColourEllipsoids, PlotResults, EllipsoidsRGBs, EllipsoidsTitles, GroundTruth);
+[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(CategorisationInput, ColourEllipsoids, PlotResults, EllipsoidsTitles, GroundTruth);
 
 %% Noise removal
 

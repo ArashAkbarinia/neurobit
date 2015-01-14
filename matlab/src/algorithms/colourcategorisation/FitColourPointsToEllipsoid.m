@@ -62,21 +62,8 @@ for i = 1:ncolours
 end
 
 if saveme
-  R  = [1.0, 0.0, 0.0];
-  G  = [0.0, 1.0, 0.0];
-  B  = [0.0, 0.0, 1.0];
-  Y  = [1.0, 1.0, 0.0];
-  Pp = [0.7, 0.0, 0.7];
-  O  = [1.0, 0.5, 0.0];
-  Pk = [1.0, 0.0, 1.0];
-  Br = [1.0, 0.5, 0.0] * 0.75;
-  W  = [1.0, 1.0, 1.0];
-  Gr = [0.5, 0.5, 0.5];
-  Bl  = [0.0, 0.0, 0.0];
-  RGBValues = [G; B; Pp; Pk; R; O; Y; Br; Gr; W; Bl]; %#ok
   RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'}; %#ok
-  ellipsoids = ColourEllipsoids;
-  save('2014_ellipsoid_params_arash.mat', 'ellipsoids', 'RGBValues', 'RGBTitles');
+  save('2014_ellipsoid_params_arash.mat', 'ColourEllipsoids', 'RGBTitles');
 end
 
 end

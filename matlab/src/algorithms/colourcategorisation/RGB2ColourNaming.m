@@ -1,4 +1,4 @@
-function [BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(ImageRGB, ColourEllipsoids, plotme, EllipsoidsRGBs, EllipsoidsTitles, GroundTruth)
+function [BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(ImageRGB, ColourEllipsoids, plotme, EllipsoidsTitles, GroundTruth)
 %RGB2ColourNaming Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -12,8 +12,14 @@ end
 ImageRGB = ImageRGB + 1;
 lsYImage = XYZ2lsY(sRGB2XYZ(ImageRGB, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
 
+ncolours = size(EllipsoidsTitles, 2);
+EllipsoidsRGBs = zeros(ncolours, 3);
+for i = 1:ncolours
+  EllipsoidsRGBs(i, :) = name2rgb(EllipsoidsTitles{i});
+end
+
 % just for debugging purpose for the small images
-PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs);
+PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs, GroundTruth);
 
 BelongingImage = lsY2Focals(lsYImage, ColourEllipsoids);
 
@@ -61,10 +67,10 @@ ColouredBelongingImage = ColourLabelImage(inds, EllipsoidsRGBs);
 
 end
 
-function [] = PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs)
+function [] = PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs, GroundTruth)
 
 AxesViews = [0, 90; 0, 0; 90, 0;];
-if size(ImageRGB, 1) * size(ImageRGB, 2) < 120
+if size(ImageRGB, 1) * size(ImageRGB, 2) < 500
   figure();
   for k = 1:3
     h = subplot(1, 3, k);
