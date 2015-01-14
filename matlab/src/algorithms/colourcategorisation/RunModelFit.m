@@ -218,7 +218,7 @@ ub = ...
 disp ('================================================================');
 disp (['         Colour category: ', FittingData.category]);
 disp ('================================================================');
-showme_results(output, ellipsoid, RSS, exitflag, FittingData.allstd);
+PrintFittingResults(output, ellipsoid, RSS, exitflag, FittingData.allstd);
 
 end
 

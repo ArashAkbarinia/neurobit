@@ -116,7 +116,7 @@ RSS(1) = ColourEllipsoidFitting(initial, lsYPoints, GroundTruth(:, :, ColourInde
 disp ('================================================================');
 disp (['         Colour category: ', ColourName]);
 disp ('================================================================');
-showme_results(output, ColourEllipsoid, RSS, exitflag, std(PositivelsYPoints));
+PrintFittingResults(output, ColourEllipsoid, RSS, exitflag, std(PositivelsYPoints));
 
 if plotme
   DrawEllipsoid(ColourEllipsoid, 'FaceColor', [1, 1, 1], 'EdgeColor', name2rgb(ColourName), 'FaceAlpha', 0.5);

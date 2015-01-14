@@ -1,4 +1,4 @@
-function showme_results(myoutput, myresults, RSS, myexitflag, FittingDataStd)
+function PrintFittingResults(myoutput, myresults, RSS, myexitflag, FittingDataStd)
 
 switch myexitflag
   case 1
