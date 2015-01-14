@@ -8,14 +8,18 @@ dociwam = 0;
 docolourconstancy = 0;
 donoiseremoval = 0;
 
-% ImageRGB = imread('peppers.png');
 % ImageRGB = ColourBoxes();
-ImageRGB = MacbethColourChecker();
+
+ImageRGB = WcsChart();
+GroundTruth = WcsResults(true);
+
+% ImageRGB = MacbethColourChecker();
 
 %% Colour constancy
 
 if docolourconstancy
   ColourConstantImage = ColourConstancyACE(ImageRGB);
+  ColourConstantImage = uint8(NormaliseChannel(ColourConstantImage, 0, 255, [], []));
   CategorisationInput = ColourConstantImage;
   
   figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - ACE');
@@ -25,6 +29,8 @@ if docolourconstancy
   subplot(1, 2, 2);
   imshow(ColourConstantImage);
   title('Colour constancy ACE');
+else
+  CategorisationInput = ImageRGB;
 end
 
 %% CIWaM
@@ -55,13 +61,13 @@ end
 
 %% Colour categorisation
 
-ConfigsMat = load('2014_ellipsoid_params');
+ConfigsMat = load('2014_ellipsoid_params_arash');
 ColourEllipsoids = ConfigsMat.ellipsoids;
 EllipsoidsRGBs = ConfigsMat.RGBValues;
 EllipsoidsTitles = ConfigsMat.RGBTitles;
 
 PlotResults = 1;
-[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(ImageRGB, ColourEllipsoids, PlotResults, EllipsoidsRGBs, EllipsoidsTitles);
+[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(CategorisationInput, ColourEllipsoids, PlotResults, EllipsoidsRGBs, EllipsoidsTitles, GroundTruth);
 
 %% Noise removal
 
