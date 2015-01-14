@@ -6,6 +6,9 @@ if nargin < 1
   ConvertToEllipsoidColours = false;
 end
 
-ChipsTable = BerlinKayColourBoundries(ConvertToEllipsoidColours);
+ChipsTable1 = BerlinKayColourBoundries(ConvertToEllipsoidColours);
+ChipsTable2 = SturgesWhitfielColourBoundries();
+
+ChipsTable = (ChipsTable1 + ChipsTable2) / 2;
 
 end
