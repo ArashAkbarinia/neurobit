@@ -1,6 +1,6 @@
-function PrintFittingResults(myoutput, myresults, RSS, myexitflag, FittingDataStd)
+function PrintFittingResults(OptimisationOutput, ColourEllipsoid, RSS, ExitFlag, FittingDataStd)
 
-switch myexitflag
+switch ExitFlag
   case 1
     disp('fminsearch converged to a solution')
   case 0
@@ -9,11 +9,11 @@ switch myexitflag
     disp('The algorithm was terminated by the output function');
 end
 
-disp (myoutput);
+disp (OptimisationOutput);
 disp ('=======Results:=======');
-disp (['centre (l,s,Y) = (', num2str(myresults(1)), ', ', num2str(myresults(2)), ', ', num2str(myresults(3)), ').']);
-disp (['axes (a,b,c)   = (', num2str(myresults(4)), ', ', num2str(myresults(5)), ', ', num2str(myresults(6)), ').']);
-disp (['rotation =  (', num2str(rad2deg(myresults(7))), ', ', num2str(rad2deg(myresults(8))), ', ', num2str(rad2deg(myresults(9))), ') deg.']);
+disp (['centre (l,s,Y) = (', num2str(ColourEllipsoid(1)), ', ', num2str(ColourEllipsoid(2)), ', ', num2str(ColourEllipsoid(3)), ').']);
+disp (['axes (a,b,c)   = (', num2str(ColourEllipsoid(4)), ', ', num2str(ColourEllipsoid(5)), ', ', num2str(ColourEllipsoid(6)), ').']);
+disp (['rotation =  (', num2str(rad2deg(ColourEllipsoid(7))), ', ', num2str(rad2deg(ColourEllipsoid(8))), ', ', num2str(rad2deg(ColourEllipsoid(9))), ') deg.']);
 disp (['RS1: ', num2str(RSS(1))]);
 disp (['RS2: ', num2str(RSS(2))]);
 disp (['RSS gain: ', num2str(RSS(1) - RSS(2))]);
