@@ -43,6 +43,10 @@ if ConvertToEllipsoidColours
   end
 end
 
+% I think by mistake in the txt files these are lablled as orange, however
+% in the paper they are not labelled as orange.
+ChipsTable(7:9, 9, 6) = 0;
+
 end
 
 function ColourTerms = WcsColourTerms(WcsTerms, LanguageNumber)
@@ -85,9 +89,9 @@ ChipsTable = zeros(10, 41, 11);
 
 % converting the results to percentage
 for i = 1:nchips
-  SumAll = sum(ChipsColours(i, :));
-  if SumAll > 0
-    ChipsColours(i, :) = ChipsColours(i, :) ./ SumAll;
+  MaxAll = max(ChipsColours(i, :));
+  if MaxAll > 0
+    ChipsColours(i, :) = ChipsColours(i, :) ./ MaxAll;
   else
     ChipsColours(i, :) = 0;
   end
