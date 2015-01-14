@@ -11,7 +11,7 @@ if nargin < 2
 end
 
 if strcmpi(WhichColours{1}, 'a')
-  WhichColours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br'}; % 'Gr', 'W', 'Bl'
+  WhichColours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br'}; % 'Gr', 'W', 'Bl' % TODO: we need to add GT for achromatic
 end
 
 WhichColours = lower(WhichColours);
@@ -73,7 +73,7 @@ function ColourEllipsoid = DoColour(GroundTruth, WcsColourTable, ColourIndex, Co
 WcsColourTable = WcsColourTable + 1;
 lsYPoints = XYZ2lsY(sRGB2XYZ(WcsColourTable, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
 
-inds = GroundTruth(:, :, ColourIndex) == 1;
+inds = GroundTruth(:, :, ColourIndex) > 0;
 inds(:, :, 2) = inds(:, :, 1);
 inds(:, :, 3) = inds(:, :, 1);
 
@@ -86,7 +86,11 @@ if plotme
   end
 end
 
-initial = [mean(PositivelsYPoints), std(PositivelsYPoints), 0, 0, 0];
+if size(PositivelsYPoints, 1) > 1
+  initial = [mean(PositivelsYPoints), std(PositivelsYPoints), 0, 0, 0];
+else
+  initial = [PositivelsYPoints, 10, 10, 10, 0, 0, 0];
+end
 lb = ...
   [
   -inf, -inf, -inf, 0, 0, 0, 0, 0, 0;
@@ -103,7 +107,7 @@ RSS(1) = ColourEllipsoidFitting(initial, lsYPoints, GroundTruth(:, :, ColourInde
 disp ('================================================================');
 disp (['         Colour category: ', ColourName]);
 disp ('================================================================');
-PrintFittingResults(output, ColourEllipsoid, RSS, exitflag, std(PositivelsYPoints));
+PrintFittingResults(output, ColourEllipsoid, RSS, exitflag, initial(4:6));
 
 if plotme
   DrawEllipsoid(ColourEllipsoid, 'FaceColor', [1, 1, 1], 'EdgeColor', name2rgb(ColourName), 'FaceAlpha', 0.5);
