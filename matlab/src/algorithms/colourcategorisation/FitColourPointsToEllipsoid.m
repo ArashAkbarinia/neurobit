@@ -21,7 +21,7 @@ ColourEllipsoids = zeros(11, 9);
 % this allows us to only test one colour, the rest of the colour get the
 % latest ellipsoid parameters.
 GoodResult = load('2014_ellipsoid_params.mat');
-ColourEllipsoids(:, 1:9) = GoodResult.ellipsoids(:, 1:9);
+ColourEllipsoids(:, 1:9) = GoodResult.ColourEllipsoids(:, 1:9);
 
 WcsColourTable = WcsChart();
 GroundTruth = WcsResults(true);
@@ -93,7 +93,7 @@ lb = ...
   ];
 ub = ...
   [
-  inf, inf, inf, 100, 100, 100, pi, pi, pi;
+  inf, inf, inf, inf, inf, inf, pi, pi, pi;
   ];
 options = optimoptions(@fmincon,'Algorithm', 'sqp', 'Display', 'off', 'MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
 
