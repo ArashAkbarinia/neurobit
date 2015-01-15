@@ -47,13 +47,13 @@ d = 0.05;
 [rows, cols, ~] = size(ChipsTable);
 
 for i = 1:8
-  GradientMap = brushfire(ChipsTable(2:rows-1, 2:cols, i), 8);
+  GradientMap = brushfire(ChipsTable(2:rows-1, 2:cols, i), 8, true, false);
   GradientMap(GradientMap > 0) = 1 - (GradientMap(GradientMap > 0) - 1) * d;
   ChipsTable(2:rows-1, 2:cols, i) = GradientMap;
 end
 
 for i = 9:11
-  GradientMap = brushfire(ChipsTable(:, :, i), 8);
+  GradientMap = brushfire(ChipsTable(:, :, i), 8, true, false);
   GradientMap(GradientMap > 0) = 1 - (GradientMap(GradientMap > 0) - 1) * d;
   ChipsTable(:, :, i) = GradientMap;
 end

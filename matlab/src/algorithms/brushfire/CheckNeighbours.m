@@ -1,4 +1,4 @@
-function PixelGradient = CheckNeighbours(MapGrid, pixel, connectivity)
+function PixelGradient = CheckNeighbours(MapGrid, pixel, connectivity, xcircle, ycircle)
 %CheckNeighbours  calculating the distance towards closest obstace.
 %   Finds neighbours of one pixel and checks their distance towards
 %   obstacle, based on those distances you can set the distance of current
@@ -8,10 +8,17 @@ function PixelGradient = CheckNeighbours(MapGrid, pixel, connectivity)
 %   map_grid      the matrix of map.
 %   pixel         current pixel.
 %   connectivity  4 or 8 neighborhood.
+%   xcircle       if matrix is circular is x direction, default false.
+%   ycircle       if matrix is circular is y direction, default false.
 %
 % Outputs
 %   PixelGradient  the minimum value of its neighbours plus one.
 %
+
+if nargin < 4
+  xcircle = false;
+  ycircle = false;
+end
 
 [rows, cols] = size(MapGrid);
 
@@ -26,7 +33,7 @@ if PixelGradient == 0
 end
 
 % Getting the neighborus of current position.
-neighbours = GetNeighbours(MapGrid, pixel, connectivity);
+neighbours = GetNeighbours(MapGrid, pixel, connectivity, xcircle, ycircle);
 
 % Going through all th neighborus.
 for k = 1 : size(neighbours, 2)

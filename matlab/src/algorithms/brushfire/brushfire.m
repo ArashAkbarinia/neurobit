@@ -1,4 +1,4 @@
-function MapGradient = brushfire(MapGrid, connectivity)
+function MapGradient = brushfire(MapGrid, connectivity, xcircle, ycircle)
 %BRUSHFIRE algorithm computes the gradient map.
 %   Considering the provided connectivity, the gradient map shows the
 %   distance of each position towards the closest obstacle.
@@ -10,6 +10,11 @@ function MapGradient = brushfire(MapGrid, connectivity)
 % Outputs
 %   MapGradient the gradient map of environment.
 %
+
+if nargin < 3
+  xcircle = false;
+  ycircle = false;
+end
 
 [rows, cols] = size(MapGrid);
 
@@ -34,7 +39,7 @@ while 1
       % considering the situations that the obstacle is on the right
       % or bottom of current positions.
       if MapGradient(i, j) > label || MapGradient(i, j) == 0
-        MapGradient(i, j) = CheckNeighbours(MapGradient, [i, j], connectivity);
+        MapGradient(i, j) = CheckNeighbours(MapGradient, [i, j], connectivity, xcircle, ycircle);
       end
     end
   end
