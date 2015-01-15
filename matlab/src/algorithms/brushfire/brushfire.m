@@ -6,6 +6,8 @@ function MapGradient = brushfire(MapGrid, connectivity, xcircle, ycircle)
 % Inputs
 %   MapGrid       the map of environment.
 %   connectivity  4 or 8 adjacency.
+%   xcircle       if matrix is circular is x direction, default false.
+%   ycircle       if matrix is circular is y direction, default false.
 %
 % Outputs
 %   MapGradient the gradient map of environment.
