@@ -9,55 +9,47 @@ ChipsTableMat = load(ChipsTablePath);
 ChipsTable = ChipsTableMat.ChipsTable();
 
 % green
-centre(1, 1:2) = [7, 19];
+ChipsTable(7, 19, 1) = 1;
 
 % blue
-centre(2, 1:2) = [6, 30];
+ChipsTable(6, 30, 2) = 1;
 
 % purple
-centre(3, 1:2) = [7, 35];
+ChipsTable(7, 35, 3) = 1;
 
 % pink
-centre(4, 1:2) = [4, 40];
+ChipsTable(4, 40, 4) = 1;
 
 % red
-centre(5, 1:2) = [7, 4];
+ChipsTable(7, 4, 5) = 1;
 
 % orange
-centre(6, 1:2) = [5, 6];
+ChipsTable(5, 6, 6) = 1;
 
 % yellow
-centre(7, 1:2) = [2, 11];
+ChipsTable(2, 11, 7) = 1;
 
 % brown
-centre(8, 1:2) = [8, 9];
+ChipsTable(8, 9, 8) = 1;
 
 % grey
-centre(5:6, 1, 9) = 1;
+ChipsTable(5:6, 1, 9) = 1;
 
 % white
-centre(1, 1, 10) = 1;
+ChipsTable(1, 1, 10) = 1;
 
 % black
-centre(10, 1, 11) = 1;
+ChipsTable(10, 1, 11) = 1;
 
 % calculating the distances
-d = 0.1;
+d = 0.05;
 
 [rows, cols, ~] = size(ChipsTable);
+
 for i = 1:8
-  ChipsTable(centre(i, 1), centre(i, 2), i) = 1;
-  for j = 1:rows
-    for k = 1:cols
-      if ChipsTable(j, k, i) == 2
-        cx = centre(i, 1);
-        dx = min(abs(j - cx), abs(j + rows - cx));
-        cy = centre(i, 2);
-        dy = min(abs(k - cy), abs(k + cols - cy));
-        ChipsTable(j, k, i) = 1 - sqrt(dx ^ 2 + dy ^ 2) * d;
-      end
-    end
-  end
+  GradientMap = brushfire(ChipsTable(2:rows-1, 2:cols, i), 8);
+  GradientMap(GradientMap > 0) = 1 - (GradientMap(GradientMap > 0) - 1) * d;
+  ChipsTable(2:rows-1, 2:cols, i) = GradientMap;
 end
 
 end

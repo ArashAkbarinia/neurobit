@@ -6,10 +6,11 @@ if nargin < 1
   ConvertToEllipsoidColours = false;
 end
 
+FunctionLocalPath = 'matlab/src/experiments/wcs/BerlinKayColourBoundries';
 FunctionPath = mfilename('fullpath');
-TermsPath = strrep(FunctionPath, 'matlab/src/experiments/wcs/BerlinKayColourBoundries', 'data/WCS-Data-20110316/BK-term.txt');
-DicPath = strrep(FunctionPath, 'matlab/src/experiments/wcs/BerlinKayColourBoundries', 'data/WCS-Data-20110316/BK-dict.txt');
-ChipsTablePath = strrep(FunctionPath, 'matlab/src/experiments/wcs/BerlinKayColourBoundries', 'data/WCS-Data-20110316/cnum-vhcm-lab-new.txt');
+TermsPath = strrep(FunctionPath, FunctionLocalPath, 'data/WCS-Data-20110316/BK-term.txt');
+DicPath = strrep(FunctionPath, FunctionLocalPath, 'data/WCS-Data-20110316/BK-dict.txt');
+ChipsTablePath = strrep(FunctionPath, FunctionLocalPath, 'data/WCS-Data-20110316/cnum-vhcm-lab-new.txt');
 
 WcsTerms = tdfread(TermsPath);
 WcsDic = tdfread(DicPath);
@@ -34,7 +35,7 @@ end
 ChipsTable = WcsChipsTable(WcsChips, ChipsColours);
 
 if ConvertToEllipsoidColours
-  EllipsoidDicMatPath = strrep(FunctionPath, 'matlab/src/experiments/wcs/BerlinKayColourBoundries', 'matlab/data/mats/EllipsoidDic.mat');
+  EllipsoidDicMatPath = strrep(FunctionPath, FunctionLocalPath, 'matlab/data/mats/EllipsoidDic.mat');
   EllipsoidDicMat = load(EllipsoidDicMatPath);
   
   ChipsTableTmp = ChipsTable;
@@ -43,9 +44,53 @@ if ConvertToEllipsoidColours
   end
 end
 
-% I think by mistake in the txt files these are lablled as orange, however
-% in the paper they are not labelled as orange.
+% NOTE: I think by mistake in the txt files these are lablled as orange,
+% however in the paper they are not labelled as orange.
 ChipsTable(7:9, 9, 6) = 0;
+
+% green
+ChipsTable(6:7, 18, 1) = 1;
+
+% blue
+ChipsTable(6:7, 28:30, 2) = 1;
+
+% purple
+ChipsTable(8:9, 36, 3) = 1;
+
+% pink
+ChipsTable(4:5, 39, 4) = 1;
+
+% red
+ChipsTable(7:8, 4, 5) = 1;
+
+% orange
+ChipsTable(6, 5, 6) = 1;
+
+% yellow
+ChipsTable(3, 10, 7) = 1;
+
+% brown
+ChipsTable(9, 6:8, 8) = 1;
+
+% grey
+ChipsTable(6, 1, 9) = 1;
+
+% white
+ChipsTable(1:2, 1, 10) = 1;
+
+% black
+ChipsTable(10, 1, 11) = 1;
+
+% calculating the distances
+d = 0.05;
+
+[rows, cols, ~] = size(ChipsTable);
+
+for i = 1:8
+  GradientMap = brushfire(ChipsTable(2:rows-1, 2:cols, i), 8);
+  GradientMap(GradientMap > 0) = 1 - (GradientMap(GradientMap > 0) - 1) * d;
+  ChipsTable(2:rows-1, 2:cols, i) = GradientMap;
+end
 
 end
 
@@ -87,15 +132,17 @@ function ChipsTable = WcsChipsTable(WcsChips, ChipsColours)
 nchips = size(WcsChips.x0x23cnum, 1);
 ChipsTable = zeros(10, 41, 11);
 
+% NOTE: the current file only has one number per colour.
 % converting the results to percentage
-for i = 1:nchips
-  MaxAll = max(ChipsColours(i, :));
-  if MaxAll > 0
-    ChipsColours(i, :) = ChipsColours(i, :) ./ MaxAll;
-  else
-    ChipsColours(i, :) = 0;
-  end
-end
+% for i = 1:nchips
+%   MaxAll = max(ChipsColours(i, :));
+%   if MaxAll > 0
+%     ChipsColours(i, :) = ChipsColours(i, :) ./ MaxAll;
+%   else
+%     ChipsColours(i, :) = 0;
+%   end
+% end
+ChipsColours = ChipsColours .* 2;
 
 x = 2;
 y = 1;
