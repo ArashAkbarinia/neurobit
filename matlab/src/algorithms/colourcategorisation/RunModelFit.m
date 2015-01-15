@@ -33,8 +33,8 @@ RSSes = zeros(11, 2);
 
 % for testing only one colour
 GoodResult = load('2014_ellipsoid_params.mat');
-ellipses(:, 1:9) = GoodResult.ellipsoids(:, 1:9);
-RSSes(:, 2) = GoodResult.ellipsoids(:, 10);
+ellipses(:, 1:9) = GoodResult.ColourEllipsoids(:, 1:9);
+RSSes(:, 2) = GoodResult.ColourEllipsoids(:, 10);
 
 tested = [];
 if plotme
