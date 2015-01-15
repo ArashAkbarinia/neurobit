@@ -50,8 +50,8 @@ for pp = 1:ncolours
     case {'g', 'green'}
       FittingData.category = 'green';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.04, 0.06, 40];
-      FittingParams.EstimatedCentre = [0.6, 0, 35];
+      FittingParams.EstimatedAxes = [0.0771, 0.1204, 251.7392];
+      FittingParams.EstimatedCentre = [0.6, 0, 0];
       FittingParams.EstimatedAngles = deg2rad([0, 0, 40]);
       
       [ellipses(1, :), RSSes(1, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
@@ -59,72 +59,72 @@ for pp = 1:ncolours
     case {'b', 'blue'}
       FittingData.category = 'blue';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.07, 0.35, 50];
-      FittingParams.EstimatedCentre = [0.51, 0.42, 30];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 5]);
+      FittingParams.EstimatedAxes = [0.0993, 0.1866, 342.2729];
+      FittingParams.EstimatedCentre = [0.58, 0.25, 0];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 18]);
       
       [ellipses(2, :), RSSes(2, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 2];
     case {'pp', 'purple'}
       FittingData.category = 'purple';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.06, 0.18, 40];
-      FittingParams.EstimatedCentre = [0.7, 0.32, 10];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 5]);
+      FittingParams.EstimatedAxes = [0.0589, 0.1128, 209.5232];
+      FittingParams.EstimatedCentre = [0.68, 0.20, 72];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 170]);
       
       [ellipses(3, :), RSSes(3, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 3];
     case {'pk', 'pink'}
       FittingData.category = 'pink';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.09, 0.06, 35];
-      FittingParams.EstimatedCentre = [0.8, 0.14, 45];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 60]);
+      FittingParams.EstimatedAxes = [0.1125, 0.0582, 96.9293];
+      FittingParams.EstimatedCentre = [0.8, 0.1, 63];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 10]);
       
       [ellipses(4, :), RSSes(4, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 4];
     case {'r', 'red'}
       FittingData.category = 'red';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.04, 0.04, 18];
-      FittingParams.EstimatedCentre = [0.880, 0.03, 15];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 135]);
+      FittingParams.EstimatedAxes = [0.1012, 0.0155, 79.9999];
+      FittingParams.EstimatedCentre = [0.800, 0.025, 0.000];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 165]);
       
       [ellipses(5, :), RSSes(5, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 5];
     case {'o', 'orange'}
       FittingData.category = 'orange';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.045, 0.06, 18];
-      FittingParams.EstimatedCentre = [0.78, 0.0001, 40];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 45]);
+      FittingParams.EstimatedAxes = [0.0247, 0.0785, 100.0000];
+      FittingParams.EstimatedCentre = [0.74, 0.00, 100];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 53]);
       
       [ellipses(6, :), RSSes(6, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 6];
     case {'y', 'yellow'}
       FittingData.category = 'yellow';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.02, 0.03, 35];
-      FittingParams.EstimatedCentre = [0.71, 0.001, 70];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 0]);
+      FittingParams.EstimatedAxes = [0.0205, 0.0498, 100.0000];
+      FittingParams.EstimatedCentre = [0.68, 0.01, 100];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 25]);
       
       [ellipses(7, :), RSSes(7, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 7];
     case {'br', 'brown'}
       FittingData.category = 'brown';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.085, 0.01, 25];
-      FittingParams.EstimatedCentre = [0.8, 0.01, 0];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 0]);
+      FittingParams.EstimatedAxes = [0.0246, 0.0512, 62.4239];
+      FittingParams.EstimatedCentre = [0.73, 0.02, 0.00];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 57]);
       
       [ellipses(8, :), RSSes(8, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       tested = [tested, 8];
     case {'gr', 'grey'}
       FittingData.category = 'grey';
       FittingParams = ColourEllipsoidFittingParams(lsYFrontiers.(FittingData.category));
-      FittingParams.EstimatedAxes = [0.024, 0.034, 30];
-      FittingParams.EstimatedCentre = [0.65, 0.065, 50];
-      FittingParams.EstimatedAngles = deg2rad([0, 0, 35]);
+      FittingParams.EstimatedAxes = [0.0145, 0.0243, 40];
+      FittingParams.EstimatedCentre = [0.650, 0.059, 50];
+      FittingParams.EstimatedAngles = deg2rad([0, 0, 45]);
       
       [ellipses(9, :), RSSes(9, :)] = DoColour(FittingParams, FittingData, options, plotme, []);
       ellipses(10, :) = ellipses(9, :);
