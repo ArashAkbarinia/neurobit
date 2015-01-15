@@ -19,7 +19,7 @@ for i = 1:ncolours
 end
 
 % just for debugging purpose for the small images
-PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs, GroundTruth);
+% PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs, GroundTruth);
 
 BelongingImage = lsY2Focals(lsYImage, ColourEllipsoids);
 
@@ -61,7 +61,10 @@ function ColouredBelongingImage = ColourBelongingImage(BelongingImage, Ellipsoid
 
 [~, ~, chns] = size(BelongingImage);
 
-[~, inds] = max(BelongingImage(:, :, 1:chns), [], 3);
+[vals, inds] = max(BelongingImage(:, :, 1:chns), [], 3);
+% if the maximum value is 0 it means neither of the colours did categorise
+% this pixel.
+inds(vals == 0) = 11;
 
 ColouredBelongingImage = ColourLabelImage(inds, EllipsoidsRGBs);
 
