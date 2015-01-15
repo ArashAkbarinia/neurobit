@@ -4,7 +4,8 @@ function ChipsTable = WcsResults()
 
 ChipsTable1 = BerlinKayColourBoundries(true);
 ChipsTable2 = SturgesWhitfielColourBoundries();
+ChipsTable3 = BenaventeColourBoundries();
 
-ChipsTable = (ChipsTable1 + ChipsTable2) / 2;
+ChipsTable = (ChipsTable1 + ChipsTable2 + ChipsTable3) / 3;
 
 end
