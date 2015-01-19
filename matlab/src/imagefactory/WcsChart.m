@@ -43,6 +43,11 @@ for i = 2:nchips
   end
 end
 
+for i = 2:41
+  WcsTable(1, i, :) = [255, 255, 255] - 3.15 * (i - 2);
+  WcsTable(10, i, :) = [0, 0, 0] + 3.15 * (i - 2);
+end
+
 Wcs1 = kron(WcsTable(:, :, 1), ones(1, scale));
 WcsImage(:, :, 1) = kron(Wcs1, ones(scale, 1));
 Wcs2 = kron(WcsTable(:, :, 2), ones(1, scale));
