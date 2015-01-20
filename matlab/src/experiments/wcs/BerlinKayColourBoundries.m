@@ -32,6 +32,10 @@ for i = 1:nexperiments
   ChipsColours(ChipNumbers == ChipIndex, ColourIndex) = ChipsColours(ChipIndex, ColourIndex) + 1;
 end
 
+% NOTE: it seems there are few mistakes in the txt file that are two times
+% written.
+ChipsColours(ChipsColours == 2) = 1;
+
 ChipsTable = WcsChipsTable(WcsChips, ChipsColours);
 
 if ConvertToEllipsoidColours
