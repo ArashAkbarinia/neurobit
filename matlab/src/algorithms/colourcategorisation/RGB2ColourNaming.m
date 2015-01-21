@@ -46,9 +46,9 @@ end
 
 end
 
-function [] = PlotAllPixels(ImageRGB, lsYImage, ColourEllipsoids, EllipsoidsRGBs, GroundTruth, ColourIndex)
+function [] = PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, GroundTruth, ColourIndex)
 
-[rows, cols, ~] = size(lsYImage);
+[rows, cols, ~] = size(ImageOpponent);
 
 if isempty(GroundTruth) || isempty(ColourIndex)
   GroundTruth = ones(rows, cols, 1);
@@ -62,10 +62,10 @@ if size(ImageRGB, 1) * size(ImageRGB, 2) < 500
     h = subplot(1, 3, k);
     hold on;
     grid on;
-    for i = 1:size(lsYImage, 1)
-      for j = 1:size(lsYImage, 2)
+    for i = 1:size(ImageOpponent, 1)
+      for j = 1:size(ImageOpponent, 2)
         if GroundTruth(i, j, ColourIndex) > 0
-          plot3(lsYImage(i, j, 1), lsYImage(i, j, 2), lsYImage(i, j, 3), 'marker', 'o', 'MarkerFaceColor', im2double(ImageRGB(i, j, :)), 'MarkerEdgeColor', [0, 0, 0]);
+          plot3(ImageOpponent(i, j, 1), ImageOpponent(i, j, 2), ImageOpponent(i, j, 3), 'marker', 'o', 'MarkerFaceColor', im2double(ImageRGB(i, j, :)), 'MarkerEdgeColor', [0, 0, 0]);
         end
       end
     end
