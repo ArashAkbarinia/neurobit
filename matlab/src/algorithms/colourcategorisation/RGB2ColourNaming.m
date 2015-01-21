@@ -35,7 +35,7 @@ end
 % just for debugging purpose for the small images
 PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, GroundTruth, []);
 
-BelongingImage = lsY2Focals(ImageOpponent, ColourEllipsoids);
+BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
 
 if plotme
   ColouredBelongingImage = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
