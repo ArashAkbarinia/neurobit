@@ -1,7 +1,7 @@
 %% Initialisation
 
 clearvars;
-close all;
+% close all;
 clc;
 
 dociwam = 0;
@@ -11,7 +11,7 @@ donoiseremoval = 0;
 % ImageRGB = ColourBoxes();
 
 ImageRGB = WcsChart();
-GroundTruth = WcsResults();
+GroundTruth = WcsResults({'berlin', 'sturges', 'benavente'});
 
 % ImageRGB = MacbethColourChecker();
 
@@ -61,12 +61,8 @@ end
 
 %% Colour categorisation
 
-ConfigsMat = load('2014_ellipsoid_params_arash');
-ColourEllipsoids = ConfigsMat.ColourEllipsoids;
-EllipsoidsTitles = ConfigsMat.RGBTitles;
-
 PlotResults = 1;
-[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(CategorisationInput, ColourEllipsoids, PlotResults, EllipsoidsTitles, GroundTruth);
+[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(CategorisationInput, 'lab', PlotResults, GroundTruth);
 
 %% Noise removal
 
