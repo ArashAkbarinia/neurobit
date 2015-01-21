@@ -19,9 +19,11 @@ if strcmpi(ColourSpace, 'lsy')
   ConfigsMat = load('lsy_ellipsoid_params_arash');
   % gammacorrect = true, max pix value > 1, max luminance = daylight
   ImageOpponent = XYZ2lsY(sRGB2XYZ(ImageRGB, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
+  axes = {'l', 's', 'y'};
 elseif strcmpi(ColourSpace, 'lab')
   ConfigsMat = load('lab_ellipsoid_params_arash');
   ImageOpponent = double(applycform(ImageRGB, makecform('srgb2lab')));
+  axes = {'l', 'a', 'b'};
 end
 ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 EllipsoidsTitles = ConfigsMat.RGBTitles;
@@ -33,7 +35,7 @@ for i = 1:ncolours
 end
 
 % just for debugging purpose for the small images
-PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, GroundTruth, []);
+PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth, []);
 
 BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
 
@@ -46,12 +48,12 @@ end
 
 end
 
-function [] = PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, GroundTruth, ColourIndex)
+function [] = PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth, ColourIndex)
 
 [rows, cols, ~] = size(ImageOpponent);
 
 if isempty(GroundTruth) || isempty(ColourIndex)
-  GroundTruth = ones(rows, cols, 1);
+  GroundTruth = zeros(rows, cols, 1);
   ColourIndex = 1;
 end
 
@@ -70,9 +72,9 @@ if size(ImageRGB, 1) * size(ImageRGB, 2) < 500
       end
     end
     PlotAllEllipsoids(ColourEllipsoids, EllipsoidsRGBs, h);
-    xlabel('l');
-    ylabel('s');
-    zlabel('Y');
+    xlabel(axes{1});
+    ylabel(axes{2});
+    zlabel(axes{3});
     view(AxesViews(k, :));
   end
 end
