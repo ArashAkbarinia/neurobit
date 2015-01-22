@@ -1,5 +1,5 @@
 function MapGradient = brushfire(MapGrid, connectivity, xcircle, ycircle)
-%BRUSHFIRE algorithm computes the gradient map.
+%BRUSHFIRE  algorithm computes the gradient map.
 %   Considering the provided connectivity, the gradient map shows the
 %   distance of each position towards the closest obstacle.
 %

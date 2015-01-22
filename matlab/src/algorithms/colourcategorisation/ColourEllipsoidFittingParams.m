@@ -1,6 +1,6 @@
 classdef ColourEllipsoidFittingParams
-  %ColourEllipsoidFittingParams wrapper class for the parameters of
-  %ellipsoid fitting.
+  %ColourEllipsoidFittingParams  wrapper class for the parameters of
+  %                              ellipsoid fitting.
   
   properties
     colour
@@ -12,7 +12,7 @@ classdef ColourEllipsoidFittingParams
     EstimatedCentre = [0, 0, 0];
     MinCentre       = [-inf, -inf, -inf];
     MaxCentre       = [inf, inf, inf];
-    EstimatedAngles = [0, 0, 0];  % in degrees counterclockwise
+    EstimatedAngles = [0, 0, 0];           % in degrees counterclockwise
     MinAngle        = [0, 0, 0];
     MaxAngle        = [pi, pi, pi];
   end

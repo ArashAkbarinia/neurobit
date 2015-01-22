@@ -22,7 +22,7 @@ end
 
 [rows, cols] = size(MapGrid);
 
-% Extracting information for current pixel.
+% extracting information for current pixel.
 i = pixel(1);
 j = pixel(2);
 
@@ -32,17 +32,17 @@ if PixelGradient == 0
   PixelGradient = rows * cols;
 end
 
-% Getting the neighborus of current position.
+% getting the neighborus of current position.
 neighbours = GetNeighbours(MapGrid, pixel, connectivity, xcircle, ycircle);
 
-% Going through all th neighborus.
+% going through all th neighborus.
 for k = 1 : size(neighbours, 2)
-  % If neighboru is valid.
+  % if neighbour is valid.
   if neighbours(1, k) ~= 0
     temp = neighbours(:, k);
     TempGradient = MapGrid(temp(1), temp(2));
     
-    % If the distance of neighboru towards obstacle is lower than the
+    % if the distance of neighboru towards obstacle is lower than the
     % previously calculated distance.
     if TempGradient < PixelGradient && TempGradient ~= 0
       PixelGradient = TempGradient;
@@ -50,7 +50,7 @@ for k = 1 : size(neighbours, 2)
   end
 end
 
-% The distance towards obstacle if one more than minimum of neighbours
+% the distance towards obstacle if one more than minimum of neighbours
 % distances.
 if MapGrid(i, j) == 0 || MapGrid(i, j) > PixelGradient
   PixelGradient = PixelGradient + 1;

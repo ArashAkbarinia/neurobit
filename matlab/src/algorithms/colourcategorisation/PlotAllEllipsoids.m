@@ -1,6 +1,5 @@
 function [] = PlotAllEllipsoids(varargin)
-%PlotAllEllipsoids plotting all the ellipsoids from different inputs
-%
+%PlotAllEllipsoids plotting all the ellipsoids from different inputs.
 
 FigureNumber = 0;
 

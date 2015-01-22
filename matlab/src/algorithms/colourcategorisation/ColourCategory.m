@@ -1,5 +1,5 @@
 classdef ColourCategory
-  %ColourCategory wrapper for the colour class.
+  %ColourCategory  wrapper for the colour class.
   
   properties
     name     % the english name of the colour.

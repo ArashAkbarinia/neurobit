@@ -1,4 +1,5 @@
 function ColouredBelongingImage = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, FigureTitle)
+%PlotAllChannels  plots all the channels of the belonging image.
 
 if nargin < 3
   EllipsoidsTitles = [];

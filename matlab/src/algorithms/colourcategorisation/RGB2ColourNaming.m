@@ -1,6 +1,6 @@
 function [BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(ImageRGB, ColourSpace, plotme, GroundTruth)
-%RGB2ColourNaming Summary of this function goes here
-%   Detailed explanation goes here
+%RGB2ColourNaming  labels each pixel in the image as one of the focal
+%                  eleven colours.
 
 if nargin < 2
   ColourSpace = 'lab';

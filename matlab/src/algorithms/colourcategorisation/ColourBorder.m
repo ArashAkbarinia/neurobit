@@ -1,5 +1,5 @@
 classdef ColourBorder
-  %ColourBorder wrapper for the colour border class.
+  %ColourBorder  wrapper for the colour border class.
   
   properties
     colour1  % on side of the border

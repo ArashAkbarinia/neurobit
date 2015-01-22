@@ -9,7 +9,7 @@ function neighbours = GetNeighbours(MapGrid, pixel, connectivity, xcircle, ycirc
 %   ycircle       if matrix is circular is y direction, default false.
 %
 % Outputs
-%   neighbours  list of neighbours. If x and y of one neighbour is 0, it
+%   neighbours  list of neighbours. If x and y of one neighbour is 0, it.
 %   means       that neighboru is not valid.
 %
 
@@ -20,11 +20,11 @@ end
 
 [rows, cols] = size(MapGrid);
 
-% Extracting information for current pixel.
+% extracting information for current pixel.
 i = pixel(1);
 j = pixel(2);
 
-% Check which neighborhood we have to use.
+% check which neighborhood we have to use.
 if connectivity == 4
   souroundings = [0, 1, 0, -1; -1, 0, 1, 0;];
 elseif connectivity == 8
@@ -35,7 +35,7 @@ neighbours = zeros(2, connectivity);
 
 for k = 1 : size(souroundings, 2)
   temp = [i; j] + souroundings(:, k);
-  % If the neighbour is out of boundry we don't add it to list.
+  % if the neighbour is out of boundry we don't add it to list.
   if temp(1) <= 0
     if ycircle
       temp(1) = rows;
