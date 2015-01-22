@@ -3,7 +3,7 @@ function ColourEllipsoids = FitColourPointsToEllipsoid(ColourSpace, WhichColours
 %   Detailed explanation goes here
 
 if nargin < 1
-  ColourSpace = 'lsy';
+  ColourSpace = 'lab';
 end
 if nargin < 2
   WhichColours = {'c'};
