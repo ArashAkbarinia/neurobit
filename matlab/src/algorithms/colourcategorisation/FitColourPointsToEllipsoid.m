@@ -26,8 +26,11 @@ WhichColours = lower(WhichColours);
 ncolours = length(WhichColours);
 ColourEllipsoids = zeros(11, 9);
 
-WcsColourTable = WcsChart();
-[PosGroundTruth, NegGroundTruth] = DomainColourBoundries();
+% WcsColourTable = WcsChart();
+% [PosGroundTruth, NegGroundTruth] = DomainColourBoundries();
+[WcsColourTable, PosGroundTruth] = ColourBoxes();
+NegGroundTruth = PosGroundTruth;
+NegGroundTruth(NegGroundTruth > 0) = 1;
 
 % this allows us to only test one colour, the rest of the colour get the
 % latest ellipsoid parameters.
