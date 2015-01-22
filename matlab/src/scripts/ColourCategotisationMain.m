@@ -1,19 +1,22 @@
 %% Initialisation
 
 clearvars;
-% close all;
+close all;
 clc;
 
 dociwam = 0;
 docolourconstancy = 0;
 donoiseremoval = 0;
 
-% ImageRGB = ColourBoxes();
+ColourSpace = 'lab';
 
-ImageRGB = WcsChart();
-GroundTruth = WcsResults({'berlin', 'sturges', 'benavente'});
+[ImageRGB, GroundTruth] = ColourBoxes();
+
+% ImageRGB = WcsChart();
+% GroundTruth = WcsResults({'berlin', 'sturges', 'benavente'});
 
 % ImageRGB = MacbethColourChecker();
+% GroundTruth = [];
 
 %% Colour constancy
 
@@ -62,7 +65,7 @@ end
 %% Colour categorisation
 
 PlotResults = 1;
-[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(CategorisationInput, 'lab', PlotResults, GroundTruth);
+[BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(CategorisationInput, ColourSpace, PlotResults, GroundTruth);
 
 %% Noise removal
 
