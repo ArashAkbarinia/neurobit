@@ -1,5 +1,5 @@
 function ColourConstantImage = ColourConstancyACE(InputImage, alpha)
-%ColourConstancyACE applies the automatic colour equalisation (ACE).
+%ColourConstancyACE  applies the automatic colour equalisation (ACE).
 %   This is the Matlab implementation of 'Pascal Getreuer, Automatic Color
 %   Enhancement (ACE) and its Fast Implementation, Image Processing On Line
 %   , 2 (2012), pp. 266–277. http://dx.doi.org/10.5201/ipol.2012.g-ace'.

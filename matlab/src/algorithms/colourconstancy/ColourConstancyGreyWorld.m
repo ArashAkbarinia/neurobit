@@ -1,5 +1,5 @@
 function ColourConstantImage = ColourConstancyGreyWorld(InputImage, ScaleFactor)
-%ColourConstancyGreyWrold applies the grey world algorithm to the input.
+%ColourConstancyGreyWrold  applies the grey world algorithm to the input.
 %   Explanation http://en.wikipedia.org/wiki/Color_normalization#Grey_world
 %
 % Inputs

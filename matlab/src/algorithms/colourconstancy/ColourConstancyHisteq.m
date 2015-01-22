@@ -1,5 +1,5 @@
 function ColourConstantImage = ColourConstancyHisteq(InputImage, nbins)
-%ColourConstancyHisteq applies histogram equalisation to value channel.
+%ColourConstancyHisteq  applies histogram equalisation to value channel.
 %   This function converts the image to HSV colour space and apply the
 %   histeq to the value channel.
 %
