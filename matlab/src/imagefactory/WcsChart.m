@@ -48,13 +48,7 @@ for i = 2:41
   WcsTable(10, i, :) = [0, 0, 0] + 3.15 * (i - 2);
 end
 
-Wcs1 = kron(WcsTable(:, :, 1), ones(1, scale));
-WcsImage(:, :, 1) = kron(Wcs1, ones(scale, 1));
-Wcs2 = kron(WcsTable(:, :, 2), ones(1, scale));
-WcsImage(:, :, 2) = kron(Wcs2, ones(scale, 1));
-Wcs3 = kron(WcsTable(:, :, 3), ones(1, scale));
-WcsImage(:, :, 3) = kron(Wcs3, ones(scale, 1));
-
+WcsImage = MatRowsColsRepeat(WcsTable, scale);
 WcsImage = uint8(WcsImage);
 
 end
