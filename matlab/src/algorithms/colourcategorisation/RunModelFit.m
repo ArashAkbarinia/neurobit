@@ -24,7 +24,7 @@ W  = [1.0, 1.0, 1.0];
 Gr = [0.5, 0.5, 0.5];
 Bl  = [0.0, 0.0, 0.0];
 
-lsYFrontiers = organize_frontiers('rawdata_Lab.mat');
+lsYFrontiers = OrganiseExperimentFrontiers('rawdata_Lab.mat');
 
 WhichColours = lower(WhichColours);
 ncolours = length(WhichColours);

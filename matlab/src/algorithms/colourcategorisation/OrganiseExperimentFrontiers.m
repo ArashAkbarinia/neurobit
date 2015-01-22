@@ -1,4 +1,4 @@
-function lsYFrontiers = organize_frontiers(FilePath, plotme, XYZ2lsYChoise)
+function lsYFrontiers = OrganiseExperimentFrontiers(FilePath, plotme, XYZ2lsYChoise)
 
 if nargin < 2
   plotme = 0;
@@ -284,7 +284,7 @@ lsY_81_W_Y   = [lsY_81_W_Y_c;   lsY_81_W_Y_a];
 [lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'yellow', [], lsY_58_W_Y, lsY_81_W_Y);
 
 ScriptPath = mfilename('fullpath');
-DirPath = strrep(ScriptPath, 'matlab/src/algorithms/colourcategorisation/organize_frontiers', 'matlab/data/mats/results/experiments/colourfrontiers/pilot/');
+DirPath = strrep(ScriptPath, 'matlab/src/algorithms/colourcategorisation/OrganiseExperimentFrontiers', 'matlab/data/mats/results/experiments/colourfrontiers/pilot/');
 
 MatFiles = dir([DirPath, '*.mat']);
 
