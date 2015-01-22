@@ -1,4 +1,4 @@
-function ColourEllipsoids = RunModelFit(WhichColours, plotme, saveme)
+function ColourEllipsoids = FitExperimentPointsToEllipsoid(WhichColours, plotme, saveme)
 
 if nargin < 1
   WhichColours = {'a'};
