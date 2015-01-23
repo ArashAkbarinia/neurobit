@@ -2,6 +2,10 @@ function ColouredImage = ColourLabelImage(LabeledImage, colours)
 %ColourLabelImage Summary of this function goes here
 %   Detailed explanation goes here
 
+if ~isnumeric(colours)
+  colours = name2rgb(colours);
+end
+
 [rows, cols, ~] = size(LabeledImage);
 chns = size(colours, 1);
 

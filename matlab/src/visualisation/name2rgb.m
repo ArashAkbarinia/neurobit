@@ -1,4 +1,4 @@
-function rgb = name2rgb(ColourName)
+function rgbs = name2rgb(ColourName)
 %NAME2RGB map colour names to their RGB values for visualisation purposes.
 %
 % Inputs
@@ -8,32 +8,36 @@ function rgb = name2rgb(ColourName)
 %   rgb  the RGB value of the colour name in row.
 %
 
-ColourName = lower(ColourName);
+ColourName = cellstr(lower(ColourName));
 
-switch ColourName
-  case {'bl', 'black'}
-    rgb = [0.0, 0.0, 0.0];
-  case {'b', 'blue'}
-    rgb = [0.0, 0.0, 1.0];
-  case {'br', 'brown'}
-    rgb = [1.0, 0.5, 0.0] * 0.75;
-  case {'g', 'green'}
-    rgb = [0.0, 1.0, 0.0];
-  case {'gr', 'grey'}
-    rgb = [0.5, 0.5, 0.5];
-  case {'o', 'orange'}
-    rgb = [1.0, 0.5, 0.0];
-  case {'pk', 'pink'}
-    rgb = [1.0, 0.0, 1.0];
-  case {'pp', 'purple'}
-    rgb = [0.7, 0.0, 0.7];
-  case {'r', 'red'}
-    rgb = [1.0, 0.0, 0.0];
-  case {'w', 'white'}
-    rgb = [1.0, 1.0, 1.0];
-  case {'y', 'yellow'}
-    rgb = [1.0, 1.0, 0.0];
-  otherwise
-    warning('name2rgb:UnsupportedColour', ['Colour ', ColourName], ' is not supported, returnign black.');
-    rgb = [0, 0, 0];
+ncolours = length(ColourName);
+rgbs = zeros(ncolours, 3);
+for i = 1:ncolours
+  switch ColourName{i}
+    case {'bl', 'black'}
+      rgbs(i, :) = [0.0, 0.0, 0.0];
+    case {'b', 'blue'}
+      rgbs(i, :) = [0.0, 0.0, 1.0];
+    case {'br', 'brown'}
+      rgbs(i, :) = [1.0, 0.5, 0.0] * 0.75;
+    case {'g', 'green'}
+      rgbs(i, :) = [0.0, 1.0, 0.0];
+    case {'gr', 'grey'}
+      rgbs(i, :) = [0.5, 0.5, 0.5];
+    case {'o', 'orange'}
+      rgbs(i, :) = [1.0, 0.5, 0.0];
+    case {'pk', 'pink'}
+      rgbs(i, :) = [1.0, 0.0, 1.0];
+    case {'pp', 'purple'}
+      rgbs(i, :) = [0.7, 0.0, 0.7];
+    case {'r', 'red'}
+      rgbs(i, :) = [1.0, 0.0, 0.0];
+    case {'w', 'white'}
+      rgbs(i, :) = [1.0, 1.0, 1.0];
+    case {'y', 'yellow'}
+      rgbs(i, :) = [1.0, 1.0, 0.0];
+    otherwise
+      warning('name2rgb:UnsupportedColour', ['Colour ', ColourName], ' is not supported, returnign black.');
+      rgbs(i, :) = [0, 0, 0];
+  end
 end
