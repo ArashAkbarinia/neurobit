@@ -28,11 +28,7 @@ end
 ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 EllipsoidsTitles = ConfigsMat.RGBTitles;
 
-ncolours = size(EllipsoidsTitles, 2);
-EllipsoidsRGBs = zeros(ncolours, 3);
-for i = 1:ncolours
-  EllipsoidsRGBs(i, :) = name2rgb(EllipsoidsTitles{i});
-end
+EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
 
 % just for debugging purpose for the small images
 PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth, -1);
