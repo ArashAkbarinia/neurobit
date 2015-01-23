@@ -50,8 +50,7 @@ function [] = PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, Ellipsoid
 [rows, cols, ~] = size(ImageOpponent);
 
 if isempty(GroundTruth) || isempty(ColourIndex)
-  GroundTruth = zeros(rows, cols, 1);
-  ColourIndex = 1;
+  return;
 end
 if ColourIndex == -1
   GroundTruth = ones(rows, cols, 1);
