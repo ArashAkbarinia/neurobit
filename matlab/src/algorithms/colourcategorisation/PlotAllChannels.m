@@ -55,13 +55,7 @@ end
 
 function ColouredBelongingImage = ColourBelongingImage(BelongingImage, EllipsoidsRGBs)
 
-[~, ~, chns] = size(BelongingImage);
-
-[vals, inds] = max(BelongingImage(:, :, 1:chns), [], 3);
-% if the maximum value is 0 it means neither of the colours did categorise
-% this pixel.
-inds(vals == 0) = 11;
-
+inds = belonging2naming(BelongingImage);
 ColouredBelongingImage = ColourLabelImage(inds, EllipsoidsRGBs);
 
 end

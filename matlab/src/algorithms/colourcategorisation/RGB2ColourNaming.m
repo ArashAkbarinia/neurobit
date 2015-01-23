@@ -1,4 +1,4 @@
-function [BelongingImage, ColouredBelongingImage] = RGB2ColourNaming(ImageRGB, ColourSpace, plotme, GroundTruth)
+function [BelongingImage, ColourNamingImage] = RGB2ColourNaming(ImageRGB, ColourSpace, plotme, GroundTruth)
 %RGB2ColourNaming  labels each pixel in the image as one of the focal
 %                  eleven colours.
 
@@ -38,9 +38,10 @@ end
 PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth, -1);
 
 BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
+ColourNamingImage = belonging2naming(BelongingImage);
 
 if plotme
-  ColouredBelongingImage = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
+  PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
   if ~isempty(GroundTruth)
     PlotAllChannels(ImageRGB, GroundTruth, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Ground Truth');
   end
