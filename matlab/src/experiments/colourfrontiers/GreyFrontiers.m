@@ -5,16 +5,15 @@ function FrontierTable = GreyFrontiers()
 FrontierTable = ...
   {
   %lum     colour
-  '25',    'Red';
-  '25',    'Brown';
-  
   '36',    'Green';
   '36',    'Blue';
   '36',    'Purple';
-  '36',    'Pink';
   '36',    'Red';
   '36',    'Brown';
   
+  '47',    'Green';
+  '47',    'Blue';
+  '47',    'Purple';
   '47',    'Red';
   '47',    'Brown';
   
@@ -24,10 +23,13 @@ FrontierTable = ...
   '58',    'Pink';
   '58',    'Red';
   '58',    'Orange';
-  '58',    'Yellow';
+  '58',    'Brown';
   
+  '70',    'Green';
+  '70',    'Blue';
+  '70',    'Purple';
+  '70',    'Pink';
   '70',    'Orange';
-  '70',    'Yellow';
   
   '81',    'Green';
   '81',    'Blue';

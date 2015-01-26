@@ -25,14 +25,12 @@ blue58 = ...
 
 CartFocals.blue = ...
   [
-  25,  -2,   -32;
   36,  -5,   -30;  % B&V
   47,  -8,   -30;
   mean(blue58);
   70,  -15,  -25;
   81,  -20,  -20;  % B&V
   ];
-
 
 %% brown
 
@@ -48,9 +46,9 @@ brown36 = ...
 
 CartFocals.brown = ...
   [
-  25,  18,  30;  % B&K
   mean(brown36);
   47,  14,  21;  % B&O
+  58,   3,  50;  % B&V
   ];
 
 %% green
@@ -65,7 +63,6 @@ green58 = ...
 
 CartFocals.green = ...
   [
-  25,  -52,  10;  % B&K
   36,  -38,  22;  % B&V
   47,  -38,  22;  % S&W
   mean(green58);
@@ -77,7 +74,6 @@ CartFocals.green = ...
 
 CartFocals.grey = ...
   [
-  25,  0,  0;
   36,  0,  0;
   47,  0,  0;
   58,  0,  0;
@@ -110,12 +106,6 @@ CartFocals.orange = ...
 
 %% pink
 
-pink36 = ...
-  [
-  36  43  -7;  % B&V
-  36  45  -8;  % B&V
-  ];
-
 pink58 = ...
   [
   58  30  -3;  % B&V
@@ -130,8 +120,6 @@ pink81 = ...
 
 CartFocals.pink = ...
   [
-  mean(pink36);
-  47, 44, -5;
   mean(pink58);
   70, 45, -6;
   mean(pink81);
@@ -159,7 +147,6 @@ purple81 = ...
 
 CartFocals.purple = ...
   [
-  25, 22.0, -37.0;
   mean(purple36);
   47, 23.0, -35.5;
   mean(purple58);
@@ -185,7 +172,6 @@ red58 = ...
 
 CartFocals.red = ...
   [
-  25,  99,  15;
   mean(red36);
   47,  59,  30;  % B&K
   mean(red58);
@@ -211,8 +197,6 @@ yellow81 = ...
 
 CartFocals.yellow = ...
   [
-  58,  3,  50;  % B&V
-  70,  2,  99;
   mean(yellow81);
   ];
 
