@@ -1,5 +1,5 @@
-function ErrorInds = CompareResultGroundTruth(ResultInds, GroundTruthInds)
-%COMPARERESULTGROUNDTRUTH Summary of this function goes here
+function [ErrorInds, GtIngs] = CompareResultGroundTruth(ResultInds, GroundTruthInds)
+%CompareResultGroundTruth Summary of this function goes here
 %   Detailed explanation goes here
 
 ResultPos = ResultInds;
@@ -13,5 +13,8 @@ DiffMat(DiffMat ~= 0) = 1;
 
 ErrorInds = ResultInds;
 ErrorInds(DiffMat == 0) = 0;
+
+GtIngs = GroundTruthInds;
+GtIngs(DiffMat == 0) = 0;
 
 end
