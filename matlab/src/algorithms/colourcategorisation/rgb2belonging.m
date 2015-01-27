@@ -1,5 +1,5 @@
-function BelongingImage = RGB2ColourNaming(ImageRGB, ColourSpace, plotme, GroundTruth)
-%RGB2ColourNaming  labels each pixel in the image as one of the focal
+function BelongingImage = rgb2belonging(ImageRGB, ColourSpace, plotme, GroundTruth)
+%RGB2BELONGING  labels each pixel in the image as one of the focal
 %                  eleven colours.
 
 if nargin < 2
