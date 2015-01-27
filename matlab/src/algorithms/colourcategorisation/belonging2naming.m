@@ -1,4 +1,4 @@
-function NamingImage = belonging2naming(BelongingImage)
+function [NamingImage, MaxProbabilityImage] = belonging2naming(BelongingImage)
 %BELONGING2NAMING  gets the maximum value of the all channels in the
 %                  belonging image.
 %
@@ -6,7 +6,8 @@ function NamingImage = belonging2naming(BelongingImage)
 %   BelongingImage  the belonging image each channel for one colour.
 %
 % Outputs
-%   NamingImage  index of the salient colour.
+%   NamingImage          index of the salient colour.
+%   MaxProbabilityImage  the probability of each pixel.
 %
 
 [~, ~, chns] = size(BelongingImage);
@@ -15,7 +16,9 @@ function NamingImage = belonging2naming(BelongingImage)
 % if the maximum value is 0 it means neither of the colours did categorise
 % this pixel.
 inds(vals == 0) = -1;
+vals(vals == 0) = -1;
 
 NamingImage = inds;
+MaxProbabilityImage = vals;
 
 end
