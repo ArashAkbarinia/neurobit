@@ -68,6 +68,8 @@ CartFocals.green = ...
   mean(green58);
   70,  -22,  24;  % B&O
   81,  -20,  20;  % B&V
+  86,  -20,  20;
+  91,  -20,  20;
   ];
 
 %% grey
@@ -79,6 +81,8 @@ CartFocals.grey = ...
   58,  0,  0;
   70,  0,  0;
   81,  0,  0;
+  86,  0,  0;
+  91,  0,  0;
   ];
 
 %% orange
@@ -102,6 +106,8 @@ CartFocals.orange = ...
   mean(orange58);
   70,  31,  57;  % S&W
   mean(orange81);
+  86,  35,  60;
+  91,  44,  80;
   ];
 
 %% pink
@@ -156,14 +162,6 @@ CartFocals.purple = ...
 
 %% red
 
-red36 = ...
-  [
-  36  59.51  30.17;  % B&K
-  36  40.58  15.46;  % B&O
-  36  45.00  15.00;  % B&V
-  36  49.53  28.41;  % S&W
-  ];
-
 red58 = ...
   [
   58  44.54  21.50;  % B&V
@@ -172,8 +170,8 @@ red58 = ...
 
 CartFocals.red = ...
   [
-  mean(red36);
-  47,  59,  30;  % B&K
+  36,  46,  14;
+  47,  44,  20;
   mean(red58);
   ];
 
@@ -186,18 +184,11 @@ CartFocals.white = ...
 
 %% yellow
 
-yellow81 = ...
-  [
-  81  7.28  109.12;  %  Yellow  B&K
-  81  3.35  56.360;  %  Yellow  B&O
-  81  2.00  50.000;  %  Yellow  B&V
-  81  0.00  46.000;  %  Yellow  B&V
-  81  1.65  72.030;  %  Yellow  S&W
-  ];
-
 CartFocals.yellow = ...
   [
-  mean(yellow81);
+  81,  -6,  48;
+  86,  -6,  48;
+  91,  -6,  48;
   ];
 
 %% converting them to polar

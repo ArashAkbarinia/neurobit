@@ -37,6 +37,12 @@ FrontierTable = ...
   '81',    'Pink',      'Orange';
   '81',    'Orange',    'Yellow';
   '81',    'Yellow',    'Green';
+  
+  '86',    'Orange',    'Yellow';
+  '86',    'Yellow',    'Green';
+  
+  '91',    'Orange',    'Yellow';
+  '91',    'Yellow',    'Green';
   };
 
 end

@@ -222,7 +222,7 @@ PoloarColourB = PolarFocals.(ColourB)((PolarFocals.(ColourB)(:, 3) == labplane),
 
 disp(['luminance: ', frontier{1}, ', ', ColourA, '-', ColourB, ' border selected']);
 radius_pn = frontier{4};
-minradius = 0.7 * ExperimentParameters.maxradius;
+minradius = 0.95 * radius_pn;
 radioes = minradius + (radius_pn - minradius) * rand(1, 1);
 start_ang = PoloarColourA(1);
 end_ang = PoloarColourB(1);
@@ -269,7 +269,7 @@ for i = 1:rows
   PoloarColourB = PolarFocals.(ColourB)((PolarFocals.(ColourB)(:, 3) == labplane), :);
   MaxRadiusAllowed = find_max_rad_allowed(crs, PoloarColourA(1), PoloarColourB(1), labplane);
   % adding the last column and the allowed radius
-  FrontierTableArchs(i, :) = {FrontierTable{i, :}, min(MaxRadiusAllowed, ExperimentParameters.maxradius)};
+  FrontierTableArchs(i, :) = {FrontierTable{i, :}, max(MaxRadiusAllowed, ExperimentParameters.maxradius)};
 end
 
 end
