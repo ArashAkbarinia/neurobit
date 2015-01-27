@@ -47,7 +47,7 @@ for i = 1:nelpisd
     PlotIndex = PlotIndex + 0.5;
   end
   subplot(4, 4, PlotIndex);
-  imshow(BelongingImage(:, :, i), []);
+  imshow(BelongingImage(:, :, i), [0, 1]);
   title(titles{i});
 end
 
