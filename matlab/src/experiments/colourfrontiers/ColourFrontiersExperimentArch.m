@@ -26,7 +26,7 @@ crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.NOGAMMACORRECT);
 
 ExperimentParameters = CreateExperimentParameters(CRS, 'Arch');
 
-ExperimentParameters.maxradius = 50;
+ExperimentParameters.maxradius = 70;
 % (the margin the observer is allowed to wander outside the focus colour bracket (in radians)
 ang_margin_fraction = 0.1;
 ini_angularstep = 0.01; % one jnd (?)
@@ -90,7 +90,7 @@ for borderNr = conditions
   end
   
   % selection the borders of this condition
-  [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ArchColour(FrontierTable(borderNr, :), PolarFocals, ExperimentParameters);
+  [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ArchColour(FrontierTable(borderNr, :), PolarFocals);
   ExperimentResults.FrontierColours(ExperimentCounter, :) = {startcolourname, endcolourname};
   
   if start_ang > end_ang
@@ -211,7 +211,7 @@ end
 
 %% ArchColour
 
-function [radioes, start_ang, end_ang, labplane, ColourA, ColourB] = ArchColour(frontier, PolarFocals, ExperimentParameters)
+function [radioes, start_ang, end_ang, labplane, ColourA, ColourB] = ArchColour(frontier, PolarFocals)
 
 ColourA = lower(frontier{2});
 ColourB = lower(frontier{3});

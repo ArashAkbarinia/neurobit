@@ -47,8 +47,8 @@ brown36 = ...
 CartFocals.brown = ...
   [
   mean(brown36);
-  47,  14,  21;  % B&O
-  58,   3,  50;  % B&V
+  47,  11,  67;
+  58,   5,  66;
   ];
 
 %% green
@@ -104,19 +104,13 @@ orange81 = ...
 CartFocals.orange = ...
   [
   mean(orange58);
-  70,  31,  57;  % S&W
+  70,  25,  65;  % S&W
   mean(orange81);
   86,  35,  60;
   91,  44,  80;
   ];
 
 %% pink
-
-pink58 = ...
-  [
-  58  30  -3;  % B&V
-  58  42  -5;  % B&V
-  ];
 
 pink81 = ...
   [
@@ -126,18 +120,12 @@ pink81 = ...
 
 CartFocals.pink = ...
   [
-  mean(pink58);
-  70, 45, -6;
+  58,  73,  -12;
+  70,  45,  -6;
   mean(pink81);
   ];
 
 %% purple
-
-purple36 = ...
-  [
-  36  23  -40;  % B&V
-  36  20  -33;  % B&V
-  ];
 
 purple58 = ...
   [
@@ -153,10 +141,10 @@ purple81 = ...
 
 CartFocals.purple = ...
   [
-  mean(purple36);
-  47, 23.0, -35.5;
+  36,  64,  -61;
+  47,  69,  -66;
   mean(purple58);
-  70, 23.5, -31.0;
+  70,  23,  -31;
   mean(purple81);
   ];
 
