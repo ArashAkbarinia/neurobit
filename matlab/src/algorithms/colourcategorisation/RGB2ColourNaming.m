@@ -26,16 +26,15 @@ elseif strcmpi(ColourSpace, 'lab')
   axes = {'l', 'a', 'b'};
 end
 ColourEllipsoids = ConfigsMat.ColourEllipsoids;
-EllipsoidsTitles = ConfigsMat.RGBTitles;
-
-EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
-
-% just for debugging purpose for the small images
-PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth, -1);
 
 BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
 
 if plotme
+  EllipsoidsTitles = ConfigsMat.RGBTitles;
+  EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
+  % just for debugging purpose for the small images
+  PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth, -1);
+  
   PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
   if ~isempty(GroundTruth)
     PlotAllChannels(ImageRGB, GroundTruth, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Ground Truth');
