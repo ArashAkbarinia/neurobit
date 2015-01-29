@@ -31,7 +31,12 @@ if isempty(FigureTitle)
 end
 
 titles = EllipsoidsTitles;
-FigureHandler = figure('NumberTitle', 'Off', 'Name', FigureTitle);
+if nargout > 0
+  visibility = 'off';
+else
+  visibility = 'on';
+end
+FigureHandler = figure('NumberTitle', 'Off', 'Name', FigureTitle, 'visible', visibility);
 subplot(4, 4, 1.5);
 imshow(ImageRGB);
 title('Org');
