@@ -94,13 +94,14 @@ for nborder = conditions
   % TODO: add here the a and b ...
   ColourA = lower(FrontierTable{nborder, 1});
   ColourB = lower(FrontierTable{nborder, 2});
-  ExperimentResults.FrontierColours(ExperimentCounter, :) = {ColourA, ColourB};
   StartLuminance = (FrontierTable{nborder, 5} + FrontierTable{nborder, 6}) / 2;
   PolarColour = cart2pol3([FrontierTable{nborder, 3}, FrontierTable{nborder, 4}, StartLuminance]);
   CurrentAngle = PolarColour(1);
   CurrentRadius = PolarColour(2);
   MinLum = FrontierTable{nborder, 5};
   MaxLum = FrontierTable{nborder, 6};
+  
+  ExperimentResults.FrontierColours(ExperimentCounter, :) = {ColourA, ColourB, pol2cart3([CurrentAngle, CurrentRadius, MinLum], 1), pol2cart3([CurrentAngle, CurrentRadius, MaxLum], 1)};
   
   % generating mondrian
   % TODO: which parameters should I pass

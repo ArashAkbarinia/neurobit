@@ -110,7 +110,7 @@ for borderNr = conditions
     endcolourname = FrontierTable{borderNr, 2};
     startcolourname = 'Grey';
   end
-  ExperimentResults.FrontierColours(ExperimentCounter, :) = {startcolourname, endcolourname};
+  ExperimentResults.FrontierColours(ExperimentCounter, :) = {startcolourname, endcolourname, pol2cart3([start_ang, current_radius, theplane], 1), pol2cart3([end_ang, current_radius, theplane], 1)};
   
   % choose distance to centre
   maxradius = FrontierTable{borderNr, 3};
