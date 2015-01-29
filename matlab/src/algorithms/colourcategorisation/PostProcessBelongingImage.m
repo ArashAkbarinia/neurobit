@@ -6,9 +6,14 @@ if nargin < 3
   plotme = 0;
 end
 
-PostProcessedImage = ApplyGaussian(BelongingImage);
+PostProcessedImage = BelongingImage;
+
+for i = 1:3
+  PostProcessedImage = ApplyGaussian(PostProcessedImage);
+end
+
 % PostProcessedImage = ApplyMedian(BelongingImage);
-ApplyNeighbourColours(PostProcessedImage, ImageRGB);
+% ApplyNeighbourColours(PostProcessedImage, ImageRGB);
 
 if plotme
   PlotAllChannels(ImageRGB, PostProcessedImage, [], [], 'Colour Categorisation - Post Processed Image');
@@ -127,7 +132,7 @@ end
 
 function PostProcessedImage = ApplyGaussian(BelongingImage)
 
-h = fspecial('gaussian', 7, 7);
+h = fspecial('gaussian', [15, 15], 0.5);
 
 PostProcessedImage = ApplyFilter(BelongingImage, h);
 
