@@ -62,7 +62,7 @@ ExperimentResults.conditions = conditions;
 ExperimentResults.type = ExperimentParameters.ExperimentType;
 ExperimentResults.background = ExperimentParameters.BackgroundType;
 ExperimentResults.background = ExperimentParameters.BackgroundType;
-ExperimentResults.FrontierColours = cell(totnumruns, 2);
+ExperimentResults.FrontierColours = cell(totnumruns, 4);
 
 ExperimentResults.startangles = zeros(totnumruns, 1);
 ExperimentResults.startradius = zeros(totnumruns, 1);
@@ -110,7 +110,6 @@ for borderNr = conditions
     endcolourname = FrontierTable{borderNr, 2};
     startcolourname = 'Grey';
   end
-  ExperimentResults.FrontierColours(ExperimentCounter, :) = {startcolourname, endcolourname, pol2cart3([start_ang, current_radius, theplane], 1), pol2cart3([end_ang, current_radius, theplane], 1)};
   
   % choose distance to centre
   maxradius = FrontierTable{borderNr, 3};
@@ -137,9 +136,11 @@ for borderNr = conditions
   if ~strcmpi(startcolourname, 'Grey')
     disp([startcolourname, ' Lab colour:  ', num2str(pol2cart3([current_angle, current_radius, theplane], 1))]);
     disp([endcolourname, ' Lab colour:  0 0 ', num2str(theplane)]);
+    ExperimentResults.FrontierColours(ExperimentCounter, :) = {startcolourname, endcolourname, pol2cart3([current_angle, current_radius, theplane], 1), pol2cart3([0, 0, theplane], 1)};
   else
     disp([startcolourname, ' Lab colour:  0 0 ', num2str(theplane)]);
     disp([endcolourname, ' Lab colour:  ', num2str(pol2cart3([current_angle, current_radius, theplane], 1))]);
+    ExperimentResults.FrontierColours(ExperimentCounter, :) = {startcolourname, endcolourname, pol2cart3([0, 0, theplane], 1), pol2cart3([current_angle, current_radius, theplane], 1)};
   end
   disp(['Luminance Plane: ', num2str(theplane)]);
   disp(['Start up radius: ', num2str(current_radius), ' Lab units']);

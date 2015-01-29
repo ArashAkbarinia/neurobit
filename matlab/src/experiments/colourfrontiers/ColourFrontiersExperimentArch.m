@@ -68,7 +68,7 @@ ExperimentResults.conditions = conditions;
 ExperimentResults.type = ExperimentParameters.ExperimentType;
 ExperimentResults.background = ExperimentParameters.BackgroundType;
 ExperimentResults.background = ExperimentParameters.BackgroundType;
-ExperimentResults.FrontierColours = cell(totnumruns, 2);
+ExperimentResults.FrontierColours = cell(totnumruns, 4);
 
 ExperimentResults.startangles = zeros(totnumruns, 1);
 ExperimentResults.anglelimits = zeros(totnumruns, 2);
@@ -91,7 +91,6 @@ for borderNr = conditions
   
   % selection the borders of this condition
   [radioes, start_ang, end_ang, theplane, startcolourname, endcolourname] = ArchColour(FrontierTable(borderNr, :), PolarFocals);
-  ExperimentResults.FrontierColours(ExperimentCounter, :) = {startcolourname, endcolourname, pol2cart3([start_ang, current_radius, theplane], 1), pol2cart3([end_ang, current_radius, theplane], 1)};
   
   if start_ang > end_ang
     end_ang = end_ang + 2 * pi();
@@ -109,7 +108,8 @@ for borderNr = conditions
   
   wavplay(ExperimentParameters.y_DingDong, ExperimentParameters.Fs_DingDong); %#ok
   condition_starttime = crsGetTimer();
-  
+ 
+  ExperimentResults.FrontierColours(ExperimentCounter, :) = {startcolourname, endcolourname, pol2cart3([start_ang, current_radius, theplane], 1), pol2cart3([end_ang, current_radius, theplane], 1)};
   % displaying experiment information
   disp('===================================');
   disp(['Current colour border: ', startcolourname,' - ', endcolourname]);

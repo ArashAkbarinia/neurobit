@@ -10,7 +10,7 @@ radii = ExperimentResult.radii;
 luminances = ExperimentResult.luminances;
 conditions = ExperimentResult.conditions;
 ResultTable = [angles, radii, luminances, conditions'];
-ExperimentColours = lower(ExperimentResult.FrontierColours);
+ExperimentColours = ExperimentResult.FrontierColours;
 
 if nargin > 1
   FilteredConditions = ResultTable(:, 4) == condition;
@@ -28,19 +28,18 @@ figure('NumberTitle', 'Off', 'Name', ['Colour Frontiers - ', ExperimentResult.ty
 hold on;
 grid on;
 
-[CartFocals, ~] = FocalColours();
 [UniqueConditions, IndexConditions, ~] = unique(conditions);
 for i = UniqueConditions
   ColourA = ExperimentColours{IndexConditions(i), 1};
-  colour1 = CartFocals.(ColourA);
+  colour1 = ExperimentColours{IndexConditions(i), 3};
   ColourB = ExperimentColours{IndexConditions(i), 2};
-  colour2 = CartFocals.(ColourB);
+  colour2 = ExperimentColours{IndexConditions(i), 4};
   
-  pp = [colour1(1, 1), colour1(1, 2)];
+  pp = [colour1(2), colour1(3)];
   plot([pp(1), 0], [pp(2), 0], 'r');
   text(pp(1), pp(2), ColourA, 'color', 'r');
   
-  pp = [colour2(1, 1), colour2(1, 2)];
+  pp = [colour2(2), colour2(3)];
   plot([pp(1), 0], [pp(2), 0], 'r');
   text(pp(1), pp(2), ColourB, 'color', 'r');
 end

@@ -71,7 +71,7 @@ ExperimentResults.times = zeros(totnumruns, 1);
 ExperimentResults.conditions = conditions;
 ExperimentResults.type = ExperimentParameters.ExperimentType;
 ExperimentResults.background = ExperimentParameters.BackgroundType;
-ExperimentResults.FrontierColours = cell(totnumruns, 2);
+ExperimentResults.FrontierColours = cell(totnumruns, 4);
 
 %% start of experiment
 
