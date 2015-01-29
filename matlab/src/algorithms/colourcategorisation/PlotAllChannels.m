@@ -1,4 +1,4 @@
-function ColouredBelongingImage = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, FigureTitle)
+function FigureHandler = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, FigureTitle)
 %PlotAllChannels  plots all the channels of the belonging image.
 
 if nargin < 3
@@ -31,7 +31,7 @@ if isempty(FigureTitle)
 end
 
 titles = EllipsoidsTitles;
-figure('NumberTitle', 'Off', 'Name', FigureTitle);
+FigureHandler = figure('NumberTitle', 'Off', 'Name', FigureTitle);
 subplot(4, 4, 1.5);
 imshow(ImageRGB);
 title('Org');
