@@ -22,9 +22,7 @@ for j = 1:length(SubFolders)
       if isempty(strfind(ImageFiles(i).name, 'MASK'))
         ImagePath = [DirPathJK, ImageFiles(i).name];
         ImageRGB = imread(ImagePath);
-        ImageRGB = ImageRGB + 1;
-        ImageOpponent = double(applycform(ImageRGB, makecform('srgb2lab')));
-        BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
+        BelongingImage = rgb2belonging(ImageRGB, 'lab', ConfigsMat);
         BelongingImage = PostProcessBelongingImage(ImageRGB, BelongingImage);
         figurei = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
         saveas(figurei, [ResultDirectory, 'res_', ImageFiles(i).name]);

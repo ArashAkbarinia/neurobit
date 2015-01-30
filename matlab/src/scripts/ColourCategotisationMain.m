@@ -65,7 +65,9 @@ end
 %% Colour categorisation
 
 PlotResults = 1;
-BelongingImage = rgb2belonging(CategorisationInput, ColourSpace, PlotResults, GroundTruth);
+BelongingImage = rgb2belonging(CategorisationInput, ColourSpace, [], PlotResults, GroundTruth);
+
+% PostProcessedImage = PostProcessBelongingImage(ImageRGB, BelongingImage, 1);
 
 %% Noise removal
 

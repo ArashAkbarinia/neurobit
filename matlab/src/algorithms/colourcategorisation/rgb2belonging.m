@@ -1,33 +1,44 @@
-function BelongingImage = rgb2belonging(ImageRGB, ColourSpace, plotme, GroundTruth)
+function BelongingImage = rgb2belonging(ImageRGB, ColourSpace, ConfigsMat, plotme, GroundTruth)
 %RGB2BELONGING  labels each pixel in the image as one of the focal
-%                  eleven colours.
+%               eleven colours.
 
 if nargin < 2
   ColourSpace = 'lab';
 end
 ColourSpace = lower(ColourSpace);
 
-if nargin < 4
+if nargin < 5
   plotme = 0;
 end
+
+ColourConstantImage = ColourConstancyACE(ImageRGB);
+ColourConstantImage = uint8(NormaliseChannel(ColourConstantImage, 0, 255, [], []));
 
 % TODO: make a more permanent solution, this is just becuase 0 goes to the
 % end of the world
 ImageRGB = ImageRGB + 1;
 
 if strcmpi(ColourSpace, 'lsy')
-  ConfigsMat = load('lsy_ellipsoid_params');
+  if isempty(ConfigsMat)
+    ConfigsMat = load('lsy_ellipsoid_params');
+  end
   % gammacorrect = true, max pix value > 1, max luminance = daylight
   ImageOpponent = XYZ2lsY(sRGB2XYZ(ImageRGB, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
+  ImageOpponentConstant = XYZ2lsY(sRGB2XYZ(ColourConstantImage, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
   axes = {'l', 's', 'y'};
 elseif strcmpi(ColourSpace, 'lab')
-  ConfigsMat = load('lab_ellipsoid_params');
+  if isempty(ConfigsMat)
+    ConfigsMat = load('lab_ellipsoid_params');
+  end
   ImageOpponent = double(applycform(ImageRGB, makecform('srgb2lab')));
+  ImageOpponentConstant = double(applycform(ColourConstantImage, makecform('srgb2lab')));
   axes = {'l', 'a', 'b'};
 end
 ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 
+% BelongingImage(:, :, 1:8) = ChromaticEllipsoidBelonging(ImageOpponent, ColourEllipsoids);
 BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
+BelongingImage(:, :, 9:11) = max(AchromaticEllipsoidBelonging(ImageOpponentConstant, ColourEllipsoids), BelongingImage(:, :, 9:11));
 
 if plotme
   EllipsoidsTitles = ConfigsMat.RGBTitles;
