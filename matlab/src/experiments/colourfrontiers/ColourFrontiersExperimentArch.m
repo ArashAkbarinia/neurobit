@@ -221,7 +221,8 @@ PoloarColourA = PolarFocals.(ColourA)((PolarFocals.(ColourA)(:, 3) == labplane),
 PoloarColourB = PolarFocals.(ColourB)((PolarFocals.(ColourB)(:, 3) == labplane), :);
 
 disp(['luminance: ', frontier{1}, ', ', ColourA, '-', ColourB, ' border selected']);
-radius_pn = frontier{4};
+IndexMaxRadius = size(frontier, 2);
+radius_pn = frontier{IndexMaxRadius};
 minradius = 0.95 * radius_pn;
 radioes = minradius + (radius_pn - minradius) * rand(1, 1);
 start_ang = PoloarColourA(1);
@@ -240,11 +241,13 @@ labplane = str2double(frontier{1});
 PoloarColourA = PolarFocals.(ColourA)((PolarFocals.(ColourA)(:, 3) == labplane), :);
 PoloarColourB = PolarFocals.(ColourB)((PolarFocals.(ColourB)(:, 3) == labplane), :);
 
-pp = pol2cart3([PoloarColourA(1), frontier{4}]);
+IndexMaxRadius = size(frontier, 2);
+
+pp = pol2cart3([PoloarColourA(1), frontier{IndexMaxRadius}]);
 plot([pp(1), 0], [pp(2), 0], 'r');
 text(pp(1), pp(2), ColourA, 'color', 'r');
 
-pp = pol2cart3([PoloarColourB(1), frontier{4}]);
+pp = pol2cart3([PoloarColourB(1), frontier{IndexMaxRadius}]);
 plot([pp(1), 0], [pp(2), 0], 'r');
 text(pp(1), pp(2), ColourB, 'color', 'r');
 
