@@ -2,6 +2,10 @@ function ColouredImage = ColourLabelImage(LabeledImage, colours)
 %ColourLabelImage Summary of this function goes here
 %   Detailed explanation goes here
 
+if nargin < 2
+  colours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'};
+end
+
 if ~isnumeric(colours)
   colours = name2rgb(colours);
 end
