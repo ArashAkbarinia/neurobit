@@ -21,22 +21,25 @@ for j = 1:length(SubFolders)
     
     ImageFiles = dir([DirPathJK, '*.jpg']);
     MaskFiles = dir([DirPathJK, '*.png']);
-    if length(ImageFiles) ~= length(MaskFiles)
+    nimages = length(ImageFiles);
+    if nimages ~= length(MaskFiles)
       warning(['Directory ', DirPathJK, ' does not have same number of pictures and gts.']);
       continue;
     end
-    for i = 1:length(ImageFiles)
+    ErrorMats = zeros(nimages, 4);
+    for i = 1:nimages
       ImagePath = [DirPathJK, ImageFiles(i).name];
       ImageRGB = imread(ImagePath);
       MaskPath = [DirPathJK, MaskFiles(i).name];
       ImageMask = im2bw(imread(MaskPath));
       BelongingImage = rgb2belonging(ImageRGB, 'lab', ConfigsMat);
       BelongingImage = PostProcessBelongingImage(ImageRGB, BelongingImage);
-      ErrorMat = ComputeError(ImageMask, belonging2naming(BelongingImage), SubSubFolders{k});
-      fprintf('Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', ErrorMat);
+      ErrorMats(i, :) = ComputeError(ImageMask, belonging2naming(BelongingImage), SubSubFolders{k});
+      fprintf('Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', ErrorMats(i, :));
       figurei = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
       saveas(figurei, [ResultDirectory, 'res_', ImageFiles(i).name]);
     end
+    save([ResultDirectory, 'ErrorMats.mat'], 'ErrorMats');
   end
 end
 
