@@ -1,10 +1,27 @@
-function [] = ColourNamingTestFolder(DirPath)
+function [] = ColourNamingTestFolder(DirPath, method)
 
-ConfigsMat = load('lab_ellipsoid_params');
-ColourEllipsoids = ConfigsMat.ColourEllipsoids;
-EllipsoidsTitles = ConfigsMat.RGBTitles;
+if nargin < 2
+  DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ebay/';
+  method = 'our';
+end
 
-EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
+if strcmpi(method, 'our')
+  ConfigsMat = load('lab_ellipsoid_params');
+  EllipsoidsTitles = ConfigsMat.RGBTitles;
+  EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
+  MethodNumber = 1;
+else
+  EllipsoidDicMat = load('EllipsoidDic.mat');
+  if strcmpi(method, 'joost')
+    w2cmat = load('w2c.mat');
+    ConfigsMat = w2cmat.w2c;
+    ConversionMat = EllipsoidDicMat.joost2ellipsoid;
+    MethodNumber = 2;
+  else
+    error(['Method ', method, ' is not supported']);
+  end
+end
+disp(['Applying method of ', method]);
 
 SubFolders = GetSubFolders(DirPath);
 
@@ -32,15 +49,41 @@ for j = 1:length(SubFolders)
       ImageRGB = imread(ImagePath);
       MaskPath = [DirPathJK, MaskFiles(i).name];
       ImageMask = im2bw(imread(MaskPath));
-      BelongingImage = rgb2belonging(ImageRGB, 'lab', ConfigsMat);
-      BelongingImage = PostProcessBelongingImage(ImageRGB, BelongingImage);
-      ErrorMats(i, :) = ComputeError(ImageMask, belonging2naming(BelongingImage), SubSubFolders{k});
+      switch MethodNumber
+        case 1
+          NamingImage = ApplyOurMethod(ImageRGB, ConfigsMat, ResultDirectory, ImageFiles(i).name, EllipsoidsTitles, EllipsoidsRGBs);
+        case 2
+          NamingImage = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat);
+      end
+      figure; imshow(ColourLabelImage(NamingImage));
+      ErrorMats(i, :) = ComputeError(ImageMask, NamingImage, SubSubFolders{k});
       fprintf('Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', ErrorMats(i, :));
-      figurei = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
-      saveas(figurei, [ResultDirectory, 'res_', ImageFiles(i).name]);
     end
     save([ResultDirectory, 'ErrorMats.mat'], 'ErrorMats');
   end
+end
+
+end
+
+function NamingImage = ApplyOurMethod(ImageRGB, ConfigsMat, ResultDirectory, FileName, EllipsoidsTitles, EllipsoidsRGBs)
+
+BelongingImage = rgb2belonging(ImageRGB, 'lab', ConfigsMat);
+BelongingImage = PostProcessBelongingImage(ImageRGB, BelongingImage);
+NamingImage = belonging2naming(BelongingImage);
+
+figurei = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
+saveas(figurei, [ResultDirectory, 'res_', FileName]);
+
+end
+
+function NamingImage = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat)
+
+ImageRGB = double(ImageRGB);
+NamingImage = im2c(ImageRGB, ConfigsMat, 0);
+
+NamingImageTmp = NamingImage;
+for i = 1:11
+  NamingImage(NamingImageTmp == i) = ConversionMat(i);
 end
 
 end
