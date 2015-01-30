@@ -183,10 +183,10 @@ for borderNr = conditions
       UpdatePlotCurrentBorder(current_angle, current_radius, ExperimentParameters.plotresults, '.b');
       
       if isLine
-        if Shift == 0
+        if Shift < 1
           PointIndex = 1;
           angularstep = -angularstep;
-        elseif Shift == nLinePoints + 1
+        elseif Shift > nLinePoints
           PointIndex = nLinePoints;
           angularstep = -angularstep;
         else
