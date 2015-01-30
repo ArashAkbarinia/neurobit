@@ -209,7 +209,7 @@ for borderNr = conditions
       end
       
       % update the CRT
-      palette(ExperimentParameters.Central_patch_name, :) = Lab2CRSRGB(ExperimentParameters.CRS, pol2cart3([current_angle, current_radius, theplane], 1), ExperimentParameters.refillum);
+      palette(ExperimentParameters.Central_patch_name, :) = Lab2CRSRGB(ExperimentParameters.CRS, pol2cart3([current_angle, current_radius, theplane], 1), ExperimentParameters.refillum, 0);
       crsPaletteSet(palette');
       UpdatePlotCurrentBorder(current_angle, current_radius, ExperimentParameters.plotresults, '.r');
     end
