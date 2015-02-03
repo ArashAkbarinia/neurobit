@@ -17,6 +17,12 @@ else
     ConfigsMat = w2cmat.w2c;
     ConversionMat = EllipsoidDicMat.joost2ellipsoid;
     MethodNumber = 2;
+  elseif strcmpi(method, 'robert')
+    ConfigsMat.ParFileName1 = 'TSE_JOSA_Params1.mat';
+    ConfigsMat.ParFileName2 = 'TSE_JOSA_Params2.mat';
+    ConfigsMat.ParFileName3 = 'TSE_JOSA_Params3.mat';
+    ConversionMat = EllipsoidDicMat.robert2ellipsoid;
+    MethodNumber = 3;
   else
     error(['Method ', method, ' is not supported']);
   end
@@ -55,6 +61,8 @@ for j = 1:length(SubFolders)
           NamingImage = ApplyOurMethod(ImageRGB, ConfigsMat, ResultDirectory, ImageFiles(i).name, EllipsoidsTitles, EllipsoidsRGBs);
         case 2
           NamingImage = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat, ResultDirectory, ImageFiles(i).name);
+        case 3
+          NamingImage = ApplyRobertMethod(ImageRGB, ConfigsMat, ConversionMat, ResultDirectory, ImageFiles(i).name);
       end
       ErrorMats(i, :) = ComputeError(ImageMask, NamingImage, SubSubFolders{k});
       fprintf('Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', ErrorMats(i, :));
@@ -88,6 +96,23 @@ for i = 1:11
 end
 
 figurei = figure('NumberTitle', 'Off', 'Name', 'Joost Colour Naming', 'visible', 'off');
+imshow(ColourLabelImage(NamingImage));
+saveas(figurei, [ResultDirectory, 'res_', FileName]);
+close(figurei);
+
+end
+
+function NamingImage = ApplyRobertMethod(ImageRGB, ConfigsMat, ConversionMat, ResultDirectory, FileName)
+
+ImageRGB = double(ImageRGB);
+[~, NamingImage, ~] = ImColorNamingTSELab(ImageRGB, ConfigsMat.ParFileName1, ConfigsMat.ParFileName2, ConfigsMat.ParFileName3);
+
+NamingImageTmp = NamingImage;
+for i = 1:11
+  NamingImage(NamingImageTmp == i) = ConversionMat(i);
+end
+
+figurei = figure('NumberTitle', 'Off', 'Name', 'Robert Colour Naming', 'visible', 'on');
 imshow(ColourLabelImage(NamingImage));
 saveas(figurei, [ResultDirectory, 'res_', FileName]);
 close(figurei);
