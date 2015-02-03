@@ -27,14 +27,15 @@ FrontierTable = ...
   
   '76',    'Orange',    'Yellow',    'Line';
   '76',    'Yellow',    'Green',     'Line';
-  '76',    'Orange',    'Green',     'Arch';
+  '76',    'Pink',      'Orange',    'Arch';
+  '76',    'Purple',    'Pink',      'Arch';
   
   %   '81',    'Green',     'Blue',      'Arch';
   %   '81',    'Blue',      'Purple',    'Arch';
   %   '81',    'Purple',    'Pink',      'Arch';
   '81',    'Pink',      'Orange',    'Arch';
   '81',    'Orange',    'Yellow',    'Line';
-  '81',    'Yellow',    'Green',     'Line';
+  '81',    'Yellow',    'Green',     'Arch';
   
   '86',    'Orange',    'Yellow',    'Line';
   '86',    'Yellow',    'Green',     'Line';
