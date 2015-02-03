@@ -2,7 +2,7 @@ function [] = ColourNamingTestFolder(DirPath, method)
 
 if nargin < 2
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ebay/';
-  method = 'our';
+  method = 'robert';
 end
 
 if strcmpi(method, 'our')
@@ -112,7 +112,7 @@ for i = 1:11
   NamingImage(NamingImageTmp == i) = ConversionMat(i);
 end
 
-figurei = figure('NumberTitle', 'Off', 'Name', 'Robert Colour Naming', 'visible', 'on');
+figurei = figure('NumberTitle', 'Off', 'Name', 'Robert Colour Naming', 'visible', 'off');
 imshow(ColourLabelImage(NamingImage));
 saveas(figurei, [ResultDirectory, 'res_', FileName]);
 close(figurei);
