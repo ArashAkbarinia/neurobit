@@ -21,6 +21,7 @@ else
     error(['Method ', method, ' is not supported']);
   end
 end
+method = lower(method);
 disp(['Applying method of ', method]);
 
 SubFolders = GetSubFolders(DirPath);
@@ -31,7 +32,7 @@ for j = 1:length(SubFolders)
   SubSubFolders = GetSubFolders(DirPathJ);
   for k = 1:length(SubSubFolders)
     DirPathJK = [DirPathJ, SubSubFolders{k}, '/'];
-    ResultDirectory = [DirPathJK, 'results/'];
+    ResultDirectory = [DirPathJK, method, '_results/'];
     if ~isdir(ResultDirectory)
       mkdir(ResultDirectory);
     end
@@ -53,9 +54,8 @@ for j = 1:length(SubFolders)
         case 1
           NamingImage = ApplyOurMethod(ImageRGB, ConfigsMat, ResultDirectory, ImageFiles(i).name, EllipsoidsTitles, EllipsoidsRGBs);
         case 2
-          NamingImage = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat);
+          NamingImage = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat, ResultDirectory, ImageFiles(i).name);
       end
-      figure; imshow(ColourLabelImage(NamingImage));
       ErrorMats(i, :) = ComputeError(ImageMask, NamingImage, SubSubFolders{k});
       fprintf('Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', ErrorMats(i, :));
     end
@@ -73,10 +73,11 @@ NamingImage = belonging2naming(BelongingImage);
 
 figurei = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
 saveas(figurei, [ResultDirectory, 'res_', FileName]);
+close(figurei);
 
 end
 
-function NamingImage = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat)
+function NamingImage = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat, ResultDirectory, FileName)
 
 ImageRGB = double(ImageRGB);
 NamingImage = im2c(ImageRGB, ConfigsMat, 0);
@@ -85,6 +86,11 @@ NamingImageTmp = NamingImage;
 for i = 1:11
   NamingImage(NamingImageTmp == i) = ConversionMat(i);
 end
+
+figurei = figure('NumberTitle', 'Off', 'Name', 'Joost Colour Naming', 'visible', 'off');
+imshow(ColourLabelImage(NamingImage));
+saveas(figurei, [ResultDirectory, 'res_', FileName]);
+close(figurei);
 
 end
 
