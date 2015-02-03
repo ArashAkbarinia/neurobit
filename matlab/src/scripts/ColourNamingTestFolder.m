@@ -2,7 +2,7 @@ function [] = ColourNamingTestFolder(DirPath, method)
 
 if nargin < 2
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ebay/';
-  method = 'robert';
+  method = 'our';
 end
 
 if strcmpi(method, 'our')
@@ -50,7 +50,7 @@ for j = 1:length(SubFolders)
       warning(['Directory ', DirPathJK, ' does not have same number of pictures and gts.']);
       continue;
     end
-    ErrorMats = zeros(nimages, 4);
+    ErrorMats = cell(nimages, 1);
     for i = 1:nimages
       ImagePath = [DirPathJK, ImageFiles(i).name];
       ImageRGB = imread(ImagePath);
@@ -64,8 +64,9 @@ for j = 1:length(SubFolders)
         case 3
           NamingImage = ApplyRobertMethod(ImageRGB, ConfigsMat, ConversionMat, ResultDirectory, ImageFiles(i).name);
       end
-      ErrorMats(i, :) = ComputeError(ImageMask, NamingImage, SubSubFolders{k});
-      fprintf('Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', ErrorMats(i, :));
+      ErrorMats{i} = ComputeError(ImageMask, NamingImage, SubSubFolders{k});
+      fprintf('Sensitivity %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', ErrorMats{i}.sens, ErrorMats{i}.spec, ErrorMats{i}.ppv, ErrorMats{i}.npv);
+      fprintf('TP %d FP %d TN %d FN %d\n', ErrorMats{i}.tp, ErrorMats{i}.fp, ErrorMats{i}.tn, ErrorMats{i}.fn);
     end
     save([ResultDirectory, 'ErrorMats.mat'], 'ErrorMats');
   end
@@ -119,9 +120,7 @@ close(figurei);
 
 end
 
-function ErrorMat = ComputeError(ImageMask, NamingImage, ColourName)
-
-ErrorMat = [-1, -1, -1, -1];
+function contingency = ComputeError(ImageMask, NamingImage, ColourName)
 
 switch ColourName
   case {'g', 'green'}
@@ -151,7 +150,6 @@ switch ColourName
     return;
 end
 
-[sens, spec, ppv, npv] = ContingencyTable(ImageMask, ImageResult);
-ErrorMat = [sens, spec, ppv, npv];
+contingency = ContingencyTable(ImageMask, ImageResult);
 
 end

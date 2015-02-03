@@ -11,19 +11,23 @@ disp(['Reading results for method ', method]);
 SubFolders = GetSubFolders(DirPath);
 
 nSubFolder = length(SubFolders);
-ErrorMatsAll = zeros(nSubFolder, 4);
+ErrorMatsAll = zeros(nSubFolder, 8);
 for j = 1:nSubFolder
   DirPathJ = [DirPath, SubFolders{j}, '/'];
   
   SubSubFolders = GetSubFolders(DirPathJ);
   nSubSubFolder = length(SubSubFolders);
   
-  ErrorMatsCat = zeros(nSubSubFolder, 4);
+  ErrorMatsCat = zeros(nSubSubFolder, 8);
   for k = 1:nSubSubFolder
     DirPathJK = [DirPathJ, SubSubFolders{k}, '/'];
     ResultDirectory = [DirPathJK, method, '_results/'];
     FolderResultMat = load([ResultDirectory, 'ErrorMats.mat']);
-    CurrentErrorMat = FolderResultMat.ErrorMats;
+    nimages = length(FolderResultMat.ErrorMats);
+    CurrentErrorMat = zeros(nimages, 8);
+    for l = 1:nimages
+      CurrentErrorMat(l, :) = struct2array(FolderResultMat.ErrorMats{l});
+    end
     ErrorMatsCat(k, :) = mean(CurrentErrorMat, 1);
   end
   ErrorMatsAll(j, :) = mean(ErrorMatsCat, 1);

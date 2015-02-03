@@ -1,43 +1,52 @@
-function [sens, spec, ppv, npv] = ContingencyTable(GroundTruth, TestOutcome)
+function contingency = ContingencyTable(GroundTruth, TestOutcome)
 
 % true positives
-TP = TestOutcome(GroundTruth == 1);
-TP = length(TP(TP == 1));
+tp = TestOutcome(GroundTruth == 1);
+tp = length(tp(tp == 1));
 
 % false positives
-FP = TestOutcome(GroundTruth == 0);
-FP = length(FP(FP == 1));
+fp = TestOutcome(GroundTruth == 0);
+fp = length(fp(fp == 1));
 
 % false negatives
-FN = TestOutcome(GroundTruth == 1);
-FN = length(FN(FN == 0));
+fn = TestOutcome(GroundTruth == 1);
+fn = length(fn(fn == 0));
 
 % true negatives
-TN = TestOutcome(GroundTruth == 0);
-TN = length(TN(TN == 0));
+tn = TestOutcome(GroundTruth == 0);
+tn = length(tn(tn == 0));
 
 % sensitivity
-sens = TP / (TP + FN);
+sens = tp / (tp + fn);
 if isnan(sens)
   sens = 0;
 end
 
 % specificity
-spec = TN / (FP + TN);
+spec = tn / (fp + tn);
 if isnan(spec)
   spec = 0;
 end
 
 % positive predictive value
-ppv = TP / (TP + FP);
+ppv = tp / (tp + fp);
 if isnan(ppv)
   ppv = 0;
 end
 
 % negative predictive value
-npv = TN / (FN + TN);
+npv = tn / (fn + tn);
 if isnan(npv)
   npv = 0;
 end
+
+contingency.sens = sens;
+contingency.spec = spec;
+contingency.ppv = ppv;
+contingency.npv = npv;
+contingency.tp = tp;
+contingency.fp = fp;
+contingency.fn = fn;
+contingency.tn = tn;
 
 end
