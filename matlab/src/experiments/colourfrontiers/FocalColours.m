@@ -98,6 +98,7 @@ CartFocals.pink = ...
   [
   58,  73,  -12;
   70,  45,  -6;
+  76,  45,  -6;
   mean(pink81);
   ];
 
@@ -121,6 +122,7 @@ CartFocals.purple = ...
   47,  69,  -66;
   mean(purple58);
   70,  23,  -31;
+  76,  23,  -31;
   mean(purple81);
   ];
 
