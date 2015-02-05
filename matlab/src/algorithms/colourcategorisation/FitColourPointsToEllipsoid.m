@@ -28,9 +28,11 @@ ColourEllipsoids = zeros(11, 9);
 
 % WcsColourTable = WcsChart();
 % [PosGroundTruth, NegGroundTruth] = DomainColourBoundries();
-% [WcsColourTable, PosGroundTruth] = ColourBoxes();
 
-[WcsColourTable, PosGroundTruth] = SatfacesData();
+[WcsColourTable, PosGroundTruth] = ColourBoxes();
+
+% [WcsColourTable, PosGroundTruth] = SatfacesColourCube();
+
 % PlotAllChannels(WcsColourTable, PosGroundTruth);
 
 % this allows us to only test one colour, the rest of the colour get the
@@ -86,9 +88,9 @@ end
 
 end
 
-function ColourEllipsoid = DoColour(PosGroundTruth, ColourPoints, ColourIndex, ColourName, plotme)
+function ColourEllipsoid = DoColour(GroundTruth, ColourPoints, ColourIndex, ColourName, plotme)
 
-inds = PosGroundTruth(:, :, ColourIndex) > 0;
+inds = GroundTruth(:, :, ColourIndex) > 0;
 inds(:, :, 2) = inds(:, :, 1);
 inds(:, :, 3) = inds(:, :, 1);
 
@@ -103,6 +105,7 @@ end
 
 if size(PositivePoints, 1) > 1
   initial = [mean(PositivePoints), std(PositivePoints), 0, 0, 0];
+  %   initial = [115, 138, 133, std(PositivePoints), 0, 0, 0];
 else
   initial = [PositivePoints, 10, 10, 10, 0, 0, 0];
 end
@@ -112,12 +115,15 @@ lb = ...
   ];
 ub = ...
   [
-  inf, inf, inf, inf, inf, inf, pi, pi, pi;
+  inf, inf, inf, 150, 150, 150, pi, pi, pi;
   ];
 options = optimoptions(@fmincon,'Algorithm', 'sqp', 'Display', 'off', 'MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
 
-RSS(1) = ColourEllipsoidFitting(initial, ColourPoints, PosGroundTruth(:, :, ColourIndex));
-[ColourEllipsoid, RSS(2), exitflag, output] = fmincon(@(x) ColourEllipsoidFitting(x, ColourPoints, PosGroundTruth(:, :, ColourIndex)), initial, [], [], [], [], lb, ub, [], options);
+% RSS(1) = ColourEllipsoidFittingPoints(initial, PositivePoints);
+% [ColourEllipsoid, RSS(2), exitflag, output] = fmincon(@(x) ColourEllipsoidFittingPoints(x, PositivePoints), initial, [], [], [], [], lb, ub, [], options);
+
+RSS(1) = ColourEllipsoidFittingBelonging(initial, ColourPoints, GroundTruth(:, :, ColourIndex));
+[ColourEllipsoid, RSS(2), exitflag, output] = fmincon(@(x) ColourEllipsoidFittingBelonging(x, ColourPoints, GroundTruth(:, :, ColourIndex)), initial, [], [], [], [], lb, ub, [], options);
 
 disp ('================================================================');
 disp (['         Colour category: ', ColourName]);
@@ -130,67 +136,38 @@ end
 
 end
 
-function RSS = ColourEllipsoidFitting(x, ColourPoints, PosGroundTruth)
+function RSS = ColourEllipsoidFittingPoints(x, ColourPoints)
 
 if ~isempty(ColourPoints)
-  [belonging, ~] = EllipsoidEvaluateBelonging(ColourPoints, x);
-  RSS = sum(sum(abs(PosGroundTruth - belonging)));
+  distances = DistanceEllipsoid(ColourPoints, x, 0);
+  RSS = mean(distances);
 else
   RSS = 0;
 end
 
 end
 
-function [WcsColourTable, PosGroundTruth] = SatfacesData()
+function RSS = ColourEllipsoidFittingBelonging(x, ColourPoints, GroundTruth)
 
-SatfacesMat = load('satfaces.mat');
-WcsColourTable = [];
-FieldNames = fieldnames(SatfacesMat.ColourPoints);
-for i = 1:length(FieldNames)
-  WcsColourTable = [WcsColourTable; SatfacesMat.ColourPoints.(FieldNames{i})]; %#ok
-end
-
-nColourPoints = size(WcsColourTable, 1);
-PosGroundTruth = zeros(nColourPoints, 1, 11);
-LastIndex = 1;
-for i = 1:length(FieldNames)
-  nCurrentPoints = size(SatfacesMat.ColourPoints.(FieldNames{i}), 1);
+if ~isempty(ColourPoints)
+  [belonging, ~] = EllipsoidEvaluateBelonging(ColourPoints, x);
+%   PositiveIndeces = GroundTruth == 1;
+%   PosDiff = 1 - belonging(PositiveIndeces);
+%   PosDiff(PosDiff < 0.5) = 0;
+%   
+%   MaybeIndeces = GroundTruth ~= 1 & GroundTruth ~= 0;
+%   MaybeDiff = abs(belonging(MaybeIndeces) - GroundTruth(MaybeIndeces));
+%   MaybeDiff(MaybeDiff < 0.25) = 0;
+%   
+%   NegativeIndeces = GroundTruth == 0;
+%   NegDiff = belonging(NegativeIndeces);
+%   NegDiff(NegDiff < 0.1) = 0;
+%   
+%   RSS = sum(PosDiff) + sum(NegDiff) + sum(MaybeDiff);
   
-  if nCurrentPoints > 0
-    switch FieldNames{i}
-      case {'g', 'green', 'darkgreen', 'lightgreen'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 1) = 1;
-      case {'b', 'blue', 'navyblue', 'darkblue', 'darkteal', 'teal', 'lightblue', 'cyan', 'skyblue'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 2) = 1;
-      case {'pp', 'purple', 'darkpurple', 'magenta'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 3) = 1;
-      case {'pk', 'pink'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 4) = 1;
-      case {'r', 'red', 'maroon', 'darkred'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 5) = 1;
-      case {'o', 'orange'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 6) = 1;
-      case {'y', 'yellow', 'gold', 'mustard', 'limegreen'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 7) = 1;
-      case {'br', 'brown', 'darkbrown', 'olive'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 8) = 1;
-      case {'gr', 'grey'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 9) = 1;
-      case {'w', 'white'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 10) = 1;
-      case {'bl', 'black'}
-        PosGroundTruth(LastIndex:(LastIndex + nCurrentPoints - 1), 1, 11) = 1;
-      otherwise
-        disp(FieldNames{i});
-    end
-    
-    LastIndex = LastIndex + nCurrentPoints;
-  end
-end
-WcsColourTable = uint8(WcsColourTable);
-
-WcsColourTable = reshape(WcsColourTable, 512, 384, 3);
-PosGroundTruth = reshape(PosGroundTruth, 512, 384, 11);
-
+  RSS = sum(sum(abs(GroundTruth - belonging)));
+else
+  RSS = 0;
 end
 
+end
