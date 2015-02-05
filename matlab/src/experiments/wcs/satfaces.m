@@ -27,7 +27,8 @@ while ischar(tline)
   tline = strrep(tline, ',', '');
   LineSplitted = strsplit(tline, ' ');
   rgb = str2double(LineSplitted(1:3));
-  ColourName = lower(LineSplitted{4});
+  LastIndex = length(LineSplitted);
+  ColourName = lower(LineSplitted(4:LastIndex));
   ColourName = strtrim(ColourName);
   if iscell(ColourName)
     ColourName = cell2mat(ColourName);
