@@ -38,7 +38,8 @@ ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 
 % BelongingImage(:, :, 1:8) = ChromaticEllipsoidBelonging(ImageOpponent, ColourEllipsoids);
 BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
-BelongingImage(:, :, 9:11) = max(AchromaticEllipsoidBelonging(ImageOpponentConstant, ColourEllipsoids), BelongingImage(:, :, 9:11));
+% BelongingImage(:, :, 9:11) = max(AchromaticEllipsoidBelonging(ImageOpponentConstant, ColourEllipsoids), BelongingImage(:, :, 9:11));
+BelongingImage(:, :, 9:11) = AchromaticEllipsoidBelonging(ImageOpponentConstant, ColourEllipsoids) * 0.33 + BelongingImage(:, :, 9:11);
 
 if plotme
   EllipsoidsTitles = ConfigsMat.RGBTitles;
