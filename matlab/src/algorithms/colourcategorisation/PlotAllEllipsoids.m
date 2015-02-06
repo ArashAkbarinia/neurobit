@@ -5,8 +5,8 @@ FigureNumber = 0;
 
 if ischar(varargin{1})
   MatFile = load(varargin{1});
-  ellipsoids = MatFile.ellipsoids;
-  rgbs = MatFile.RGBValues;
+  ellipsoids = MatFile.ColourEllipsoids;
+  rgbs = name2rgb(MatFile.RGBTitles);
   if nargin == 2
     FigureNumber = varargin{2};
   end
