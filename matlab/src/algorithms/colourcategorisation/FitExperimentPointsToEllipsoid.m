@@ -1,14 +1,16 @@
 function ColourEllipsoids = FitExperimentPointsToEllipsoid(WhichColours, plotme, saveme)
 
 if nargin < 1
-  WhichColours = {'a'};
+  WhichColours = {'c'};
 end
 if nargin < 2
   plotme = 1;
-  saveme = 0;
+  saveme = 1;
 end
 
-if strcmpi(WhichColours{1}, 'a')
+if strcmpi(WhichColours{1}, 'c')
+  WhichColours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br'};
+elseif strcmpi(WhichColours{1}, 'a')
   WhichColours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'};
 end
 
@@ -32,7 +34,7 @@ ellipses = zeros(11, 9);
 RSSes = zeros(11, 2);
 
 % for testing only one colour
-GoodResult = load('2014_ellipsoid_params.mat');
+GoodResult = load('lsy_ellipsoid_params.mat');
 ellipses(:, 1:9) = GoodResult.ColourEllipsoids(:, 1:9);
 RSSes(:, 2) = GoodResult.ColourEllipsoids(:, 10);
 
@@ -156,7 +158,7 @@ ColourEllipsoids = [ellipses, RSSes(:, 2)];
 
 if saveme
   RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'}; %#ok
-  save('2014_ellipsoid_params_arash.mat', 'ColourEllipsoids', 'RGBTitles');
+  save('lsy_ellipsoid_params_new.mat', 'ColourEllipsoids', 'RGBTitles');
 end
 
 
