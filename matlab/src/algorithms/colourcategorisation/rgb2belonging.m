@@ -57,36 +57,44 @@ end
 
 function [] = PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth, ColourIndex)
 
-[rows, cols, ~] = size(ImageOpponent);
-
 if isempty(GroundTruth) || isempty(ColourIndex)
   return;
 end
+
+[rows, cols, chns] = size(ImageOpponent);
 if ColourIndex == -1
   GroundTruth = ones(rows, cols, 1);
   ColourIndex = 1;
 end
 
+ImageRGB = im2double(ImageRGB);
+ImageRGB = reshape(ImageRGB, rows * cols, chns);
+ImageOpponent = reshape(ImageOpponent, rows * cols, chns);
+
 AxesViews = [0, 90; 0, 0; 90, 0;];
-if size(ImageRGB, 1) * size(ImageRGB, 2) < 500
-  figure();
-  for k = 1:3
-    h = subplot(1, 3, k);
-    hold on;
-    grid on;
-    for i = 1:size(ImageOpponent, 1)
-      for j = 1:size(ImageOpponent, 2)
-        if GroundTruth(i, j, ColourIndex) > 0
-          plot3(ImageOpponent(i, j, 1), ImageOpponent(i, j, 2), ImageOpponent(i, j, 3), 'marker', 'o', 'MarkerFaceColor', im2double(ImageRGB(i, j, :)), 'MarkerEdgeColor', [0, 0, 0]);
-        end
-      end
-    end
-    PlotAllEllipsoids(ColourEllipsoids, EllipsoidsRGBs, h);
-    xlabel(axes{1});
-    ylabel(axes{2});
-    zlabel(axes{3});
-    view(AxesViews(k, :));
-  end
+if rows * cols < 500
+  nfigures = 3;
+else
+  nfigures = 1;
+end
+figure();
+for k = 1:nfigures
+  h = subplot(1, nfigures, k);
+  hold on;
+  grid on;
+  scatter3(ImageOpponent(:, 1), ImageOpponent(:, 2), ImageOpponent(:, 3), 36, ImageRGB);
+  %     for i = 1:size(ImageOpponent, 1)
+  %       for j = 1:size(ImageOpponent, 2)
+  %         if GroundTruth(i, j, ColourIndex) > 0
+  %           plot3(ImageOpponent(i, j, 1), ImageOpponent(i, j, 2), ImageOpponent(i, j, 3), 'marker', 'o', 'MarkerFaceColor', im2double(ImageRGB(i, j, :)), 'MarkerEdgeColor', [0, 0, 0]);
+  %         end
+  %       end
+  %     end
+  PlotAllEllipsoids(ColourEllipsoids, EllipsoidsRGBs, h);
+  xlabel(axes{1});
+  ylabel(axes{2});
+  zlabel(axes{3});
+  view(AxesViews(k, :));
 end
 
 end
