@@ -36,7 +36,7 @@ if isempty(strfind(DirPath, '.mat'))
         CurrentPoints = ImageRGB(ImageMask, :);
         nCurrentPoitns = size(CurrentPoints, 1);
         if nCurrentPoitns > 100
-          RandomPoints = randi(nCurrentPoitns, [100, 1]);
+          RandomPoints = randi(nCurrentPoitns, [1000, 1]);
           CurrentPoints = CurrentPoints(RandomPoints, :);
         end
         ColourPointsSubCat.(ColourName) = [ColourPointsSubCat.(ColourName); CurrentPoints];
@@ -48,7 +48,7 @@ if isempty(strfind(DirPath, '.mat'))
   SaveColourPoints(DirPath, ColourPoints);
   
 else
-  SegmentedColourPointsMat = load('SegmentedColourPoints.mat');
+  SegmentedColourPointsMat = load(DirPath);
   ColourPoints = SegmentedColourPointsMat.ColourPoints;
 end
 

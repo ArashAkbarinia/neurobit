@@ -1,22 +1,27 @@
 %% Initialisation
 
 clearvars;
-close all;
+% close all;
 clc;
 
 dociwam = 0;
 docolourconstancy = 0;
 donoiseremoval = 0;
+docomparegt = 0;
 
 ColourSpace = 'lab';
 
 [ImageRGB, GroundTruth] = ColourBoxes();
 
-% ImageRGB = WcsChart();
-% GroundTruth = WcsResults({'berlin', 'sturges', 'benavente'});
+ImageRGB = WcsChart();
+GroundTruth = WcsResults({'berlin', 'sturges', 'benavente'});
+
+% ImageRGB = imread('/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ebay/cars/black/011.jpg');
+ImageRGB = imread('peppers.png');
+GroundTruth = [];
 
 % ImageRGB = MacbethColourChecker();
-% GroundTruth = [];
+% [ImageRGB, GroundTruth] = SatfacesColourCube();
 
 %% Colour constancy
 
@@ -68,6 +73,20 @@ PlotResults = 1;
 BelongingImage = rgb2belonging(CategorisationInput, ColourSpace, [], PlotResults, GroundTruth);
 
 % PostProcessedImage = PostProcessBelongingImage(ImageRGB, BelongingImage, 1);
+
+%% compare with gt
+if docomparegt
+  ColouredBelongingImage = belonging2naming(BelongingImage);
+  [ErrorIndsB, GtIndsB] = CompareResultGroundTruth(ColouredBelongingImage, belonging2naming(WcsResults({'berlin'})));
+  [ErrorIndsS, GtIndsS] = CompareResultGroundTruth(ColouredBelongingImage, belonging2naming(WcsResults({'sturges'})));
+  
+  figure;
+  subplot(121);image(ColourLabelImage(ErrorIndsB));
+  subplot(122);image(ColourLabelImage(GtIndsB));
+  figure;
+  subplot(121);image(ColourLabelImage(ErrorIndsS));
+  subplot(122);image(ColourLabelImage(GtIndsS));
+end
 
 %% Noise removal
 

@@ -16,9 +16,7 @@ ColourSpace = lower(ColourSpace);
 
 if strcmpi(WhichColours{1}, 'c')
   WhichColours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br'};
-end
-
-if strcmpi(WhichColours{1}, 'a')
+elseif strcmpi(WhichColours{1}, 'a')
   WhichColours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'};
 end
 
@@ -27,13 +25,17 @@ ncolours = length(WhichColours);
 ColourEllipsoids = zeros(11, 9);
 
 % WcsColourTable = WcsChart();
-% [PosGroundTruth, NegGroundTruth] = DomainColourBoundries();
+% GroundTruth = WcsResults({'berlin', 'sturges', 'benavente'});
+% GroundTruth(GroundTruth > 0 ) = 1;
 
-[WcsColourTable, PosGroundTruth] = ColourBoxes();
+% I get good result with RSS = sum(sum(abs(GroundTruth - belonging)));
+% [WcsColourTable, GroundTruth] = ColourBoxes();
 
-% [WcsColourTable, PosGroundTruth] = SatfacesColourCube();
+% [WcsColourTable, GroundTruth] = SatfacesColourCube();
 
-% PlotAllChannels(WcsColourTable, PosGroundTruth);
+[WcsColourTable, GroundTruth] = SegmentedColourPoints('SegmentedColourPoints.mat');
+
+% PlotAllChannels(WcsColourTable, GroundTruth);
 
 % this allows us to only test one colour, the rest of the colour get the
 % latest ellipsoid parameters.
@@ -55,27 +57,27 @@ end
 for i = 1:ncolours
   switch WhichColours{i}
     case {'g', 'green'}
-      ColourEllipsoids(1, :) = DoColour(PosGroundTruth, ColourPoints, 1, 'green', plotme);
+      ColourEllipsoids(1, :) = DoColour(GroundTruth, ColourPoints, 1, 'green', plotme);
     case {'b', 'blue'}
-      ColourEllipsoids(2, :) = DoColour(PosGroundTruth, ColourPoints, 2, 'blue', plotme);
+      ColourEllipsoids(2, :) = DoColour(GroundTruth, ColourPoints, 2, 'blue', plotme);
     case {'pp', 'purple'}
-      ColourEllipsoids(3, :) = DoColour(PosGroundTruth, ColourPoints, 3, 'purple', plotme);
+      ColourEllipsoids(3, :) = DoColour(GroundTruth, ColourPoints, 3, 'purple', plotme);
     case {'pk', 'pink'}
-      ColourEllipsoids(4, :) = DoColour(PosGroundTruth, ColourPoints, 4, 'pink', plotme);
+      ColourEllipsoids(4, :) = DoColour(GroundTruth, ColourPoints, 4, 'pink', plotme);
     case {'r', 'red'}
-      ColourEllipsoids(5, :) = DoColour(PosGroundTruth, ColourPoints, 5, 'red', plotme);
+      ColourEllipsoids(5, :) = DoColour(GroundTruth, ColourPoints, 5, 'red', plotme);
     case {'o', 'orange'}
-      ColourEllipsoids(6, :) = DoColour(PosGroundTruth, ColourPoints, 6, 'orange', plotme);
+      ColourEllipsoids(6, :) = DoColour(GroundTruth, ColourPoints, 6, 'orange', plotme);
     case {'y', 'yellow'}
-      ColourEllipsoids(7, :) = DoColour(PosGroundTruth, ColourPoints, 7, 'yellow', plotme);
+      ColourEllipsoids(7, :) = DoColour(GroundTruth, ColourPoints, 7, 'yellow', plotme);
     case {'br', 'brown'}
-      ColourEllipsoids(8, :) = DoColour(PosGroundTruth, ColourPoints, 8, 'brown', plotme);
+      ColourEllipsoids(8, :) = DoColour(GroundTruth, ColourPoints, 8, 'brown', plotme);
     case {'gr', 'grey'}
-      ColourEllipsoids(9, :) = DoColour(PosGroundTruth, ColourPoints, 9, 'grey', plotme);
+      ColourEllipsoids(9, :) = DoColour(GroundTruth, ColourPoints, 9, 'grey', plotme);
     case {'w', 'white'}
-      ColourEllipsoids(10, :) = DoColour(PosGroundTruth, ColourPoints, 10, 'white', plotme);
+      ColourEllipsoids(10, :) = DoColour(GroundTruth, ColourPoints, 10, 'white', plotme);
     case {'bl', 'black'}
-      ColourEllipsoids(11, :) = DoColour(PosGroundTruth, ColourPoints, 11, 'black', plotme);
+      ColourEllipsoids(11, :) = DoColour(GroundTruth, ColourPoints, 11, 'black', plotme);
     otherwise
       disp('Wrong category, returning the latest ellipsoid parameters.');
   end
@@ -83,7 +85,7 @@ end
 
 if saveme
   RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'}; %#ok
-  save([ColourSpace, '_ellipsoid_params_arash.mat'], 'ColourEllipsoids', 'RGBTitles');
+  save([ColourSpace, '_ellipsoid_params_new.mat'], 'ColourEllipsoids', 'RGBTitles');
 end
 
 end
@@ -151,19 +153,16 @@ function RSS = ColourEllipsoidFittingBelonging(x, ColourPoints, GroundTruth)
 
 if ~isempty(ColourPoints)
   [belonging, ~] = EllipsoidEvaluateBelonging(ColourPoints, x);
-%   PositiveIndeces = GroundTruth == 1;
-%   PosDiff = 1 - belonging(PositiveIndeces);
-%   PosDiff(PosDiff < 0.5) = 0;
-%   
-%   MaybeIndeces = GroundTruth ~= 1 & GroundTruth ~= 0;
-%   MaybeDiff = abs(belonging(MaybeIndeces) - GroundTruth(MaybeIndeces));
-%   MaybeDiff(MaybeDiff < 0.25) = 0;
-%   
-%   NegativeIndeces = GroundTruth == 0;
-%   NegDiff = belonging(NegativeIndeces);
-%   NegDiff(NegDiff < 0.1) = 0;
-%   
-%   RSS = sum(PosDiff) + sum(NegDiff) + sum(MaybeDiff);
+  
+  %     PositiveIndeces = GroundTruth == 1;
+  %     PosDiff = 1 - belonging(PositiveIndeces);
+  %     PosDiff(PosDiff < 0.5) = 0;
+  %
+  %     NegativeIndeces = GroundTruth == 0;
+  %     NegDiff = belonging(NegativeIndeces);
+  %     NegDiff(NegDiff < 0.1) = 0;
+  %
+  %     RSS = sum(PosDiff) + sum(NegDiff);
   
   RSS = sum(sum(abs(GroundTruth - belonging)));
 else
