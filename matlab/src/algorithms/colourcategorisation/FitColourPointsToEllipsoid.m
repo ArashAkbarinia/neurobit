@@ -29,21 +29,21 @@ ColourEllipsoids = zeros(11, 9);
 % GroundTruth(GroundTruth > 0 ) = 1;
 
 % I get good result with RSS = sum(sum(abs(GroundTruth - belonging)));
-% [WcsColourTable, GroundTruth] = ColourBoxes();
+[WcsColourTable, GroundTruth] = ColourBoxes();
 
 % [WcsColourTable, GroundTruth] = SatfacesColourCube();
 
-[WcsColourTable, GroundTruth] = SegmentedColourPoints('SegmentedColourPoints.mat');
+% [WcsColourTable, GroundTruth] = SegmentedColourPoints('SegmentedColourPoints.mat');
 
 % PlotAllChannels(WcsColourTable, GroundTruth);
 
 % this allows us to only test one colour, the rest of the colour get the
 % latest ellipsoid parameters.
 if strcmpi(ColourSpace, 'lsy')
-  ColourPoints = XYZ2lsY(sRGB2XYZ(WcsColourTable, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
+  ColourPoints = XYZ2lsY(sRGB2XYZ(WcsColourTable + 1, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
   GoodResult = load('lsy_ellipsoid_params.mat');
 elseif strcmpi(ColourSpace, 'lab')
-  ColourPoints = double(applycform(WcsColourTable + 1, makecform('srgb2lab')));
+  ColourPoints = double(applycform(WcsColourTable, makecform('srgb2lab')));
   GoodResult = load('lab_ellipsoid_params.mat');
 end
 ColourEllipsoids(:, 1:9) = GoodResult.ColourEllipsoids(:, 1:9);
