@@ -1,10 +1,13 @@
-function [ColourBoxesImage, GroundTruthImage] = SegmentedColourPoints(DirPath)
+function [ColourBoxesImage, GroundTruthImage] = SegmentedColourPoints(DirPath, nLimistPoitns)
 
-if nargin < 2
+if nargin < 1
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ebay/';
 end
 
 if isempty(strfind(DirPath, '.mat'))
+  if nargin < 2
+    nLimistPoitns = 1000;
+  end
   ColourPoints = EmptyColourPointsStruct();
   SubFolders = GetSubFolders(DirPath);
   for j = 1:length(SubFolders)
@@ -35,8 +38,8 @@ if isempty(strfind(DirPath, '.mat'))
         
         CurrentPoints = ImageRGB(ImageMask, :);
         nCurrentPoitns = size(CurrentPoints, 1);
-        if nCurrentPoitns > 100
-          RandomPoints = randi(nCurrentPoitns, [1000, 1]);
+        if nCurrentPoitns > nLimistPoitns
+          RandomPoints = randi(nCurrentPoitns, [nLimistPoitns, 1]);
           CurrentPoints = CurrentPoints(RandomPoints, :);
         end
         ColourPointsSubCat.(ColourName) = [ColourPointsSubCat.(ColourName); CurrentPoints];
