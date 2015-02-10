@@ -29,7 +29,9 @@ ColourEllipsoids = zeros(11, 9);
 % GroundTruth(GroundTruth > 0 ) = 1;
 
 % I get good result with RSS = sum(sum(abs(GroundTruth - belonging)));
-[WcsColourTable, GroundTruth] = ColourBoxes();
+% [WcsColourTable, GroundTruth] = ColourBoxes();
+
+[WcsColourTable, GroundTruth] = ColourPerception();
 
 % [WcsColourTable, GroundTruth] = SatfacesColourCube();
 
