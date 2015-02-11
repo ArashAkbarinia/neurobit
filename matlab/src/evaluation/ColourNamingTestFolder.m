@@ -1,15 +1,15 @@
-function [ErrorMats] = ColourNamingTestFolder(DirPath, method, EvaluateGroundTruth, GroundTruthColour)
+function ErrorMats = ColourNamingTestFolder(DirPath, method, EvaluateGroundTruth, GroundTruthColour)
 
 if nargin < 3
-  DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/soccer/acmilan/';
+  DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/soccer/psv/';
   method = 'our';
   EvaluateGroundTruth = false;
 end
 
+ConfigsMat = load('lab_ellipsoid_params_new');
+EllipsoidsTitles = ConfigsMat.RGBTitles;
+EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
 if strcmpi(method, 'our')
-  ConfigsMat = load('lab_ellipsoid_params_new');
-  EllipsoidsTitles = ConfigsMat.RGBTitles;
-  EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
   MethodNumber = 1;
 else
   EllipsoidDicMat = load('EllipsoidDic.mat');
@@ -55,12 +55,26 @@ for i = 1:nimages
   ImageRGB = imread(ImagePath);
   switch MethodNumber
     case 1
-      NamingImage = ApplyOurMethod(ImageRGB, ConfigsMat, ResultDirectory, ImageFiles(i).name, EllipsoidsTitles, EllipsoidsRGBs);
+      [NamingImage, BelongingImage] = ApplyOurMethod(ImageRGB, ConfigsMat);
     case 2
-      NamingImage = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat, ResultDirectory, ImageFiles(i).name);
+      [NamingImage, BelongingImage] = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat);
     case 3
-      NamingImage = ApplyRobertMethod(ImageRGB, ConfigsMat, ConversionMat, ResultDirectory, ImageFiles(i).name);
+      [NamingImage, BelongingImage] = ApplyRobertMethod(ImageRGB, ConfigsMat, ConversionMat);
   end
+  
+  % plotting
+  figurei = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
+  saveas(figurei, [ResultDirectory, 'res_prob', ImageFiles(i).name]);
+  close(figurei);
+  
+  figurei = figure('NumberTitle', 'Off', 'Name', [method, ' Colour Naming'], 'visible', 'off');
+  subplot(1, 2, 1);
+  imshow(uint8(ImageRGB));
+  subplot(1, 2, 2);
+  imshow(ColourLabelImage(NamingImage));
+  saveas(figurei, [ResultDirectory, 'res_', ImageFiles(i).name]);
+  close(figurei);
+  
   if EvaluateGroundTruth
     MaskPath = [DirPath, MaskFiles(i).name];
     ImageMask = im2bw(imread(MaskPath));
@@ -68,6 +82,7 @@ for i = 1:nimages
     fprintf('Sensitivity %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', ErrorMats{i}.sens, ErrorMats{i}.spec, ErrorMats{i}.ppv, ErrorMats{i}.npv);
     fprintf('TP %d FP %d TN %d FN %d\n', ErrorMats{i}.tp, ErrorMats{i}.fp, ErrorMats{i}.tn, ErrorMats{i}.fn);
   end
+  
 end
 if EvaluateGroundTruth
   save([ResultDirectory, 'ErrorMats.mat'], 'ErrorMats');
@@ -75,63 +90,40 @@ end
 
 end
 
-function NamingImage = ApplyOurMethod(ImageRGB, ConfigsMat, ResultDirectory, FileName, EllipsoidsTitles, EllipsoidsRGBs)
+function [NamingImage, BelongingImage] = ApplyOurMethod(ImageRGB, ConfigsMat)
 
 BelongingImage = rgb2belonging(ImageRGB, 'lab', ConfigsMat);
 BelongingImage = PostProcessBelongingImage(ImageRGB, BelongingImage);
 NamingImage = belonging2naming(BelongingImage, true);
 
-figurei = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
-saveas(figurei, [ResultDirectory, 'res_prob', FileName]);
-close(figurei);
-
-figurei = figure('NumberTitle', 'Off', 'Name', 'Our Colour Naming', 'visible', 'off');
-subplot(1, 2, 1);
-imshow(uint8(ImageRGB));
-subplot(1, 2, 2);
-imshow(ColourLabelImage(NamingImage));
-saveas(figurei, [ResultDirectory, 'res_', FileName]);
-close(figurei);
-
 end
 
-function NamingImage = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat, ResultDirectory, FileName)
+function [NamingImage, BelongingImage] = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat)
 
 ImageRGB = double(ImageRGB);
 NamingImage = im2c(ImageRGB, ConfigsMat, 0);
 
+[rows, cols, ~] = size(ImageRGB);
+BelongingImage = zeros(rows, cols, 11);
 NamingImageTmp = NamingImage;
 for i = 1:11
+  BelongingImage(:, :, ConversionMat(i)) = im2c(ImageRGB, ConfigsMat, i);
   NamingImage(NamingImageTmp == i) = ConversionMat(i);
 end
 
-figurei = figure('NumberTitle', 'Off', 'Name', 'Joost Colour Naming', 'visible', 'off');
-subplot(1, 2, 1);
-imshow(uint8(ImageRGB));
-subplot(1, 2, 2);
-imshow(ColourLabelImage(NamingImage));
-saveas(figurei, [ResultDirectory, 'res_', FileName]);
-close(figurei);
-
 end
 
-function NamingImage = ApplyRobertMethod(ImageRGB, ConfigsMat, ConversionMat, ResultDirectory, FileName)
+function [NamingImage, BelongingImage] = ApplyRobertMethod(ImageRGB, ConfigsMat, ConversionMat)
 
 ImageRGB = double(ImageRGB);
-[~, NamingImage, ~] = ImColorNamingTSELab(ImageRGB, ConfigsMat.ParFileName1, ConfigsMat.ParFileName2, ConfigsMat.ParFileName3);
+[~, NamingImage, BelongingImage] = ImColorNamingTSELab(ImageRGB, ConfigsMat.ParFileName1, ConfigsMat.ParFileName2, ConfigsMat.ParFileName3);
 
 NamingImageTmp = NamingImage;
+BelongingImageTmp = BelongingImage;
 for i = 1:11
+  BelongingImage(:, :, ConversionMat(i)) = BelongingImageTmp(:, :, i);
   NamingImage(NamingImageTmp == i) = ConversionMat(i);
 end
-
-figurei = figure('NumberTitle', 'Off', 'Name', 'Robert Colour Naming', 'visible', 'off');
-subplot(1, 2, 1);
-imshow(uint8(ImageRGB));
-subplot(1, 2, 2);
-imshow(ColourLabelImage(NamingImage));
-saveas(figurei, [ResultDirectory, 'res_', FileName]);
-close(figurei);
 
 end
 
