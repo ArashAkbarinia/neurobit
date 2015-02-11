@@ -20,7 +20,7 @@ ImageRGB = ImageRGB + 1;
 
 if strcmpi(ColourSpace, 'lsy')
   if isempty(ConfigsMat)
-    ConfigsMat = load('lsy_ellipsoid_params');
+    ConfigsMat = load('lsy_ellipsoid_params_new');
   end
   % gammacorrect = true, max pix value > 1, max luminance = daylight
   ImageOpponent = XYZ2lsY(sRGB2XYZ(ImageRGB, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
@@ -28,7 +28,7 @@ if strcmpi(ColourSpace, 'lsy')
   axes = {'l', 's', 'y'};
 elseif strcmpi(ColourSpace, 'lab')
   if isempty(ConfigsMat)
-    ConfigsMat = load('lab_ellipsoid_params');
+    ConfigsMat = load('lab_ellipsoid_params_new');
   end
   ImageOpponent = double(applycform(ImageRGB, makecform('srgb2lab')));
   ImageOpponentConstant = double(applycform(ColourConstantImage, makecform('srgb2lab')));
@@ -39,7 +39,10 @@ ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 % BelongingImage(:, :, 1:8) = ChromaticEllipsoidBelonging(ImageOpponent, ColourEllipsoids);
 BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
 % BelongingImage(:, :, 9:11) = max(AchromaticEllipsoidBelonging(ImageOpponentConstant, ColourEllipsoids), BelongingImage(:, :, 9:11));
-BelongingImage(:, :, 9:11) = AchromaticEllipsoidBelonging(ImageOpponentConstant, ColourEllipsoids) * 0.33 + BelongingImage(:, :, 9:11);
+BelongingImage(:, :, 9:11) = AchromaticEllipsoidBelonging(ImageOpponentConstant, ColourEllipsoids) * 0.33 + BelongingImage(:, :, 9:11) * 0.66;
+% BelongingImage(:, :, 9) = BelongingImage(:, :, 9) - max(BelongingImage(:, :, 1:8), [], 3);
+% BelongingImage(:, :, 10) = BelongingImage(:, :, 10) - max(BelongingImage(:, :, 1:8), [], 3);
+% BelongingImage(:, :, 11) = BelongingImage(:, :, 11) - max(BelongingImage(:, :, 1:8), [], 3);
 
 if plotme
   EllipsoidsTitles = ConfigsMat.RGBTitles;
