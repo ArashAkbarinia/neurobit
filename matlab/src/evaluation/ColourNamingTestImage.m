@@ -1,4 +1,4 @@
-function [] = ColourNamingTestImage(ImageRGB, method)
+function BelongingImage = ColourNamingTestImage(ImageRGB, method)
 
 if nargin < 2
   method = 'our';
