@@ -18,6 +18,10 @@ for i = 1:nsources;
       ChipsTable = ChipsTable + SturgesWhitfielColourBoundries();
     case {'benavente'}
       ChipsTable = ChipsTable + BenaventeColourBoundries();
+    case {'joost'}
+      ChipsTable = ChipsTable + ColourNamingTestImage(WcsChart(), 'joost', 0);
+    case {'robert'}
+      ChipsTable = ChipsTable + ColourNamingTestImage(WcsChart(), 'robert', 0);
     case {'arash'}
       ChipsTable = ChipsTable + ArashColourBoundries();
     otherwise
