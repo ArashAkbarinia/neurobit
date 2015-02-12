@@ -1,7 +1,8 @@
-function BelongingImage = ColourNamingTestImage(ImageRGB, method)
+function BelongingImage = ColourNamingTestImage(ImageRGB, method, plotme)
 
-if nargin < 2
+if nargin < 3
   method = 'our';
+  plotme = 1;
 end
 
 ConfigsMat = load('lab_ellipsoid_params_new');
@@ -39,13 +40,15 @@ switch MethodNumber
 end
 
 % plotting
-PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
-
-figure('NumberTitle', 'Off', 'Name', [method, ' Colour Naming']);
-subplot(1, 2, 1);
-imshow(uint8(ImageRGB));
-subplot(1, 2, 2);
-imshow(ColourLabelImage(NamingImage));
+if plotme
+  PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
+  
+  figure('NumberTitle', 'Off', 'Name', [method, ' Colour Naming']);
+  subplot(1, 2, 1);
+  imshow(uint8(ImageRGB));
+  subplot(1, 2, 2);
+  imshow(ColourLabelImage(NamingImage));
+end
 
 end
 
