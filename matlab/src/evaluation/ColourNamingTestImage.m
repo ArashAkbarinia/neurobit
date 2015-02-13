@@ -1,4 +1,14 @@
 function BelongingImage = ColourNamingTestImage(ImageRGB, method, plotme)
+%ColourNamingTestImage  applies colour naming to the input image.
+%
+% Inputs
+%   ImageRGB  the input image.
+%   method    the desired method {our, joost, robert}.
+%   plotme    should the results be plotted.
+%
+% Outputs
+%   BelongingImage  the output belonging image.
+%
 
 if nargin < 2
   method = 'our';
@@ -7,7 +17,7 @@ if nargin < 3
   plotme = 1;
 end
 
-ConfigsMat = load('lab_ellipsoid_params_new');
+ConfigsMat = load('lab_ellipsoid_params');
 EllipsoidsTitles = ConfigsMat.RGBTitles;
 EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
 if strcmpi(method, 'our')
