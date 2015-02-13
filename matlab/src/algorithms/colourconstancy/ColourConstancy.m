@@ -50,7 +50,7 @@ switch algorithm
       ColourConstantImage = ColourConstancyProgressive(InputImage, h1, h2);
     else
       ColourConstantImage = InputImage;
-      disp('Modified white patch algorithm must have another parameter.');
+      disp('Progressive algorithm must have two parameters.');
     end
   case 'single scale retinex'
     ColourConstantImage = ColourConstancySingleScaleRetinex(InputImage);
