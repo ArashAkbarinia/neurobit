@@ -1,7 +1,9 @@
 function BelongingImage = ColourNamingTestImage(ImageRGB, method, plotme)
 
-if nargin < 3
+if nargin < 2
   method = 'our';
+end
+if nargin < 3
   plotme = 1;
 end
 
