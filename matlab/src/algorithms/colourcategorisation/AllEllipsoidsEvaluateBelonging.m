@@ -15,16 +15,18 @@ function belongings = AllEllipsoidsEvaluateBelonging(InputImage, ColourEllipsoid
 [nelpisd, ~] = size(ColourEllipsoids);
 [rows, cols, chns] = size(InputImage);
 
-belongings = zeros(rows, cols, nelpisd);
-
 if chns == 3
   % first, convert the picture into a giant vector where every row
   % correspond to a pixel
-  InputVector = reshape(InputImage, rows * cols, chns);
+  InputImage = reshape(InputImage, rows * cols, chns);
+elseif cols == 3
+  cols = 1;
 end
 
+belongings = zeros(rows, cols, nelpisd);
+
 for i = 1:nelpisd
-  [ibelonging, ~] = EllipsoidEvaluateBelonging(InputVector, ColourEllipsoids(i, :));
+  [ibelonging, ~] = EllipsoidEvaluateBelonging(InputImage, ColourEllipsoids(i, :));
   
   belongings(:, :, i) = reshape(ibelonging, rows, cols, 1);
 end
