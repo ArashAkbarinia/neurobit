@@ -95,7 +95,7 @@ end
 
 function ColourEllipsoid = DoColour(GroundTruth, ColourPoints, ColourIndex, ColourName, plotme)
 
-inds = GroundTruth(:, :, ColourIndex) > 0;
+inds = GroundTruth(:, :, ColourIndex) > mean(mean(GroundTruth(:, :, ColourIndex)));
 inds(:, :, 2) = inds(:, :, 1);
 inds(:, :, 3) = inds(:, :, 1);
 
