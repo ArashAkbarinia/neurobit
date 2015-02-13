@@ -6,7 +6,7 @@ if nargin < 1
   ColourSpace = 'lab';
 end
 if nargin < 2
-  WhichColours = {'c'};
+  WhichColours = {'a'};
 end
 if nargin < 3
   plotme = 1;
