@@ -116,7 +116,7 @@ else
 end
 lb = ...
   [
-  -inf, -inf, -inf, 0, 0, 0, 0, 0, 0;
+  -inf, -inf, -inf, 5, 5, 5, 0, 0, 0;
   ];
 ub = ...
   [
