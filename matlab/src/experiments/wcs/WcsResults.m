@@ -13,9 +13,15 @@ nsources = length(sources);
 for i = 1:nsources;
   switch sources{i}
     case {'berlin'}
-      ChipsTable = ChipsTable + BerlinKayColourBoundries(true);
+      TmpTable = BerlinKayColourBoundries(true);
+      ArashTable = ArashColourBoundries();
+      TmpTable([1, 10], 2:41, 9:11) = ArashTable([1, 10], 2:41, 9:11);
+      ChipsTable = ChipsTable + TmpTable;
     case {'sturges'}
-      ChipsTable = ChipsTable + SturgesWhitfielColourBoundries();
+      TmpTable = SturgesWhitfielColourBoundries();
+      ArashTable = ArashColourBoundries();
+      TmpTable([1, 10], 2:41, 9:11) = ArashTable([1, 10], 2:41, 9:11);
+      ChipsTable = ChipsTable + TmpTable;
     case {'benavente'}
       ChipsTable = ChipsTable + BenaventeColourBoundries();
     case {'joost'}
