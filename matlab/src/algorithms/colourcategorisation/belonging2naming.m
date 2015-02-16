@@ -14,9 +14,13 @@ if nargin < 2
   DecideAllPixels = false;
 end
 
-[~, ~, chns] = size(BelongingImage);
+[rows, cols, chns] = size(BelongingImage);
 
-[vals, inds] = max(BelongingImage(:, :, 1:chns), [], 3);
+if chns > 1
+  BelongingImage = reshape(BelongingImage, rows * cols, chns);
+end
+
+[vals, inds] = max(BelongingImage, [], 2);
 
 if ~DecideAllPixels
   % if the maximum value is 0 it means neither of the colours did categorise
@@ -27,5 +31,10 @@ end
 
 NamingImage = inds;
 MaxProbabilityImage = vals;
+
+if chns > 1
+  NamingImage = reshape(NamingImage, rows, cols);
+  MaxProbabilityImage = reshape(MaxProbabilityImage, rows, cols);
+end
 
 end

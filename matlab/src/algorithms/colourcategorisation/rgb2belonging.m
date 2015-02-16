@@ -11,6 +11,10 @@ if nargin < 5
   plotme = 0;
 end
 
+if max(ImageRGB(:)) <= 1
+  ImageRGB = uint8(ImageRGB .* 255);
+end
+
 % TODO: try CMYK as well
 if strcmpi(ColourSpace, 'lsy')
   if isempty(ConfigsMat)

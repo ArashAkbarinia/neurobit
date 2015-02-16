@@ -19,16 +19,21 @@ if chns == 3
   % first, convert the picture into a giant vector where every row
   % correspond to a pixel
   InputImage = reshape(InputImage, rows * cols, chns);
-elseif cols == 3
-  cols = 1;
+  VectorRows = rows * cols;
+else
+  VectorRows = rows;
 end
 
-belongings = zeros(rows, cols, nelpisd);
+belongings = zeros(VectorRows, nelpisd);
 
 for i = 1:nelpisd
   [ibelonging, ~] = EllipsoidEvaluateBelonging(InputImage, ColourEllipsoids(i, :));
   
-  belongings(:, :, i) = reshape(ibelonging, rows, cols, 1);
+  belongings(:, i) = ibelonging;
+end
+
+if chns == 3
+  belongings = reshape(belongings, rows, cols, nelpisd);
 end
 
 end
