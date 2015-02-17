@@ -1,9 +1,18 @@
-function PostProcessedImage = PostProcessBelongingImage(ImageRGB, BelongingImage, plotme)
+function PostProcessedImage = PostProcessBelongingImage(ImageRGB, BelongingImage, rows, cols, plotme)
 %PostProcessBelongingImage Summary of this function goes here
 %   Detailed explanation goes here
 
 if nargin < 3
+  rows = [];
+  cols = [];
+end
+if nargin < 5
   plotme = 0;
+end
+
+if ~isempty(rows) && ~isempty(cols)
+  [~, chns] = size(BelongingImage);
+  BelongingImage = reshape(BelongingImage, rows, cols, chns);
 end
 
 PostProcessedImage = BelongingImage;
@@ -14,6 +23,10 @@ end
 
 % PostProcessedImage = ApplyMedian(BelongingImage);
 % ApplyNeighbourColours(PostProcessedImage, ImageRGB);
+
+if ~isempty(rows) && ~isempty(cols)
+  PostProcessedImage = reshape(PostProcessedImage, rows * cols, chns);
+end
 
 if plotme
   PlotAllChannels(ImageRGB, PostProcessedImage, [], [], 'Colour Categorisation - Post Processed Image');
