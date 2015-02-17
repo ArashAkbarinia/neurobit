@@ -9,7 +9,7 @@ if nargin < 2
   WhichColours = {'a'};
 end
 if nargin < 3
-  plotme = 1;
+  plotme = 0;
   saveme = 1;
 end
 ColourSpace = lower(ColourSpace);
@@ -22,15 +22,19 @@ end
 
 WhichColours = lower(WhichColours);
 ncolours = length(WhichColours);
-ColourEllipsoids = zeros(11, 9);
+ColourEllipsoids = zeros(11, 10);
 
-% WcsColourTable = WcsChart();
-% GroundTruth = WcsResults({'berlin', 'sturges'});
-% GroundTruth = WcsResults({'joost', 'robert'});
-% GroundTruth(GroundTruth > 0 ) = 1;
+WcsColourTable = WcsChart();
+GroundTruth = WcsResults({'joost', 'robert', 'berlin'}); % , 'sturges'
+ArashTable = ArashColourBoundries();
+% this is to underestimation of the achromatic in the joost't method
+GroundTruth([1, 10], 1:41, 9:11) = ArashTable([1, 10], 1:41, 9:11);
+GroundTruth(2:9, 2:41, 9:11) = GroundTruth(2:9, 2:41, 9:11) / 2;
+% this is to fix the bug of robert's method
+GroundTruth(2, 30, 10) = 0.09;
 
 % I get good result with RSS = sum(sum(abs(GroundTruth - belonging)));
-[WcsColourTable, GroundTruth] = ColourBoxes();
+% [WcsColourTable, GroundTruth] = ColourBoxes();
 
 % [WcsColourTable, GroundTruth] = ColourPerception();
 
@@ -109,18 +113,18 @@ if plotme
 end
 
 if size(PositivePoints, 1) > 1
-  initial = [mean(PositivePoints), std(PositivePoints), 0, 0, 0];
+  initial = [mean(PositivePoints), std(PositivePoints), 0, 0, 0, 1];
   %   initial = [115, 138, 133, std(PositivePoints), 0, 0, 0];
 else
-  initial = [PositivePoints, 10, 10, 10, 0, 0, 0];
+  initial = [PositivePoints, 10, 10, 10, 0, 0, 0, 1];
 end
 lb = ...
   [
-  -inf, -inf, -inf, 5, 5, 5, 0, 0, 0;
+  -inf, -inf, -inf, 1, 1, 1, 0, 0, 0, 0;
   ];
 ub = ...
   [
-  inf, inf, inf, 150, 150, 150, pi, pi, pi;
+  inf, inf, inf, inf, inf, inf, pi, pi, pi, 100;
   ];
 options = optimoptions(@fmincon,'Algorithm', 'sqp', 'Display', 'off', 'MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
 

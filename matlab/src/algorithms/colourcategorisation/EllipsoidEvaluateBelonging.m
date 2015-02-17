@@ -19,11 +19,6 @@ end
 CentreX = ellipsoid(1);
 CentreY = ellipsoid(2);
 CentreZ = ellipsoid(3);
-% RSS = ellipsoid(10);
-
-% AxisY = ellipsoid(6);
-
-steepness = 10; % steepness of the sigmoidal transition.
 
 [distances, intersection] = DistanceEllipsoid(points, ellipsoid, 0);
 
@@ -33,9 +28,15 @@ H = sqrt((intersection(:, 1) - CentreX) .^ 2 + (intersection(:, 2) - CentreY) .^
 % distances from the centre to the points
 X = sqrt((points(:, 1) - CentreX) .^ 2 + (points(:, 2) - CentreY) .^ 2 + (points(:, 3) - CentreZ) .^ 2);
 
-% growth rate (width of the sigmoidal section)
-% TODO: what should be the growth rate.
-G = steepness ./ H;
+if length(ellipsoid) == 10
+  % growth rate (width of the sigmoidal section)
+  % TODO: what should be the growth rate.
+  G = ellipsoid(10);
+else
+  % steepness of the sigmoidal transition.
+  steepness = 2;
+  G = steepness ./ H;
+end
 
 belonging = 1 ./ (1 + exp(G .* (X - H)));
 
