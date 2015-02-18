@@ -40,6 +40,8 @@ else
 end
 
 belonging = 1 ./ (1 + exp(G .* (X - H)));
+% TODO: set minimum maximum for poitns outside and inside the ellipsoid
+% belonging(X - H < 0) = max(0.5, belonging(X - H < 0));
 
 if chns == 3
   belonging = reshape(belonging, rows, cols, 1);
