@@ -24,15 +24,15 @@ WhichColours = lower(WhichColours);
 ncolours = length(WhichColours);
 ColourEllipsoids = zeros(11, 10);
 
-WcsColourTable = WcsChart();
-GroundTruth = WcsResults({'joost', 'robert', 'berlin'}); % , 'sturges'
-% this is to fix the bug of robert's method
-GroundTruth(2, 30, 10) = 0.09;
-ArashTable = ArashColourBoundries();
-% this is to underestimation of the achromatic in the joost't method
-GroundTruth([1, 10], 1:41, 9:11) = ArashTable([1, 10], 1:41, 9:11);
-GroundTruth(:, 1, 9:11) = ArashTable(:, 1, 9:11);
-GroundTruth(2:9, 2:41, 9:11) = GroundTruth(2:9, 2:41, 9:11) / 2;
+% WcsColourTable = WcsChart();
+% GroundTruth = WcsResults({'joost', 'robert'}); % , 'sturges', 'berlin'
+% % this is to fix the bug of robert's method
+% GroundTruth(2, 30, 10) = 0.09;
+% ArashTable = ArashColourBoundries();
+% % this is to underestimation of the achromatic in the joost't method
+% GroundTruth([1, 10], 1:41, 9:11) = ArashTable([1, 10], 1:41, 9:11);
+% GroundTruth(:, 1, 9:11) = ArashTable(:, 1, 9:11);
+% GroundTruth(2:9, 2:41, 9:11) = GroundTruth(2:9, 2:41, 9:11) / 2;
 
 % I get good result with RSS = sum(sum(abs(GroundTruth - belonging)));
 % [WcsColourTable, GroundTruth] = ColourBoxes();
@@ -42,6 +42,7 @@ GroundTruth(2:9, 2:41, 9:11) = GroundTruth(2:9, 2:41, 9:11) / 2;
 % [WcsColourTable, GroundTruth] = SatfacesColourCube();
 
 % [WcsColourTable, GroundTruth] = SegmentedColourPoints('SegmentedColourPoints.mat');
+load('SegmentedColourProbabilities1000.mat');
 
 % PlotAllChannels(WcsColourTable, GroundTruth);
 
@@ -54,7 +55,7 @@ elseif strcmpi(ColourSpace, 'lab')
   ColourPoints = double(applycform(WcsColourTable, makecform('srgb2lab')));
   GoodResult = load('lab_ellipsoid_params.mat');
 end
-ColourEllipsoids(:, 1:9) = GoodResult.ColourEllipsoids(:, 1:9);
+ColourEllipsoids(:, 1:10) = GoodResult.ColourEllipsoids(:, 1:10);
 
 if plotme
   figure;
@@ -121,11 +122,11 @@ else
 end
 lb = ...
   [
-  -inf, -inf, -inf, 1, 1, 1, 0, 0, 0, 0;
+  -inf, -inf, -inf, 0.01, 0.01, 0.01, 0, 0, 0, 0.01;
   ];
 ub = ...
   [
-  inf, inf, inf, inf, inf, inf, pi, pi, pi, 100;
+  inf, inf, inf, inf, inf, inf, pi, pi, pi, inf;
   ];
 options = optimoptions(@fmincon,'Algorithm', 'sqp', 'Display', 'off', 'MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
 
