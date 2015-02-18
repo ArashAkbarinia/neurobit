@@ -27,9 +27,9 @@ for i = 1:OriginalDimension
   GroundTruthImage(IndUniqes(i), 1, :) = GroundTruthImage(IndUniqes(i), 1, :) + gts(i, 1, :);
 end
 
-MaxProbs = max(GroundTruthImage, [], 3);
+SumProbs = sum(GroundTruthImage, 3);
 for i = 1:UniqueDimension
-  GroundTruthImage(i, 1, :) = GroundTruthImage(i, 1, :) ./ MaxProbs(i);
+  GroundTruthImage(i, 1, :) = GroundTruthImage(i, 1, :) ./ SumProbs(i);
 end
 
 end
