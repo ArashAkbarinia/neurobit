@@ -28,13 +28,14 @@ H = sqrt((intersection(:, 1) - CentreX) .^ 2 + (intersection(:, 2) - CentreY) .^
 % distances from the centre to the points
 X = sqrt((points(:, 1) - CentreX) .^ 2 + (points(:, 2) - CentreY) .^ 2 + (points(:, 3) - CentreZ) .^ 2);
 
-if length(ellipsoid) == 10
+% TODO: calculate the steepness based on the colour of image
+if length(ellipsoid) == 10 && ellipsoid(10) ~= 0
   % growth rate (width of the sigmoidal section)
   % TODO: what should be the growth rate.
   G = ellipsoid(10);
 else
   % steepness of the sigmoidal transition.
-  steepness = 2;
+  steepness = 10;
   G = steepness ./ H;
 end
 
