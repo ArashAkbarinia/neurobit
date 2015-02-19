@@ -41,8 +41,10 @@ ColourEllipsoids = zeros(11, 10);
 
 % [WcsColourTable, GroundTruth] = SatfacesColourCube();
 
+% [WcsColourTable, GroundTruth] = ColourMembershipExperiment();
+
 % [WcsColourTable, GroundTruth] = SegmentedColourPoints('SegmentedColourPoints.mat');
-load('SegmentedColourProbabilities1000.mat');
+load('SegmentedColourProbabilities.mat');
 
 % PlotAllChannels(WcsColourTable, GroundTruth);
 
@@ -101,7 +103,8 @@ end
 
 function ColourEllipsoid = DoColour(GroundTruth, ColourPoints, ColourIndex, ColourName, plotme)
 
-inds = GroundTruth(:, :, ColourIndex) > mean(mean(GroundTruth(:, :, ColourIndex)));
+% the initial guess with points more probale than 50%
+inds = GroundTruth(:, :, ColourIndex) > 0.5;
 inds(:, :, 2) = inds(:, :, 1);
 inds(:, :, 3) = inds(:, :, 1);
 
