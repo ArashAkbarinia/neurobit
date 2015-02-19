@@ -36,6 +36,7 @@ RSSes = zeros(11, 2);
 % for testing only one colour
 GoodResult = load('lsy_ellipsoid_params.mat');
 ellipses(:, 1:9) = GoodResult.ColourEllipsoids(:, 1:9);
+% TODO: instead of RSSes put the steepness
 RSSes(:, 2) = GoodResult.ColourEllipsoids(:, 10);
 
 tested = [];
