@@ -44,7 +44,7 @@ ColourEllipsoids = zeros(11, 10);
 % [WcsColourTable, GroundTruth] = ColourMembershipExperiment();
 
 % [WcsColourTable, GroundTruth] = SegmentedColourPoints('SegmentedColourPoints.mat');
-load('SegmentedColourProbabilities.mat');
+load('SegmentedColourProbabilities255Averaged.mat');
 
 % PlotAllChannels(WcsColourTable, GroundTruth);
 
