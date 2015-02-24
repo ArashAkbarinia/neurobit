@@ -14,10 +14,10 @@ function noarmalisedx = NormaliseChannel(x, a, b, mins, maxs)
 %
 
 if isempty(a)
-  a = 0.0;
+  a = [0.0, 0.0, 0.0];
 end
 if isempty(b)
-  b = 1.0;
+  b = [1.0, 1.0, 1.0];
 end
 
 [rows, cols, chns] = size(x);
@@ -47,7 +47,7 @@ end
 for i = 1:3
   minv = mins(i);
   maxv = maxs(i);
-  noarmalisedx(:, :, i) = a + (x(:, :, i) - minv) * (b - a) / (maxv - minv);
+  noarmalisedx(:, :, i) = a(i) + (x(:, :, i) - minv) * (b(i) - a(i)) / (maxv - minv);
 end
 
 if chns == 1
