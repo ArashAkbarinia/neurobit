@@ -73,7 +73,7 @@ for k = 1:nfigures
   h = subplot(1, nfigures, k);
   hold on;
   grid on;
-  scatter3(ImageOpponent(:, 1), ImageOpponent(:, 2), ImageOpponent(:, 3), 36, ImageRGB);
+  scatter3(ImageOpponent(:, 1), ImageOpponent(:, 2), ImageOpponent(:, 3), 36, ImageRGB, '*');
   PlotAllEllipsoids(ColourEllipsoids, EllipsoidsRGBs, h);
   xlabel(axes{1});
   ylabel(axes{2});
