@@ -8,8 +8,7 @@ function XYZ = sRGB2XYZ(CIERGB, gammacorrect, maxXYZ)
 % if gammacorrect = false, it assumes the input is already linearised.
 
 if nargin < 3
-  maxXYZ = [1, 1, 1];
-  disp('Warning: XYZ output normalised to 1');
+  maxXYZ = [];
 end
 
 if nargin < 2
@@ -53,7 +52,7 @@ end
 
 XYZ = CIERGB * CIERGB2XYZ_D65';
 
-if ~isequal(maxXYZ, [1, 1, 1]);
+if ~isempty(maxXYZ)
   if chns == 3
     XYZ = XYZ .* repmat(maxXYZ, rows * cols, 1);
   else
