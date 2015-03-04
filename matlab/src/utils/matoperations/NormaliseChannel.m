@@ -30,11 +30,11 @@ end
 [rows, cols, chns] = size(x);
 
 % TODO: make it generic for differnt channels.
-if chns ~= 3 && cols ~= 3
-  error('NormaliseChannel:wrongnumbers', 'NormaliseChannel only supports data in 3 channels.');
-end
+% if chns ~= 3 && cols ~= 3
+%   error('NormaliseChannel:wrongnumbers', 'NormaliseChannel only supports data in 3 channels.');
+% end
 
-if chns == 1
+if chns == 1 && cols == 3
   x = reshape(x, rows, cols / 3, 3);
 end
 
@@ -51,7 +51,7 @@ if isempty(maxs)
   maxs = max(max(x));
 end
 
-for i = 1:3
+for i = 1:chns
   minv = mins(i);
   maxv = maxs(i);
   noarmalisedx(:, :, i) = a(i) + (x(:, :, i) - minv) * (b(i) - a(i)) / (maxv - minv);
