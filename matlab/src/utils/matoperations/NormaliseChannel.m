@@ -13,6 +13,13 @@ function noarmalisedx = NormaliseChannel(x, a, b, mins, maxs)
 %   noarmalisedx the output matrix between 'a' and 'b'.
 %
 
+if nargin < 2
+  a = [];
+  b = [];
+  mins = [];
+  maxs = [];
+end
+
 if isempty(a)
   a = [0.0, 0.0, 0.0];
 end
