@@ -103,10 +103,41 @@ ybavg = 128;
 LabAvg = mean(mean(ImageOpponent));
 LabStd = std(std(ImageOpponent));
 
+% if there is more than 0.10 per cent deviation in luminance
+lumstddiff = abs(LabStd(lumindc) - 0.1 * lumavg);
+if lumstddiff > 1
+  lumstdper = lumstddiff / (0.025 * lumavg);
+  if LabAvg(lumindc) > (lumavg + 0.25 * lumavg)
+    colinds = [9, 11];
+    AxesChange = ColourEllipsoids(colinds, [rginda, ybinda]) .* lumstdper;
+    ColourEllipsoids(colinds, [rginda, ybinda]) = ColourEllipsoids(colinds, [rginda, ybinda]) + AxesChange / 2;
+  elseif LabAvg(lumindc) < (lumavg - 0.25 * lumavg)
+    colinds = [9, 10];
+    AxesChange = ColourEllipsoids(colinds, [rginda, ybinda]) .* lumstdper;
+    ColourEllipsoids(colinds, [rginda, ybinda]) = ColourEllipsoids(colinds, [rginda, ybinda]) + AxesChange / 2;
+  else
+    colinds = [10, 11];
+    AxesChange = ColourEllipsoids(colinds, [rginda, ybinda]) .* lumstdper;
+    ColourEllipsoids(colinds, [rginda, ybinda]) = ColourEllipsoids(colinds, [rginda, ybinda]) + AxesChange / 2;
+  end
+end
+
 % if there is more than 0.025 per cent deviation in rg-channel
 rgstddiff = abs(LabStd(rgindc) - 0.025 * rgavg);
 if rgstddiff > 1
   ColourEllipsoids(1, luminda) = ColourEllipsoids(1, luminda) / rgstddiff;
+  rgstdper = rgstddiff / (0.025 * rgavg);
+  AxesChange = ColourEllipsoids(9:11, rginda) .* rgstdper;
+  ColourEllipsoids(9:11, rginda) = ColourEllipsoids(9:11, rginda) + AxesChange / 2;
+end
+
+% if there is more than 0.025 per cent deviation in yb-channel
+ybstddiff = abs(LabStd(ybindc) - 0.025 * ybavg);
+if ybstddiff > 1
+%   ColourEllipsoids(2, luminda) = ColourEllipsoids(2, luminda) / ybstddiff;
+  ybstdper = ybstddiff / (0.025 * ybavg);
+  AxesChange = ColourEllipsoids(9:11, ybinda) .* ybstdper;
+  ColourEllipsoids(9:11, ybinda) = ColourEllipsoids(9:11, ybinda) + AxesChange / 2;
 end
 
 % too much green shift the white
