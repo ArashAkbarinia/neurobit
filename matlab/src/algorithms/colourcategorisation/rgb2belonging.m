@@ -34,6 +34,8 @@ elseif strcmpi(ColourSpace, 'lab')
 end
 ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 
+ColourEllipsoids = AdaptEllipsoids(ImageOpponent, ColourEllipsoids);
+
 BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
 
 if plotme
@@ -79,6 +81,49 @@ for k = 1:nfigures
   ylabel(axes{2});
   zlabel(axes{3});
   view(AxesViews(k, :));
+end
+
+end
+
+function ColourEllipsoids = AdaptEllipsoids(ImageOpponent, ColourEllipsoids)
+
+% indices of colour ooponency
+lumindc = 1;
+luminda = 4;
+rgindc = 2;
+rginda = 5;
+ybindc = 3;
+ybinda = 6;
+
+% middle point of colour opponency
+lumavg = 128;
+rgavg = 128;
+ybavg = 128;
+
+LabAvg = mean(mean(ImageOpponent));
+LabStd = std(std(ImageOpponent));
+
+% if there is more than 0.025 per cent deviation in rg-channel
+rgstddiff = abs(LabStd(rgindc) - 0.025 * rgavg);
+if rgstddiff > 1
+  ColourEllipsoids(1, luminda) = ColourEllipsoids(1, luminda) / rgstddiff;
+end
+
+% too much green shift the white
+if LabAvg(rgindc) < rgavg
+  rgdiff = rgavg - LabAvg(rgindc);
+  %   ColourEllipsoids(1, rginda) = ColourEllipsoids(1, rginda) - abs(rgdiff / 2);
+  %   ColourEllipsoids(1, rgindc) = ColourEllipsoids(1, rgindc) - rgdiff;
+  ColourEllipsoids(9:11, rgindc) = ColourEllipsoids(9:11, rgindc) - (rgdiff / 2);
+  ColourEllipsoids(9:11, rginda) = ColourEllipsoids(9:11, rginda) + abs(rgdiff / 2);
+end
+
+% too much yellow shift the blue
+if LabAvg(ybindc) > ybavg && LabAvg(1) > lumavg
+  ybdiff = ybavg - LabAvg(ybindc);
+  ColourEllipsoids(2, ybindc) = ColourEllipsoids(2, ybindc) + ybdiff;
+  ColourEllipsoids(9:11, ybindc) = ColourEllipsoids(9:11, ybindc) + (ybdiff / 2);
+  ColourEllipsoids(9:11, ybinda) = ColourEllipsoids(9:11, ybinda) + abs(ybdiff / 2);
 end
 
 end
