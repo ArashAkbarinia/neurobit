@@ -34,11 +34,6 @@ elseif strcmpi(ColourSpace, 'lab')
 end
 ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 
-% FIXME: put it in the mat file
-ColourEllipsoids(9:11, 5:6) = 8;
-ColourEllipsoids(5, 2) = 176;
-ColourEllipsoids(5, 7) = pi - 0.1;
-
 if size(ImageOpponent, 1) * size(ImageOpponent, 2) > 500
   ColourEllipsoids = AdaptEllipsoids(ImageOpponent, ColourEllipsoids);
 end
@@ -98,6 +93,14 @@ end
 
 function ColourEllipsoids = AdaptEllipsoids(ImageOpponent, ColourEllipsoids)
 
+ColourEllipsoids = AdaptEllipsoidsMaxs(ImageOpponent, ColourEllipsoids);
+ColourEllipsoids = AdaptEllipsoidsStds(ImageOpponent, ColourEllipsoids);
+ColourEllipsoids = AdaptEllipsoidsAvgs(ImageOpponent, ColourEllipsoids);
+
+end
+
+function ColourEllipsoids = AdaptEllipsoidsMaxs(ImageOpponent, ColourEllipsoids)
+
 % indices of colour ooponency
 lumindc = 1;
 luminda = 4;
@@ -123,23 +126,50 @@ LabStd = std(std(ImageOpponent));
 if LabMax(rgindc) < rgmax
   rgmaxper = LabMax(rgindc) / rgmax;
   fprintf('RG Max %f\n', rgmaxper);
-  rgdiff = ColourEllipsoids(9:11, rginda) .* rgmaxper;
+  ColourInds = 9:11;
+  rgdiff = ColourEllipsoids(ColourInds, rginda) .* rgmaxper;
   
   % make the achromatic bigger
-  ColourEllipsoids(9:11, rgindc) = ColourEllipsoids(9:11, rgindc) + (rgdiff / 2);
-  ColourEllipsoids(9:11, rginda) = ColourEllipsoids(9:11, rginda) + abs(rgdiff / 2);
+  ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + (rgdiff / 2);
+  ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + abs(rgdiff / 2);
 end
 
 % if maximum value of yb-channel is too high
 if LabMax(ybindc) > ybmax
   ybmaxper = 1 - (ybmax / LabMax(ybindc));
   fprintf('YB Max %f\n', ybmaxper);
-  ybdiff = ColourEllipsoids(1:8, ybindc) .* ybmaxper;
+  ColourInds = 1:8;
+  ybdiff = ColourEllipsoids(ColourInds, ybindc) .* ybmaxper;
   
   % make chromatic ellipsoids smaller
-  ColourEllipsoids(1:8, ybindc) = ColourEllipsoids(1:8, ybindc) + (ybdiff / 2) .* sign(ColourEllipsoids(1:8, ybindc));
-  ColourEllipsoids(1:8, ybinda) = ColourEllipsoids(1:8, ybinda) - abs(ybdiff);
+  ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (ybdiff / 2) .* sign(ColourEllipsoids(ColourInds, ybindc));
+  ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) - abs(ybdiff / 2);
 end
+
+end
+
+function ColourEllipsoids = AdaptEllipsoidsStds(ImageOpponent, ColourEllipsoids)
+
+% indices of colour ooponency
+lumindc = 1;
+luminda = 4;
+rgindc = 2;
+rginda = 5;
+ybindc = 3;
+ybinda = 6;
+
+% middle point of colour opponency
+lumavg = 128;
+rgavg = 128;
+ybavg = 128;
+
+% maximums and minimums
+rgmax = 190;
+ybmax = 190;
+
+LabMax = max(max(ImageOpponent));
+LabAvg = mean(mean(ImageOpponent));
+LabStd = std(std(ImageOpponent));
 
 % if there is more than 0.10 per cent deviation in luminance
 lumstddiff = abs(LabStd(lumindc) - 0.1 * lumavg);
@@ -148,19 +178,19 @@ if lumstddiff > 1
   fprintf('Lum STD %f\n', lumstdper);
   % make achromatics larger
   if LabAvg(lumindc) > (lumavg + 0.25 * lumavg)
-    colinds = [9, 11];
-    AxesChange = ColourEllipsoids(colinds, [rginda, ybinda]) .* lumstdper;
+    ColourInds = [9, 11];
+    AxesChange = ColourEllipsoids(ColourInds, [rginda, ybinda]) .* lumstdper;
     AxesChange(1, :) = AxesChange(1, :) / 2;
-    ColourEllipsoids(colinds, [rginda, ybinda]) = ColourEllipsoids(colinds, [rginda, ybinda]) + AxesChange / 2;
+    ColourEllipsoids(ColourInds, [rginda, ybinda]) = ColourEllipsoids(ColourInds, [rginda, ybinda]) + AxesChange / 2;
   elseif LabAvg(lumindc) < (lumavg - 0.25 * lumavg)
-    colinds = [9, 10];
-    AxesChange = ColourEllipsoids(colinds, [rginda, ybinda]) .* lumstdper;
+    ColourInds = [9, 10];
+    AxesChange = ColourEllipsoids(ColourInds, [rginda, ybinda]) .* lumstdper;
     AxesChange(1, :) = AxesChange(1, :) / 2;
-    ColourEllipsoids(colinds, [rginda, ybinda]) = ColourEllipsoids(colinds, [rginda, ybinda]) + AxesChange / 2;
+    ColourEllipsoids(ColourInds, [rginda, ybinda]) = ColourEllipsoids(ColourInds, [rginda, ybinda]) + AxesChange / 2;
   else
-    colinds = [10, 11];
-    AxesChange = ColourEllipsoids(colinds, [rginda, ybinda]) .* lumstdper;
-    ColourEllipsoids(colinds, [rginda, ybinda]) = ColourEllipsoids(colinds, [rginda, ybinda]) + AxesChange / 2;
+    ColourInds = [10, 11];
+    AxesChange = ColourEllipsoids(ColourInds, [rginda, ybinda]) .* lumstdper;
+    ColourEllipsoids(ColourInds, [rginda, ybinda]) = ColourEllipsoids(ColourInds, [rginda, ybinda]) + AxesChange / 2;
   end
 end
 
@@ -171,10 +201,11 @@ if rgstddiff > 1
   GreenSmaller = max((1 / rgstddiff), 0.65);
   ColourEllipsoids(1, ybinda) = ColourEllipsoids(1, ybinda) * GreenSmaller;
   
-%   ColourEllipsoids(4, luminda) = ColourEllipsoids(4, luminda) / rgstddiff;
+  %   ColourEllipsoids(4, luminda) = ColourEllipsoids(4, luminda) / rgstddiff;
+  ColourInds = 9:11;
   rgstdper = rgstddiff / (0.025 * rgavg);
-  AxesChange = ColourEllipsoids(9:11, rginda) .* rgstdper;
-  ColourEllipsoids(9:11, rginda) = ColourEllipsoids(9:11, rginda) + AxesChange / 2;
+  AxesChange = ColourEllipsoids(ColourInds, rginda) .* rgstdper;
+  ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + AxesChange / 2;
 end
 
 % if there is more than 0.025 per cent deviation in yb-channel
@@ -182,10 +213,36 @@ ybstddiff = abs(LabStd(ybindc) - 0.025 * ybavg);
 if ybstddiff > 1
   fprintf('YB STD %f\n', ybstddiff);
   %   ColourEllipsoids(2, luminda) = ColourEllipsoids(2, luminda) / ybstddiff;
+  ColourInds = 9:11;
   ybstdper = ybstddiff / (0.025 * ybavg);
-  AxesChange = ColourEllipsoids(9:11, ybinda) .* ybstdper;
-  ColourEllipsoids(9:11, ybinda) = ColourEllipsoids(9:11, ybinda) + AxesChange / 2;
+  AxesChange = ColourEllipsoids(ColourInds, ybinda) .* ybstdper;
+  ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + AxesChange / 2;
 end
+
+end
+
+function ColourEllipsoids = AdaptEllipsoidsAvgs(ImageOpponent, ColourEllipsoids)
+
+% indices of colour ooponency
+lumindc = 1;
+luminda = 4;
+rgindc = 2;
+rginda = 5;
+ybindc = 3;
+ybinda = 6;
+
+% middle point of colour opponency
+lumavg = 128;
+rgavg = 128;
+ybavg = 128;
+
+% maximums and minimums
+rgmax = 190;
+ybmax = 190;
+
+LabMax = max(max(ImageOpponent));
+LabAvg = mean(mean(ImageOpponent));
+LabStd = std(std(ImageOpponent));
 
 % too dark
 if LabAvg(lumindc) < lumavg
@@ -193,18 +250,20 @@ if LabAvg(lumindc) < lumavg
   fprintf('Lum AVG %f\n', PinkSmaller);
   
   lumdiff = abs(lumavg - LabAvg(lumindc));
-  ColourEllipsoids(1, lumindc) = ColourEllipsoids(1, lumindc) - lumdiff;
-  ColourEllipsoids(1, luminda) = ColourEllipsoids(1, luminda) - lumdiff / 2;
-  YellowBigger = ColourEllipsoids(7, rginda) * (LabAvg(lumindc) / lumavg);
-  ColourEllipsoids(7, rgindc) = ColourEllipsoids(7, rgindc) - YellowBigger / 4;
-  ColourEllipsoids(7, rginda) = ColourEllipsoids(7, rginda) + YellowBigger / 2;
+  ColourInds = 1;
+  ColourEllipsoids(ColourInds, lumindc) = ColourEllipsoids(ColourInds, lumindc) - lumdiff;
+  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) - lumdiff / 2;
+  ColourInds = 7;
+  YellowBigger = ColourEllipsoids(ColourInds, rginda) * (LabAvg(lumindc) / lumavg);
+  ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) - YellowBigger / 4;
+  ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + YellowBigger / 2;
   
   ColourEllipsoids(4, luminda) = ColourEllipsoids(4, luminda) * PinkSmaller;
   
-%   ColourInds = 10;
-%   WhiteBigger = ColourEllipsoids(ColourInds, rginda) * (1 - PinkSmaller);
-%   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + WhiteBigger / 2;
-%   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + WhiteBigger;
+  %   ColourInds = 10;
+  %   WhiteBigger = ColourEllipsoids(ColourInds, rginda) * (1 - PinkSmaller);
+  %   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + WhiteBigger / 2;
+  %   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + WhiteBigger;
 end
 
 % too much green
@@ -215,11 +274,12 @@ if LabAvg(rgindc) < rgavg
   %   ColourEllipsoids(1, rgindc) = ColourEllipsoids(1, rgindc) - rgdiff;
   
   % shift the pink
-%   ColourEllipsoids(4, rgindc) = ColourEllipsoids(4, rgindc) + rgdiff;
+  %   ColourEllipsoids(4, rgindc) = ColourEllipsoids(4, rgindc) + rgdiff;
   
   % make the achromatic bigger
-  ColourEllipsoids(9:11, rgindc) = ColourEllipsoids(9:11, rgindc) - (rgdiff / 2);
-  ColourEllipsoids(9:11, rginda) = ColourEllipsoids(9:11, rginda) + abs(rgdiff / 2);
+  ColourInds = 9:11;
+  ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) - (rgdiff / 2);
+  ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + abs(rgdiff / 2);
 end
 
 % too much yellow and bright
@@ -229,12 +289,14 @@ if LabAvg(ybindc) > ybavg
   
   if LabAvg(lumindc) > (lumavg + 0.25 * lumavg)
     % shift the blue
-    ColourEllipsoids(2, ybindc) = ColourEllipsoids(2, ybindc) + ybdiff;
+    ColourInds = 2;
+    ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + ybdiff;
   end
   
   % make the achromatic bigger
-  ColourEllipsoids(9:11, ybindc) = ColourEllipsoids(9:11, ybindc) + (ybdiff / 2);
-  ColourEllipsoids(9:11, ybinda) = ColourEllipsoids(9:11, ybinda) + abs(ybdiff / 2);
+  ColourInds = 9:11;
+  ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (ybdiff / 2);
+  ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + abs(ybdiff / 2);
 end
 
 end
