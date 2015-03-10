@@ -62,7 +62,7 @@ end
 function [] = PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth)
 
 if isempty(GroundTruth)
-%   return;
+  return;
 end
 
 [rows, cols, chns] = size(ImageOpponent);
