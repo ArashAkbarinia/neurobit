@@ -34,6 +34,11 @@ elseif strcmpi(ColourSpace, 'lab')
 end
 ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 
+% FIXME: put it in the mat file
+ColourEllipsoids(9:11, 5:6) = 8;
+ColourEllipsoids(5, 2) = 176;
+ColourEllipsoids(5, 7) = pi - 0.1;
+
 if size(ImageOpponent, 1) * size(ImageOpponent, 2) > 500
   ColourEllipsoids = AdaptEllipsoids(ImageOpponent, ColourEllipsoids);
 end
@@ -57,7 +62,7 @@ end
 function [] = PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth)
 
 if isempty(GroundTruth)
-  return;
+%   return;
 end
 
 [rows, cols, chns] = size(ImageOpponent);
@@ -145,10 +150,12 @@ if lumstddiff > 1
   if LabAvg(lumindc) > (lumavg + 0.25 * lumavg)
     colinds = [9, 11];
     AxesChange = ColourEllipsoids(colinds, [rginda, ybinda]) .* lumstdper;
+    AxesChange(1, :) = AxesChange(1, :) / 2;
     ColourEllipsoids(colinds, [rginda, ybinda]) = ColourEllipsoids(colinds, [rginda, ybinda]) + AxesChange / 2;
   elseif LabAvg(lumindc) < (lumavg - 0.25 * lumavg)
     colinds = [9, 10];
     AxesChange = ColourEllipsoids(colinds, [rginda, ybinda]) .* lumstdper;
+    AxesChange(1, :) = AxesChange(1, :) / 2;
     ColourEllipsoids(colinds, [rginda, ybinda]) = ColourEllipsoids(colinds, [rginda, ybinda]) + AxesChange / 2;
   else
     colinds = [10, 11];
@@ -182,7 +189,7 @@ end
 
 % too dark
 if LabAvg(lumindc) < lumavg
-  PinkSmaller = 1 - (LabAvg(lumindc) / lumavg);
+  PinkSmaller = LabAvg(lumindc) / lumavg;
   fprintf('Lum AVG %f\n', PinkSmaller);
   
   lumdiff = abs(lumavg - LabAvg(lumindc));
@@ -192,12 +199,12 @@ if LabAvg(lumindc) < lumavg
   ColourEllipsoids(7, rgindc) = ColourEllipsoids(7, rgindc) - YellowBigger / 4;
   ColourEllipsoids(7, rginda) = ColourEllipsoids(7, rginda) + YellowBigger / 2;
   
-  WhiteBigger = (ColourEllipsoids(4, luminda) - ColourEllipsoids(4, luminda) * PinkSmaller) / 2;
   ColourEllipsoids(4, luminda) = ColourEllipsoids(4, luminda) * PinkSmaller;
   
-  ColourInds = 10;
-  ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + WhiteBigger;
-  ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + WhiteBigger;
+%   ColourInds = 10;
+%   WhiteBigger = ColourEllipsoids(ColourInds, rginda) * (1 - PinkSmaller);
+%   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + WhiteBigger / 2;
+%   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + WhiteBigger;
 end
 
 % too much green
