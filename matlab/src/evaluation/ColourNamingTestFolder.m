@@ -53,6 +53,7 @@ end
 for i = 1:nimages
   ImagePath = [DirPath, ImageFiles(i).name];
   ImageRGB = imread(ImagePath);
+  disp(ImagePath);
   switch MethodNumber
     case 1
       [NamingImage, BelongingImage] = ApplyOurMethod(ImageRGB, ConfigsMat);
