@@ -112,15 +112,25 @@ configs.ybmin = 70;
 configs.rgmax = 190;
 configs.ybmax = 190;
 
+configs.rgstdtol = 0.025 * configs.rgavg;
+configs.ybstdtol = 0.025 * configs.ybavg;
+
 configs.LabMin = max(max(ImageOpponent));
 configs.LabMax = max(max(ImageOpponent));
 configs.LabAvg = mean(mean(ImageOpponent));
 configs.LabStd = std(std(ImageOpponent));
 
-ColourEllipsoids = AdaptEllipsoidsMaxs(ColourEllipsoids, configs);
-ColourEllipsoids = AdaptEllipsoidsMins(ColourEllipsoids, configs);
-ColourEllipsoids = AdaptEllipsoidsStds(ColourEllipsoids, configs);
-ColourEllipsoids = AdaptEllipsoidsAvgs(ColourEllipsoids, configs);
+diff = configs.LabAvg - 128;
+
+% FIXME: we should apply each adaptation based on the need
+if diff(1) < 11 && diff(2) < 2 && diff(3) < 2 && configs.LabMax(2) < configs.rgmax && configs.LabMax(3) < configs.ybmax && configs.LabMin(2) > configs.rgmin && configs.LabMin(3) > configs.ybmin 
+  fprintf('Adaptation not necessary\n');
+else
+  ColourEllipsoids = AdaptEllipsoidsMaxs(ColourEllipsoids, configs);
+  ColourEllipsoids = AdaptEllipsoidsMins(ColourEllipsoids, configs);
+  ColourEllipsoids = AdaptEllipsoidsStds(ColourEllipsoids, configs);
+  ColourEllipsoids = AdaptEllipsoidsAvgs(ColourEllipsoids, configs);
+end
 
 end
 
@@ -215,11 +225,12 @@ ybinda = configs.ybinda;
 
 % middle point of colour opponency
 lumavg = configs.lumavg;
-rgavg = configs.rgavg;
-ybavg = configs.ybavg;
 
 LabAvg = configs.LabAvg;
 LabStd = configs.LabStd;
+
+rgstdtol = configs.rgstdtol;
+ybstdtol = configs.ybstdtol;
 
 % if there is more than 0.10 per cent deviation in luminance
 lumstddiff = abs(LabStd(lumindc) - 0.1 * lumavg);
@@ -254,7 +265,7 @@ if lumstddiff > 1
 end
 
 % if there is more than 0.025 per cent deviation in rg-channel
-rgstddiff = abs(LabStd(rgindc) - 0.025 * rgavg);
+rgstddiff = abs(LabStd(rgindc) - rgstdtol);
 if rgstddiff > 1
   GreenSmallerPercent = max((1 / rgstddiff), 0.65);
   ColourInds = 1;
@@ -263,7 +274,7 @@ if rgstddiff > 1
   
   %   ColourEllipsoids(4, luminda) = ColourEllipsoids(4, luminda) / rgstddiff;
   ColourInds = 9:11;
-  rgstdper = rgstddiff / (0.025 * rgavg);
+  rgstdper = rgstddiff / rgstdtol;
   diff = ColourEllipsoids(ColourInds, rginda) .* rgstdper;
   diff = diff / 2;
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + diff;
@@ -271,11 +282,11 @@ if rgstddiff > 1
 end
 
 % if there is more than 0.025 per cent deviation in yb-channel
-ybstddiff = abs(LabStd(ybindc) - 0.025 * ybavg);
+ybstddiff = abs(LabStd(ybindc) - ybstdtol);
 if ybstddiff > 1
   %   ColourEllipsoids(2, luminda) = ColourEllipsoids(2, luminda) / ybstddiff;
   ColourInds = 9:11;
-  ybstdper = ybstddiff / (0.025 * ybavg);
+  ybstdper = ybstddiff / ybstdtol;
   diff = ColourEllipsoids(ColourInds, ybinda) .* ybstdper;
   diff = diff/ 2;
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + diff;
