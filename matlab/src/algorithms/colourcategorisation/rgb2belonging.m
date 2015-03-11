@@ -147,7 +147,7 @@ if LabMax(rgindc) < rgmax
   % make the achromatic bigger
   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + (diff / 2);
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
-  fprintf('Max-RG - Colour %d %d %d, channel %d, being streched on POS %f %f %f\n', ColourInds, rgindc, diff);
+  fprintf('Max-RG - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, rgindc, rgmaxper);
 end
 
 % if maximum value of yb-channel is too high
@@ -159,7 +159,7 @@ if LabMax(ybindc) > ybmax
   % make chromatic ellipsoids smaller
   %   ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (diff / 2) .* sign(ColourEllipsoids(ColourInds, ybindc));
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) - (diff / 2);
-  fprintf('Max-YB - Colour chromatic, channel %d, being shrinked %f %f %f %f %f %f %f %f\n', ybindc, diff);
+  fprintf('Max-YB - Colour chromatic, channel %d, being shrinked %f per-cent\n', ybindc, ybmaxper);
 end
 
 end
@@ -187,7 +187,7 @@ if LabMin(rgindc) > rgmin
   % make the achromatic bigger
   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + (diff / 2);
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
-  fprintf('Min-RG - Colour %d %d %d, channel %d, being streched on POS %f %f %f\n', ColourInds, rgindc, diff);
+  fprintf('Min-RG - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, rgindc, rgminper);
 end
 
 % if minimum value of yb-channel is too high
@@ -199,7 +199,7 @@ if LabMin(ybindc) > ybmin
   % make the achromatic bigger
   ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (diff / 2);
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + (diff / 2);
-  fprintf('Min-YB - Colour %d %d %d, channel %d, being streched on POS %f %f %f\n', ColourInds, ybindc, diff);
+  fprintf('Min-YB - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, ybindc, ybminper);
 end
 
 end
@@ -225,16 +225,21 @@ LabStd = configs.LabStd;
 lumstddiff = abs(LabStd(lumindc) - 0.1 * lumavg);
 if lumstddiff > 1
   lumstdper = lumstddiff / (0.025 * lumavg);
+  % only allowing 100 per-cent 
+  lumstdper = min(1, lumstdper);
+  
   % make achromatics larger
   if LabAvg(lumindc) > (lumavg + 0.25 * lumavg)
     ColourInds = [9, 11];
     diff = ColourEllipsoids(ColourInds, [rginda, ybinda]) .* lumstdper;
+    % grey is enlargened half of black and white
     diff(1, :) = diff(1, :) / 2;
     diff = diff/ 2;
     ColourEllipsoids(ColourInds, [rginda, ybinda]) = ColourEllipsoids(ColourInds, [rginda, ybinda]) + diff;
   elseif LabAvg(lumindc) < (lumavg - 0.25 * lumavg)
     ColourInds = [9, 10];
     diff = ColourEllipsoids(ColourInds, [rginda, ybinda]) .* lumstdper;
+    % grey is enlargened half of black and white
     diff(1, :) = diff(1, :) / 2;
     diff = diff/ 2;
     ColourEllipsoids(ColourInds, [rginda, ybinda]) = ColourEllipsoids(ColourInds, [rginda, ybinda]) + diff;
@@ -244,8 +249,8 @@ if lumstddiff > 1
     diff = diff/ 2;
     ColourEllipsoids(ColourInds, [rginda, ybinda]) = ColourEllipsoids(ColourInds, [rginda, ybinda]) + diff;
   end
-  fprintf('STD-Lum - Colour %d %d, channel %d, being streched %f %f\n', ColourInds, rgindc, diff(:, 1));
-  fprintf('STD-Lum - Colour %d %d, channel %d, being streched %f %f\n', ColourInds, ybindc, diff(:, 2));
+  fprintf('STD-Lum - Colour %d %d, channel %d, being streched %f per-cent\n', ColourInds, rgindc, lumstdper);
+  fprintf('STD-Lum - Colour %d %d, channel %d, being streched %f per-cent\n', ColourInds, ybindc, lumstdper);
 end
 
 % if there is more than 0.025 per cent deviation in rg-channel
@@ -262,7 +267,7 @@ if rgstddiff > 1
   diff = ColourEllipsoids(ColourInds, rginda) .* rgstdper;
   diff = diff / 2;
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + diff;
-  fprintf('STD-RG - Colour %d %d %d, channel %d, being streched %f %f %f\n', ColourInds, rgindc, diff);
+  fprintf('STD-RG - Colour %d %d %d, channel %d, being streched %f per-cent\n', ColourInds, rgindc, rgstdper);
 end
 
 % if there is more than 0.025 per cent deviation in yb-channel
@@ -274,7 +279,7 @@ if ybstddiff > 1
   diff = ColourEllipsoids(ColourInds, ybinda) .* ybstdper;
   diff = diff/ 2;
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + diff;
-  fprintf('STD-YB - Colour %d %d %d, channel %d, being streched %f %f %f\n', ColourInds, ybindc, diff);
+  fprintf('STD-YB - Colour %d %d %d, channel %d, being streched %f per-cent\n', ColourInds, ybindc, ybstdper);
 end
 
 end
@@ -306,10 +311,11 @@ if LabAvg(lumindc) < lumavg
   fprintf('AVG-Lum - Colour %d, channel %d, being shrinked on POS %f\n', ColourInds, lumindc, diff);
   
   ColourInds = 7;
-  diff = ColourEllipsoids(ColourInds, rginda) * (LabAvg(lumindc) / lumavg);
+  YellowBiggerPercent = LabAvg(lumindc) / lumavg;
+  diff = ColourEllipsoids(ColourInds, rginda) * YellowBiggerPercent;
   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) - (diff / 2);
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
-  fprintf('AVG-Lum - Colour %d, channel %d, being streched on NEG %f\n', ColourInds, rgindc, diff);
+  fprintf('AVG-Lum - Colour %d, channel %d, being streched on NEG %f per-cent\n', ColourInds, rgindc, YellowBiggerPercent);
   
   ColourInds = 4;
   PinkSmallerPercent = LabAvg(lumindc) / lumavg;
