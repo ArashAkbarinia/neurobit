@@ -93,34 +93,50 @@ end
 
 function ColourEllipsoids = AdaptEllipsoids(ImageOpponent, ColourEllipsoids)
 
-ColourEllipsoids = AdaptEllipsoidsMaxs(ImageOpponent, ColourEllipsoids);
-ColourEllipsoids = AdaptEllipsoidsStds(ImageOpponent, ColourEllipsoids);
-ColourEllipsoids = AdaptEllipsoidsAvgs(ImageOpponent, ColourEllipsoids);
+% indices of colour ooponency
+configs.lumindc = 1;
+configs.luminda = 4;
+configs.rgindc = 2;
+configs.rginda = 5;
+configs.ybindc = 3;
+configs.ybinda = 6;
+
+% middle point of colour opponency
+configs.lumavg = 128;
+configs.rgavg = 128;
+configs.ybavg = 128;
+
+% maximums and minimums
+configs.rgmin = 70;
+configs.ybmin = 70;
+configs.rgmax = 190;
+configs.ybmax = 190;
+
+configs.LabMin = max(max(ImageOpponent));
+configs.LabMax = max(max(ImageOpponent));
+configs.LabAvg = mean(mean(ImageOpponent));
+configs.LabStd = std(std(ImageOpponent));
+
+ColourEllipsoids = AdaptEllipsoidsMaxs(ColourEllipsoids, configs);
+ColourEllipsoids = AdaptEllipsoidsMins(ColourEllipsoids, configs);
+ColourEllipsoids = AdaptEllipsoidsStds(ColourEllipsoids, configs);
+ColourEllipsoids = AdaptEllipsoidsAvgs(ColourEllipsoids, configs);
 
 end
 
-function ColourEllipsoids = AdaptEllipsoidsMaxs(ImageOpponent, ColourEllipsoids)
+function ColourEllipsoids = AdaptEllipsoidsMaxs(ColourEllipsoids, configs)
 
 % indices of colour ooponency
-lumindc = 1;
-luminda = 4;
-rgindc = 2;
-rginda = 5;
-ybindc = 3;
-ybinda = 6;
-
-% middle point of colour opponency
-lumavg = 128;
-rgavg = 128;
-ybavg = 128;
+rgindc = configs.rgindc;
+rginda = configs.rginda;
+ybindc = configs.ybindc;
+ybinda = configs.ybinda;
 
 % maximums and minimums
-rgmax = 190;
-ybmax = 190;
+rgmax = configs.rgmax;
+ybmax = configs.ybmax;
 
-LabMax = max(max(ImageOpponent));
-LabAvg = mean(mean(ImageOpponent));
-LabStd = std(std(ImageOpponent));
+LabMax = configs.LabMax;
 
 % if maximum value of rg-channel is too low
 if LabMax(rgindc) < rgmax
@@ -148,28 +164,62 @@ end
 
 end
 
-function ColourEllipsoids = AdaptEllipsoidsStds(ImageOpponent, ColourEllipsoids)
+function ColourEllipsoids = AdaptEllipsoidsMins(ColourEllipsoids, configs)
 
 % indices of colour ooponency
-lumindc = 1;
-luminda = 4;
-rgindc = 2;
-rginda = 5;
-ybindc = 3;
-ybinda = 6;
-
-% middle point of colour opponency
-lumavg = 128;
-rgavg = 128;
-ybavg = 128;
+rgindc = configs.rgindc;
+rginda = configs.rginda;
+ybindc = configs.ybindc;
+ybinda = configs.ybinda;
 
 % maximums and minimums
-rgmax = 190;
-ybmax = 190;
+rgmin = configs.rgmin;
+ybmin = configs.ybmin;
 
-LabMax = max(max(ImageOpponent));
-LabAvg = mean(mean(ImageOpponent));
-LabStd = std(std(ImageOpponent));
+LabMin = configs.LabMin;
+
+% if minimum value of rg-channel is too high
+if LabMin(rgindc) > rgmin
+  rgminper = rgmin / LabMin(rgindc);
+  fprintf('RG Min %f\n', rgminper);
+  ColourInds = 9:11;
+  rgdiff = ColourEllipsoids(ColourInds, rginda) .* rgminper;
+  
+  % make the achromatic bigger
+  ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + (rgdiff / 2);
+  ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + abs(rgdiff / 2);
+end
+
+% if minimum value of yb-channel is too high
+if LabMin(ybindc) > ybmin
+  ybminper = ybmin / LabMin(ybindc);
+  fprintf('YB Min %f\n', ybminper);
+  ColourInds = 9:11;
+  ybdiff = ColourEllipsoids(ColourInds, ybinda) .* ybminper;
+  
+  % make the achromatic bigger
+  ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (ybdiff / 2);
+  ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + abs(ybdiff / 2);
+end
+
+end
+
+function ColourEllipsoids = AdaptEllipsoidsStds(ColourEllipsoids, configs)
+
+% indices of colour ooponency
+lumindc = configs.lumindc;
+rgindc = configs.rgindc;
+rginda = configs.rginda;
+ybindc = configs.ybindc;
+ybinda = configs.ybinda;
+
+% middle point of colour opponency
+lumavg = configs.lumavg;
+rgavg = configs.rgavg;
+ybavg = configs.ybavg;
+
+LabAvg = configs.LabAvg;
+LabStd = configs.LabStd;
 
 % if there is more than 0.10 per cent deviation in luminance
 lumstddiff = abs(LabStd(lumindc) - 0.1 * lumavg);
@@ -221,28 +271,22 @@ end
 
 end
 
-function ColourEllipsoids = AdaptEllipsoidsAvgs(ImageOpponent, ColourEllipsoids)
+function ColourEllipsoids = AdaptEllipsoidsAvgs(ColourEllipsoids, configs)
 
 % indices of colour ooponency
-lumindc = 1;
-luminda = 4;
-rgindc = 2;
-rginda = 5;
-ybindc = 3;
-ybinda = 6;
+lumindc = configs.lumindc;
+luminda = configs.luminda;
+rgindc = configs.rgindc;
+rginda = configs.rginda;
+ybindc = configs.ybindc;
+ybinda = configs.ybinda;
 
 % middle point of colour opponency
-lumavg = 128;
-rgavg = 128;
-ybavg = 128;
+lumavg = configs.lumavg;
+rgavg = configs.rgavg;
+ybavg = configs.ybavg;
 
-% maximums and minimums
-rgmax = 190;
-ybmax = 190;
-
-LabMax = max(max(ImageOpponent));
-LabAvg = mean(mean(ImageOpponent));
-LabStd = std(std(ImageOpponent));
+LabAvg = configs.LabAvg;
 
 % too dark
 if LabAvg(lumindc) < lumavg
