@@ -36,6 +36,8 @@ ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 
 if size(ImageOpponent, 1) * size(ImageOpponent, 2) > 500
   ColourEllipsoids = AdaptEllipsoids(ImageOpponent, ColourEllipsoids);
+  ColourEllipsoids(10, 4) = min(110, ColourEllipsoids(10, 4));
+  ColourEllipsoids(11, 4) = min(75, ColourEllipsoids(11, 4));
 end
 
 BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
@@ -57,7 +59,7 @@ end
 function [] = PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth)
 
 if isempty(GroundTruth)
-  return;
+%   return;
 end
 
 [rows, cols, chns] = size(ImageOpponent);
@@ -120,10 +122,12 @@ configs.LabMax = max(max(ImageOpponent));
 configs.LabAvg = mean(mean(ImageOpponent));
 configs.LabStd = std(std(ImageOpponent));
 
+configs.BlackWhitePercent = [0.21; 0.12];
+
 diff = configs.LabAvg - 128;
 
 % FIXME: we should apply each adaptation based on the need
-if diff(1) < 11 && diff(2) < 2 && diff(3) < 2 && configs.LabMax(2) < configs.rgmax && configs.LabMax(3) < configs.ybmax && configs.LabMin(2) > configs.rgmin && configs.LabMin(3) > configs.ybmin 
+if diff(1) < 11 && diff(2) < 2 && diff(3) < 2 && configs.LabMax(2) < configs.rgmax && configs.LabMax(3) < configs.ybmax && configs.LabMin(2) > configs.rgmin && configs.LabMin(3) > configs.ybmin
   fprintf('Adaptation not necessary\n');
 else
   ColourEllipsoids = AdaptEllipsoidsMaxs(ColourEllipsoids, configs);
@@ -137,6 +141,8 @@ end
 function ColourEllipsoids = AdaptEllipsoidsMaxs(ColourEllipsoids, configs)
 
 % indices of colour ooponency
+lumindc = configs.lumindc;
+luminda = configs.luminda;
 rgindc = configs.rgindc;
 rginda = configs.rginda;
 ybindc = configs.ybindc;
@@ -153,11 +159,18 @@ if LabMax(rgindc) < rgmax
   rgmaxper = LabMax(rgindc) / rgmax;
   ColourInds = 9:11;
   diff = ColourEllipsoids(ColourInds, rginda) .* rgmaxper;
+  diff(1, :) = diff(1, :) * 0.33;
   
   % make the achromatic bigger
   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + (diff / 2);
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
   fprintf('Max-RG - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, rgindc, rgmaxper);
+  
+  ColourInds = 10:11;
+  
+  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
+  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
+  fprintf('Max-RG - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 % if maximum value of yb-channel is too high
@@ -177,6 +190,8 @@ end
 function ColourEllipsoids = AdaptEllipsoidsMins(ColourEllipsoids, configs)
 
 % indices of colour ooponency
+lumindc = configs.lumindc;
+luminda = configs.luminda;
 rgindc = configs.rgindc;
 rginda = configs.rginda;
 ybindc = configs.ybindc;
@@ -193,11 +208,18 @@ if LabMin(rgindc) > rgmin
   rgminper = rgmin / LabMin(rgindc);
   ColourInds = 9:11;
   diff = ColourEllipsoids(ColourInds, rginda) .* rgminper;
+  diff(1, :) = diff(1, :) * 0.33;
   
   % make the achromatic bigger
   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + (diff / 2);
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
   fprintf('Min-RG - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, rgindc, rgminper);
+  
+  ColourInds = 10:11;
+  
+  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
+  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
+  fprintf('Min-RG - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 % if minimum value of yb-channel is too high
@@ -205,11 +227,18 @@ if LabMin(ybindc) > ybmin
   ybminper = ybmin / LabMin(ybindc);
   ColourInds = 9:11;
   diff = ColourEllipsoids(ColourInds, ybinda) .* ybminper;
+  diff(1, :) = diff(1, :) * 0.33;
   
   % make the achromatic bigger
   ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (diff / 2);
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + (diff / 2);
   fprintf('Min-YB - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, ybindc, ybminper);
+  
+  ColourInds = 10:11;
+  
+  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
+  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
+  fprintf('Min-YB - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 end
@@ -218,6 +247,7 @@ function ColourEllipsoids = AdaptEllipsoidsStds(ColourEllipsoids, configs)
 
 % indices of colour ooponency
 lumindc = configs.lumindc;
+luminda = configs.luminda;
 rgindc = configs.rgindc;
 rginda = configs.rginda;
 ybindc = configs.ybindc;
@@ -236,7 +266,7 @@ ybstdtol = configs.ybstdtol;
 lumstddiff = abs(LabStd(lumindc) - 0.1 * lumavg);
 if lumstddiff > 1
   lumstdper = lumstddiff / (0.025 * lumavg);
-  % only allowing 100 per-cent 
+  % only allowing 100 per-cent
   lumstdper = min(1, lumstdper);
   
   % make achromatics larger
@@ -244,14 +274,14 @@ if lumstddiff > 1
     ColourInds = [9, 11];
     diff = ColourEllipsoids(ColourInds, [rginda, ybinda]) .* lumstdper;
     % grey is enlargened half of black and white
-    diff(1, :) = diff(1, :) / 2;
+    diff(1, :) = diff(1, :) * 0.33;
     diff = diff/ 2;
     ColourEllipsoids(ColourInds, [rginda, ybinda]) = ColourEllipsoids(ColourInds, [rginda, ybinda]) + diff;
   elseif LabAvg(lumindc) < (lumavg - 0.25 * lumavg)
     ColourInds = [9, 10];
     diff = ColourEllipsoids(ColourInds, [rginda, ybinda]) .* lumstdper;
     % grey is enlargened half of black and white
-    diff(1, :) = diff(1, :) / 2;
+    diff(1, :) = diff(1, :) * 0.33;
     diff = diff/ 2;
     ColourEllipsoids(ColourInds, [rginda, ybinda]) = ColourEllipsoids(ColourInds, [rginda, ybinda]) + diff;
   else
@@ -277,8 +307,15 @@ if rgstddiff > 1
   rgstdper = rgstddiff / rgstdtol;
   diff = ColourEllipsoids(ColourInds, rginda) .* rgstdper;
   diff = diff / 2;
+  diff(1, :) = diff(1, :) * 0.33;
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + diff;
   fprintf('STD-RG - Colour %d %d %d, channel %d, being streched %f per-cent\n', ColourInds, rgindc, rgstdper);
+  
+  ColourInds = 10:11;
+  
+  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
+  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
+  fprintf('STD-RG - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 % if there is more than 0.025 per cent deviation in yb-channel
@@ -289,8 +326,15 @@ if ybstddiff > 1
   ybstdper = ybstddiff / ybstdtol;
   diff = ColourEllipsoids(ColourInds, ybinda) .* ybstdper;
   diff = diff/ 2;
+  diff(1, :) = diff(1, :) * 0.33;
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + diff;
   fprintf('STD-YB - Colour %d %d %d, channel %d, being streched %f per-cent\n', ColourInds, ybindc, ybstdper);
+  
+  ColourInds = 10:11;
+  
+  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
+  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
+  fprintf('STD-YB - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 end
@@ -354,6 +398,12 @@ if LabAvg(rgindc) < rgavg
   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) - (diff / 2);
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
   fprintf('AVG-RG - Colour %d %d %d, channel %d, being streched on NEG %f\n', ColourInds, rgindc, diff);
+  
+  ColourInds = 10:11;
+  
+  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
+  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
+  fprintf('STD-RG - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 % too much yellow and bright
@@ -372,11 +422,18 @@ if LabAvg(ybindc) > ybavg
   ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (ybdiff / 2);
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + abs(ybdiff / 2);
   fprintf('AVG-YB - Colour %d %d %d, channel %d, shifts centre on POS %f\n', ColourInds, ybindc, ybdiff);
+  
+  ColourInds = 10:11;
+  
+  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
+  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
+  fprintf('STD-RG - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 for ColourInds = 9:11
-  ColourEllipsoids = CoverAvgStd(ColourEllipsoids, ColourInds, LabAvg, LabStd, rgindc, rginda);
-  ColourEllipsoids = CoverAvgStd(ColourEllipsoids, ColourInds, LabAvg, LabStd, ybindc, ybinda);
+  % FIXME: something better set a maximum per cent
+  %   ColourEllipsoids = CoverAvgStd(ColourEllipsoids, ColourInds, LabAvg, LabStd, rgindc, rginda);
+  %   ColourEllipsoids = CoverAvgStd(ColourEllipsoids, ColourInds, LabAvg, LabStd, ybindc, ybinda);
 end
 
 end
