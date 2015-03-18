@@ -481,3 +481,33 @@ if neglim > LabAvg(indc) - LabStd(indc)
 end
 
 end
+
+function ColourEllipsoids = EnlargePositive(ColourEllipsoids, ColourInds, EnlargeScale, indc, inda)
+
+diff = ColourEllipsoids(ColourInds, inda) * EnlargeScale;
+
+ColourEllipsoids(ColourInds, indc) = ColourEllipsoids(ColourInds, indc) + (diff / 2);
+ColourEllipsoids(ColourInds, inda) = ColourEllipsoids(ColourInds, inda) + (diff / 2);
+
+WhichColours = '';
+for i = 1:length(ColourInds)
+  WhichColours = [WhichColours, '%d ']; %#ok
+end
+fprintf(['Colour ', WhichColours, ', channel %d, being streched on POS %f per-cent\n'], ColourInds, indc, EnlargeScale);
+
+end
+
+function ColourEllipsoids = EnlargeNegative(ColourEllipsoids, ColourInds, EnlargeScale, indc, inda)
+
+diff = ColourEllipsoids(ColourInds, inda) * EnlargeScale;
+
+ColourEllipsoids(ColourInds, indc) = ColourEllipsoids(ColourInds, indc) - (diff / 2);
+ColourEllipsoids(ColourInds, inda) = ColourEllipsoids(ColourInds, inda) + (diff / 2);
+
+WhichColours = '';
+for i = 1:length(ColourInds)
+  WhichColours = [WhichColours, '%d ']; %#ok
+end
+fprintf(['Colour ', WhichColours, ', channel %d, being streched on NEG %f per-cent\n'], ColourInds, indc, EnlargeScale);
+
+end
