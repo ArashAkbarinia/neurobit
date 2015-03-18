@@ -59,8 +59,13 @@ end
 function [] = PlotAllPixels(ImageRGB, ImageOpponent, ColourEllipsoids, EllipsoidsRGBs, axes, GroundTruth)
 
 if isempty(GroundTruth)
-%   return;
+  return;
 end
+
+LabMin = min(min(ImageOpponent));
+LabMax = max(max(ImageOpponent));
+LabAvg = mean(mean(ImageOpponent));
+LabStd = std(std(ImageOpponent));
 
 [rows, cols, chns] = size(ImageOpponent);
 if rows * cols < 500
@@ -85,12 +90,30 @@ for k = 1:nfigures
   grid on;
   scatter3(ImageOpponent(:, 1), ImageOpponent(:, 2), ImageOpponent(:, 3), 36, ImageRGB, '*');
   PlotAllEllipsoids(ColourEllipsoids, EllipsoidsRGBs, h);
+  PlotCube(LabMin, LabMax, 'b');
+  PlotCube(LabAvg - LabStd, LabAvg + LabStd, 'r')
   xlabel(axes{1});
   ylabel(axes{2});
   zlabel(axes{3});
   view(AxesViews(k, :));
 end
 
+end
+
+function [] = PlotCube(pmin, pmax, colour)
+plot3...
+  (...
+  [pmin(1), pmin(1), pmax(1), pmax(1), pmin(1), pmin(1), pmin(1), pmax(1), pmax(1), pmin(1)], ...
+  [pmin(2), pmax(2), pmax(2), pmin(2), pmin(2), pmin(2), pmax(2), pmax(2), pmin(2), pmin(2)], ...
+  [pmin(3), pmin(3), pmin(3), pmin(3), pmin(3), pmax(3), pmax(3), pmax(3), pmax(3), pmax(3)], ...
+  colour ...
+  );
+plot3([pmin(1), pmin(1)], [pmax(2), pmax(2)], [pmin(3), pmax(3)], colour);
+plot3([pmax(1), pmax(1)], [pmin(2), pmin(2)], [pmin(3), pmax(3)], colour);
+plot3([pmax(1), pmax(1)], [pmax(2), pmax(2)], [pmin(3), pmax(3)], colour);
+
+pcentre = (pmax + pmin) / 2;
+plot3(pcentre(1), pcentre(2), pcentre(3), ['o', colour]);
 end
 
 function ColourEllipsoids = AdaptEllipsoids(ImageOpponent, ColourEllipsoids)
