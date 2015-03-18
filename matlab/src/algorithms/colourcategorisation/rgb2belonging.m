@@ -36,8 +36,6 @@ ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 
 if size(ImageOpponent, 1) * size(ImageOpponent, 2) > 500
   ColourEllipsoids = AdaptEllipsoids(ImageOpponent, ColourEllipsoids);
-  ColourEllipsoids(10, 4) = min(110, ColourEllipsoids(10, 4));
-  ColourEllipsoids(11, 4) = min(75, ColourEllipsoids(11, 4));
 end
 
 BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
@@ -153,10 +151,10 @@ diff = configs.LabAvg - 128;
 if diff(1) < 11 && diff(2) < 2 && diff(3) < 2 && configs.LabMax(2) < configs.rgmax && configs.LabMax(3) < configs.ybmax && configs.LabMin(2) > configs.rgmin && configs.LabMin(3) > configs.ybmin
   fprintf('Adaptation not necessary\n');
 else
+  ColourEllipsoids = AdaptEllipsoidsAvgs(ColourEllipsoids, configs);
   ColourEllipsoids = AdaptEllipsoidsMaxs(ColourEllipsoids, configs);
   ColourEllipsoids = AdaptEllipsoidsMins(ColourEllipsoids, configs);
   ColourEllipsoids = AdaptEllipsoidsStds(ColourEllipsoids, configs);
-  ColourEllipsoids = AdaptEllipsoidsAvgs(ColourEllipsoids, configs);
 end
 
 end
@@ -188,12 +186,6 @@ if LabMax(rgindc) < rgmax
   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + (diff / 2);
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
   fprintf('Max-RG - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, rgindc, rgmaxper);
-  
-  ColourInds = 10:11;
-  
-  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
-  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
-  fprintf('Max-RG - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 % if maximum value of yb-channel is too high
@@ -237,12 +229,6 @@ if LabMin(rgindc) > rgmin
   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + (diff / 2);
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
   fprintf('Min-RG - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, rgindc, rgminper);
-  
-  ColourInds = 10:11;
-  
-  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
-  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
-  fprintf('Min-RG - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 % if minimum value of yb-channel is too high
@@ -256,12 +242,6 @@ if LabMin(ybindc) > ybmin
   ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (diff / 2);
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + (diff / 2);
   fprintf('Min-YB - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, ybindc, ybminper);
-  
-  ColourInds = 10:11;
-  
-  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
-  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
-  fprintf('Min-YB - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 end
@@ -333,12 +313,6 @@ if rgstddiff > 1
   diff(1, :) = diff(1, :) * 0.33;
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + diff;
   fprintf('STD-RG - Colour %d %d %d, channel %d, being streched %f per-cent\n', ColourInds, rgindc, rgstdper);
-  
-  ColourInds = 10:11;
-  
-  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
-  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
-  fprintf('STD-RG - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 % if there is more than 0.025 per cent deviation in yb-channel
@@ -352,12 +326,6 @@ if ybstddiff > 1
   diff(1, :) = diff(1, :) * 0.33;
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + diff;
   fprintf('STD-YB - Colour %d %d %d, channel %d, being streched %f per-cent\n', ColourInds, ybindc, ybstdper);
-  
-  ColourInds = 10:11;
-  
-  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
-  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
-  fprintf('STD-YB - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 end
@@ -399,18 +367,11 @@ if LabAvg(lumindc) < lumavg
   PinkSmallerPercent = LabAvg(lumindc) / lumavg;
   ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) * PinkSmallerPercent;
   fprintf('AVG-Lum - Colour %d, channel %d, being shrinked %f per-cent\n', ColourInds, lumindc, PinkSmallerPercent);
-  
-  %   ColourInds = 10;
-  %   WhiteBigger = ColourEllipsoids(ColourInds, rginda) * (1 - PinkSmaller);
-  %   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + WhiteBigger / 2;
-  %   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + WhiteBigger;
 end
 
 % too much green
 if LabAvg(rgindc) < rgavg
   rgdiff = rgavg - LabAvg(rgindc);
-  %   ColourEllipsoids(1, rginda) = ColourEllipsoids(1, rginda) - abs(rgdiff / 2);
-  %   ColourEllipsoids(1, rgindc) = ColourEllipsoids(1, rgindc) - rgdiff;
   
   % shift the pink
   %   ColourEllipsoids(4, rgindc) = ColourEllipsoids(4, rgindc) + rgdiff;
@@ -421,12 +382,6 @@ if LabAvg(rgindc) < rgavg
   ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) - (diff / 2);
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
   fprintf('AVG-RG - Colour %d %d %d, channel %d, being streched on NEG %f\n', ColourInds, rgindc, diff);
-  
-  ColourInds = 10:11;
-  
-  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
-  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
-  fprintf('STD-RG - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 % too much yellow and bright
@@ -445,12 +400,6 @@ if LabAvg(ybindc) > ybavg
   ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (ybdiff / 2);
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + abs(ybdiff / 2);
   fprintf('AVG-YB - Colour %d %d %d, channel %d, shifts centre on POS %f\n', ColourInds, ybindc, ybdiff);
-  
-  ColourInds = 10:11;
-  
-  diff = ColourEllipsoids(ColourInds, luminda) .* configs.BlackWhitePercent;
-  ColourEllipsoids(ColourInds, luminda) = ColourEllipsoids(ColourInds, luminda) + diff;
-  fprintf('STD-RG - Colour %d %d, channel %d, being streched %f %f per-cent\n', ColourInds, lumindc, configs.BlackWhitePercent);
 end
 
 for ColourInds = 9:11
@@ -509,5 +458,35 @@ for i = 1:length(ColourInds)
   WhichColours = [WhichColours, '%d ']; %#ok
 end
 fprintf(['Colour ', WhichColours, ', channel %d, being streched on NEG %f per-cent\n'], ColourInds, indc, EnlargeScale);
+
+end
+
+function ColourEllipsoids = ShrinkPositive(ColourEllipsoids, ColourInds, EnlargeScale, indc, inda)
+
+diff = ColourEllipsoids(ColourInds, inda) * EnlargeScale;
+
+ColourEllipsoids(ColourInds, indc) = ColourEllipsoids(ColourInds, indc) - (diff / 2);
+ColourEllipsoids(ColourInds, inda) = ColourEllipsoids(ColourInds, inda) - (diff / 2);
+
+WhichColours = '';
+for i = 1:length(ColourInds)
+  WhichColours = [WhichColours, '%d ']; %#ok
+end
+fprintf(['Colour ', WhichColours, ', channel %d, being shrinked on POS %f per-cent\n'], ColourInds, indc, EnlargeScale);
+
+end
+
+function ColourEllipsoids = ShrinkNegative(ColourEllipsoids, ColourInds, EnlargeScale, indc, inda)
+
+diff = ColourEllipsoids(ColourInds, inda) * EnlargeScale;
+
+ColourEllipsoids(ColourInds, indc) = ColourEllipsoids(ColourInds, indc) + (diff / 2);
+ColourEllipsoids(ColourInds, inda) = ColourEllipsoids(ColourInds, inda) - (diff / 2);
+
+WhichColours = '';
+for i = 1:length(ColourInds)
+  WhichColours = [WhichColours, '%d ']; %#ok
+end
+fprintf(['Colour ', WhichColours, ', channel %d, being shrinked on NEG %f per-cent\n'], ColourInds, indc, EnlargeScale);
 
 end
