@@ -175,19 +175,17 @@ ybmax = configs.ybmax;
 
 LabMax = configs.LabMax;
 
+fprintf('Max-RG\n');
 % if maximum value of rg-channel is too low
 if LabMax(rgindc) < rgmax
-  rgmaxper = LabMax(rgindc) / rgmax;
-  ColourInds = 9:11;
-  diff = ColourEllipsoids(ColourInds, rginda) .* rgmaxper;
-  diff(1, :) = diff(1, :) * 0.33;
+  rgmaxper = 1 - LabMax(rgindc) / rgmax;
   
   % make the achromatic bigger
-  ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + (diff / 2);
-  ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
-  fprintf('Max-RG - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, rgindc, rgmaxper);
+  ColourInds = 9:11;
+  ColourEllipsoids = EnlargePositive(ColourEllipsoids, ColourInds, rgmaxper, rgindc, rginda);
 end
 
+fprintf('Max-YB\n');
 % if maximum value of yb-channel is too high
 if LabMax(ybindc) > ybmax
   ybmaxper = 1 - (ybmax / LabMax(ybindc));
@@ -197,7 +195,7 @@ if LabMax(ybindc) > ybmax
   % make chromatic ellipsoids smaller
   %   ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (diff / 2) .* sign(ColourEllipsoids(ColourInds, ybindc));
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) - (diff / 2);
-  fprintf('Max-YB - Colour chromatic, channel %d, being shrinked %f per-cent\n', ybindc, ybmaxper);
+  fprintf('Colour chromatic, channel %d, being shrinked %f per-cent\n', ybindc, ybmaxper);
 end
 
 end
@@ -218,30 +216,20 @@ ybmin = configs.ybmin;
 
 LabMin = configs.LabMin;
 
+fprintf('Min-RG\n');
 % if minimum value of rg-channel is too high
 if LabMin(rgindc) > rgmin
   rgminper = rgmin / LabMin(rgindc);
   ColourInds = 9:11;
-  diff = ColourEllipsoids(ColourInds, rginda) .* rgminper;
-  diff(1, :) = diff(1, :) * 0.33;
-  
-  % make the achromatic bigger
-  ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) + (diff / 2);
-  ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
-  fprintf('Min-RG - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, rgindc, rgminper);
+  ColourEllipsoids = EnlargePositive(ColourEllipsoids, ColourInds, rgminper, rgindc, rginda);
 end
 
+fprintf('Min-YB\n');
 % if minimum value of yb-channel is too high
 if LabMin(ybindc) > ybmin
   ybminper = ybmin / LabMin(ybindc);
   ColourInds = 9:11;
-  diff = ColourEllipsoids(ColourInds, ybinda) .* ybminper;
-  diff(1, :) = diff(1, :) * 0.33;
-  
-  % make the achromatic bigger
-  ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (diff / 2);
-  ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + (diff / 2);
-  fprintf('Min-YB - Colour %d %d %d, channel %d, being streched on POS %f per-cent\n', ColourInds, ybindc, ybminper);
+  ColourEllipsoids = EnlargePositive(ColourEllipsoids, ColourInds, ybminper, ybindc, ybinda);
 end
 
 end
@@ -300,32 +288,31 @@ end
 % if there is more than 0.025 per cent deviation in rg-channel
 rgstddiff = abs(LabStd(rgindc) - rgstdtol);
 if rgstddiff > 1
+  fprintf('STD-RG\n');
   GreenSmallerPercent = max((1 / rgstddiff), 0.65);
   ColourInds = 1;
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) * GreenSmallerPercent;
-  fprintf('STD-RG - Colour %d, channel %d, being shrinked to %f per-cent\n', ColourInds, ybindc, GreenSmallerPercent);
+  fprintf('Colour %d, channel %d, being shrinked to %f per-cent\n', ColourInds, ybindc, GreenSmallerPercent);
   
-  %   ColourEllipsoids(4, luminda) = ColourEllipsoids(4, luminda) / rgstddiff;
   ColourInds = 9:11;
   rgstdper = rgstddiff / rgstdtol;
   diff = ColourEllipsoids(ColourInds, rginda) .* rgstdper;
-  diff = diff / 2;
-  diff(1, :) = diff(1, :) * 0.33;
+  diff(1, :) = diff(1, :) * 0.5;
   ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + diff;
-  fprintf('STD-RG - Colour %d %d %d, channel %d, being streched %f per-cent\n', ColourInds, rgindc, rgstdper);
+  fprintf('Colour %d %d %d, channel %d, being streched %f per-cent\n', ColourInds, rgindc, rgstdper);
 end
 
 % if there is more than 0.025 per cent deviation in yb-channel
 ybstddiff = abs(LabStd(ybindc) - ybstdtol);
 if ybstddiff > 1
+  fprintf('STD-YB\n');
   %   ColourEllipsoids(2, luminda) = ColourEllipsoids(2, luminda) / ybstddiff;
   ColourInds = 9:11;
   ybstdper = ybstddiff / ybstdtol;
   diff = ColourEllipsoids(ColourInds, ybinda) .* ybstdper;
-  diff = diff/ 2;
-  diff(1, :) = diff(1, :) * 0.33;
+  diff(1, :) = diff(1, :) * 0.5;
   ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + diff;
-  fprintf('STD-YB - Colour %d %d %d, channel %d, being streched %f per-cent\n', ColourInds, ybindc, ybstdper);
+  fprintf('Colour %d %d %d, channel %d, being streched %f per-cent\n', ColourInds, ybindc, ybstdper);
 end
 
 end
@@ -369,37 +356,43 @@ if LabAvg(lumindc) < lumavg
   fprintf('AVG-Lum - Colour %d, channel %d, being shrinked %f per-cent\n', ColourInds, lumindc, PinkSmallerPercent);
 end
 
+fprintf('AVG-RG\n');
 % too much green
 if LabAvg(rgindc) < rgavg
   rgdiff = rgavg - LabAvg(rgindc);
   
-  % shift the pink
-  %   ColourEllipsoids(4, rgindc) = ColourEllipsoids(4, rgindc) + rgdiff;
+  % make the achromatic bigger
+  ColourInds = 9:11;
+  EnlargeScale = abs(rgdiff) / rgavg;
+  ColourEllipsoids = EnlargeNegative(ColourEllipsoids, ColourInds, EnlargeScale, rgindc, rginda);
+end
+% too much red
+if LabAvg(rgindc) > rgavg
+  rgdiff = rgavg - LabAvg(rgindc);
   
   % make the achromatic bigger
-  diff = abs(rgdiff);
   ColourInds = 9:11;
-  ColourEllipsoids(ColourInds, rgindc) = ColourEllipsoids(ColourInds, rgindc) - (diff / 2);
-  ColourEllipsoids(ColourInds, rginda) = ColourEllipsoids(ColourInds, rginda) + (diff / 2);
-  fprintf('AVG-RG - Colour %d %d %d, channel %d, being streched on NEG %f\n', ColourInds, rgindc, diff);
+  EnlargeScale = abs(rgdiff) / rgavg;
+  ColourEllipsoids = EnlargePositive(ColourEllipsoids, ColourInds, EnlargeScale, rgindc, rginda);
 end
 
-% too much yellow and bright
+fprintf('AVG-YB\n');
+% too much yellow
 if LabAvg(ybindc) > ybavg
   ybdiff = ybavg - LabAvg(ybindc);
   
+  % too bright
   if LabAvg(lumindc) > (lumavg + 0.25 * lumavg)
-    % shift the blue
+    % shrinks the blue
     ColourInds = 2;
-    ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + ybdiff;
-    fprintf('AVG-YB - Colour %d, channel %d, shifts centre on POS %f\n', ColourInds, ybindc, ybdiff);
+    ShrinkScale = 2 * abs(ybdiff) / ybavg;
+    ColourEllipsoids = ShrinkPositive(ColourEllipsoids, ColourInds, ShrinkScale, ybindc, ybinda);
   end
   
   % make the achromatic bigger
   ColourInds = 9:11;
-  ColourEllipsoids(ColourInds, ybindc) = ColourEllipsoids(ColourInds, ybindc) + (ybdiff / 2);
-  ColourEllipsoids(ColourInds, ybinda) = ColourEllipsoids(ColourInds, ybinda) + abs(ybdiff / 2);
-  fprintf('AVG-YB - Colour %d %d %d, channel %d, shifts centre on POS %f\n', ColourInds, ybindc, ybdiff);
+  EnlargeScale = -ybdiff / 8;
+  ColourEllipsoids = EnlargeNegative(ColourEllipsoids, ColourInds, EnlargeScale, ybindc, ybinda);
 end
 
 for ColourInds = 9:11
