@@ -140,7 +140,7 @@ configs.ybmax = 190;
 configs.rgstdtol = 0.025 * configs.rgavg;
 configs.ybstdtol = 0.025 * configs.ybavg;
 
-configs.LabMin = max(max(ImageOpponent));
+configs.LabMin = min(min(ImageOpponent));
 configs.LabMax = max(max(ImageOpponent));
 configs.LabAvg = mean(mean(ImageOpponent));
 configs.LabStd = std(std(ImageOpponent));
