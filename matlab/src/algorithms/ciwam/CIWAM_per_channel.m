@@ -53,42 +53,36 @@ function zctr = relative_contrast(WaveletPlane, orientation, WindowSize)
 %   window sizes: window sizes for computing relative contrast; suggested
 %   orientation: wavelet plane orientation
 
-center_size   = WindowSize(1);
-surround_size = WindowSize(2);
+CentreSize   = WindowSize(1);
+SurroundSize = WindowSize(2);
 
-% horizontal orientation:
-if orientation == 1
-  % define center and surround filters:
-  hc = ones(1, center_size);
-  hs = [ones(1, surround_size), zeros(1, center_size), ones(1, surround_size)];
-  
-  % compute std dev:
-  sigma_cen = imfilter(WaveletPlane .^ 2, hc .^ 2, 'symmetric') / (length(find(hc == 1)));
-  sigma_sur = imfilter(WaveletPlane .^ 2, hs .^ 2, 'symmetric') / (length(find(hs == 1)));
-  
-  % vertical orientation:
-elseif orientation == 2
-  % define center and surround filters:
-  hc = ones(center_size, 1);
-  hs = [ones(surround_size, 1); zeros(center_size, 1); ones(surround_size, 1)];
-  
-  % compute std dev:
-  sigma_cen = imfilter(WaveletPlane .^ 2, hc .^ 2, 'symmetric') / (length(find(hc == 1)));
-  sigma_sur = imfilter(WaveletPlane .^ 2, hs .^ 2, 'symmetric') / (length(find(hs == 1)));
-  
-  % diagonal orientation:
-elseif orientation == 3
-  % define center and surround filters:
-  hc = ceil((diag(ones(1, center_size)) + fliplr(diag(ones(1, center_size)))) / 4);
-  hs = diag([ones(1, surround_size), zeros(1, center_size), ones(1, surround_size)]);
-  hs = hs + fliplr(hs);
-  
-  % compute std dev:
-  sigma_cen = imfilter(WaveletPlane .^ 2, hc .^ 2, 'symmetric') / (length(find(hc == 1)));
-  sigma_sur = imfilter(WaveletPlane .^ 2, hs .^ 2, 'symmetric') / (length(find(hs == 1)));
+% define center and surround filters:
+switch orientation
+  case 1 % horizontal orientation:
+    hc = ones(1, CentreSize);
+    hs = [ones(1, SurroundSize), zeros(1, CentreSize), ones(1, SurroundSize)];
+  case 2 % vertical orientation:
+    hc = ones(CentreSize, 1);
+    hs = [ones(SurroundSize, 1); zeros(CentreSize, 1); ones(SurroundSize, 1)];
+  case 3 % diagonal orientation:
+    hc = ceil((diag(ones(1, CentreSize)) + fliplr(diag(ones(1, CentreSize)))) / 4);
+    hs = diag([ones(1, SurroundSize), zeros(1, CentreSize), ones(1, SurroundSize)]);
+    hs = hs + fliplr(hs);
 end
 
-r    = sigma_cen ./ (sigma_sur + 1.e-6);
+MeanCentre = conv2(WaveletPlane, hc / CentreSize ^ 2, 'same');
+SigmaCentre = sqrt(conv2(WaveletPlane .^ 2, hc / CentreSize ^ 2, 'same') - MeanCentre .^ 2);
+
+MeanSurround = conv2(WaveletPlane, hs / SurroundSize ^ 2, 'same');
+SigmaSurround = sqrt(conv2(WaveletPlane .^ 2, hs / SurroundSize ^ 2, 'same') - MeanSurround .^ 2);
+
+% compute std dev:
+% SigmaCentre = imfilter(WaveletPlane .^ 2, hc .^ 2, 'symmetric') / (length(find(hc == 1)));
+% SigmaSurround = imfilter(WaveletPlane .^ 2, hs .^ 2, 'symmetric') / (length(find(hs == 1)));
+
+% EQUATION: eq-4 Otazu et al. 2007, "Multiresolution wavelet framework
+% models brightness induction effect"
+r    = SigmaCentre ./ (SigmaSurround + 1.e-6);
 zctr = r .^ 2 ./ (1 + r .^ 2);
 
 end
