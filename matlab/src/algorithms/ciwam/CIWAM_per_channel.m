@@ -1,4 +1,4 @@
-function rec = CIWAM_per_channel(channel, wlev, nu_0, mode, window_sizes)
+function rec = CIWAM_per_channel(channel, nWaveletLevels, nu_0, mode, WindowSize)
 % returns chromatic induction for channel
 %
 % outputs:
@@ -13,12 +13,12 @@ function rec = CIWAM_per_channel(channel, wlev, nu_0, mode, window_sizes)
 %   value of [3 6]
 
 channel = double(channel);
-[w, wc] = DWT(channel, wlev);
+[w, wc] = DWT(channel, nWaveletLevels);
 
-wp = cell(wlev, 1);
+wp = cell(nWaveletLevels, 1);
 
 % for each scale:
-for s = 1:wlev
+for s = 1:nWaveletLevels
   % for horizontal, vertical and diagonal orientations:
   for orientation = 1:3
     
@@ -26,7 +26,7 @@ for s = 1:wlev
     ws = w{s, 1}(:, :, orientation);
     
     % calculate center-surround responses:
-    Zctr = relative_contrast(ws, orientation, window_sizes);
+    Zctr = relative_contrast(ws, orientation, WindowSize);
     
     % return alpha values:
     alpha = generate_csf(Zctr, s, nu_0, mode);
@@ -42,7 +42,7 @@ rec = IDWT(wp, wc, size(channel, 2),size(channel, 1));
 
 end
 
-function zctr = relative_contrast(X, orientation, window_sizes)
+function zctr = relative_contrast(WaveletPlane, orientation, WindowSize)
 % returns relative contrast for each coefficient of a wavelet plane
 %
 % outputs:
@@ -53,8 +53,8 @@ function zctr = relative_contrast(X, orientation, window_sizes)
 %   window sizes: window sizes for computing relative contrast; suggested
 %   orientation: wavelet plane orientation
 
-center_size   = window_sizes(1);
-surround_size = window_sizes(2);
+center_size   = WindowSize(1);
+surround_size = WindowSize(2);
 
 % horizontal orientation:
 if orientation == 1
@@ -63,8 +63,8 @@ if orientation == 1
   hs = [ones(1, surround_size), zeros(1, center_size), ones(1, surround_size)];
   
   % compute std dev:
-  sigma_cen = imfilter(X .^ 2, hc .^ 2, 'symmetric') / (length(find(hc == 1)));
-  sigma_sur = imfilter(X .^ 2, hs .^ 2, 'symmetric') / (length(find(hs == 1)));
+  sigma_cen = imfilter(WaveletPlane .^ 2, hc .^ 2, 'symmetric') / (length(find(hc == 1)));
+  sigma_sur = imfilter(WaveletPlane .^ 2, hs .^ 2, 'symmetric') / (length(find(hs == 1)));
   
   % vertical orientation:
 elseif orientation == 2
@@ -73,8 +73,8 @@ elseif orientation == 2
   hs = [ones(surround_size, 1); zeros(center_size, 1); ones(surround_size, 1)];
   
   % compute std dev:
-  sigma_cen = imfilter(X .^ 2, hc .^ 2, 'symmetric') / (length(find(hc == 1)));
-  sigma_sur = imfilter(X .^ 2, hs .^ 2, 'symmetric') / (length(find(hs == 1)));
+  sigma_cen = imfilter(WaveletPlane .^ 2, hc .^ 2, 'symmetric') / (length(find(hc == 1)));
+  sigma_sur = imfilter(WaveletPlane .^ 2, hs .^ 2, 'symmetric') / (length(find(hs == 1)));
   
   % diagonal orientation:
 elseif orientation == 3
@@ -84,8 +84,8 @@ elseif orientation == 3
   hs = hs + fliplr(hs);
   
   % compute std dev:
-  sigma_cen = imfilter(X .^ 2, hc .^ 2, 'symmetric') / (length(find(hc == 1)));
-  sigma_sur = imfilter(X .^ 2, hs .^ 2, 'symmetric') / (length(find(hs == 1)));
+  sigma_cen = imfilter(WaveletPlane .^ 2, hc .^ 2, 'symmetric') / (length(find(hc == 1)));
+  sigma_sur = imfilter(WaveletPlane .^ 2, hs .^ 2, 'symmetric') / (length(find(hs == 1)));
 end
 
 r    = sigma_cen ./ (sigma_sur + 1.e-6);
