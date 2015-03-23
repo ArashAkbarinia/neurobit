@@ -41,3 +41,5 @@ for i = 1:ncolours
       rgbs(i, :) = [0, 0, 0];
   end
 end
+
+end

@@ -1,6 +1,13 @@
-function [] = PlotOpponency(InputImage)
-%PlotOpponency Summary of this function goes here
-%   Detailed explanation goes here
+function FigureNumber = PlotOpponency(InputImage)
+%PlotOpponency  plots the original image with its opponnent channels.
+%
+% inputs
+%   InputImage  the input image in RGB colour space.
+%
+% outputs
+%   FigureNumber  the reference to the figure.
+%
+
 
 imlsm = rgb2lms(InputImage);
 
@@ -14,7 +21,7 @@ ybim(:, :, 2) =  imlsm(:, :, 1) + imlsm(:, :, 2) - imlsm(:, :, 3);
 ybim(:, :, 3) = -imlsm(:, :, 1) - imlsm(:, :, 2) + imlsm(:, :, 3);
 ybim = NormaliseChannel(ybim, [], [], [], []);
 
-figure;
+FigureNumber = figure;
 subplot(2, 2, 1:2); imshow(InputImage);
 subplot(2, 2, 3); imshow(rgim);
 subplot(2, 2, 4); imshow(ybim);

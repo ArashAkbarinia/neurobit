@@ -1,6 +1,12 @@
-function [] = PlotLms(InputImage)
-%PlotLms Summary of this function goes here
-%   Detailed explanation goes here
+function FigureNumber = PlotLms(InputImage)
+%PlotLms  plots the original image along with its L, M and S channels,
+%
+% inputs
+%   InputImage  the input image in RGB colour space.
+%
+% outputs
+%   FigureNumber  the reference to the figure.
+%
 
 imlsm = rgb2lms(InputImage);
 
@@ -22,7 +28,7 @@ mim(:, :, 2) = mim;
 mim(:, :, [1, 3]) = 0;
 mim = uint8(mim);
 
-figure;
+FigureNumber = figure;
 subplot(2, 2, 1); imshow(InputImage);
 subplot(2, 2, 2); imshow(lim);
 subplot(2, 2, 3); imshow(sim);
