@@ -1,10 +1,12 @@
 function matrixk = MatChansMulK(m, k)
 %MatChansMulK scalar multiplication in each channel.
 %
-% Inputs
+% inputs
 %   m  the input matrix
 %   k  the scalar vector contains same numebr of chanels as matrix.
 %
+%
+% outputs
 %   matrixk  the output matrix each chanel is multiplied by corresponding
 %            'k' scalar, i.e. matrixk(:, :, 1) =  m(:, :, 1) .* k(1)
 %
