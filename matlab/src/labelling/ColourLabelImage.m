@@ -1,6 +1,13 @@
 function ColouredImage = ColourLabelImage(LabeledImage, colours)
-%ColourLabelImage Summary of this function goes here
-%   Detailed explanation goes here
+%ColourLabelImage  converts a labeled image to a coloured image
+%
+% inputs
+%   LabeledImage  the image with channel containing the labels.
+%   colours       the colour map to convert the labels to colours.
+%
+% outputs
+%   ColouredImage  the coloured image.
+%
 
 if nargin < 2
   colours = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'};
