@@ -7,6 +7,9 @@ clearvars;
 close all;
 clc;
 
+% getting the start time
+StartTime = tic;
+
 % creating the colour frontiers
 FrontierTable = ColourFrontiers();
 
@@ -238,6 +241,8 @@ for borderNr = conditions
 end
 
 %% cleaning and saving
+
+toc(StartTime)
 
 CleanAndSave(ExperimentParameters, SubjectName, ExperimentResults);
 
