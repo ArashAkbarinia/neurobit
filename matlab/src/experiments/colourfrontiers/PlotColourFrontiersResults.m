@@ -1,4 +1,4 @@
-function labs = PlotColourFrontiersResults(FilePath, condition)
+function labs = PlotColourFrontiersResults(FilePath, condition, luminance)
 %PlotColourFrontiersResults Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -12,10 +12,24 @@ conditions = ExperimentResult.conditions;
 ResultTable = [angles, radii, luminances, conditions'];
 ExperimentColours = ExperimentResult.FrontierColours;
 
-if nargin > 1
-  FilteredConditions = ResultTable(:, 4) == condition;
+if ~isempty(condition)
+  nexperiments = size(ResultTable, 1);
+  FilteredConditions = zeros(nexperiments, 1);
+  for ConditionI = condition
+    FilteredConditions = ResultTable(:, 4) == condition(ConditionI) | FilteredConditions;
+  end
   ResultTable = ResultTable(FilteredConditions, :);
   ExperimentColours = ExperimentColours(FilteredConditions, :);
+  conditions = ResultTable(:, 4);
+elseif ~isempty(luminance)
+  nexperiments = size(ResultTable, 1);
+  FilteredLuminances = zeros(nexperiments, 1);
+  for LuminanceI = luminance
+    FilteredLuminances = ResultTable(:, 3) == LuminanceI | FilteredLuminances;
+  end
+  ResultTable = ResultTable(FilteredLuminances, :);
+  ExperimentColours = ExperimentColours(FilteredLuminances, :);
+  conditions = ResultTable(:, 4);
 end
 
 nexperiments = size(ResultTable, 1);
@@ -29,7 +43,7 @@ hold on;
 grid on;
 
 [UniqueConditions, IndexConditions, ~] = unique(conditions);
-for i = UniqueConditions
+for i = 1:size(UniqueConditions, 1)
   ColourA = ExperimentColours{IndexConditions(i), 1};
   colour1 = ExperimentColours{IndexConditions(i), 3};
   ColourB = ExperimentColours{IndexConditions(i), 2};
