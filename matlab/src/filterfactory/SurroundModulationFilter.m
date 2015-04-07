@@ -1,5 +1,5 @@
-function h = EdgeSurroundModulation()
-%EdgeSurroundModulation Summary  returing a edge detector filter.
+function h = SurroundModulationFilter()
+%SurroundModulationFilter  returns a 27x27 filter.
 %
 
 MrfSize = [3, 3];
