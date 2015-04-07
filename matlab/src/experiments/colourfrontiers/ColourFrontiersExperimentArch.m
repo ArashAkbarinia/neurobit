@@ -82,7 +82,11 @@ crsResetTimer();
 
 condition_elapsedtime = 0;
 ExperimentCounter = 1;
+QuitApplication = 0;
 for borderNr = conditions
+  if QuitApplication
+    break;
+  end
   % selecting the figure for this condition
   if ExperimentParameters.plotresults
     FigureIndex = ~cellfun('isempty', strfind(FigurePlanes(:, 1), FrontierTable{borderNr, 1}));
@@ -143,7 +147,7 @@ for borderNr = conditions
   % activate joystick
   joystick on;
   
-  all_buttons = [7, 8, 5, 6, 9];
+  all_buttons = [1, 2, 5, 6, 7, 8, 9];
   angularstep = ini_angularstep;
   
   while QuitButtonPressed == 0
@@ -154,23 +158,28 @@ for borderNr = conditions
     else
       Shift = 0;
     end
-    if new_buttons(1)
-      % left correction
-      Shift = Shift - angularstep;
-    end
-    if new_buttons(2)
-      % right correction
-      Shift = Shift + angularstep;
+    if new_buttons(1) && new_buttons(2)
+      QuitButtonPressed = 1;
+      QuitApplication = 1;
+      break;
     end
     if new_buttons(3)
       % left correction
-      Shift = Shift - ExperimentParameters.fastsampling * angularstep;
+      Shift = Shift - angularstep;
     end
     if new_buttons(4)
       % right correction
-      Shift = Shift + ExperimentParameters.fastsampling * angularstep;
+      Shift = Shift + angularstep;
     end
     if new_buttons(5)
+      % left correction
+      Shift = Shift - ExperimentParameters.fastsampling * angularstep;
+    end
+    if new_buttons(6)
+      % right correction
+      Shift = Shift + ExperimentParameters.fastsampling * angularstep;
+    end
+    if new_buttons(7)
       % indicates last run.
       QuitButtonPressed = 1;
       condition_elapsedtime = crsGetTimer() - condition_starttime;
