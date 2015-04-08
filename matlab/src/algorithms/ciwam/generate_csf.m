@@ -1,4 +1,4 @@
-function zctr_csf = generate_csf(zctr, s, nu_0, mode)
+function zctr_csf = generate_csf(zctr, s, nu_0, mode, eCSF_type)
 % returns the value of the csf at a specific relative contrast and spatial frequency.
 %
 % outputs:
@@ -12,55 +12,64 @@ function zctr_csf = generate_csf(zctr, s, nu_0, mode)
 
 % select for mode of channel:
 
-if strcmp(mode,'intensity')
-  params.fOffsetMax=0.;
-  params.fContrastMaxMax=1;
-  params.fContrastMaxMin=0.;
-  params.fSigmaMax1=1.25;
-  params.fSigmaMax2=1.25;
-  params.fContrastMinMax=1.;
-  params.fContrastMinMin=1.;
-  params.fSigmaMin1=2;
-  params.fSigmaMin2=1.;
-  params.fOffsetMin=2;
-else
-  params.fOffsetMax=1;
-  params.fContrastMaxMax=2;
-  params.fContrastMaxMin=0.;
-  params.fSigmaMax1= 2;
-  params.fSigmaMax2=1.25;
-  params.fContrastMinMax=1.;
-  params.fContrastMinMin=1.;
-  params.fSigmaMin1=2;
-  params.fSigmaMin2=2;
-  params.fOffsetMin=2;
+if nargin < 5
+  eCSF_type = 'notxavier';
 end
 
+if strcmp(eCSF_type,'Xavier')
+  
+  if strcmp(mode,'intensity')
+    params.fOffsetMax=0.;
+    params.fContrastMaxMax=1;
+    params.fContrastMaxMin=0.;
+    params.fSigmaMax1=1.25;
+    params.fSigmaMax2=1.25;
+    params.fContrastMinMax=1.;
+    params.fContrastMinMin=1.;
+    params.fSigmaMin1=2;
+    params.fSigmaMin2=1.;
+    params.fOffsetMin=2;
+  else
+    params.fOffsetMax=1;
+    params.fContrastMaxMax=2;
+    params.fContrastMaxMin=0.;
+    params.fSigmaMax1= 2;
+    params.fSigmaMax2=1.25;
+    params.fContrastMinMax=1.;
+    params.fContrastMinMin=1.;
+    params.fSigmaMin1=2;
+    params.fSigmaMin2=2;
+    params.fOffsetMin=2;
+  end
+else
+  
+  % Naila (values obtained from global optimization)
+  
+  if strcmp(mode,'intensity')
+    params.fOffsetMax=0.;
+    params.fContrastMaxMax=4.981624;
+    params.fContrastMaxMin=0.;
+    params.fSigmaMax1=1.021035;
+    params.fSigmaMax2=1.048155;
+    params.fContrastMinMax=1.;
+    params.fContrastMinMin=1.;
+    params.fSigmaMin1=0.212226;
+    params.fSigmaMin2=2.;
+    params.fOffsetMin=0.530974;
+  else
+    params.fOffsetMax=0.724440;
+    params.fContrastMaxMax=3.611746;
+    params.fContrastMaxMin=0.;
+    params.fSigmaMax1= 1.360638;
+    params.fSigmaMax2=0.796124;
+    params.fContrastMinMax=1.;
+    params.fContrastMinMin=1.;
+    params.fSigmaMin1=0.348766;
+    params.fSigmaMin2=0.348766;
+    params.fOffsetMin=1.059210;
+  end
+end
 
-
-% if strcmp(mode,'intensity')
-%     params.fOffsetMax=0.;
-%     params.fContrastMaxMax=4.981624;
-%     params.fContrastMaxMin=0.;
-%     params.fSigmaMax1=1.021035;
-%     params.fSigmaMax2=1.048155;
-%     params.fContrastMinMax=1.;
-%     params.fContrastMinMin=1.;
-%     params.fSigmaMin1=0.212226;
-%     params.fSigmaMin2=2.;
-%     params.fOffsetMin=0.530974;
-% else
-%     params.fOffsetMax=0.724440;
-%     params.fContrastMaxMax=3.611746;
-%     params.fContrastMaxMin=0.;
-%     params.fSigmaMax1= 1.360638;
-%     params.fSigmaMax2=0.796124;
-%     params.fContrastMinMax=1.;
-%     params.fContrastMinMin=1.;
-%     params.fSigmaMin1=0.348766;
-%     params.fSigmaMin2=0.348766;
-%     params.fOffsetMin=1.059210;
-% end
 zctr_csf = apply_csf(s - nu_0,zctr,params);
 
 end
