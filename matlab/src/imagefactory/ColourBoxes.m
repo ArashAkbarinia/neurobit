@@ -1,11 +1,12 @@
 function [ColourBoxesImage, GroundTruthImage] = ColourBoxes(scale)
 %ColourBoxes creates set of focal colours.
 %
-% Inputs
+% inputs
 %   scale  should the 13x9 board be scaled, default is 1.
 %
-% Outputs
+% outputs
 %   ColourBoxesImage  the colour boxes if scale is not given in size 13x9.
+%   GroundTruth       the probability map of eleven focal colours.
 %
 
 if nargin < 1

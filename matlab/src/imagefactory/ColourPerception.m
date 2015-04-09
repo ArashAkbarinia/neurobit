@@ -2,11 +2,12 @@ function [ColourPerceptionImage, GroundTruthImage] = ColourPerception(scale)
 %ColourPerception creates set of focal colours.
 %   Explanation http://www.chrisharrison.net/index.php/Fun/ColorPerception
 %
-% Inputs
+% inputs
 %   scale  should the 30x9 board be scaled, default is 1.
 %
-% Outputs
+% outputs
 %   ColourPerceptionImage  the image if scale is not given in size 30x9.
+%   GroundTruth            the probability map of eleven focal colours.
 %
 
 if nargin < 1
