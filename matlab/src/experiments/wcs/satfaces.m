@@ -1,6 +1,12 @@
 function ColourPoints = satfaces()
-%SATFACES Summary of this function goes here
-%   http://blog.xkcd.com/2010/05/03/color-survey-results/
+%SATFACES  parses the result of the xkcd colour naming exmerinet.
+%   Explanation http://blog.xkcd.com/2010/05/03/color-survey-results/
+%
+% inputs
+%
+% outputs
+%   ColourPoints  a struct containing RGB value of eleven colours.
+%
 
 FunctionLocalPath = 'matlab/src/experiments/wcs/satfaces';
 FunctionPath = mfilename('fullpath');
