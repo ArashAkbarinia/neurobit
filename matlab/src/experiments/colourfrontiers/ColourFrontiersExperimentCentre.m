@@ -31,6 +31,7 @@ crsSetVideoMode(CRS.EIGHTBITPALETTEMODE + CRS.NOGAMMACORRECT);
 
 ExperimentParameters = CreateExperimentParameters(CRS, 'Centre');
 
+ExperimentParameters.fastsampling = 10;
 ExperimentParameters.AngleMargin = 0.1;
 ExperimentParameters.maxradius = 50;
 minradius = 0;
@@ -97,7 +98,12 @@ crsResetTimer();
 
 condition_elapsedtime = 0;
 ExperimentCounter = 1;
+QuitApplication = 0;
 for borderNr = conditions
+  if QuitApplication
+    break;
+  end
+  
   % selecting the figure for this condition
   if ExperimentParameters.plotresults
     FigureIndex = ~cellfun('isempty', strfind(FigurePlanes(:, 1), FrontierTable{borderNr, 1}));
@@ -155,30 +161,35 @@ for borderNr = conditions
   % activate joystick
   joystick on;
   
-  all_buttons = [7, 8, 5, 6, 9];
+  all_buttons = [1, 2, 5, 6, 7, 8, 9];
   radialstep = ini_radialstep;
   
   while QuitButtonPressed == 0
     %   Get the joystick response.
     new_buttons = joystick( 'get' , all_buttons ) ;
     Shift = 0 ;
-    if new_buttons(1)
-      % left correction
-      Shift = Shift - radialstep;
-    end
-    if new_buttons(2)
-      % right correction
-      Shift = Shift + radialstep;
+    if new_buttons(1) && new_buttons(2)
+      QuitButtonPressed = 1;
+      QuitApplication = 1;
+      break;
     end
     if new_buttons(3)
       % left correction
-      Shift = Shift - ExperimentParameters.fastsampling * radialstep;
+      Shift = Shift - radialstep;
     end
     if new_buttons(4)
       % right correction
-      Shift = Shift + ExperimentParameters.fastsampling * radialstep;
+      Shift = Shift + radialstep;
     end
     if new_buttons(5)
+      % left correction
+      Shift = Shift - ExperimentParameters.fastsampling * radialstep;
+    end
+    if new_buttons(6)
+      % right correction
+      Shift = Shift + ExperimentParameters.fastsampling * radialstep;
+    end
+    if new_buttons(7)
       % indicates last run
       QuitButtonPressed = 1;
       condition_elapsedtime = crsGetTimer() - condition_starttime;
