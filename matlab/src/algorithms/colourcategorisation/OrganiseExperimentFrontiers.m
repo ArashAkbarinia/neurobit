@@ -283,8 +283,10 @@ lsY_81_W_Y   = [lsY_81_W_Y_c;   lsY_81_W_Y_a];
 [lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'orange', [], lsY_58_W_O, lsY_81_W_O);
 [lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'yellow', [], lsY_58_W_Y, lsY_81_W_Y);
 
+%% new experiments
+
 ScriptPath = mfilename('fullpath');
-DirPath = strrep(ScriptPath, 'matlab/src/algorithms/colourcategorisation/OrganiseExperimentFrontiers', 'matlab/data/mats/results/experiments/colourfrontiers/pilot/');
+DirPath = strrep(ScriptPath, 'matlab/src/algorithms/colourcategorisation/OrganiseExperimentFrontiers', 'matlab/data/mats/results/experiments/colourfrontiers/real/');
 
 MatFiles = dir([DirPath, '*.mat']);
 
@@ -352,7 +354,7 @@ XYZ2lsYChoise = 'evenly_ditributed_stds';
 nborders = length(unique(ExperimentResult.conditions));
 nexperiments = length(angles);
 nluminances = unique(luminances);
-nconditions = nexperiments / nborders;
+nconditions = floor(nexperiments / nborders);
 
 % containts the points for different luminances
 lsys = struct();
