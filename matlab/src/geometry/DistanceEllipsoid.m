@@ -1,6 +1,15 @@
-function [distance, intersection] = DistanceEllipsoid(point, ellipsoid, plotme)
-%DistanceEllipsoid Summary of this function goes here
-%   Detailed explanation goes here
+function [distance, intersection] = DistanceEllipsoid(points, ellipsoid, plotme)
+%DistanceEllipsoid  distance from points to ellipsoid.
+%
+% inputs
+%   points     the polar coordinates of the poitns [x, y, z].
+%   ellipsoid  ellipsoid parameters; [cx, cy, cz, ax, ay, az, rx, ry, rz]
+%   plotme     if true it plots the poitns and the ellipsoid.
+%
+% outputs
+%   distance      the distance from the point to the ellipsoid.
+%   intersection  the intersection points on ellipsoid surface.
+%
 
 if nargin < 3
   plotme = 0;
@@ -16,10 +25,10 @@ rx = ellipsoid(7);
 ry = ellipsoid(8);
 rz = ellipsoid(9);
 
-[rows, ~] = size(point);
+[rows, ~] = size(points);
 
 % centre the points relatively to the ellipsoid.
-TransferedPoint = point - repmat([cx, cy, cz], [rows, 1]);
+TransferedPoint = points - repmat([cx, cy, cz], [rows, 1]);
 
 % rotate all points an angle alpha so that we can reduce the problem to
 % one of canonical ellipsoids
@@ -65,11 +74,11 @@ if plotme
   plot3(intersection(:, 1), intersection(:, 2), intersection(:, 3), '*r');
   
   % plotting all the original points
-  plot3(point(:, 1), point(:, 2), point(:, 3), '*b');
+  plot3(points(:, 1), points(:, 2), points(:, 3), '*b');
   
   % plotting a line between the centre and the points
   for i = 1:rows
-    plot3([cx, point(i, 1)], [cy, point(i, 2)], [cz, point(i, 3)], 'black');
+    plot3([cx, points(i, 1)], [cy, points(i, 2)], [cz, points(i, 3)], 'black');
   end
   hold off;
 end
