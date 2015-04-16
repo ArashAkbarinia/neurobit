@@ -44,6 +44,22 @@ classdef ColourCategory
       end
     end
     
+    function borders = GetBorderWithColour(obj, luminance, colour)
+      borders = [];
+      for i = 1:length(obj.borders)
+        colour1 = obj.borders(i).colour1.name;
+        colour2 = obj.borders(i).colour2.name;
+        if strcmpi(colour1, colour) || strcmpi(colour2, colour)
+          for j = 1:length(luminance)
+            LumName = ['lum', num2str(luminance(j))];
+            if isfield(obj.borders(i).points, LumName)
+              borders = [borders; obj.borders(i).points.(LumName)]; %#ok<AGROW>
+            end
+          end
+        end
+      end
+    end
+    
     function borders = GetAllBorders(obj)
       borders = [];
       for i = 1:length(obj.borders)
