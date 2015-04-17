@@ -34,7 +34,8 @@ if plotme
 end
 
 % get fitted values
-lx = linspace(min(x) - 1000, max(x) + 1000, 200);
+% TODO: change 1e10 to a number based on points
+lx = [min(x) - 1e10, max(x) + 1e10];
 ly = polyval(LineCoeffs, lx);
 EucDis = DistanceLine([lx(1), ly(1)], [lx(end), ly(end)], points);
 
