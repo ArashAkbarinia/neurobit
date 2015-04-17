@@ -1,4 +1,4 @@
-function lsYFrontiers = OrganiseExperimentFrontiers(FilePath, plotme, XYZ2lsYChoise)
+function [ColourFrontiers, ColourFrontiersCentre] = OrganiseExperimentFrontiers(FilePath, plotme, XYZ2lsYChoise)
 
 if nargin < 2
   plotme = 0;
@@ -17,21 +17,22 @@ unsaturated_achrom_Lab = RawDataMat.unsaturated_achrom_Lab;
 % reference white used in the experiments
 WhiteReference = RawDataMat.WhiteReference;
 
-lsYFrontiers = struct();
+ColourFrontiers = struct();
+ColourFrontiersCentre = XYZ2lsY(Lab2XYZ([128, 0, 0],   WhiteReference), XYZ2lsYChoise);
 borders = {};
 
 % colour objects
-lsYFrontiers.black  = ColourCategory('black');
-lsYFrontiers.blue   = ColourCategory('blue');
-lsYFrontiers.brown  = ColourCategory('brown');
-lsYFrontiers.green  = ColourCategory('green');
-lsYFrontiers.grey   = ColourCategory('grey');
-lsYFrontiers.orange = ColourCategory('orange');
-lsYFrontiers.pink   = ColourCategory('pink');
-lsYFrontiers.purple = ColourCategory('purple');
-lsYFrontiers.red    = ColourCategory('red');
-lsYFrontiers.yellow = ColourCategory('yellow');
-lsYFrontiers.white  = ColourCategory('white');
+ColourFrontiers.black  = ColourCategory('black');
+ColourFrontiers.blue   = ColourCategory('blue');
+ColourFrontiers.brown  = ColourCategory('brown');
+ColourFrontiers.green  = ColourCategory('green');
+ColourFrontiers.grey   = ColourCategory('grey');
+ColourFrontiers.orange = ColourCategory('orange');
+ColourFrontiers.pink   = ColourCategory('pink');
+ColourFrontiers.purple = ColourCategory('purple');
+ColourFrontiers.red    = ColourCategory('red');
+ColourFrontiers.yellow = ColourCategory('yellow');
+ColourFrontiers.white  = ColourCategory('white');
 
 %% saturated frontiers (coloured background)
 
@@ -241,16 +242,16 @@ lsY_81_Pk_O  = [lsY_81_Pk_O_c;  lsY_81_Pk_O_a];
 lsY_81_O_Y   = [lsY_81_O_Y_c;   lsY_81_O_Y_a];
 lsY_81_Y_G   = [lsY_81_Y_G_c;   lsY_81_Y_G_a];
 
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'green', 'blue', lsY_36_G_B, lsY_58_G_B, lsY_81_G_B);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'blue', 'purple', lsY_36_B_Pp, lsY_58_B_Pp, lsY_81_B_Pp);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'purple', 'pink', lsY_36_Pp_Pk, lsY_58_Pp_Pk, lsY_81_Pp_Pk);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'pink', 'red', lsY_36_Pk_R, lsY_58_Pk_R, []);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'red', 'brown', lsY_36_R_Br, [], []);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'brown', 'green', lsY_36_Br_G, [], []);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'red', 'orange', [], lsY_58_R_O, []);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'orange', 'yellow', [], lsY_58_O_Y, lsY_81_O_Y);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'yellow', 'green', [], lsY_58_Y_G, lsY_81_Y_G);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'pink', 'orange', [], [], lsY_81_Pk_O);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'green', 'blue', lsY_36_G_B, lsY_58_G_B, lsY_81_G_B);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'blue', 'purple', lsY_36_B_Pp, lsY_58_B_Pp, lsY_81_B_Pp);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'purple', 'pink', lsY_36_Pp_Pk, lsY_58_Pp_Pk, lsY_81_Pp_Pk);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'pink', 'red', lsY_36_Pk_R, lsY_58_Pk_R, []);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'red', 'brown', lsY_36_R_Br, [], []);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'brown', 'green', lsY_36_Br_G, [], []);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'red', 'orange', [], lsY_58_R_O, []);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'orange', 'yellow', [], lsY_58_O_Y, lsY_81_O_Y);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'yellow', 'green', [], lsY_58_Y_G, lsY_81_Y_G);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'pink', 'orange', [], [], lsY_81_Pk_O);
 
 lsY_36_W_G   = [lsY_36_W_G_c;   lsY_36_W_G_a];
 lsY_36_W_B   = [lsY_36_W_B_c;   lsY_36_W_B_a];
@@ -274,14 +275,14 @@ lsY_81_W_Pk  = [lsY_81_W_Pk_c;  lsY_81_W_Pk_a];
 lsY_81_W_O   = [lsY_81_W_O_c;   lsY_81_W_O_a];
 lsY_81_W_Y   = [lsY_81_W_Y_c;   lsY_81_W_Y_a];
 
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'green', lsY_36_W_G, lsY_58_W_G, lsY_81_W_G);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'blue', lsY_36_W_B, lsY_58_W_B, lsY_81_W_B);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'purple', lsY_36_W_Pp, lsY_58_W_Pp, lsY_81_W_Pp);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'pink', lsY_36_W_Pk, lsY_58_W_Pk, lsY_81_W_Pk);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'red', lsY_36_W_R, lsY_58_W_R, []);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'brown', lsY_36_W_Br, [], []);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'orange', [], lsY_58_W_O, lsY_81_W_O);
-[lsYFrontiers, borders] = AddColourBorders365881(borders, lsYFrontiers, 'grey', 'yellow', [], lsY_58_W_Y, lsY_81_W_Y);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'grey', 'green', lsY_36_W_G, lsY_58_W_G, lsY_81_W_G);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'grey', 'blue', lsY_36_W_B, lsY_58_W_B, lsY_81_W_B);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'grey', 'purple', lsY_36_W_Pp, lsY_58_W_Pp, lsY_81_W_Pp);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'grey', 'pink', lsY_36_W_Pk, lsY_58_W_Pk, lsY_81_W_Pk);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'grey', 'red', lsY_36_W_R, lsY_58_W_R, []);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'grey', 'brown', lsY_36_W_Br, [], []);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'grey', 'orange', [], lsY_58_W_O, lsY_81_W_O);
+[ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'grey', 'yellow', [], lsY_58_W_Y, lsY_81_W_Y);
 
 %% new experiments
 
@@ -292,7 +293,7 @@ MatFiles = dir([DirPath, '*.mat']);
 
 for i = 1:length(MatFiles)
   CurrentMatPath = [DirPath, MatFiles(i).name];
-  [lsYFrontiers, borders] = ReadExperimentResults(CurrentMatPath, lsYFrontiers, borders);
+  [ColourFrontiers, borders] = ReadExperimentResults(CurrentMatPath, ColourFrontiers, borders);
 end
 
 if plotme
