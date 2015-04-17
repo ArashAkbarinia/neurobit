@@ -26,12 +26,16 @@ if plotme
   plot(x, y, 'b*');
   
   % get fitted values
-  x1 = linspace(min(x), max(x), 200);
-  y1 = polyval(LineCoeffs, x1);
+  lx = linspace(min(x), max(x), 200);
+  ly = polyval(LineCoeffs, lx);
+  
   % plot the fitted line
-  plot(x1, y1, 'r-');
+  plot(lx, ly, 'r-');
 end
 
-EucDis = DistanceLine(a, b, points);
+% get fitted values
+lx = linspace(min(x) - 1000, max(x) + 1000, 200);
+ly = polyval(LineCoeffs, lx);
+EucDis = DistanceLine([lx(1), ly(1)], [lx(end), ly(end)], points);
 
 end
