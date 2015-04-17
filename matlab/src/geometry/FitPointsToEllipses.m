@@ -1,15 +1,20 @@
-function ellipse = FitPointsToEllipses(points)
+function ellipse = FitPointsToEllipses(points, plotme)
 %FitPointsToEllipses  Least-squares fit of ellipse to 2D points.
 %   Explanation Direct Least Squares Fitting of Ellipses, IEEE T-PAMI, 1999
 %
 % inputs
 %   points  the polar coordinates of the points, i.e. [x, y].
+%   plotme  if passed as true, it plots the points and ellipse.
 %
 % outputs
 %   ellipse  the parameters of the ellipse, [cx, cy, ax, ay, rx].
 %
 % original code by "Andrew Fitzgibbon, Maurizio Pilu, Bob Fisher"
 %
+
+if nargin < 2
+  plotme = false;
+end
 
 px = points(:, 1);
 py = points(:, 2);
@@ -102,5 +107,13 @@ ax = sqrt(abs(ax)) .* sign(ax);
 ay = sqrt(abs(ay)) .* sign(ay);
 
 ellipse = [cx, cy, ax, ay, rx];
+
+if plotme
+  figure;
+  hold on;
+  grid on;
+  DrawEllipse(ellipse);
+  plot(px, py, '*r');
+end
 
 end
