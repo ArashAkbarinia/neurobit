@@ -15,13 +15,15 @@ for i = 1:numel(ColourNames)
   CurrentColour = ColourFrontiers.(ColourNames{i});
   EvalReport.(ColourNames{i}) = struct();
   for lum = luminances
+    LumName = ['lum', num2str(lum)];
+    EvalReport.(ColourNames{i}).(LumName) = struct();
     LumPoints3 = CurrentColour.GetBorder(lum);
     if ~isempty(LumPoints3)
       LumPoints2 = LumPoints3(:, 1:2);
       % fitting to ellipse
       CurrentEllipse = FitPointsToEllipses(LumPoints2);
       [eldis, ~] = DistanceEllipse(LumPoints2, CurrentEllipse);
-      EvalReport.(ColourNames{i}).EllipseDistance = mean(eldis);
+      EvalReport.(ColourNames{i}).(LumName).EllipseDistance = mean(eldis);
       % fitting to slice
       if FitBorderwise
         NeighbourNames = CurrentColour.GetNeighbourNames(lum);
@@ -33,26 +35,31 @@ for i = 1:numel(ColourNames)
           [~, lidis] = FitPointsToLine(LumPoints2);
           LineDistances(k) = mean(lidis);
         end
-        EvalReport.(ColourNames{i}).SliceDistance = mean(LineDistances);
+        EvalReport.(ColourNames{i}).(LumName).SliceDistance = mean(LineDistances);
       else
         CurrentSlice = FitPointsToSlices(LumPoints2, ColourSpaceCentre);
-        EvalReport.(ColourNames{i}).SliceDistance = mean(CurrentSlice.error);
+        EvalReport.(ColourNames{i}).(LumName).SliceDistance = mean(CurrentSlice.error);
       end
     else
-      EvalReport.(ColourNames{i}).EllipseDistance = 0;
-      EvalReport.(ColourNames{i}).SliceDistance = 0;
+      EvalReport.(ColourNames{i}).(LumName).EllipseDistance = 0;
+      EvalReport.(ColourNames{i}).(LumName).SliceDistance = 0;
     end
   end
 end
 
 SliceDistance = 0;
 EllipseDistance = 0;
+numlums = 0;
 for i = 1:numel(ColourNames)
-  SliceDistance = EvalReport.(ColourNames{i}).SliceDistance + SliceDistance;
-  EllipseDistance = EvalReport.(ColourNames{i}).EllipseDistance + EllipseDistance;
+  for lum = luminances
+    LumName = ['lum', num2str(lum)];
+    SliceDistance = EvalReport.(ColourNames{i}).(LumName).SliceDistance + SliceDistance;
+    EllipseDistance = EvalReport.(ColourNames{i}).(LumName).EllipseDistance + EllipseDistance;
+    numlums = numlums + 1;
+  end
 end
 
-fprintf('The mean distance for slice %f\n', SliceDistance);
-fprintf('The mean distance for ellipse %f\n', EllipseDistance);
+fprintf('The mean distance for slice %f\n', SliceDistance / numlums);
+fprintf('The mean distance for ellipse %f\n', EllipseDistance / numlums);
 
 end
