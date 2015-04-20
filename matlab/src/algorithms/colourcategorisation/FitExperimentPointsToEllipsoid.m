@@ -24,7 +24,7 @@ Pk = [1.0, 0.0, 1.0];
 Br = [1.0, 0.5, 0.0] * 0.75;
 W  = [1.0, 1.0, 1.0];
 Gr = [0.5, 0.5, 0.5];
-Bl  = [0.0, 0.0, 0.0];
+Bl = [0.0, 0.0, 0.0];
 
 lsYFrontiers = OrganiseExperimentFrontiers('rawdata_Lab.mat');
 
@@ -162,7 +162,6 @@ if saveme
   save('lsy_ellipsoid_params_new.mat', 'ColourEllipsoids', 'RGBTitles');
 end
 
-
 if plotme
   RGB = [G; B; Pp; Pk; R; O; Y; Br; Gr; W; Bl];
   PlotEllipsoids(ellipses, RGB, tested, WhichColours);
@@ -173,7 +172,7 @@ end
 function [ellipsoid, RSS] = DoColour(FittingParams, FittingData, options, plotme, initial)
 
 % FIXME; make it dynamic
-borders = [25, 36, 47, 58, 70, 81];
+borders = [36, 47, 58, 70, 76, 81, 86];
 % D65 XYZ cordinates calculated according to the CIE Judd-Vos corrected
 % Colour Matching Functions
 JV_D65 = [116.5366244	124.6721208	125.456254];
@@ -221,15 +220,6 @@ disp ('================================================================');
 disp (['         Colour category: ', FittingData.category]);
 disp ('================================================================');
 PrintFittingResults(output, ellipsoid, RSS, exitflag, FittingData.allstd);
-
-end
-
-function [c, ceq] = EllipsoidEq(x)
-
-c = [];
-x = x .^ 2;
-ceq = x(1) / x(4) + x(2) / x(5) + x(3) / x(6) - 1;
-ceq = [];
 
 end
 
