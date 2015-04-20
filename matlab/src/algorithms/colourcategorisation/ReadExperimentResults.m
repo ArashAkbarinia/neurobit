@@ -23,7 +23,7 @@ ExperimentResult = MatFile.ExperimentResults;
 
 if strcmpi(ExperimentResult.type, 'arch') || strcmpi(ExperimentResult.type, 'centre')
   [lsYFrontiers, borders] = DoArchCentre(lsYFrontiers, borders, ExperimentResult);
-else
+elseif strcmpi(ExperimentResult.type, 'lum')
   % FIXME: how to integrate luminance
   [lsYFrontiers, borders] = DoLuminance(lsYFrontiers, borders, ExperimentResult);
 end
