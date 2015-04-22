@@ -1,6 +1,14 @@
 function labs = PlotColourFrontiersResults(FilePath, condition, luminance)
-%PlotColourFrontiersResults Summary of this function goes here
-%   Detailed explanation goes here
+%PlotColourFrontiersResults  plots the results of colour frontiers.
+%
+% inputs
+%   FilePath   the path to the mat file.
+%   condition  if interested in one specific condition.
+%   luminance  if interested in one specific luminance.
+%
+% outputs
+%   labs  the L*a*a coordinates of the plotted poitns.
+%
 
 MatFile = load(FilePath);
 ExperimentResult = MatFile.ExperimentResults;
