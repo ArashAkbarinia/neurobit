@@ -6,6 +6,10 @@ if nargin < 2
   plotme = 0;
 end
 
+if plotme
+  PlotRgb(InputImage);
+end
+
 [rows, cols, chns] = size(InputImage);
 InputImage = im2double(InputImage);
 
@@ -14,17 +18,6 @@ gch = InputImage(:, :, 2);
 bch = InputImage(:, :, 3);
 ych = (rch + gch) ./ 2;
 lch = rch + gch + bch;
-
-if plotme
-  figure;
-  FigRow = 3;
-  FigCol = 2;
-  subplot(FigRow, FigCol, 1); imshow(rch, [0, 1]); title('Red');
-  subplot(FigRow, FigCol, 2); imshow(gch, [0, 1]); title('Green');
-  subplot(FigRow, FigCol, 3); imshow(bch, [0, 1]); title('Blue');
-  subplot(FigRow, FigCol, 4); imshow(ych, [0, 1]); title('Yellow');
-  subplot(FigRow, FigCol, 5:6); imshow(lch / 3, [0, 1]); title('Luminance');
-end
 
 rgb2do = ...
   [
@@ -45,14 +38,7 @@ wb = opponent(:, :, 3);
 % wb = lch ./ sqrt(3);
 
 if plotme
-  figure;
-  FigRow = 3;
-  FigCol = 2;
-  subplot(FigRow, FigCol, 1); imshow(rg, []); title('R-G');
-  subplot(FigRow, FigCol, 2); imshow(-rg, []); title('G-R');
-  subplot(FigRow, FigCol, 3); imshow(yb, []); title('Y-B');
-  subplot(FigRow, FigCol, 4); imshow(-yb, []); title('B-Y');
-  subplot(FigRow, FigCol, 5:6); imshow(wb, []); title('Luminance');
+  PlotLmsOpponency(InputImage);
 end
 
 sorg = SingleOpponent(rg, 1);
@@ -65,9 +51,9 @@ soby = SingleOpponent(-yb, lambda);
 sobw = SingleOpponent(-wb, lambda);
 
 k = 0.5;
-dorg = sorg + k * sogr;
-doyb = soyb + k * soby;
-dowb = sowb + k * sobw;
+dorg = DoubleOpponent(sorg, sogr, k);
+doyb = DoubleOpponent(soyb, soby, k);
+dowb = DoubleOpponent(sowb, sobw, k);
 
 if plotme
   figure;
@@ -95,7 +81,7 @@ imshow(NormaliseChannel(dtmap, [], [], [], [])); title('dt map');
 
 MaxVals = max(max(dtmap));
 k = 1 / MaxVals;
-ColourConstantImage = MatChansMulK(InputImage, k);
+ColourConstantImage = MatChansMulK(dtmap, k);
 
 % MaxVals = sum(sum(max(dtmap, [], 3)));
 % ColourConstantImage = InputImage ./ MaxVals;
@@ -114,11 +100,59 @@ end
 function rfresponse = SingleOpponent(isignal, lambda)
 
 if nargin < 2
-  lambda = 1;
+  lambda = 3;
 end
 
 rf = fspecial('gaussian', [3, 3], 0.5 * lambda);
 
 rfresponse = imfilter(isignal, rf);
+
+end
+
+function  rfresponse = DoubleOpponent(ab, ba, k)
+
+if nargin < 3
+  k = 0.5;
+end
+
+MidaMin = 4;
+nplans = floor(log(max(size(ab) - 1) / MidaMin) / log(2)) + 1;
+[wab, cab] = DWT(ab, nplans);
+[wba, cba] = DWT(ba, nplans);
+
+wp = cell(nplans, 1);
+wc = cell(nplans, 1);
+for s = 1:nplans
+  % for horizontal, vertical and diagonal orientations:
+  for orientation = 1:3
+    wsab = wab{s, 1}(:, :, orientation);
+    wsba = wba{s, 1}(:, :, orientation);
+    wp{s, 1}(:, :, orientation) = wsab + k * wsba;
+  end
+  csab = cab{s, 1};
+  csba = cba{s, 1};
+  wc{s, 1} = csab + k * csba;
+end
+
+[rows, cols] = size(ab);
+rfresponse = IDWT(wp, wc, cols, rows);
+
+end
+
+function rgim = PlottableRgOpponency(rch, gch)
+
+rgim(:, :, 1) =  rch - gch;
+rgim(:, :, 2) = -rch + gch;
+rgim(:, :, 3) = 0;
+rgim = NormaliseChannel(rgim, [], [], [], []);
+
+end
+
+function ybim = PlottableYbOpponency(rch, gch, bch)
+
+ybim(:, :, 1) =  rch + gch - bch;
+ybim(:, :, 2) =  rch + gch - bch;
+ybim(:, :, 3) = -rch - gch + bch;
+ybim = NormaliseChannel(ybim, [], [], [], []);
 
 end
