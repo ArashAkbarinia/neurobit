@@ -1,4 +1,4 @@
-function BelongingImage = rgb2belonging(ImageRGB, ColourSpace, ConfigsMat, plotme, GroundTruth)
+function BelongingImage = rgb2belonging(ImageRGB, ColourSpace, ConfigsMat, plotme, GroundTruth, DoAdaptEllipsoids)
 %RGB2BELONGING  labels each pixel in the image as one of the focal eleven
 %               colours.
 
@@ -8,7 +8,11 @@ end
 ColourSpace = lower(ColourSpace);
 
 if nargin < 5
-  plotme = 0;
+  plotme = false;
+end
+
+if nargin < 6
+  DoAdaptEllipsoids = false;
 end
 
 if max(ImageRGB(:)) <= 1
@@ -34,7 +38,7 @@ elseif strcmpi(ColourSpace, 'lab')
 end
 ColourEllipsoids = ConfigsMat.ColourEllipsoids;
 
-if size(ImageOpponent, 1) * size(ImageOpponent, 2) > 500
+if DoAdaptEllipsoids && size(ImageOpponent, 1) * size(ImageOpponent, 2) > 500
   ColourEllipsoids = AdaptEllipsoids(ImageOpponent, ColourEllipsoids);
 end
 
