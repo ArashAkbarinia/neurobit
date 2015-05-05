@@ -35,7 +35,7 @@ if length(ellipsoid) == 10 && ellipsoid(10) ~= 0
   G = ellipsoid(10);
 else
   % steepness of the sigmoidal transition.
-  steepness = 10;
+  steepness = mean(ellipsoid(4:6));
   G = steepness ./ H;
 end
 
