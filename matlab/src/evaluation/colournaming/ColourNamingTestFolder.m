@@ -79,7 +79,7 @@ for i = 1:nimages
   if EvaluateGroundTruth
     MaskPath = [DirPath, MaskFiles(i).name];
     ImageMask = im2bw(imread(MaskPath));
-    ErrorMats{i} = ComputeError(ImageMask, NamingImage, GroundTruthColour);
+    ErrorMats{i} = ColourNamingComputeError(ImageMask, NamingImage, GroundTruthColour);
     fprintf('Sensitivity %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', ErrorMats{i}.sens, ErrorMats{i}.spec, ErrorMats{i}.ppv, ErrorMats{i}.npv);
     fprintf('TP %d FP %d TN %d FN %d\n', ErrorMats{i}.tp, ErrorMats{i}.fp, ErrorMats{i}.tn, ErrorMats{i}.fn);
   end
@@ -88,41 +88,5 @@ end
 if EvaluateGroundTruth
   save([ResultDirectory, 'ErrorMats.mat'], 'ErrorMats');
 end
-
-end
-
-function contingency = ComputeError(ImageMask, NamingImage, ColourName)
-
-% TODO: if colourname is all
-
-switch ColourName
-  case {'g', 'green'}
-    ImageResult = NamingImage == 1;
-  case {'b', 'blue'}
-    ImageResult = NamingImage == 2;
-  case {'pp', 'purple'}
-    ImageResult = NamingImage == 3;
-  case {'pk', 'pink'}
-    ImageResult = NamingImage == 4;
-  case {'r', 'red'}
-    ImageResult = NamingImage == 5;
-  case {'o', 'orange'}
-    ImageResult = NamingImage == 6;
-  case {'y', 'yellow'}
-    ImageResult = NamingImage == 7;
-  case {'br', 'brown'}
-    ImageResult = NamingImage == 8;
-  case {'gr', 'grey'}
-    ImageResult = NamingImage == 9;
-  case {'w', 'white'}
-    ImageResult = NamingImage == 10;
-  case {'bl', 'black'}
-    ImageResult = NamingImage == 11;
-  otherwise
-    warning(['Colour ', ColourName, ' is not supported, returning -1 for error mat.']);
-    return;
-end
-
-contingency = ContingencyTable(ImageMask, ImageResult);
 
 end
