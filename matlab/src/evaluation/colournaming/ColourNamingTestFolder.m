@@ -2,14 +2,15 @@ function ErrorMats = ColourNamingTestFolder(DirPath, method, EvaluateGroundTruth
 
 if nargin < 3
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/soccer/psv/';
-  method = 'our';
+  method = 'ourlab';
   EvaluateGroundTruth = false;
 end
 
-ConfigsMat = load('lab_ellipsoid_params_new');
-EllipsoidsTitles = ConfigsMat.RGBTitles;
-EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
-if strcmpi(method, 'our')
+if strcmpi(method, 'ourlab')
+  ConfigsMat = load('lab_ellipsoid_params');
+  MethodNumber = 1;
+elseif strcmpi(method, 'ourlsy')
+  ConfigsMat = load('lsy_ellipsoid_params');
   MethodNumber = 1;
 else
   EllipsoidDicMat = load('EllipsoidDic.mat');
@@ -30,6 +31,14 @@ else
 end
 method = lower(method);
 disp(['Applying method of ', method]);
+
+if MethodNumber ~= 1
+  ConfigsMatRgbTitle = load('lab_ellipsoid_params');
+else
+  ConfigsMatRgbTitle = ConfigsMat;
+end
+EllipsoidsTitles = ConfigsMatRgbTitle.RGBTitles;
+EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
 
 ResultDirectory = [DirPath, method, '_results/'];
 if ~isdir(ResultDirectory)

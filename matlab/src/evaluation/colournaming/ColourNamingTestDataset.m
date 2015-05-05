@@ -2,7 +2,7 @@ function [] = ColourNamingTestDataset(DirPath, method)
 
 if nargin < 2
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ebay/';
-  method = 'our';
+  method = 'ourlab';
 end
 
 SubFolders = GetSubFolders(DirPath);

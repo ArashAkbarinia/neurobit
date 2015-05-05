@@ -12,16 +12,17 @@ function [BelongingImage, NamingImage] = ColourNamingTestImage(ImageRGB, method,
 %
 
 if nargin < 2
-  method = 'our';
+  method = 'ourlab';
 end
 if nargin < 3
   plotme = true;
 end
 
-ConfigsMat = load('lab_ellipsoid_params');
-EllipsoidsTitles = ConfigsMat.RGBTitles;
-EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
-if strcmpi(method, 'our')
+if strcmpi(method, 'ourlab')
+  ConfigsMat = load('lab_ellipsoid_params');
+  MethodNumber = 1;
+elseif strcmpi(method, 'ourlsy')
+  ConfigsMat = load('lsy_ellipsoid_params');
   MethodNumber = 1;
 else
   EllipsoidDicMat = load('EllipsoidDic.mat');
@@ -54,6 +55,13 @@ end
 
 % plotting
 if plotme
+  if MethodNumber ~= 1
+    ConfigsMatRgbTitle = load('lab_ellipsoid_params');
+  else
+    ConfigsMatRgbTitle = ConfigsMat;
+  end
+  EllipsoidsTitles = ConfigsMatRgbTitle.RGBTitles;
+  EllipsoidsRGBs = name2rgb(EllipsoidsTitles);
   PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
   
   figure('NumberTitle', 'Off', 'Name', [method, ' Colour Naming']);
