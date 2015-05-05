@@ -4,7 +4,7 @@ if nargin < 3
   DoPostProcessing = false;
 end
 
-BelongingImage = rgb2belonging(ImageRGB, 'lab', ConfigsMat);
+BelongingImage = rgb2belonging(ImageRGB, ConfigsMat);
 if DoPostProcessing
   BelongingImage = PostProcessBelongingImage(ImageRGB, BelongingImage);
 end

@@ -1,17 +1,22 @@
-function BelongingImage = rgb2belonging(ImageRGB, ColourSpace, ConfigsMat, plotme, GroundTruth, DoAdaptEllipsoids)
+function BelongingImage = rgb2belonging(ImageRGB, ConfigsMat, plotme, GroundTruth, DoAdaptEllipsoids)
 %RGB2BELONGING  labels each pixel in the image as one of the focal eleven
 %               colours.
 
 if nargin < 2
-  ColourSpace = 'lab';
+  ConfigsMat = 'lab';
 end
-ColourSpace = lower(ColourSpace);
+if ischar(ConfigsMat)
+  ColourSpace = ConfigsMat;
+  ConfigsMat = [];
+else
+  ColourSpace = lower(ConfigsMat.ColourSpace);
+end
 
-if nargin < 5
+if nargin < 4
   plotme = false;
 end
 
-if nargin < 6
+if nargin < 5
   DoAdaptEllipsoids = false;
 end
 
