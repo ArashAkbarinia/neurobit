@@ -1,4 +1,4 @@
-function BelongingImage = ColourNamingTestImage(ImageRGB, method, plotme)
+function [BelongingImage, NamingImage] = ColourNamingTestImage(ImageRGB, method, plotme)
 %ColourNamingTestImage  applies colour naming to the input image.
 %
 % Inputs
@@ -8,6 +8,7 @@ function BelongingImage = ColourNamingTestImage(ImageRGB, method, plotme)
 %
 % Outputs
 %   BelongingImage  the output belonging image.
+%   NamingImage     the output image each pixel categorised to one colour.
 %
 
 if nargin < 2
