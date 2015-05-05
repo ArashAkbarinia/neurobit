@@ -14,7 +14,7 @@ if nargin < 2
   method = 'our';
 end
 if nargin < 3
-  plotme = 1;
+  plotme = true;
 end
 
 ConfigsMat = load('lab_ellipsoid_params');
@@ -44,11 +44,11 @@ disp(['Applying method of ', method]);
 
 switch MethodNumber
   case 1
-    [NamingImage, BelongingImage] = ApplyOurMethod(ImageRGB, ConfigsMat);
+    [NamingImage, BelongingImage] = ColourNamingOur(ImageRGB, ConfigsMat);
   case 2
-    [NamingImage, BelongingImage] = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat);
+    [NamingImage, BelongingImage] = ColourNamingJoost(ImageRGB, ConfigsMat, ConversionMat);
   case 3
-    [NamingImage, BelongingImage] = ApplyRobertMethod(ImageRGB, ConfigsMat, ConversionMat);
+    [NamingImage, BelongingImage] = ColourNamingRobert(ImageRGB, ConfigsMat, ConversionMat);
 end
 
 % plotting
@@ -60,43 +60,6 @@ if plotme
   imshow(uint8(ImageRGB));
   subplot(1, 2, 2);
   imshow(ColourLabelImage(NamingImage));
-end
-
-end
-
-function [NamingImage, BelongingImage] = ApplyOurMethod(ImageRGB, ConfigsMat)
-
-BelongingImage = rgb2belonging(ImageRGB, 'lab', ConfigsMat);
-BelongingImage = PostProcessBelongingImage(ImageRGB, BelongingImage);
-NamingImage = belonging2naming(BelongingImage, true);
-
-end
-
-function [NamingImage, BelongingImage] = ApplyJoostMethod(ImageRGB, ConfigsMat, ConversionMat)
-
-ImageRGB = double(ImageRGB);
-NamingImage = im2c(ImageRGB, ConfigsMat, 0);
-
-[rows, cols, ~] = size(ImageRGB);
-BelongingImage = zeros(rows, cols, 11);
-NamingImageTmp = NamingImage;
-for i = 1:11
-  BelongingImage(:, :, ConversionMat(i)) = im2c(ImageRGB, ConfigsMat, i);
-  NamingImage(NamingImageTmp == i) = ConversionMat(i);
-end
-
-end
-
-function [NamingImage, BelongingImage] = ApplyRobertMethod(ImageRGB, ConfigsMat, ConversionMat)
-
-ImageRGB = double(ImageRGB);
-[~, NamingImage, BelongingImage] = ImColorNamingTSELab(ImageRGB, ConfigsMat.ParFileName1, ConfigsMat.ParFileName2, ConfigsMat.ParFileName3);
-
-NamingImageTmp = NamingImage;
-BelongingImageTmp = BelongingImage;
-for i = 1:11
-  BelongingImage(:, :, ConversionMat(i)) = BelongingImageTmp(:, :, i);
-  NamingImage(NamingImageTmp == i) = ConversionMat(i);
 end
 
 end
