@@ -1,6 +1,21 @@
 function contingency = ColourNamingComputeError(ImageMask, NamingImage, ColourName)
 
-% TODO: if colourname is all
+if strcmp(ColourName, 'all')
+  ColourNames = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'};
+  contingency = struct();
+  for i = 1:numel(ColourNames)
+    CurrentImageMask = ImageMask(:, :, 1) == i;
+    contingency.(ColourNames{i}) = DoContingencyOneColour(CurrentImageMask, NamingImage, ColourNames{i});
+  end
+else
+  contingency = DoContingencyOneColour(ImageMask, NamingImage, ColourName);
+end
+
+end
+
+function contingency = DoContingencyOneColour(ImageMask, NamingImage, ColourName)
+
+ColourName = lower(ColourName);
 
 switch ColourName
   case {'g', 'green'}
