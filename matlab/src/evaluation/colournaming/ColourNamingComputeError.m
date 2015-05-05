@@ -1,7 +1,7 @@
 function contingency = ColourNamingComputeError(ImageMask, NamingImage, ColourName)
 
 if strcmp(ColourName, 'all')
-  ColourNames = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'};
+  ColourNames = {'green', 'blue', 'purple', 'pink', 'red', 'orange', 'yellow', 'brown', 'grey', 'white', 'black'};
   contingency = struct();
   for i = 1:numel(ColourNames)
     CurrentImageMask = ImageMask(:, :, 1) == i;
