@@ -1,37 +1,52 @@
-function [lsYFrontiers, borders] = ReadExperimentResults(FilePath, lsYFrontiers, borders)
+function [ColourFrontiers, borders] = ReadExperimentResults(FilePath, ColourFrontiers, borders)
+%ReadExperimentResults  maps the colour frontiers result to its object.
+%
+% inputs
+%   FilePath         the path to the mat file.
+%   ColourFrontiers  previous list of colour frontiers, by default is empty,
+%                    if it's not empty the new frontiers are added to this
+%                    list.
+%   borders          previous list of colour borders, by default is empty,
+%                    if it's not empty the new borders are added to this
+%                    list.
+%
+% outputs
+%   ColourFrontiers  the updated list of colour frontiers.
+%   borders          the updated list of borders.
+%
 
 if nargin < 3
-  lsYFrontiers = struct();
+  ColourFrontiers = struct();
   borders = {};
   
   % colour objects
-  lsYFrontiers.black  = ColourCategory('black');
-  lsYFrontiers.blue   = ColourCategory('blue');
-  lsYFrontiers.brown  = ColourCategory('brown');
-  lsYFrontiers.green  = ColourCategory('green');
-  lsYFrontiers.grey   = ColourCategory('grey');
-  lsYFrontiers.orange = ColourCategory('orange');
-  lsYFrontiers.pink   = ColourCategory('pink');
-  lsYFrontiers.purple = ColourCategory('purple');
-  lsYFrontiers.red    = ColourCategory('red');
-  lsYFrontiers.yellow = ColourCategory('yellow');
-  lsYFrontiers.white  = ColourCategory('white');
+  ColourFrontiers.black  = ColourCategory('black');
+  ColourFrontiers.blue   = ColourCategory('blue');
+  ColourFrontiers.brown  = ColourCategory('brown');
+  ColourFrontiers.green  = ColourCategory('green');
+  ColourFrontiers.grey   = ColourCategory('grey');
+  ColourFrontiers.orange = ColourCategory('orange');
+  ColourFrontiers.pink   = ColourCategory('pink');
+  ColourFrontiers.purple = ColourCategory('purple');
+  ColourFrontiers.red    = ColourCategory('red');
+  ColourFrontiers.yellow = ColourCategory('yellow');
+  ColourFrontiers.white  = ColourCategory('white');
 end
 
 MatFile = load(FilePath);
 ExperimentResult = MatFile.ExperimentResults;
 
 if strcmpi(ExperimentResult.type, 'arch') || strcmpi(ExperimentResult.type, 'centre')
-  [lsYFrontiers, borders] = DoArchCentre(lsYFrontiers, borders, ExperimentResult);
+  [ColourFrontiers, borders] = DoArchCentre(ColourFrontiers, borders, ExperimentResult);
 elseif strcmpi(ExperimentResult.type, 'lum')
   % FIXME: how to integrate luminance
-  [lsYFrontiers, borders] = DoLuminance(lsYFrontiers, borders, ExperimentResult);
+  [ColourFrontiers, borders] = DoLuminance(ColourFrontiers, borders, ExperimentResult);
 end
 
 end
 
 % TODO: make this code more readable
-function [lsYFrontiers, borders] = DoArchCentre(lsYFrontiers, borders, ExperimentResult)
+function [ColourFrontiers, borders] = DoArchCentre(ColourFrontiers, borders, ExperimentResult)
 
 angles = ExperimentResult.angles;
 radii = ExperimentResult.radii;
@@ -83,17 +98,17 @@ for i = 1:length(nluminances)
           (strcmpi(colour2, ColourA) || strcmpi(colour2, ColourB))
         border = borders{j};
         border = border.AddPoints(lsys.(LumName)(k, :), nluminances(i));
-        lsYFrontiers.(ColourA) = lsYFrontiers.(ColourA).SetBorder(border);
-        lsYFrontiers.(ColourB) = lsYFrontiers.(ColourB).SetBorder(border);
+        ColourFrontiers.(ColourA) = ColourFrontiers.(ColourA).SetBorder(border);
+        ColourFrontiers.(ColourB) = ColourFrontiers.(ColourB).SetBorder(border);
         borders{j} = border;
         break;
       end
     end
     
     if isempty(border)
-      border = ColourBorder(lsYFrontiers.(ColourA), lsYFrontiers.(ColourB), lsys.(LumName)(k, :), nluminances(i));
-      lsYFrontiers.(ColourA) = lsYFrontiers.(ColourA).AddBorder(border);
-      lsYFrontiers.(ColourB) = lsYFrontiers.(ColourB).AddBorder(border);
+      border = ColourBorder(ColourFrontiers.(ColourA), ColourFrontiers.(ColourB), lsys.(LumName)(k, :), nluminances(i));
+      ColourFrontiers.(ColourA) = ColourFrontiers.(ColourA).AddBorder(border);
+      ColourFrontiers.(ColourB) = ColourFrontiers.(ColourB).AddBorder(border);
       borders{end + 1} = border; %#ok<AGROW>
     end
   end
@@ -101,7 +116,7 @@ end
 
 end
 
-function [lsYFrontiers, borders] = DoLuminance(lsYFrontiers, borders, ExperimentResult)
+function [ColourFrontiers, borders] = DoLuminance(ColourFrontiers, borders, ExperimentResult)
 
 angles = ExperimentResult.angles;
 radii = ExperimentResult.radii;
@@ -132,17 +147,17 @@ for i = 1:nexperiments
         (strcmpi(colour2, ColourA) || strcmpi(colour2, ColourB))
       border = borders{j};
       border = border.AddPoints(lsys(i, :), LumName);
-      lsYFrontiers.(ColourA) = lsYFrontiers.(ColourA).SetBorder(border);
-      lsYFrontiers.(ColourB) = lsYFrontiers.(ColourB).SetBorder(border);
+      ColourFrontiers.(ColourA) = ColourFrontiers.(ColourA).SetBorder(border);
+      ColourFrontiers.(ColourB) = ColourFrontiers.(ColourB).SetBorder(border);
       borders{j} = border;
       break;
     end
   end
   
   if isempty(border)
-    border = ColourBorder(lsYFrontiers.(ColourA), lsYFrontiers.(ColourB), lsys(i, :), LumName);
-    lsYFrontiers.(ColourA) = lsYFrontiers.(ColourA).AddBorder(border);
-    lsYFrontiers.(ColourB) = lsYFrontiers.(ColourB).AddBorder(border);
+    border = ColourBorder(ColourFrontiers.(ColourA), ColourFrontiers.(ColourB), lsys(i, :), LumName);
+    ColourFrontiers.(ColourA) = ColourFrontiers.(ColourA).AddBorder(border);
+    ColourFrontiers.(ColourB) = ColourFrontiers.(ColourB).AddBorder(border);
     borders{end + 1} = border; %#ok<AGROW>
   end
 end
