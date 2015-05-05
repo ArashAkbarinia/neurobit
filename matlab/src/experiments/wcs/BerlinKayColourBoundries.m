@@ -8,9 +8,9 @@ end
 
 FunctionLocalPath = 'matlab/src/experiments/wcs/BerlinKayColourBoundries';
 FunctionPath = mfilename('fullpath');
-TermsPath = strrep(FunctionPath, FunctionLocalPath, 'data/WCS-Data-20110316/BK-term.txt');
-DicPath = strrep(FunctionPath, FunctionLocalPath, 'data/WCS-Data-20110316/BK-dict.txt');
-ChipsTablePath = strrep(FunctionPath, FunctionLocalPath, 'data/WCS-Data-20110316/cnum-vhcm-lab-new.txt');
+TermsPath = strrep(FunctionPath, FunctionLocalPath, 'data/ColourNaming/WCS-Data-20110316/BK-term.txt');
+DicPath = strrep(FunctionPath, FunctionLocalPath, 'data/ColourNaming/WCS-Data-20110316/BK-dict.txt');
+ChipsTablePath = strrep(FunctionPath, FunctionLocalPath, 'data/ColourNaming/WCS-Data-20110316/cnum-vhcm-lab-new.txt');
 
 WcsTerms = tdfread(TermsPath);
 WcsDic = tdfread(DicPath);
