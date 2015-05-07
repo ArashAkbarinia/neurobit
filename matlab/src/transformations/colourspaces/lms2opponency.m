@@ -19,7 +19,7 @@ end
 
 inv_Gamma = 1/2.2;
 
-[ydim xdim] = size(LMSimage);
+[ydim, xdim] = size(LMSimage);
 
 minv =min(LMSimage(:));
 maxv = max(LMSimage(:));
@@ -42,7 +42,7 @@ switch lower(map_type)
     mypic = pict(:,:,1);
   case 'm'        %  green
     mypic = pict(:,:,2);
-  case 'S'        %  blue
+  case 's'        %  blue
     mypic = pict(:,:,3);
   case 'r-g'        %  green-red opponent
     mypic = (pict(:,:,1) - pict(:,:,2))./(pict(:,:,1) + pict(:,:,2));
