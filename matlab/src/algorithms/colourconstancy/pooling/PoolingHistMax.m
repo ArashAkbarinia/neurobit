@@ -3,6 +3,7 @@ function HistMax = PoolingHistMax(InputImage, nbins, CutoffPercent, MaxVal)
 %   Instead of choosing the maximum intensity for each colour channel, this
 %   function chooses the intensity such that number of pixels with
 %   intensity higher account for cutoff percentage.
+%   EQUATION: eq-6.6-6.8 Ebner 2007, "Color Constancy"
 %
 % inputs
 %   InputImage     the input image.
@@ -14,7 +15,7 @@ function HistMax = PoolingHistMax(InputImage, nbins, CutoffPercent, MaxVal)
 %   HistMax  the maximum value that satisfies CutoffPercent in range [0, 1]
 %
 
-if nargin < 3
+if nargin < 3 || isempty(CutoffPercent)
   CutoffPercent = 0.01;
 end
 
@@ -26,10 +27,10 @@ maxnpizels = CutoffPercent * npixels;
 HistMax = zeros(1, 3);
 for i = 1:chns
   ichan = InputImage(:, :, i);
-  if nargin < 4
+  if nargin < 4 || isempty(MaxVal)
     MaxVal = max(max(ichan));
   end
-  if nargin < 2
+  if nargin < 2 || isempty(nbins)
     nbins = ceil(MaxVal);
   end
   ihist = imhist(ichan, nbins);
