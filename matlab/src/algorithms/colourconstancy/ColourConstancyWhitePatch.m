@@ -1,4 +1,4 @@
-function ColourConstantImage = ColourConstancyWhitePatch(InputImage)
+function [ColourConstantImage, luminance] = ColourConstancyWhitePatch(InputImage)
 %ColourConstancyWhitePatch applies the white patch algorithm to the input.
 %
 % Inputs
@@ -6,6 +6,7 @@ function ColourConstantImage = ColourConstancyWhitePatch(InputImage)
 %
 % Outputs
 %   ColourConstantImage  the colour constant image in range of [0, 1].
+%   luminance            the estimated luminance of the scene.
 %
 % Examples
 %   im = imread('peppers.png');
@@ -17,9 +18,8 @@ function ColourConstantImage = ColourConstancyWhitePatch(InputImage)
 
 InputImage = im2double(InputImage);
 
-immax = max(max(InputImage));
-k = 1.0 / immax;
-
-ColourConstantImage = MatChansMulK(InputImage, k);
+luminance = max(max(InputImage));
+luminance = reshape(luminance, 1, 3);
+ColourConstantImage = MatChansMulK(InputImage, 1.0 ./ luminance);
 
 end
