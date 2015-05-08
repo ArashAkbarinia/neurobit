@@ -11,7 +11,7 @@ function ColourConstantImage = ColourConstancy(InputImage, algorithm, plotme, va
 %   ColourConstantImage  the colour constant image in range of [0, 1].
 %
 % See also: ColourConstancyACE, ColourConstancyGreyWorld,
-%           ColourConstancyHisteq, ColourConstancyModifiedWhitePatch,
+%           ColourConstancyHisteq, ColourConstancyHistWhitePatch,
 %           ColourConstancyMSRCR, ColourConstancyMultiScaleRetinex,
 %           ColourConstancyProgressive, ColourConstancySingleScaleRetinex,
 %           ColourConstancyWhitePatch
@@ -28,21 +28,8 @@ switch algorithm
     ColourConstantImage = ColourConstancyGreyWorld(InputImage);
   case 'white patch'
     ColourConstantImage = ColourConstancyWhitePatch(InputImage);
-  case 'modified white patch'
-    if ~isempty(varargin)
-      thresholds(1) = varargin{1};
-      if length(varargin) == 3
-        thresholds(2) = varargin{2};
-        thresholds(3) = varargin{3};
-      else
-        thresholds(2) = thresholds(1);
-        thresholds(3) = thresholds(1);
-      end
-      ColourConstantImage = ColourConstancyModifiedWhitePatch(InputImage, thresholds);
-    else
-      ColourConstantImage = InputImage;
-      disp('Modified white patch algorithm must have another parameter.');
-    end
+  case 'hist white patch'
+    ColourConstantImage = ColourConstancyHistWhitePatch(InputImage);
   case 'progressive'
     if length(varargin) > 1
       h1 = varargin{1};

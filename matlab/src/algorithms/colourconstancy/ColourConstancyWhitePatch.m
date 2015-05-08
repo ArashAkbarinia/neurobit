@@ -1,5 +1,6 @@
 function [ColourConstantImage, luminance] = ColourConstancyWhitePatch(InputImage)
 %ColourConstancyWhitePatch applies the white patch algorithm to the input.
+%   Explanation Ebner 2007, "Color Constancy"
 %
 % Inputs
 %   InputImage  the input image.
