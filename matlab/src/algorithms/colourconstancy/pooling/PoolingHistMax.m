@@ -1,4 +1,4 @@
-function HistMax = PoolingHistMax(InputImage, nbins, CutoffPercent)
+function HistMax = PoolingHistMax(InputImage, nbins, CutoffPercent, MaxVal)
 %PoolingHistMax  pooling the maximum value based on the histogram.
 %   Instead of choosing the maximum intensity for each colour channel, this
 %   function chooses the intensity such that number of pixels with
@@ -8,6 +8,7 @@ function HistMax = PoolingHistMax(InputImage, nbins, CutoffPercent)
 %   InputImage     the input image.
 %   nbins          number of discrete grey levels, default is max value.
 %   CutoffPercent  the cut off percentage, default is 0.01.
+%   MaxVal         the maximum value of data type, default max operation.
 %
 % outputs
 %   HistMax  the maximum value that satisfies CutoffPercent in range [0, 1]
@@ -25,7 +26,9 @@ maxnpizels = CutoffPercent * npixels;
 HistMax = zeros(1, 3);
 for i = 1:chns
   ichan = InputImage(:, :, i);
-  MaxVal = max(max(ichan));
+  if nargin < 4
+    MaxVal = max(max(ichan));
+  end
   if nargin < 2
     nbins = ceil(MaxVal);
   end

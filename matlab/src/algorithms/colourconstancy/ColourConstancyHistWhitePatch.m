@@ -25,7 +25,7 @@ end
 InputImage = im2double(InputImage);
 
 CutoffPercentage = 0.01;
-luminance = PoolingHistMax(InputImage, nbins, CutoffPercentage);
+luminance = PoolingHistMax(InputImage, nbins, CutoffPercentage, 1);
 
 ColourConstantImage = MatChansMulK(InputImage, 1.0 ./ luminance);
 
