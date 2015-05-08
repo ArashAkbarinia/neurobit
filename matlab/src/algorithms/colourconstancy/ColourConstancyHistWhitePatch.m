@@ -23,27 +23,9 @@ if nargin < 2
 end
 
 InputImage = im2double(InputImage);
-[rows, cols, chns] = size(InputImage);
-npixels = rows * cols;
 
-CutoffPerce = 0.01;
-CutoffValue = CutoffPerce * npixels;
-
-luminance = zeros(1, 3);
-for i = 1:chns
-  ichan = InputImage(:, :, i);
-  ihist = imhist(ichan, nbins);
-  
-  luminance(1, i) = 1;
-  jpixels = 0;
-  for j = nbins:-1:1
-    jpixels = ihist(j) + jpixels;
-    if jpixels >= CutoffValue
-      luminance(1, i) = j ./ nbins;
-      break;
-    end
-  end
-end
+CutoffPercentage = 0.01;
+luminance = PoolingHistMax(InputImage, nbins, CutoffPercentage);
 
 ColourConstantImage = MatChansMulK(InputImage, 1.0 ./ luminance);
 
