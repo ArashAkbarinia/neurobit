@@ -1,13 +1,14 @@
-function ColourConstantImage = ColourConstancyGreyWorld(InputImage, ScaleFactor)
+function [ColourConstantImage, luminance] = ColourConstancyGreyWorld(InputImage, ScaleFactor)
 %ColourConstancyGreyWrold  applies the grey world algorithm to the input.
 %   Explanation http://en.wikipedia.org/wiki/Color_normalization#Grey_world
 %
-% Inputs
+% inputs
 %   InputImage   the input image.
 %   ScaleFactor  the scale factor, default is average intensity value.
 %
-% Outputs
+% outputs
 %   ColourConstantImage  the colour constant image in range of [0, 1].
+%   luminance            the estimated luminance of the scene.
 %
 % Examples
 %   im = imread('peppers.png');
@@ -19,13 +20,14 @@ function ColourConstantImage = ColourConstancyGreyWorld(InputImage, ScaleFactor)
 
 InputImage = im2double(InputImage);
 
-immean = mean(mean(InputImage));
+luminance = mean(mean(InputImage));
+luminance = reshape(luminance, 1, 3);
 
 if nargin < 2
-  ScaleFactor = mean(immean);
+  ScaleFactor = mean(luminance);
 end
 
-k = ScaleFactor / immean;
+k = ScaleFactor ./ luminance;
 
 ColourConstantImage = MatChansMulK(InputImage, k);
 
