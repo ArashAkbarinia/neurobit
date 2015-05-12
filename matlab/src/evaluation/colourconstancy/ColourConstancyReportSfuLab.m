@@ -1,8 +1,11 @@
-function AngularErrors = ColourConstancyReportSfuLab(plotme, ImageNumbers)
+function AngularErrors = ColourConstancyReportSfuLab(method, plotme, ImageNumbers)
 %ColourConstancyReportSfuLab Summary of this function goes here
 %   Detailed explanation goes here
 
 if nargin < 1
+  method = 'opponency';
+end
+if nargin < 2
   plotme = false;
 end
 
@@ -15,11 +18,9 @@ SfuLabImageListMat = load(MatFilePath);
 SfuLabImageNames = SfuLabImageListMat.SfuLabImageNames;
 SfuGroundtruthIlluminations = SfuLabImageListMat.SfuGroundtruthIlluminations;
 
-if nargin < 2
-  nimages = numel(SfuLabImageNames);
+nimages = numel(SfuLabImageNames);
+if nargin < 3
   ImageNumbers = 1:nimages;
-else
-  nimages = length(ImageNumbers);
 end
 
 AngularErrors = zeros(nimages, 1);
@@ -27,8 +28,13 @@ AngularErrors = zeros(nimages, 1);
 for i = ImageNumbers
   CurrentImage = imread([DataSetFolder, SfuLabImageNames{i}, '.tif']);
   
-  [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false);
-  %   [~, EstimatedLuminance] = ColourConstancyHistWhitePatch(CurrentImage);
+  if strcmpi(method, 'opponency')
+    [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false);
+  elseif strcmpi(method, 'grey world')
+    [~, EstimatedLuminance] = ColourConstancyGreyWorld(CurrentImage);
+  elseif strcmpi(method, 'hist white patch')
+    [~, EstimatedLuminance] = ColourConstancyHistWhitePatch(CurrentImage);
+  end
   EstimatedLuminance = EstimatedLuminance';
   
   % normalizing the illuminant
