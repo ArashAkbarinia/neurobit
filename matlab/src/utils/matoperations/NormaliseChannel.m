@@ -5,9 +5,11 @@ function noarmalisedx = NormaliseChannel(x, a, b, mins, maxs)
 %   values into the range [0, 1].
 %
 % Inputs
-%   x  the input data.
-%   a  the lower value of output, default 0.
-%   b  the higher value of output, default 1.
+%   x     the input data.
+%   a     the lower value of output, default 0.
+%   b     the higher value of output, default 1.
+%   mins  the minimum value of input data set, default min function.
+%   maxs  the maximum value of input data set, default max function.
 %
 % Outputs
 %   noarmalisedx the output matrix between 'a' and 'b'.
@@ -20,19 +22,20 @@ if nargin < 2
   maxs = [];
 end
 
-if isempty(a)
-  a = [0.0, 0.0, 0.0];
-end
-if isempty(b)
-  b = [1.0, 1.0, 1.0];
-end
-
 [rows, cols, chns] = size(x);
 
-% TODO: make it generic for differnt channels.
-% if chns ~= 3 && cols ~= 3
-%   error('NormaliseChannel:wrongnumbers', 'NormaliseChannel only supports data in 3 channels.');
-% end
+if isempty(a)
+  a = 0.0;
+end
+if isempty(b)
+  b = 1.0;
+end
+if length(a) == 1
+  a(2:chns) = a(1);
+end
+if length(b) == 1
+  b(2:chns) = b(1);
+end
 
 if chns == 1 && cols == 3
   x = reshape(x, rows, cols / 3, 3);
@@ -45,10 +48,16 @@ b = double(b);
 noarmalisedx = zeros(size(x));
 
 if isempty(mins)
-  mins = min(min(x));
+  mins = min(x(:));
 end
 if isempty(maxs)
-  maxs = max(max(x));
+  maxs = max(x(:));
+end
+if length(mins) == 1
+  mins(2:chns) = mins(1);
+end
+if length(maxs) == 1
+  maxs(2:chns) = maxs(1);
 end
 
 for i = 1:chns
