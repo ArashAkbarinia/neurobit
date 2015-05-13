@@ -14,13 +14,20 @@ function ind = CIWaM(img, window_sizes, wlev, gamma, srgb_flag, nu_0)
 %   nu_0: peak spatial frequency for CSF; suggested value of 4
 
 if nargin < 2
-  MidaMin = 4;
-  wlev = floor(log(max(size(img) - 1) / MidaMin) / log(2)) + 1;
-  
   window_sizes = [3, 6];
-  nu_0 = 3;
+end
+if nargin < 3
+  SmallestScale = 32;
+  wlev = round(log2(min(size(img, 1), size(img, 1)) / SmallestScale));
+end
+if nargin < 4
   gamma = 1;
-  srgb_flag = 0;
+end
+if nargin < 5
+  srgb_flag = false;
+end
+if nargin < 6
+  nu_0 = 3;
 end
 
 % convert opponent colour space of colour images:
