@@ -1,10 +1,11 @@
-function [ColourConstantImage, luminance] = ColourConstancyHistWhitePatch(InputImage, nbins)
+function [ColourConstantImage, luminance] = ColourConstancyHistWhitePatch(InputImage, CutoffPercentage)
 %ColourConstancyHistWhitePatch  applies the modified white patch algorithm.
 %   Explanation Ebner 2007, "Color Constancy"
 %
 % Inputs
-%   InputImage  the input image.
-%   nbins       number of discrete grey levels, default is 256.
+%   InputImage        the input image in RGB colour space, i.e. range
+%                     [0, 255].
+%   CutoffPercentage  the cut off percentage, default is 0.01.
 %
 % Outputs
 %   ColourConstantImage  the colour constant image in range of [0, 1].
@@ -19,13 +20,12 @@ function [ColourConstantImage, luminance] = ColourConstancyHistWhitePatch(InputI
 %
 
 if nargin < 2
-  nbins = 256;
+  CutoffPercentage = 0.01;
 end
 
-InputImage = im2double(InputImage);
+InputImage = double(InputImage);
 
-CutoffPercentage = 0.01;
-luminance = PoolingHistMax(InputImage, nbins, CutoffPercentage, 1);
+luminance = PoolingHistMax(InputImage, CutoffPercentage);
 
 ColourConstantImage = MatChansMulK(InputImage, 1.0 ./ luminance);
 

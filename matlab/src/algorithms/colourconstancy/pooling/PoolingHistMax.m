@@ -1,4 +1,4 @@
-function HistMax = PoolingHistMax(InputImage, nbins, CutoffPercent, MaxVal)
+function HistMax = PoolingHistMax(InputImage, CutoffPercent)
 %PoolingHistMax  pooling the maximum value based on the histogram.
 %   Instead of choosing the maximum intensity for each colour channel, this
 %   function chooses the intensity such that number of pixels with
@@ -7,42 +7,58 @@ function HistMax = PoolingHistMax(InputImage, nbins, CutoffPercent, MaxVal)
 %
 % inputs
 %   InputImage     the input image.
-%   nbins          number of discrete grey levels, default is max value.
 %   CutoffPercent  the cut off percentage, default is 0.01.
-%   MaxVal         the maximum value of data type, default max operation.
 %
 % outputs
 %   HistMax  the maximum value that satisfies CutoffPercent in range [0, 1]
 %
 
-if nargin < 3 || isempty(CutoffPercent)
-  CutoffPercent = 0.01;
-end
-
 [rows, cols, chns] = size(InputImage);
 npixels = rows * cols;
+
+% bringing all the minus values to positive
+MinVal = min(min(InputImage));
+for i = 1:chns
+  if MinVal(1, 1, i) < 0
+    InputImage(:, :, i) = InputImage(:, :, i) - MinVal(1, 1, i);
+  end
+end
+
+MaxVal = max(InputImage(:));
+if MaxVal < 256
+  InputImage = uint8(round(InputImage));
+  nbins = 256;
+elseif MaxVal < 65535
+  InputImage = uint16(round(InputImage));
+  nbins = 65535;
+end
+
+if nargin < 2 || isempty(CutoffPercent)
+  CutoffPercent = 0.01;
+end
 
 maxnpizels = CutoffPercent * npixels;
 
 HistMax = zeros(1, 3);
 for i = 1:chns
   ichan = InputImage(:, :, i);
-  if nargin < 4 || isempty(MaxVal)
-    MaxVal = max(max(ichan));
-  end
-  if nargin < 2 || isempty(nbins)
-    nbins = ceil(MaxVal);
-  end
   ihist = imhist(ichan, nbins);
   
-  HistMax(1, i) = MaxVal;
+  HistMax(1, i) = nbins - 1;
   jpixels = 0;
   for j = nbins:-1:1
     jpixels = ihist(j) + jpixels;
-    if jpixels >= maxnpizels
-      HistMax(1, i) = j ./ nbins .* MaxVal;
+    if jpixels > maxnpizels
+      HistMax(1, i) = j - 1;
       break;
     end
+  end
+end
+
+% subtracting the minus values
+for i = 1:chns
+  if MinVal(1, 1, i) < 0
+    HistMax(1, i) = HistMax(1, i) + MinVal(1, 1, i);
   end
 end
 
