@@ -42,7 +42,7 @@ end
 
 maxnpizels = CutoffPercent .* npixels;
 
-HistMax = zeros(1, 3);
+HistMax = zeros(1, chns);
 for i = 1:chns
   ichan = InputImage(:, :, i);
   ihist = imhist(ichan, nbins);
