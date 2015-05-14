@@ -36,8 +36,11 @@ end
 if nargin < 2 || isempty(CutoffPercent)
   CutoffPercent = 0.01;
 end
+if length(CutoffPercent) == 1
+  CutoffPercent(2:chns) = CutoffPercent(1);
+end
 
-maxnpizels = CutoffPercent * npixels;
+maxnpizels = CutoffPercent .* npixels;
 
 HistMax = zeros(1, 3);
 for i = 1:chns
@@ -48,7 +51,7 @@ for i = 1:chns
   jpixels = 0;
   for j = nbins:-1:1
     jpixels = ihist(j) + jpixels;
-    if jpixels > maxnpizels
+    if jpixels > maxnpizels(i)
       HistMax(1, i) = j - 1;
       break;
     end
