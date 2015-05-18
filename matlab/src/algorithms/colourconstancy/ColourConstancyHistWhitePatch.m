@@ -29,4 +29,6 @@ luminance = PoolingHistMax(InputImage, CutoffPercentage);
 
 ColourConstantImage = MatChansMulK(InputImage, 1.0 ./ luminance);
 
+ColourConstantImage = NormaliseChannel(ColourConstantImage);
+
 end
