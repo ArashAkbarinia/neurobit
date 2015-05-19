@@ -23,14 +23,19 @@ sizex = CalculateGaussianWidth(sigmax);
 sizey = CalculateGaussianWidth(sigmay);
 
 if nargin < 3 || isempty(meanx)
-  meanx = (sizex + 1) / 2;
+  meanx = 0;
 end
 if nargin < 4 || isempty(meany)
-  meany = (sizey + 1) / 2;
+  meany = 0;
 end
 
-xs = linspace(1, sizex, sizex)' * ones(1, sizey) - meanx;
-ys = ones(1, sizex)' * linspace(1, sizey, sizey) - meany;
+centrex = (sizex + 1) / 2;
+centrey = (sizey + 1) / 2;
+centrex = centrex + (meanx * centrex);
+centrey = centrey + (meany * centrey);
+
+xs = linspace(1, sizex, sizex)' * ones(1, sizey) - centrex;
+ys = ones(1, sizex)' * linspace(1, sizey, sizey) - centrey;
 
 h = exp(-0.5 .* ((xs ./ sigmax) .^ 2 + (ys ./ sigmay) .^ 2)) ./ (2 * pi * sigmax * sigmay);
 
