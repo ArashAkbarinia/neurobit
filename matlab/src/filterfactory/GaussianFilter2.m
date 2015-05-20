@@ -51,8 +51,8 @@ threshold = 0.0001;
 pw = 1:MaxWidth;
 FilterWidth = find(exp(-(pw .^ 2) / (2 * sigma .^ 2)) > threshold, 1, 'last');
 if isempty(FilterWidth)
-  warning(['input sigma ', sigma, ' is too small, returning width 1.'], 'CalculateGaussianWidth:SmallSigma');
-  FilterWidth = 1;
+  warning(['input sigma ', num2str(sigma), ' is too small, returning width 5.'], 'CalculateGaussianWidth:SmallSigma');
+  FilterWidth = 5;
 end
 FilterWidth = FilterWidth .* 2 + 1;
 
