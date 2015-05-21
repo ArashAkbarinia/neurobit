@@ -10,10 +10,16 @@ function ImageContrast = MichelsonContrast(InputImage)
 %   ImageContrast  calculated contrast of each channel.
 %
 
+InputImage = double(InputImage);
 
 MaxVal = max(max(InputImage));
 MinVal = min(min(InputImage));
 
 ImageContrast = (MaxVal - MinVal) ./ (MaxVal + MinVal);
+
+[~, ~, chns] = size(InputImage);
+if chns > 1
+  ImageContrast = reshape(ImageContrast, 1, chns);
+end
 
 end
