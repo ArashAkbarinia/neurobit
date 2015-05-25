@@ -40,20 +40,3 @@ ys = ones(1, sizex)' * linspace(1, sizey, sizey) - centrey;
 h = exp(-0.5 .* ((xs ./ sigmax) .^ 2 + (ys ./ sigmay) .^ 2)) ./ (2 * pi * sigmax * sigmay);
 
 end
-
-function FilterWidth = CalculateGaussianWidth(sigma, MaxWidth)
-
-if nargin < 2
-  MaxWidth = 100;
-end
-
-threshold = 0.0001;
-pw = 1:MaxWidth;
-FilterWidth = find(exp(-(pw .^ 2) / (2 * sigma .^ 2)) > threshold, 1, 'last');
-if isempty(FilterWidth)
-  warning(['input sigma ', num2str(sigma), ' is too small, returning width 5.'], 'CalculateGaussianWidth:SmallSigma');
-  FilterWidth = 5;
-end
-FilterWidth = FilterWidth .* 2 + 1;
-
-end
