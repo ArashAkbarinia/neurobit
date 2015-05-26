@@ -48,6 +48,8 @@ for i = ImageNumbers
     [~, EstimatedLuminance] = ColourConstancyGreyWorld(CurrentImage);
   elseif strcmpi(method, 'hist white patch')
     [~, EstimatedLuminance] = ColourConstancyHistWhitePatch(CurrentImage);
+  elseif strcmpi(method, 'local std')
+    [~, EstimatedLuminance] = ColourConstancyLocalStd(CurrentImage);
   end
   EstimatedLuminance = EstimatedLuminance';
   
