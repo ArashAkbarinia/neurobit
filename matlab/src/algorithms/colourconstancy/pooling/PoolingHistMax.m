@@ -17,7 +17,7 @@ function HistMax = PoolingHistMax(InputImage, CutoffPercent)
 npixels = rows * cols;
 
 % bringing all the minus values to positive
-MinVal = min(min(InputImage));
+MinVal = min(min(InputImage, [], 2), [], 1);
 for i = 1:chns
   if MinVal(1, 1, i) < 0
     InputImage(:, :, i) = InputImage(:, :, i) - MinVal(1, 1, i);
