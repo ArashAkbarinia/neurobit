@@ -13,7 +13,7 @@ if nargin < 2
   theta = 0;
 end
 
-[g1, ~, ~] = GaussianGradient1(GaussianKernel, theta);
+g1 = GaussianGradient1(GaussianKernel, theta);
 
 [gx, gy] = gradient(g1);
 
