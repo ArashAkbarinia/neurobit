@@ -9,6 +9,8 @@ function ImageContrast = LocalStdContrast(InputImage, CentreSize)
 %   ImageContrast  calculated local std of each channel.
 %
 
+InputImage = double(InputImage);
+
 if nargin < 2
   CentreSize = 5;
 end
