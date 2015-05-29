@@ -20,11 +20,13 @@ rgb2do = ...
   1 / sqrt(6),  1 / sqrt(6), -sqrt(2 / 3);
   1 / sqrt(3),  1 / sqrt(3),  1 / sqrt(3);
   ];
+rgb2do = 1;
 do2rgb = rgb2do';
 
 opponent = rgb2do * reshape(InputImageDouble, rows * cols, chns)';
 opponent = reshape(opponent', rows, cols, chns);
 
+opponent = opponent ./ max(abs(opponent(:)));
 % cone opoonent retinal ganglion cells
 rg = opponent(:, :, 1);
 yb = opponent(:, :, 2);
@@ -34,15 +36,14 @@ if plotme
   PlotLmsOpponency(InputImage);
 end
 
-lambda = 3;
-sorg = SingleOpponent(rg, lambda);
-soyb = SingleOpponent(yb, lambda);
-sowb = SingleOpponent(wb, lambda);
+sorg = SingleOpponent(rg, 1);
+soyb = SingleOpponent(yb, 1);
+sowb = SingleOpponent(wb, 1);
 
-lambda = lambda * 2;
-sogr = SingleOpponent(-rg, lambda);
-soby = SingleOpponent(-yb, lambda);
-sobw = SingleOpponent(-wb, lambda);
+EnlargeFactor = 2;
+sogr = SingleOpponent(-rg, EnlargeFactor);
+soby = SingleOpponent(-yb, EnlargeFactor);
+sobw = SingleOpponent(-wb, EnlargeFactor);
 
 k = 0.9;
 dorg = DoubleOpponent(sorg, sogr, k);
@@ -91,50 +92,52 @@ luminance = MaxVals;
 
 end
 
-function rfresponse = SingleOpponent(isignal, lambda)
+function rfresponse = SingleOpponent(isignal, EnlargeFactor)
 
-if nargin < 2
-  lambda = 3;
+[rows, cols, ~] = size(isignal);
+
+StartingSigma = 2.5;
+lambdax = StartingSigma * EnlargeFactor;
+lambday = StartingSigma * EnlargeFactor;
+
+nContrastLevels = 1;
+% LevelGap = 1 / nContrastLevels;
+% levels = 0:LevelGap:1;
+if nContrastLevels > 1
+  % zctr = RelativeContrast(isignal);
+  zctr = WeberContrast(isignal);
+
+  levels = multithresh(zctr, nContrastLevels - 1);
+%   MeanContrast = max(zctr(:));
+%   for i = 1:nContrastLevels - 1
+%     levels(i) = (i / nContrastLevels) * MeanContrast;
+%   end
+
+  ContrastLevels = imquantize(zctr, levels);
+  SigmaIncrease = 1 / (nContrastLevels - 1);
+  if isinf(SigmaIncrease)
+    SigmaIncrease = 0;
+  end
+else
+  ContrastLevels = ones(rows, cols);
+  SigmaIncrease = 1;
 end
 
-CentreSize = 5;
-SurroundSize = 11;
-hc = fspecial('average', CentreSize);
-MeanCentre = conv2(isignal, hc / CentreSize ^ 2, 'same');
-SigmaCentre = sqrt(conv2(isignal .^ 2, hc / CentreSize ^ 2, 'same') - MeanCentre .^ 2);
-
-hs = fspecial('average', SurroundSize);
-MeanSurround = conv2(isignal, hs / SurroundSize ^ 2, 'same');
-SigmaSurround = sqrt(conv2(isignal .^ 2, hs / SurroundSize ^ 2, 'same') - MeanSurround .^ 2);
-
-% EQUATION: eq-4 Otazu et al. 2007, "Multiresolution wavelet framework
-% models brightness induction effect"
-r    = SigmaCentre ./ (SigmaSurround + 1.e-6);
-zctr = r .^ 2 ./ (1 + r .^ 2);
-
-% nContrastLevels = 8;
-% levels = multithresh(zctr, nContrastLevels - 1);
-nContrastLevels = 4;
-LevelGap = 1 / nContrastLevels;
-levels = 0:LevelGap:1;
-ContrastLevels = imquantize(zctr, levels(2:end-1));
-SigmaIncrease = 1 / (nContrastLevels - 1);
-
-rfresponse = zeros(size(zctr));
+rfresponse = zeros(rows, cols);
 for i = nContrastLevels:-1:1
-  lambdax = lambda * ((nContrastLevels - i) * SigmaIncrease + 1);
-  lambday = lambda * 1.05 * ((nContrastLevels - i) * SigmaIncrease + 1);
-  rfi = GaussianFilter2(lambdax, lambday, 0, 0);
+  lambdaxi = lambdax * ((nContrastLevels - i) * SigmaIncrease + 1);
+  lambdayi = lambday * ((nContrastLevels - i) * SigmaIncrease + 1);
+  rfi = GaussianFilter2(lambdaxi, lambdayi, 0, 0);
   rfresponsei = imfilter(isignal, rfi);
   rfresponse(ContrastLevels == i) = rfresponsei(ContrastLevels == i);
 end
 
-% rf = GaussianFilter2(lambda, lambda + 1, 0, 0);
+% rf = GaussianFilter2(lambdax, lambday);
 % rfresponse = imfilter(isignal, rf);
 
 end
 
-function  rfresponse = DoubleOpponent(ab, ba, k)
+function rfresponse = DoubleOpponent(ab, ba, k)
 
 if nargin < 3
   k = 0.5;
