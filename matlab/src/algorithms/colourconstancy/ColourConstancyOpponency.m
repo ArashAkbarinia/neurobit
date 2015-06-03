@@ -27,28 +27,18 @@ opponent = rgb2do * reshape(InputImageDouble, rows * cols, chns)';
 opponent = reshape(opponent', rows, cols, chns);
 
 opponent = opponent ./ max(abs(opponent(:)));
-% cone opoonent retinal ganglion cells
-rg = opponent(:, :, 1);
-yb = opponent(:, :, 2);
-wb = opponent(:, :, 3);
 
 if plotme
   PlotLmsOpponency(InputImage);
 end
 
-sorg = SingleOpponent(rg, 1);
-soyb = SingleOpponent(yb, 1);
-sowb = SingleOpponent(wb, 1);
+% cone opoonent retinal ganglion cells
+rg = opponent(:, :, 1);
+yb = opponent(:, :, 2);
+wb = opponent(:, :, 3);
 
-EnlargeFactor = 2;
-sogr = SingleOpponent(-rg, EnlargeFactor);
-soby = SingleOpponent(-yb, EnlargeFactor);
-sobw = SingleOpponent(-wb, EnlargeFactor);
-
-k = 0.9;
-dorg = DoubleOpponent(sorg, sogr, k);
-doyb = DoubleOpponent(soyb, soby, k);
-dowb = DoubleOpponent(sowb, sobw, k);
+% [dorg, doyb, dowb] = ApplyDog(rg, yb, wb);
+[dorg, doyb, dowb] = ApplyGaussianGradient(rg, yb, wb);
 
 if plotme
   figure;
@@ -92,10 +82,63 @@ luminance = MaxVals;
 
 end
 
+function [dorg, doyb, dowb] = ApplyGaussianGradient(rg, yb, wb)
+
+dorg = SingleOpponentGradientGaussian(rg, 1);
+doyb = SingleOpponentGradientGaussian(yb, 1);
+dowb = SingleOpponentGradientGaussian(wb, 1);
+
+end
+
+function rfresponse = SingleOpponentGradientGaussian(isignal, EnlargeFactor)
+
+[rows, cols] = size(isignal);
+
+StartingSigma = 2.5;
+lambdax = StartingSigma * EnlargeFactor;
+lambday = StartingSigma * EnlargeFactor;
+
+angles = 0:pi/4:pi;
+chns = length(angles) - 1;
+weights = ones(length(angles), 1);
+weights([1, ceil(end / 2), end]) = 1;
+rfresponse = zeros(rows, cols, chns);
+
+rf = GaussianFilter2(lambdax, lambday, 0, 0);
+
+for i = 1:chns
+  rfi = GaussianGradient1(rf, angles(i));
+%   rfi = GaussianGradient2(rf, angles(i));
+  rfresponsei = imfilter(isignal, rfi, 'replicate');
+  rfresponse(:, :, i) = (rfresponsei .^ 2) * weights(i);
+end
+
+rfresponse = sqrt(rfresponse);
+rfresponse = sum(rfresponse, 3);
+
+end
+
+function [dorg, doyb, dowb] = ApplyDog(rg, yb, wb)
+
+sorg = SingleOpponent(rg, 1);
+soyb = SingleOpponent(yb, 1);
+sowb = SingleOpponent(wb, 1);
+
+EnlargeFactor = 2;
+sogr = SingleOpponent(-rg, EnlargeFactor);
+soby = SingleOpponent(-yb, EnlargeFactor);
+sobw = SingleOpponent(-wb, EnlargeFactor);
+
+k = 0.9;
+dorg = DoubleOpponent(sorg, sogr, k);
+doyb = DoubleOpponent(soyb, soby, k);
+dowb = DoubleOpponent(sowb, sobw, k);
+
+end
+
 function rfresponse = SingleOpponent(isignal, EnlargeFactor)
 
-% rfresponse = SingleOpponentGaussian(isignal, EnlargeFactor);
-rfresponse = SingleOpponentGradientGaussian1(isignal, EnlargeFactor);
+rfresponse = SingleOpponentGaussian(isignal, EnlargeFactor);
 % rfresponse = SingleOpponentContrast(isignal, EnlargeFactor);
 
 end
@@ -160,32 +203,6 @@ lambday = StartingSigma * EnlargeFactor;
 
 rf = GaussianFilter2(lambdax, lambday, 0, 0);
 rfresponse = imfilter(isignal, rf, 'replicate');
-
-end
-
-function rfresponse = SingleOpponentGradientGaussian1(isignal, EnlargeFactor)
-
-[rows, cols] = size(isignal);
-
-StartingSigma = 2.5;
-lambdax = StartingSigma * EnlargeFactor;
-lambday = StartingSigma * EnlargeFactor;
-
-angles = 0:pi/4:pi;
-chns = length(angles) - 1;
-weights = ones(length(angles), 1);
-weights([1, ceil(end / 2), end]) = 1;
-rfresponse = zeros(rows, cols, chns);
-
-rf = GaussianFilter2(lambdax, lambday, 0, 0);
-
-for i = 1:chns
-  rfi = GaussianGradient1(rf, angles(i));
-  rfresponsei = imfilter(isignal, rfi, 'replicate');
-  rfresponse(:, :, i) = (rfresponsei .^ 2) * weights(i);
-end
-
-rfresponse = sqrt(rfresponse);
 
 end
 
