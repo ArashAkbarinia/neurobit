@@ -21,25 +21,30 @@ dw2 = 1:w2;
 dh = abs(h1 - h2) / 2;
 dw = abs(w1 - w2) / 2;
 
-if h1 > h2
-  sih = dh + 1;
-  eih = h1 - dh;
-  dh1 = sih:eih;
-elseif h2 > h1
+g1 = zeros(max(h1, h2), max(w1, w2));
+g2 = zeros(max(h1, h2), max(w1, w2));
+
+if h1 < h2
   sih = dh + 1;
   eih = h2 - dh;
+  dh1 = sih:eih;
+elseif h2 < h1
+  sih = dh + 1;
+  eih = h1 - dh;
   dh2 = sih:eih;
 end
-if w1 > w2
-  siw = dw + 1;
-  eiw = w1 - dw;
-  dw1 = siw:eiw;
-elseif w2 > w1
+if w1 < w2
   siw = dw + 1;
   eiw = w2 - dw;
+  dw1 = siw:eiw;
+elseif w2 < w1
+  siw = dw + 1;
+  eiw = w1 - dw;
   dw2 = siw:eiw;
 end
 
-DifferenceOfGaussians = gaussian1(dh1, dw1) - gaussian2(dh2, dw2);
+g1(dh1, dw1) = gaussian1;
+g2(dh2, dw2) = gaussian2;
+DifferenceOfGaussians = g1 - g2;
 
 end
