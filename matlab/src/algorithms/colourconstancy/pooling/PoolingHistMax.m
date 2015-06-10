@@ -25,12 +25,12 @@ for i = 1:chns
 end
 
 MaxVal = max(InputImage(:));
-if MaxVal < 256
+if MaxVal < (2 ^ 8)
   InputImage = uint8(round(InputImage));
-  nbins = 256;
-elseif MaxVal < 65535
+  nbins = 2 ^ 8;
+elseif MaxVal < (2 ^ 16)
   InputImage = uint16(round(InputImage));
-  nbins = 65535;
+  nbins = 2 ^ 16;
 end
 
 if nargin < 2 || isempty(CutoffPercent)
