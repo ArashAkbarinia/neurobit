@@ -16,9 +16,9 @@ if nargin < 2
 end
 
 hc = fspecial('average', CentreSize);
-MeanCentre = imfilter(InputImage, hc, 'symmetric');
+MeanCentre = imfilter(InputImage, hc, 'replicate');
 stdv = (InputImage - MeanCentre) .^ 2;
-MeanStdv = imfilter(stdv, hc, 'symmetric');
+MeanStdv = imfilter(stdv, hc, 'replicate');
 ImageContrast = sqrt(MeanStdv);
 
 end
