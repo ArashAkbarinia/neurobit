@@ -11,7 +11,7 @@
 % North Jianshe Road,
 % Chengdu, 610054, China
 
-function luminance = DOCC_demo(temporypicture)
+function luminance = GaoDOCC_demo(temporypicture)
 
 
 %demo
