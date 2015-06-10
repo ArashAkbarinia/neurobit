@@ -52,6 +52,8 @@ for i = ImageNumbers
     [~, EstimatedLuminance] = ColourConstancyLocalStd(CurrentImage);
   elseif strcmpi(method, 'gao')
     EstimatedLuminance = GaoDOCC_demo(CurrentImage);
+  elseif strcmpi(method, 'joost')
+    EstimatedLuminance = JoostColorConstancyDemo(CurrentImage);
   end
   EstimatedLuminance = EstimatedLuminance';
   
