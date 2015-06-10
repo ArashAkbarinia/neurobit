@@ -17,7 +17,7 @@ function [ColourConstantImage, luminance] = ColourConstancyWhitePatch(InputImage
 % See also: ColourConstancy
 %
 
-InputImage = im2double(InputImage);
+InputImage = double(InputImage);
 
 luminance = max(max(InputImage));
 luminance = reshape(luminance, 1, 3);

@@ -18,7 +18,7 @@ function [ColourConstantImage, luminance] = ColourConstancyGreyWorld(InputImage,
 % See also: ColourConstancy
 %
 
-InputImage = im2double(InputImage);
+InputImage = double(InputImage);
 
 luminance = mean(mean(InputImage));
 luminance = reshape(luminance, 1, 3);
