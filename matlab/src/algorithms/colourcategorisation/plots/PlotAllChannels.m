@@ -8,7 +8,7 @@ if nargin < 3
 end
 
 if isempty(EllipsoidsTitles)
-  FunctionLocalPath = 'matlab/src/algorithms/colourcategorisation/PlotAllChannels';
+  FunctionLocalPath = 'matlab/src/algorithms/colourcategorisation/plots/PlotAllChannels';
   FunctionPath = mfilename('fullpath');
   EllipsoidDicMatPath = strrep(FunctionPath, FunctionLocalPath, 'matlab/data/mats/EllipsoidDic.mat');
   EllipsoidDicMat = load(EllipsoidDicMatPath);

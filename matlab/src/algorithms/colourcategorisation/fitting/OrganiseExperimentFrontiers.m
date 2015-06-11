@@ -287,7 +287,7 @@ lsY_81_W_Y   = [lsY_81_W_Y_c;   lsY_81_W_Y_a];
 %% new experiments
 
 ScriptPath = mfilename('fullpath');
-DirPath = strrep(ScriptPath, 'matlab/src/algorithms/colourcategorisation/OrganiseExperimentFrontiers', 'matlab/data/mats/results/experiments/colourfrontiers/real/');
+DirPath = strrep(ScriptPath, 'matlab/src/algorithms/colourcategorisation/fitting/OrganiseExperimentFrontiers', 'matlab/data/mats/results/experiments/colourfrontiers/real/');
 
 MatFiles = dir([DirPath, '*.mat']);
 
