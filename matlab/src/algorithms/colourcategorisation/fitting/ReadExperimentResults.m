@@ -1,4 +1,4 @@
-function [ColourFrontiers, borders] = ReadExperimentResults(FilePath, ColourFrontiers, borders)
+function [ColourFrontiers, borders] = ReadExperimentResults(FilePath, ColourFrontiers, borders, XYZ2lsYChoise, BackgroundType)
 %ReadExperimentResults  maps the colour frontiers result to its object.
 %
 % inputs
@@ -9,6 +9,8 @@ function [ColourFrontiers, borders] = ReadExperimentResults(FilePath, ColourFron
 %   borders          previous list of colour borders, by default is empty,
 %                    if it's not empty the new borders are added to this
 %                    list.
+%   XYZ2lsYChoise    the choise of lsY space, if false lab is used.
+%   BackgroundType   0 = both, 1 = chromatic, 2 = achromatic
 %
 % outputs
 %   ColourFrontiers  the updated list of colour frontiers.
@@ -32,28 +34,48 @@ if nargin < 3
   ColourFrontiers.yellow = ColourCategory('yellow');
   ColourFrontiers.white  = ColourCategory('white');
 end
+if nargin < 4
+  XYZ2lsYChoise = 'evenly_ditributed_stds';
+end
+if nargin < 5
+  BackgroundType = 0;
+end
 
 MatFile = load(FilePath);
 ExperimentResult = MatFile.ExperimentResults;
 
 if strcmpi(ExperimentResult.type, 'arch') || strcmpi(ExperimentResult.type, 'centre')
-  [ColourFrontiers, borders] = DoArchCentre(ColourFrontiers, borders, ExperimentResult);
+  [ColourFrontiers, borders] = DoArchCentre(ColourFrontiers, borders, ExperimentResult, XYZ2lsYChoise, BackgroundType);
 elseif strcmpi(ExperimentResult.type, 'lum')
   % FIXME: how to integrate luminance
-  [ColourFrontiers, borders] = DoLuminance(ColourFrontiers, borders, ExperimentResult);
+  [ColourFrontiers, borders] = DoLuminance(ColourFrontiers, borders, ExperimentResult, XYZ2lsYChoise, BackgroundType);
 end
 
 end
 
 % TODO: make this code more readable
-function [ColourFrontiers, borders] = DoArchCentre(ColourFrontiers, borders, ExperimentResult)
+function [ColourFrontiers, borders] = DoArchCentre(ColourFrontiers, borders, ExperimentResult, XYZ2lsYChoise, BackgroundType)
+
+% we are looking only for colour backsground
+if BackgroundType == 1
+  % colour background is -2 in experiment data.
+  if ExperimentResult.background ~= -2
+    return;
+  end
+end
+% we are looking only for achromatic backsground
+if BackgroundType == 2
+  % achromatic background is 0 and -1 in experiment data.
+  if ExperimentResult.background == -2
+    return;
+  end
+end
 
 angles = ExperimentResult.angles;
 radii = ExperimentResult.radii;
 luminances = ExperimentResult.luminances;
 FrontierColours = ExperimentResult.FrontierColours;
 WhiteReference = ExperimentResult.WhiteReference;
-XYZ2lsYChoise = 'evenly_ditributed_stds';
 
 nborders = length(unique(ExperimentResult.conditions));
 nexperiments = length(angles);
@@ -76,7 +98,11 @@ end
 for i = 1:nexperiments
   lab = pol2cart3([angles(i), radii(i), luminances(i)], 1);
   LumName = ['lum', num2str(luminances(i))];
-  lsys.(LumName)(lcounter.(LumName), :) = XYZ2lsY(Lab2XYZ(lab, WhiteReference), XYZ2lsYChoise);
+  if ~XYZ2lsYChoise
+    lsys.(LumName)(lcounter.(LumName), :) = lab;
+  else
+    lsys.(LumName)(lcounter.(LumName), :) = XYZ2lsY(Lab2XYZ(lab, WhiteReference), XYZ2lsYChoise);
+  end
   ColourA = lower(FrontierColours{i, 1});
   ColourB = lower(FrontierColours{i, 2});
   lsysnames.(LumName)(lcounter.(LumName), :) = {ColourA, ColourB};
@@ -116,14 +142,28 @@ end
 
 end
 
-function [ColourFrontiers, borders] = DoLuminance(ColourFrontiers, borders, ExperimentResult)
+function [ColourFrontiers, borders] = DoLuminance(ColourFrontiers, borders, ExperimentResult, XYZ2lsYChoise, BackgroundType)
+
+% we are looking only for colour backsground
+if BackgroundType == 1
+  % colour background is -2 in experiment data.
+  if ExperimentResult.background ~= -2
+    return;
+  end
+end
+% we are looking only for achromatic backsground
+if BackgroundType == 2
+  % achromatic background is 0 and -1 in experiment data.
+  if ExperimentResult.background == -2
+    return;
+  end
+end
 
 angles = ExperimentResult.angles;
 radii = ExperimentResult.radii;
 luminances = ExperimentResult.luminances;
 FrontierColours = ExperimentResult.FrontierColours;
 WhiteReference = ExperimentResult.WhiteReference;
-XYZ2lsYChoise = 'evenly_ditributed_stds';
 
 nexperiments = length(angles);
 
@@ -134,7 +174,11 @@ lsysnames = cell(nexperiments, 2);
 
 for i = 1:nexperiments
   lab = pol2cart3([angles(i), radii(i), luminances(i)], 1);
-  lsys(i, :) = XYZ2lsY(Lab2XYZ(lab, WhiteReference), XYZ2lsYChoise);
+  if ~XYZ2lsYChoise
+    lsys(i, :) = lab;
+  else
+    lsys(i, :) = XYZ2lsY(Lab2XYZ(lab, WhiteReference), XYZ2lsYChoise);
+  end
   ColourA = lower(FrontierColours{i, 1});
   ColourB = lower(FrontierColours{i, 2});
   lsysnames(i, :) = {ColourA, ColourB};
