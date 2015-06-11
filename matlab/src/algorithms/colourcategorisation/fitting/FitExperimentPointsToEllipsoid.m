@@ -27,7 +27,7 @@ Gr = [0.5, 0.5, 0.5];
 Bl = [0.0, 0.0, 0.0];
 
 % ColourFrontiers = OrganiseExperimentFrontiers('rawdata_Lab.mat');
-ColourFrontiersMat = load('ColourFrontierPoints');
+ColourFrontiersMat = load('ColourFrontierPointsLsy');
 ColourFrontiers = ColourFrontiersMat.ColourFrontiers;
 
 WhichColours = lower(WhichColours);
