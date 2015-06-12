@@ -11,6 +11,11 @@ if plotme
 end
 
 [rows, cols, chns] = size(InputImage);
+if isa(InputImage, 'uint16')
+  MaxVal = (2 ^ 16) - 1;
+else
+  MaxVal = (2 ^ 8) - 1;
+end
 InputImageDouble = double(InputImage);
 
 % EQUATION: eq-2.4-2.8 Ebner 2007, "Color Constancy"
@@ -26,7 +31,7 @@ do2rgb = rgb2do';
 opponent = rgb2do * reshape(InputImageDouble, rows * cols, chns)';
 opponent = reshape(opponent', rows, cols, chns);
 
-opponent = opponent ./ max(abs(opponent(:)));
+opponent = opponent ./ MaxVal;
 
 if plotme
   PlotLmsOpponency(InputImage);
@@ -37,8 +42,8 @@ rg = opponent(:, :, 1);
 yb = opponent(:, :, 2);
 wb = opponent(:, :, 3);
 
-[dorg, doyb, dowb] = ApplyGaussian(rg, yb, wb);
-% [dorg, doyb, dowb] = ApplyUnbalancedDog(rg, yb, wb);
+% [dorg, doyb, dowb] = ApplyGaussian(rg, yb, wb);
+[dorg, doyb, dowb] = ApplyUnbalancedDog(rg, yb, wb);
 % [dorg, doyb, dowb] = ApplyDog(rg, yb, wb);
 % [dorg, doyb, dowb] = ApplyGaussianGradient(rg, yb, wb);
 
@@ -78,8 +83,14 @@ end
 
 function luminance = CalculateLuminance(dtmap)
 
-% luminance = mean(mean(dtmap));
-MaxVals = max(max(dtmap));
+dtmap = dtmap ./ max(dtmap(:));
+stddtmap = mean(mean(LocalStdContrast(dtmap)));
+stddtmap = reshape(stddtmap, 1, 3);
+Cutoff = mean(stddtmap);
+dtmap = dtmap .* ((2 ^ 16) - 1);
+
+% MaxVals = max(max(dtmap));
+MaxVals = PoolingHistMax(dtmap, Cutoff);
 luminance = MaxVals;
 
 end
@@ -177,8 +188,8 @@ end
 
 function rfresponse = SingleOpponent(isignal, EnlargeFactor)
 
-rfresponse = SingleOpponentGaussian(isignal, EnlargeFactor);
-% rfresponse = SingleOpponentContrast(isignal, EnlargeFactor);
+% rfresponse = SingleOpponentGaussian(isignal, EnlargeFactor);
+rfresponse = SingleOpponentContrast(isignal, EnlargeFactor);
 
 end
 
@@ -186,27 +197,44 @@ function rfresponse = SingleOpponentContrast(isignal, EnlargeFactor)
 
 [rows, cols, ~] = size(isignal);
 
-nContrastLevels = 6;
+% contrastweb = WeberContrast(isignal);
+% contraststd = stdfilt(isignal);
+contraststd = LocalStdContrast(isignal, 3);
+% contraststd = norm_derivative(isignal, 2);
+
+% contraststd = contraststd ./ max(contraststd(:));
+% contrastweb = contrastweb ./ max(contrastweb(:));
+
+% MaxWeb = mean(contrastweb(:));
+% MaxStd = mean(contraststd(:));
+
+zctr = contraststd;% .* 1.00 + contrastweb .* 0.00;
+zctr = 1 - zctr;
+% zctr = contraststd;
+% AvgContrast = mean(zctr(:));
+% StdContrast = std(zctr(:));
+% MaxContrast = max(zctr(:));
+
+nContrastLevels = 4;
 % StartingSigma = sqrt(nContrastLevels) / 2;
 StartingSigma = 1.25 * EnlargeFactor;
 % FinishingSigma = nContrastLevels * 2.2;
-FinishingSigma = 17.6 * EnlargeFactor;
+FinishingSigma = 12 * StartingSigma * EnlargeFactor;
 sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
+% sigmas =  [55, 34, 21, 13, 8, 5, 3, 2, 1] ./ 1;
+% sigmas = sigmas(end + 1 - nContrastLevels:end);
+sigmas = sigmas(end:-1:1);
+% sigmas = StartingSigma:(FinishingSigma - StartingSigma) / (nContrastLevels - 1):FinishingSigma;
 
-% zctr = RelativeContrast(isignal);
-contrastweb = WeberContrast(isignal);
-% contrastweb = NormaliseChannel(contrastweb);
-contraststd = stdfilt(isignal);
-% contraststd = NormaliseChannel(contraststd);
-zctr = (contraststd + contrastweb) ./ 2;
-
-levels = linspace(0.001, 0.8, nContrastLevels - 1);
+% levels = linspace(0.001, 0.8, nContrastLevels - 1);
+levels = 0:(1.0 / nContrastLevels):1;
+levels = levels(2:end-1);
 ContrastLevels = imquantize(zctr, levels);
 
 nContrastLevels = max(ContrastLevels(:));
 
 rfresponse = zeros(rows, cols);
-for i = nContrastLevels:-1:1
+for i = 1:nContrastLevels
   lambdaxi = sigmas(i);
   lambdayi = sigmas(i);
   rfi = GaussianFilter2(lambdaxi, lambdayi, 0, 0);
