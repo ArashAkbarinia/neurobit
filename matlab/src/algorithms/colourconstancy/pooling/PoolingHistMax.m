@@ -16,20 +16,10 @@ function HistMax = PoolingHistMax(InputImage, CutoffPercent)
 [rows, cols, chns] = size(InputImage);
 npixels = rows * cols;
 
-% bringing all the minus values to positive
-MinVal = min(min(InputImage, [], 2), [], 1);
-for i = 1:chns
-  if MinVal(1, 1, i) < 0
-    InputImage(:, :, i) = InputImage(:, :, i) - MinVal(1, 1, i);
-  end
-end
-
 MaxVal = max(InputImage(:));
 if MaxVal < (2 ^ 8)
-  InputImage = uint8(round(InputImage));
   nbins = 2 ^ 8;
 elseif MaxVal < (2 ^ 16)
-  InputImage = uint16(round(InputImage));
   nbins = 2 ^ 16;
 end
 
@@ -40,28 +30,31 @@ if length(CutoffPercent) == 1
   CutoffPercent(2:chns) = CutoffPercent(1);
 end
 
-maxnpizels = CutoffPercent .* npixels;
+LowerMaxPixels = CutoffPercent .* npixels;
+% setting the upper bound to 50% bigger than the lower bound, this means we
+% try to find the final HistMax between the lower and upper bounds. However
+% if we don't succeed we choose the closest value to the lower bound.
+UpperMaxPixels = LowerMaxPixels * 1.5;
 
 HistMax = zeros(1, chns);
 for i = 1:chns
   ichan = InputImage(:, :, i);
-  ihist = imhist(ichan, nbins);
+  [ihist, centres] = hist(ichan(:), nbins);
   
-  HistMax(1, i) = nbins - 1;
+  HistMax(1, i) = centres(end);
   jpixels = 0;
   for j = nbins:-1:1
     jpixels = ihist(j) + jpixels;
-    if jpixels > maxnpizels(i)
-      HistMax(1, i) = j - 1;
+    if jpixels > LowerMaxPixels(i)
+      if jpixels > UpperMaxPixels
+        % if we have passed the upper bound, final HistMax is the one
+        % before the lower bound.
+        HistMax(1, i) = centres(j - 1);
+      else
+        HistMax(1, i) = centres(j);
+      end
       break;
     end
-  end
-end
-
-% subtracting the minus values
-for i = 1:chns
-  if MinVal(1, 1, i) < 0
-    HistMax(1, i) = HistMax(1, i) + MinVal(1, 1, i);
   end
 end
 
