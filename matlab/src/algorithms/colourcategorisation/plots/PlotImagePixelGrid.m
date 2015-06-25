@@ -10,7 +10,7 @@ function h = PlotImagePixelGrid(InputImage, gts)
 %
 
 InputImage([1, 10], 2:end, :) = 128;
-figure(2);
+figure;
 h = imshow(InputImage, 'InitialMagnification', 'fit');
 
 hold on;
@@ -329,95 +329,156 @@ end
 
 function [] = PlotGreenSturge()
 
-x = [13.5, 20.5];
+x = [13.5, 17.5];
 y = [3.5, 3.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [20.5, 22.5];
-y = [5.5, 5.5];
+x = [18.5, 20.5];
+y = [3.5, 3.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [17.5, 18.5];
+y = [2.5, 2.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [20.5, 21.5];
+y = [4.5, 4.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [21.5, 22.5];
+y = [6.5, 6.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 x = [22.5, 23.5];
-y = [7.5, 7.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [13.5, 15.5];
 y = [8.5, 8.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [15.5, 23.5];
+x = [13.5, 15.5];
+y = [5.5, 5.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [15.5, 16.5];
+y = [6.5, 6.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [16.5, 17.5];
+y = [7.5, 7.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [17.5, 19.5];
+y = [8.5, 8.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [19.5, 23.5];
 y = [9.5, 9.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 
 x = [13.5, 13.5];
-y = [3.5, 8.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [15.5, 15.5];
-y = [8.5, 9.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [20.5, 20.5];
 y = [3.5, 5.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [22.5, 22.5];
-y = [5.5, 7.5];
+x = [15.5, 15.5];
+y = [5.5, 6.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [16.5, 16.5];
+y = [6.5, 7.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [17.5, 17.5];
+y = [7.5, 8.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [19.5, 19.5];
+y = [8.5, 9.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 x = [23.5, 23.5];
-y = [7.5, 9.5];
+y = [8.5, 9.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [22.5, 22.5];
+y = [6.5, 8.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [21.5, 21.5];
+y = [4.5, 6.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [20.5, 20.5];
+y = [3.5, 4.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [18.5, 18.5];
+y = [2.5, 3.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [17.5, 17.5];
+y = [2.5, 3.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 
 end
 
 function [] = PlotBlueSturge()
 
-x = [23.5, 23.5];
-y = [1.5, 9.5];
+x = [26.5, 26.5];
+y = [5.5, 6.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [27.5, 27.5];
+y = [3.5, 5.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [28.5, 28.5];
+y = [2.5, 3.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [30.5, 30.5];
+y = [2.5, 3.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 x = [31.5, 31.5];
-y = [1.5, 9.5];
+y = [3.5, 5.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [23.5, 31.5];
-y = [1.5, 1.5];
+x = [32.5, 32.5];
+y = [5.5, 9.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [23.5, 31.5];
+x = [28.5, 28.5];
+y = [8.5, 9.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [27.5, 27.5];
+y = [6.5, 8.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+
+x = [26.5, 27.5];
+y = [5.5, 5.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [27.5, 28.5];
+y = [3.5, 3.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [28.5, 30.5];
+y = [2.5, 2.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [30.5, 31.5];
+y = [3.5, 3.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [31.5, 32.5];
+y = [5.5, 5.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [28.5, 32.5];
 y = [9.5, 9.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [27.5, 28.5];
+y = [8.5, 8.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [26.5, 27.5];
+y = [6.5, 6.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 
 end
 
 function [] = PlotPurpleSturge()
 
-x = [32.5, 37.5];
-y = [4.5, 4.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [37.5, 38.5];
+x = [33.5, 36.5];
 y = [5.5, 5.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [38.5, 39.5];
-y = [6.5, 6.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [39.5, 40.5];
+x = [36.5, 37.5];
 y = [7.5, 7.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [40.5, 41.5];
+x = [36.5, 37.5];
 y = [8.5, 8.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [32.5, 41.5];
+x = [33.5, 36.5];
 y = [9.5, 9.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 
-x = [32.5, 32.5];
-y = [4.5, 9.5];
+x = [33.5, 33.5];
+y = [5.5, 9.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [36.5, 36.5];
+y = [5.5, 7.5];
+plot(x, y, 'Color', 'black', 'LineStyle', '--');
+x = [36.5, 36.5];
+y = [8.5, 9.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 x = [37.5, 37.5];
-y = [4.5, 5.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [38.5, 38.5];
-y = [5.5, 6.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [39.5, 39.5];
-y = [6.5, 7.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [40.5, 40.5];
 y = [7.5, 8.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [41.5, 41.5];
-y = [8.5, 9.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 
 end
@@ -536,23 +597,23 @@ end
 
 function [] = PlotBrownSturge()
 
-x = [6.5, 8.5];
+x = [6.5, 9.5];
 y = [6.5, 6.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [5.5, 6.5];
+x = [6.5, 7.5];
 y = [7.5, 7.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [5.5, 8.5];
-y = [9.5, 9.5];
+x = [7.5, 9.5];
+y = [8.5, 8.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 x = [6.5, 6.5];
 y = [6.5, 7.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [5.5, 5.5];
-y = [7.5, 9.5];
+x = [7.5, 7.5];
+y = [7.5, 8.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
-x = [8.5, 8.5];
-y = [6.5, 9.5];
+x = [9.5, 9.5];
+y = [6.5, 8.5];
 plot(x, y, 'Color', 'black', 'LineStyle', '--');
 
 end
