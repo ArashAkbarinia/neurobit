@@ -48,6 +48,8 @@ for i = ImageNumbers
     [~, EstimatedLuminance] = ColourConstancyGreyWorld(CurrentImage);
   elseif strcmpi(method, 'hist white patch')
     [~, EstimatedLuminance] = ColourConstancyHistWhitePatch(CurrentImage);
+  elseif strcmpi(method, 'white patch')
+    [~, EstimatedLuminance] = ColourConstancyWhitePatch(CurrentImage);
   elseif strcmpi(method, 'local std')
     [~, EstimatedLuminance] = ColourConstancyLocalStd(CurrentImage);
   elseif strcmpi(method, 'gao')
@@ -92,8 +94,8 @@ for i = ImageNumbers
   LuminanceDiffs(i, :) = CurrentLumDiff;
 end
 
-
-fprintf('Average angular error %f\n', mean(AngularErrors));
+fprintf('Average angular error mean %f\n', mean(AngularErrors));
+fprintf('Average angular error median %f\n', median(AngularErrors));
 fprintf('Average luminance difference [%f %f %f]\n', mean(abs(LuminanceDiffs)));
 
 end
