@@ -29,7 +29,7 @@ DataSetPath = strrep(FunctionPath, 'matlab/src/evaluation/colourconstancy/Colour
 GreyBallImageListMat = load(MatFilePath);
 
 BarcelonaImageNames = GreyBallImageListMat.BarcelonaImageNamesMAT;
-BarcelonaGroundtruthIlluminations = GreyBallImageListMat.BarcelonaGroundtruthIlluminationsXYZ;
+BarcelonaGroundtruthIlluminations = GreyBallImageListMat.BarcelonaGroundtruthIlluminationsRGB;
 
 nimages = numel(BarcelonaImageNames);
 if nargin < 3
@@ -40,12 +40,12 @@ AngularErrors = zeros(nimages, 1);
 LuminanceDiffs = zeros(nimages, 3);
 
 for i = ImageNumbers
-%   CurrentImage = imread([DataSetPath, BarcelonaImageNames{i}]);
+  %   CurrentImage = imread([DataSetPath, BarcelonaImageNames{i}]);
   CurrentImage = load([DataSetPath, BarcelonaImageNames{i}]);
   CurrentImage = CurrentImage.foveon_processed;
   CurrentImage = CurrentImage ./ max(CurrentImage(:));
   CurrentImage = uint16(CurrentImage .* ((2 ^ 16) - 1));
-%   CurrentImage = applycform(CurrentImage, makecform('xyz2srgb'));
+  %   CurrentImage = applycform(CurrentImage, makecform('xyz2srgb'));
   
   if strcmpi(method, 'opponency')
     [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false);
@@ -53,6 +53,8 @@ for i = ImageNumbers
     [~, EstimatedLuminance] = ColourConstancyGreyWorld(CurrentImage);
   elseif strcmpi(method, 'hist white patch')
     [~, EstimatedLuminance] = ColourConstancyHistWhitePatch(CurrentImage);
+  elseif strcmpi(method, 'white patch')
+    [~, EstimatedLuminance] = ColourConstancyWhitePatch(CurrentImage);
   elseif strcmpi(method, 'local std')
     [~, EstimatedLuminance] = ColourConstancyLocalStd(CurrentImage);
   elseif strcmpi(method, 'gao')
@@ -60,6 +62,8 @@ for i = ImageNumbers
   elseif strcmpi(method, 'joost')
     EstimatedLuminance = JoostColorConstancyDemo(CurrentImage);
   end
+  EstimatedLuminance = EstimatedLuminance ./ max(EstimatedLuminance(:));
+  EstimatedLuminance = applycform(EstimatedLuminance, makecform('xyz2srgb'));
   EstimatedLuminance = EstimatedLuminance';
   
   % normalizing the illuminant
@@ -97,8 +101,8 @@ for i = ImageNumbers
   LuminanceDiffs(i, :) = CurrentLumDiff;
 end
 
-
-fprintf('Average angular error %f\n', mean(AngularErrors));
+fprintf('Average angular error mean %f\n', mean(AngularErrors));
+fprintf('Average angular error median %f\n', median(AngularErrors));
 fprintf('Average luminance difference [%f %f %f]\n', mean(abs(LuminanceDiffs)));
 
 end
