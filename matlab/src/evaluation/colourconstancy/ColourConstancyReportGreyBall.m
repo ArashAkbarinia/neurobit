@@ -40,7 +40,8 @@ AngularErrors = zeros(nimages, 1);
 LuminanceDiffs = zeros(nimages, 3);
 
 for i = ImageNumbers
-  CurrentImage = imread([DataSetPath, GreyBallImageNames{i}]);
+  CurrentImage = double(imread([DataSetPath, GreyBallImageNames{i}]));
+  CurrentImage = CurrentImage ./ ((2 ^ 8) - 1);
   
   if strcmpi(method, 'opponency')
     [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false);
@@ -71,11 +72,11 @@ for i = ImageNumbers
   
   if plotme
     ColourConstantImage = MatChansMulK(CurrentImage, 1 ./ EstimatedLuminance);
-    ColourConstantImage = NormaliseChannel(ColourConstantImage, [], [], [],[]);
+    ColourConstantImage = ColourConstantImage ./ ((2 ^ 8) - 1);
     ColourConstantImage = uint8(ColourConstantImage .* 255);
     
     GroundTruthImage = MatChansMulK(CurrentImage, 1 ./ GroundtruthLuminance);
-    GroundTruthImage = NormaliseChannel(GroundTruthImage, [], [], [],[]);
+    GroundTruthImage = GroundTruthImage ./ ((2 ^ 8) - 1);
     GroundTruthImage = uint8(GroundTruthImage .* 255);
     
     figure;

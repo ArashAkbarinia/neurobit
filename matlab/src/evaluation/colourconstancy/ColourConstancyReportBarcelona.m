@@ -44,7 +44,7 @@ for i = ImageNumbers
   CurrentImage = load([DataSetPath, BarcelonaImageNames{i}]);
   CurrentImage = CurrentImage.foveon_processed;
   CurrentImage = CurrentImage ./ max(CurrentImage(:));
-  CurrentImage = uint16(CurrentImage .* ((2 ^ 16) - 1));
+  %   CurrentImage = uint16(CurrentImage .* ((2 ^ 16) - 1));
   %   CurrentImage = applycform(CurrentImage, makecform('xyz2srgb'));
   
   if strcmpi(method, 'opponency')
@@ -78,11 +78,11 @@ for i = ImageNumbers
   
   if plotme
     ColourConstantImage = MatChansMulK(CurrentImage, 1 ./ EstimatedLuminance);
-    ColourConstantImage = NormaliseChannel(ColourConstantImage, [], [], [],[]);
+    ColourConstantImage = ColourConstantImage ./ ((2 ^ 8) - 1);
     ColourConstantImage = uint8(ColourConstantImage .* 255);
     
     GroundTruthImage = MatChansMulK(CurrentImage, 1 ./ GroundtruthLuminance);
-    GroundTruthImage = NormaliseChannel(GroundTruthImage, [], [], [],[]);
+    GroundTruthImage = GroundTruthImage ./ ((2 ^ 8) - 1);
     GroundTruthImage = uint8(GroundTruthImage .* 255);
     
     figure;

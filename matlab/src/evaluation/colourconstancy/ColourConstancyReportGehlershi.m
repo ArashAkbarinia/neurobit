@@ -40,7 +40,8 @@ AngularErrors = zeros(nimages, 1);
 LuminanceDiffs = zeros(nimages, 3);
 
 for i = ImageNumbers
-  CurrentImage = imread([DataSetPath, GehlershiImageNames{i}]);
+  CurrentImage = double(imread([DataSetPath, GehlershiImageNames{i}]));
+  CurrentImage = CurrentImage ./ ((2 ^ 16) - 1);
   
   if strcmpi(method, 'opponency')
     [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false);
@@ -71,16 +72,16 @@ for i = ImageNumbers
   
   if plotme
     ColourConstantImage = MatChansMulK(CurrentImage, 1 ./ EstimatedLuminance);
-    ColourConstantImage = NormaliseChannel(ColourConstantImage, [], [], [],[]);
+    ColourConstantImage = ColourConstantImage ./ ((2 ^ 16) - 1);
     ColourConstantImage = uint8(ColourConstantImage .* 255);
     
     GroundTruthImage = MatChansMulK(CurrentImage, 1 ./ GroundtruthLuminance);
-    GroundTruthImage = NormaliseChannel(GroundTruthImage, [], [], [],[]);
+    GroundTruthImage = GroundTruthImage ./ ((2 ^ 16) - 1);
     GroundTruthImage = uint8(GroundTruthImage .* 255);
     
     figure;
     subplot(1, 3 , 1);
-    imshow(NormaliseChannel(CurrentImage)); title(['original ', num2str(i)]);
+    imshow(CurrentImage); title(['original ', num2str(i)]);
     subplot(1, 3 , 2);
     imshow(ColourConstantImage); title(['Colour constant estimated - angular error ', num2str(CurrentAngularError)]);
     subplot(1, 3 , 3);
