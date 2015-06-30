@@ -60,23 +60,25 @@ for i = ImageNumbers
   end
   EstimatedLuminance = EstimatedLuminance';
   
-  % normalizing the illuminant
-  norm = EstimatedLuminance(1, :) + EstimatedLuminance(2, :) + EstimatedLuminance(3, :);
-  
-  EstimatedLuminance(1, :) = EstimatedLuminance(1, :) ./ norm;
-  EstimatedLuminance(2, :) = EstimatedLuminance(2, :) ./ norm;
-  EstimatedLuminance(3, :) = EstimatedLuminance(3, :) ./ norm;
+  % normalising the illuminant
+  EstimatedNorm = sum(EstimatedLuminance(:));
+  EstimatedLuminance = EstimatedLuminance ./ EstimatedNorm;
   
   GroundtruthLuminance = SfuGroundtruthIlluminations(i, :);
+  % normalising the groundtruth
+  GroundtruthNorm = sum(GroundtruthLuminance(:));
+  GroundtruthLuminance = GroundtruthLuminance ./ GroundtruthNorm;
+  
+  % calculating the angular error
   CurrentAngularError = AngularError(EstimatedLuminance, GroundtruthLuminance);
   
   if plotme
     ColourConstantImage = MatChansMulK(CurrentImage, 1 ./ EstimatedLuminance);
-    ColourConstantImage = ColourConstantImage ./ ((2 ^ 8) - 1);
+    ColourConstantImage = ColourConstantImage ./ max(ColourConstantImage(:));
     ColourConstantImage = uint8(ColourConstantImage .* 255);
     
     GroundTruthImage = MatChansMulK(CurrentImage, 1 ./ GroundtruthLuminance);
-    GroundTruthImage = GroundTruthImage ./ ((2 ^ 8) - 1);
+    GroundTruthImage = GroundTruthImage ./ max(GroundTruthImage(:));
     GroundTruthImage = uint8(GroundTruthImage .* 255);
     
     figure;
