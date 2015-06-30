@@ -39,7 +39,11 @@ end
 AngularErrors = zeros(nimages, 1);
 LuminanceDiffs = zeros(nimages, 3);
 
-parfor i = ImageNumbers
+parfor i = 1:nimages
+  if isempty(find(ImageNumbers == i, 1))
+    continue;
+  end
+
   %   CurrentImage = imread([DataSetPath, BarcelonaImageNames{i}]);
   CurrentImage = load([DataSetPath, BarcelonaImageNames{i}]);
   CurrentImage = CurrentImage.foveon_processed;
