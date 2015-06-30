@@ -39,7 +39,7 @@ end
 AngularErrors = zeros(nimages, 1);
 LuminanceDiffs = zeros(nimages, 3);
 
-for i = ImageNumbers
+parfor i = ImageNumbers
   CurrentImage = double(imread([DataSetPath, GreyBallImageNames{i}]));
   CurrentImage = CurrentImage ./ ((2 ^ 8) - 1);
   
