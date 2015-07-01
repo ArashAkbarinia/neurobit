@@ -1,10 +1,11 @@
-function [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, method, GroundtruthLuminance)
+function [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, method, GroundtruthLuminance, isxyz)
 %ColourConstancyReportAlgoithms  estimatied luminance of am algorithm.
 %
 % inputs
 %   CurrentImage          the image to be processed.
 %   method                desired method.
 %   GroundtruthLuminance  the luminance of groundtruth.
+%   isxyz                 if the image is in XYZ space, default false.
 %
 % outputs
 %   EstimatedLuminance    estimated luminance of the selected method.
@@ -12,7 +13,13 @@ function [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConst
 %                         estimated luminance.
 %
 
-if strcmpi(method, 'opponency')
+if nargin < 4 || isempty(isxyz)
+  isxyz = false;
+end
+
+if strcmpi(method, 'nothing')
+  EstimatedLuminance = [1, 1, 1];
+elseif strcmpi(method, 'opponency')
   [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false);
 elseif strcmpi(method, 'grey world')
   [~, EstimatedLuminance] = ColourConstancyGreyWorld(CurrentImage);
@@ -28,7 +35,16 @@ elseif strcmpi(method, 'gao')
   EstimatedLuminance = GaoDOCC_demo(CurrentImage);
 elseif strcmpi(method, 'joost')
   EstimatedLuminance = JoostColorConstancyDemo(CurrentImage);
+elseif strcmpi(method, 'gamut mapping')
+  EstimatedLuminance = GamutMappingColourConstancy(CurrentImage);
+elseif strcmpi(method, 'bayesian')
+  EstimatedLuminance = BayesianColourConstancy(CurrentImage);
 end
+if isxyz
+  EstimatedLuminance = EstimatedLuminance ./ max(EstimatedLuminance(:));
+  EstimatedLuminance = applycform(EstimatedLuminance, makecform('xyz2srgb'));
+end
+
 EstimatedLuminance = EstimatedLuminance';
 
 % normalising the illuminant
