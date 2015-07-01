@@ -10,11 +10,20 @@ if plotme
   PlotRgb(InputImage);
 end
 
+% to make the comparison exactly like Joost's Grey Edges
+SaturationThreshold = 1;
+SaturatedPixels = (dilation33(double(max(InputImage, [], 3) >= SaturationThreshold)));   
+SaturatedPixels = double(SaturatedPixels == 0);
+sigma = 2;
+SaturatedPixels = set_border(SaturatedPixels, sigma + 1, 0);
+
 [rows, cols, chns] = size(InputImage);
 if isa(InputImage, 'uint16')
   MaxVal = (2 ^ 16) - 1;
-else
+elseif isa(InputImage, 'uint8')
   MaxVal = (2 ^ 8) - 1;
+else
+  MaxVal = 1;
 end
 InputImageDouble = double(InputImage);
 
@@ -45,7 +54,8 @@ wb = opponent(:, :, 3);
 % [dorg, doyb, dowb] = ApplyGaussian(rg, yb, wb);
 [dorg, doyb, dowb] = ApplyUnbalancedDog(rg, yb, wb);
 % [dorg, doyb, dowb] = ApplyDog(rg, yb, wb);
-% [dorg, doyb, dowb] = ApplyGaussianGradient(rg, yb, wb);
+% [dorg, doyb, dowb] = ApplyGaussianGradient1(rg, yb, wb);
+% [dorg, doyb, dowb] = ApplyGaussianGradient2(rg, yb, wb);
 
 if plotme
   figure;
@@ -64,6 +74,9 @@ doresponse = reshape(doresponse, rows * cols, chns);
 dtmap = (do2rgb * doresponse')';
 dtmap = reshape(dtmap, rows, cols, chns);
 
+dtmap(:, :, 1) = dtmap(:, :, 1) .* SaturatedPixels;
+dtmap(:, :, 2) = dtmap(:, :, 2) .* SaturatedPixels;
+dtmap(:, :, 3) = dtmap(:, :, 3) .* SaturatedPixels;
 luminance = CalculateLuminance(dtmap);
 luminance = reshape(luminance, 1, 3);
 ColourConstantImage = MatChansMulK(InputImageDouble, 1 ./ luminance);
@@ -84,7 +97,7 @@ end
 function luminance = CalculateLuminance(dtmap)
 
 dtmap = dtmap ./ max(dtmap(:));
-stddtmap = mean(mean(LocalStdContrast(dtmap)));
+stddtmap = mean(mean(LocalStdContrast(dtmap, 3)));
 stddtmap = reshape(stddtmap, 1, 3);
 Cutoff = mean(stddtmap);
 dtmap = dtmap .* ((2 ^ 16) - 1);
@@ -95,15 +108,31 @@ luminance = MaxVals;
 
 end
 
-function [dorg, doyb, dowb] = ApplyGaussianGradient(rg, yb, wb)
+function [dorg, doyb, dowb] = ApplyGaussianGradient1(rg, yb, wb)
 
-dorg = SingleOpponentGradientGaussian(rg, 1);
-doyb = SingleOpponentGradientGaussian(yb, 1);
-dowb = SingleOpponentGradientGaussian(wb, 1);
+% dorg = SingleOpponentGradientGaussian(rg, 1, 1);
+% doyb = SingleOpponentGradientGaussian(yb, 1, 1);
+% dowb = SingleOpponentGradientGaussian(wb, 1, 1);
+
+dorg = SingleOpponentContrastGradientGaussian(rg, 1, 1);
+doyb = SingleOpponentContrastGradientGaussian(yb, 1, 1);
+dowb = SingleOpponentContrastGradientGaussian(wb, 1, 1);
 
 end
 
-function rfresponse = SingleOpponentGradientGaussian(isignal, EnlargeFactor)
+function [dorg, doyb, dowb] = ApplyGaussianGradient2(rg, yb, wb)
+
+% dorg = SingleOpponentGradientGaussian(rg, 1, 2);
+% doyb = SingleOpponentGradientGaussian(yb, 1, 2);
+% dowb = SingleOpponentGradientGaussian(wb, 1, 2);
+
+dorg = SingleOpponentContrastGradientGaussian(rg, 1, 2);
+doyb = SingleOpponentContrastGradientGaussian(yb, 1, 2);
+dowb = SingleOpponentContrastGradientGaussian(wb, 1, 2);
+
+end
+
+function rfresponse = SingleOpponentGradientGaussian(isignal, EnlargeFactor, order)
 
 [rows, cols] = size(isignal);
 
@@ -120,10 +149,67 @@ rfresponse = zeros(rows, cols, chns);
 rf = GaussianFilter2(lambdax, lambday, 0, 0);
 
 for i = 1:chns
-  rfi = GaussianGradient1(rf, angles(i));
-%   rfi = GaussianGradient2(rf, angles(i));
+  if order == 1
+    rfi = GaussianGradient1(rf, angles(i));
+  elseif order == 2
+    rfi = GaussianGradient2(rf, angles(i));
+  end
   rfresponsei = imfilter(isignal, rfi, 'replicate');
   rfresponse(:, :, i) = (rfresponsei .^ 2) * weights(i);
+end
+
+rfresponse = sqrt(rfresponse);
+rfresponse = sum(rfresponse, 3);
+
+end
+
+function rfresponse = SingleOpponentContrastGradientGaussian(isignal, EnlargeFactor, order)
+
+[rows, cols] = size(isignal);
+
+contraststd = LocalStdContrast(isignal, 3);
+zctr = 1 - contraststd;
+
+nContrastLevels = 4;
+StartingSigma = 1.25 * EnlargeFactor;
+FinishingSigma = 12 * StartingSigma * EnlargeFactor;
+sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
+% StartingSigma = 1.5 * EnlargeFactor;
+% sigmas = zeros(1, nContrastLevels);
+% for i = 1:nContrastLevels
+%   sigmas(i) = StartingSigma ^ i;
+% end
+sigmas = sigmas(end:-1:1);
+
+levels = 0:(1.0 / nContrastLevels):1;
+levels = levels(2:end-1);
+ContrastLevels = imquantize(zctr, levels);
+
+nContrastLevels = max(ContrastLevels(:));
+
+angles = 0:pi/2:pi;
+chns = length(angles) - 1;
+weights = ones(length(angles), 1);
+weights([1, ceil(end / 2), end]) = 1;
+rfresponse = zeros(rows, cols, chns);
+
+for i = 1:chns
+  for j = 1:nContrastLevels
+    lambdaxj = sigmas(j);
+    lambdayj = sigmas(j);
+    rf = GaussianFilter2(lambdaxj, lambdayj, 0, 0);
+    
+    if order == 1
+      rfi = GaussianGradient1(rf, angles(i));
+    elseif order == 2
+      rfi = GaussianGradient2(rf, angles(i));
+    end
+    rfresponsei = imfilter(isignal, rfi, 'replicate');
+    rfresponsei = (rfresponsei .^ 2) * weights(i);
+    PreviousRfresponse = rfresponse(:, :, i);
+    PreviousRfresponse(ContrastLevels == j) = rfresponsei(ContrastLevels == j);
+    rfresponse(:, :, i) = PreviousRfresponse;
+  end
 end
 
 rfresponse = sqrt(rfresponse);
@@ -197,44 +283,38 @@ function rfresponse = SingleOpponentContrast(isignal, EnlargeFactor)
 
 [rows, cols, ~] = size(isignal);
 
-% contrastweb = WeberContrast(isignal);
-% contraststd = stdfilt(isignal);
 contraststd = LocalStdContrast(isignal, 3);
-% contraststd = norm_derivative(isignal, 2);
-
-% contraststd = contraststd ./ max(contraststd(:));
-% contrastweb = contrastweb ./ max(contrastweb(:));
-
-% MaxWeb = mean(contrastweb(:));
-% MaxStd = mean(contraststd(:));
-
-zctr = contraststd;% .* 1.00 + contrastweb .* 0.00;
-zctr = 1 - zctr;
-% zctr = contraststd;
-% AvgContrast = mean(zctr(:));
-% StdContrast = std(zctr(:));
-% MaxContrast = max(zctr(:));
+zctr = 1 - contraststd;
+% zctr = NormaliseChannel(zctr);
+% zctr = zctr .^ 32;
+% m = mean2(zctr);
+% s = std2(zctr) / 2;
+% t = m - s;
+% zctr(zctr < t) = zctr(zctr < t) ./ (2 * t);
 
 nContrastLevels = 4;
-% StartingSigma = sqrt(nContrastLevels) / 2;
-StartingSigma = 1.25 * EnlargeFactor;
-% FinishingSigma = nContrastLevels * 2.2;
-FinishingSigma = 12 * StartingSigma * EnlargeFactor;
+StartingSigma = 1.5 * EnlargeFactor;
+FinishingSigma = 3.5 * EnlargeFactor;
 sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
-% sigmas =  [55, 34, 21, 13, 8, 5, 3, 2, 1] ./ 1;
-% sigmas = sigmas(end + 1 - nContrastLevels:end);
-sigmas = sigmas(end:-1:1);
-% sigmas = StartingSigma:(FinishingSigma - StartingSigma) / (nContrastLevels - 1):FinishingSigma;
+% StartingSigma = 1.5 * EnlargeFactor;
+% sigmas = zeros(1, nContrastLevels);
+% for i = 1:nContrastLevels
+%   sigmas(i) = StartingSigma ^ i;
+% end
+% sigmas = sigmas(end:-1:1);
 
-% levels = linspace(0.001, 0.8, nContrastLevels - 1);
-levels = 0:(1.0 / nContrastLevels):1;
+MinPix = min(zctr(:));
+MaxPix = max(zctr(:));
+step = ((MaxPix - MinPix) / nContrastLevels);
+levels = MinPix:step:1;
 levels = levels(2:end-1);
 ContrastLevels = imquantize(zctr, levels);
 
-nContrastLevels = max(ContrastLevels(:));
+nContrastLevels = unique(ContrastLevels(:));
+nContrastLevels = nContrastLevels';
 
 rfresponse = zeros(rows, cols);
-for i = 1:nContrastLevels
+for i = nContrastLevels
   lambdaxi = sigmas(i);
   lambdayi = sigmas(i);
   rfi = GaussianFilter2(lambdaxi, lambdayi, 0, 0);
