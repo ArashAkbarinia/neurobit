@@ -7,4 +7,7 @@ The NeuroComputation and Biological Vision Team (NeuroBiT) conducts fundamental,
 
 Related links:
 --------
-http://www.cat.uab.cat/
+http://www.cvc.uab.es/people/sakbarinia/ <br>
+http://www.cvc.uab.es/neurobit/ <br>
+http://www.cvc.uab.es/ <br>
+http://www.uab.cat/
