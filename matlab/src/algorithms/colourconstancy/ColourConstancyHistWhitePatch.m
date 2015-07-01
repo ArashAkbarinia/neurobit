@@ -5,7 +5,8 @@ function [ColourConstantImage, luminance] = ColourConstancyHistWhitePatch(InputI
 % Inputs
 %   InputImage        the input image in RGB colour space, i.e. range
 %                     [0, 255].
-%   CutoffPercentage  the cut off percentage, default is 0.01.
+%   CutoffPercentage  the cut off percentage, default is 0.01. if passed -1
+%                     it calculates it authomatically based on local std.
 %
 % Outputs
 %   ColourConstantImage  the colour constant image in range of [0, 1].
@@ -19,11 +20,15 @@ function [ColourConstantImage, luminance] = ColourConstancyHistWhitePatch(InputI
 % See also: ColourConstancyWhitePatch, ColourConstancy
 %
 
+InputImage = double(InputImage);
+
 if nargin < 2
   CutoffPercentage = 0.01;
+elseif CutoffPercentage < 0
+  LocalStd = mean(mean(LocalStdContrast(InputImage, 3)));
+  LocalStd = reshape(LocalStd, 1, 3);
+  CutoffPercentage = mean(LocalStd);
 end
-
-InputImage = double(InputImage);
 
 luminance = PoolingHistMax(InputImage, CutoffPercentage);
 

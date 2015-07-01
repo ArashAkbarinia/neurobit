@@ -18,6 +18,8 @@ elseif strcmpi(method, 'grey world')
   [~, EstimatedLuminance] = ColourConstancyGreyWorld(CurrentImage);
 elseif strcmpi(method, 'hist white patch')
   [~, EstimatedLuminance] = ColourConstancyHistWhitePatch(CurrentImage);
+elseif strcmpi(method, 'hist white patch local std')
+  [~, EstimatedLuminance] = ColourConstancyHistWhitePatch(CurrentImage, -1);
 elseif strcmpi(method, 'white patch')
   [~, EstimatedLuminance] = ColourConstancyWhitePatch(CurrentImage);
 elseif strcmpi(method, 'local std')
