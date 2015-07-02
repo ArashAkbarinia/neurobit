@@ -1,7 +1,6 @@
 <h1 align="center">
 NeuroComputation and Biological Vision Team (NeuroBiT)
 </h1>
-=============
 
 <p align="center">
 <img src="http://www.cvc.uab.es/wp-content/uploads/2014/07/human_brains_small-300x225.jpg" />
