@@ -45,7 +45,7 @@ parfor i = 1:nimages
   end
   
   CurrentImage = double(imread([DataSetPath, GehlershiImageNames{i}]));
-  CurrentImage = CurrentImage ./ max(CurrentImage(:)); %((2 ^ 16) - 1);
+  CurrentImage = CurrentImage ./ ((2 ^ 12) - 1);
   
   GroundtruthLuminance = GehlershiGroundtruthIlluminations(i, :);
   [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, method, GroundtruthLuminance);
