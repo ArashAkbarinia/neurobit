@@ -63,10 +63,16 @@ elseif strcmpi(method, 'cudog')
   [dorg, doyb, dowb] = ApplyUnbalancedDogContrast(rg, yb, wb);
 elseif strcmpi(method, 'udog')
   [dorg, doyb, dowb] = ApplyUnbalancedDogNormal(rg, yb, wb);
+elseif strcmpi(method, 'cd1')
+  [dorg, doyb, dowb] = ApplyGaussianGradientContrast1(rg, yb, wb);
+elseif strcmpi(method, 'd1')
+  [dorg, doyb, dowb] = ApplyGaussianGradientNormal1(rg, yb, wb);
+elseif strcmpi(method, 'cd2')
+  [dorg, doyb, dowb] = ApplyGaussianGradientContrast2(rg, yb, wb);
+elseif strcmpi(method, 'd2')
+  [dorg, doyb, dowb] = ApplyGaussianGradientNormal2(rg, yb, wb);
 end
 % [dorg, doyb, dowb] = ApplyDog(rg, yb, wb);
-% [dorg, doyb, dowb] = ApplyGaussianGradient1(rg, yb, wb);
-% [dorg, doyb, dowb] = ApplyGaussianGradient2(rg, yb, wb);
 
 if plotme
   figure;
@@ -119,11 +125,15 @@ luminance = MaxVals;
 
 end
 
-function [dorg, doyb, dowb] = ApplyGaussianGradient1(rg, yb, wb)
+function [dorg, doyb, dowb] = ApplyGaussianGradientNormal1(rg, yb, wb)
 
-% dorg = SingleOpponentGradientGaussian(rg, 1, 1);
-% doyb = SingleOpponentGradientGaussian(yb, 1, 1);
-% dowb = SingleOpponentGradientGaussian(wb, 1, 1);
+dorg = SingleOpponentGradientGaussian(rg, 1, 1);
+doyb = SingleOpponentGradientGaussian(yb, 1, 1);
+dowb = SingleOpponentGradientGaussian(wb, 1, 1);
+
+end
+
+function [dorg, doyb, dowb] = ApplyGaussianGradientContrast1(rg, yb, wb)
 
 dorg = SingleOpponentContrastGradientGaussian(rg, 1, 1);
 doyb = SingleOpponentContrastGradientGaussian(yb, 1, 1);
@@ -131,11 +141,15 @@ dowb = SingleOpponentContrastGradientGaussian(wb, 1, 1);
 
 end
 
-function [dorg, doyb, dowb] = ApplyGaussianGradient2(rg, yb, wb)
+function [dorg, doyb, dowb] = ApplyGaussianGradientNormal2(rg, yb, wb)
 
-% dorg = SingleOpponentGradientGaussian(rg, 1, 2);
-% doyb = SingleOpponentGradientGaussian(yb, 1, 2);
-% dowb = SingleOpponentGradientGaussian(wb, 1, 2);
+dorg = SingleOpponentGradientGaussian(rg, 1, 2);
+doyb = SingleOpponentGradientGaussian(yb, 1, 2);
+dowb = SingleOpponentGradientGaussian(wb, 1, 2);
+
+end
+
+function [dorg, doyb, dowb] = ApplyGaussianGradientContrast2(rg, yb, wb)
 
 dorg = SingleOpponentContrastGradientGaussian(rg, 1, 2);
 doyb = SingleOpponentContrastGradientGaussian(yb, 1, 2);
@@ -176,27 +190,25 @@ end
 
 function rfresponse = SingleOpponentContrastGradientGaussian(isignal, EnlargeFactor, order)
 
-[rows, cols] = size(isignal);
+[rows, cols, ~] = size(isignal);
 
 contraststd = LocalStdContrast(isignal, 3);
 zctr = 1 - contraststd;
 
 nContrastLevels = 4;
-StartingSigma = 1.25 * EnlargeFactor;
-FinishingSigma = 12 * StartingSigma * EnlargeFactor;
+StartingSigma = 1.5 * EnlargeFactor;
+FinishingSigma = 3.5 * EnlargeFactor;
 sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
-% StartingSigma = 1.5 * EnlargeFactor;
-% sigmas = zeros(1, nContrastLevels);
-% for i = 1:nContrastLevels
-%   sigmas(i) = StartingSigma ^ i;
-% end
-sigmas = sigmas(end:-1:1);
 
-levels = 0:(1.0 / nContrastLevels):1;
+MinPix = min(zctr(:));
+MaxPix = max(zctr(:));
+step = ((MaxPix - MinPix) / nContrastLevels);
+levels = MinPix:step:1;
 levels = levels(2:end-1);
 ContrastLevels = imquantize(zctr, levels);
 
-nContrastLevels = max(ContrastLevels(:));
+nContrastLevels = unique(ContrastLevels(:));
+nContrastLevels = nContrastLevels';
 
 angles = 0:pi/2:pi;
 chns = length(angles) - 1;
@@ -205,7 +217,7 @@ weights([1, ceil(end / 2), end]) = 1;
 rfresponse = zeros(rows, cols, chns);
 
 for i = 1:chns
-  for j = 1:nContrastLevels
+  for j = nContrastLevels
     lambdaxj = sigmas(j);
     lambdayj = sigmas(j);
     rf = GaussianFilter2(lambdaxj, lambdayj, 0, 0);
