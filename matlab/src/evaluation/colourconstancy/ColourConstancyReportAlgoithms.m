@@ -31,6 +31,8 @@ elseif strcmpi(method, 'white patch')
   [~, EstimatedLuminance] = ColourConstancyWhitePatch(CurrentImage);
 elseif strcmpi(method, 'local std')
   [~, EstimatedLuminance] = ColourConstancyLocalStd(CurrentImage);
+elseif strcmpi(method, 'colour edge')
+  [~, EstimatedLuminance] = ColourConstancyColourEdge(CurrentImage);
 elseif strcmpi(method, 'gao')
   EstimatedLuminance = GaoDOCC_demo(CurrentImage);
 elseif strcmpi(method, 'joost')
