@@ -1,4 +1,4 @@
-function [ColourConstantImage, luminance] = ColourConstancyOpponency(InputImage, plotme)
+function [ColourConstantImage, luminance] = ColourConstancyOpponency(InputImage, plotme, method)
 %ColourConstancyOpponency Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,13 +6,17 @@ if nargin < 2
   plotme = 0;
 end
 
+if nargin < 3
+  method = 'udog';
+end
+
 if plotme
   PlotRgb(InputImage);
 end
 
 % to make the comparison exactly like Joost's Grey Edges
-SaturationThreshold = 1;
-SaturatedPixels = (dilation33(double(max(InputImage, [], 3) >= SaturationThreshold)));   
+SaturationThreshold = max(InputImage(:));
+SaturatedPixels = (dilation33(double(max(InputImage, [], 3) >= SaturationThreshold)));
 SaturatedPixels = double(SaturatedPixels == 0);
 sigma = 2;
 SaturatedPixels = set_border(SaturatedPixels, sigma + 1, 0);
@@ -51,8 +55,15 @@ rg = opponent(:, :, 1);
 yb = opponent(:, :, 2);
 wb = opponent(:, :, 3);
 
-% [dorg, doyb, dowb] = ApplyGaussian(rg, yb, wb);
-[dorg, doyb, dowb] = ApplyUnbalancedDog(rg, yb, wb);
+if strcmpi(method, 'cgaussian')
+  [dorg, doyb, dowb] = ApplyGaussianContrast(rg, yb, wb);
+elseif strcmpi(method, 'gaussian')
+  [dorg, doyb, dowb] = ApplyGaussianNormal(rg, yb, wb);
+elseif strcmpi(method, 'cudog')
+  [dorg, doyb, dowb] = ApplyUnbalancedDogContrast(rg, yb, wb);
+elseif strcmpi(method, 'udog')
+  [dorg, doyb, dowb] = ApplyUnbalancedDogNormal(rg, yb, wb);
+end
 % [dorg, doyb, dowb] = ApplyDog(rg, yb, wb);
 % [dorg, doyb, dowb] = ApplyGaussianGradient1(rg, yb, wb);
 % [dorg, doyb, dowb] = ApplyGaussianGradient2(rg, yb, wb);
@@ -217,17 +228,15 @@ rfresponse = sum(rfresponse, 3);
 
 end
 
-function [dorg, doyb, dowb] = ApplyGaussian(rg, yb, wb)
+function [dorg, doyb, dowb] = ApplyGaussianNormal(rg, yb, wb)
 
-% fun = @(bs) imfilter(bs.data, GaussianFilter2(std2(bs.data)), 'replicate');
-% 
-% dorg = blockproc(rg, [64, 64], fun);
-% doyb = blockproc(yb, [64, 64], fun);
-% dowb = blockproc(wb, [64, 64], fun);
+dorg = SingleOpponentGaussian(rg, 1);
+doyb = SingleOpponentGaussian(yb, 1);
+dowb = SingleOpponentGaussian(wb, 1);
 
-% dorg = SingleOpponentGaussian(rg, 1);
-% doyb = SingleOpponentGaussian(yb, 1);
-% dowb = SingleOpponentGaussian(wb, 1);
+end
+
+function [dorg, doyb, dowb] = ApplyGaussianContrast(rg, yb, wb)
 
 dorg = SingleOpponentContrast(rg, 1);
 doyb = SingleOpponentContrast(yb, 1);
@@ -236,6 +245,8 @@ dowb = SingleOpponentContrast(wb, 1);
 end
 
 function [dorg, doyb, dowb] = ApplyDog(rg, yb, wb)
+
+% TODO: add k here because unbalcned Dog can be faster implemented
 
 StartingSigma = 2.5;
 lambdax = StartingSigma;
@@ -254,16 +265,16 @@ dowb = imfilter(wb, rf, 'replicate');
 
 end
 
-function [dorg, doyb, dowb] = ApplyUnbalancedDog(rg, yb, wb)
+function [dorg, doyb, dowb] = ApplyUnbalancedDogNormal(rg, yb, wb)
 
-sorg = SingleOpponent(rg, 1);
-soyb = SingleOpponent(yb, 1);
-sowb = SingleOpponent(wb, 1);
+sorg = SingleOpponentGaussian(rg, 1);
+soyb = SingleOpponentGaussian(yb, 1);
+sowb = SingleOpponentGaussian(wb, 1);
 
 EnlargeFactor = 2;
-sogr = SingleOpponent(-rg, EnlargeFactor);
-soby = SingleOpponent(-yb, EnlargeFactor);
-sobw = SingleOpponent(-wb, EnlargeFactor);
+sogr = SingleOpponentGaussian(-rg, EnlargeFactor);
+soby = SingleOpponentGaussian(-yb, EnlargeFactor);
+sobw = SingleOpponentGaussian(-wb, EnlargeFactor);
 
 k = 0.7;
 dorg = DoubleOpponent(sorg, sogr, k);
@@ -272,10 +283,21 @@ dowb = DoubleOpponent(sowb, sobw, k);
 
 end
 
-function rfresponse = SingleOpponent(isignal, EnlargeFactor)
+function [dorg, doyb, dowb] = ApplyUnbalancedDogContrast(rg, yb, wb)
 
-% rfresponse = SingleOpponentGaussian(isignal, EnlargeFactor);
-rfresponse = SingleOpponentContrast(isignal, EnlargeFactor);
+sorg = SingleOpponentContrast(rg, 1);
+soyb = SingleOpponentContrast(yb, 1);
+sowb = SingleOpponentContrast(wb, 1);
+
+EnlargeFactor = 2;
+sogr = SingleOpponentContrast(-rg, EnlargeFactor);
+soby = SingleOpponentContrast(-yb, EnlargeFactor);
+sobw = SingleOpponentContrast(-wb, EnlargeFactor);
+
+k = 0.7;
+dorg = DoubleOpponent(sorg, sogr, k);
+doyb = DoubleOpponent(soyb, soby, k);
+dowb = DoubleOpponent(sowb, sobw, k);
 
 end
 
@@ -285,23 +307,11 @@ function rfresponse = SingleOpponentContrast(isignal, EnlargeFactor)
 
 contraststd = LocalStdContrast(isignal, 3);
 zctr = 1 - contraststd;
-% zctr = NormaliseChannel(zctr);
-% zctr = zctr .^ 32;
-% m = mean2(zctr);
-% s = std2(zctr) / 2;
-% t = m - s;
-% zctr(zctr < t) = zctr(zctr < t) ./ (2 * t);
 
 nContrastLevels = 4;
 StartingSigma = 1.5 * EnlargeFactor;
 FinishingSigma = 3.5 * EnlargeFactor;
 sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
-% StartingSigma = 1.5 * EnlargeFactor;
-% sigmas = zeros(1, nContrastLevels);
-% for i = 1:nContrastLevels
-%   sigmas(i) = StartingSigma ^ i;
-% end
-% sigmas = sigmas(end:-1:1);
 
 MinPix = min(zctr(:));
 MaxPix = max(zctr(:));
@@ -343,23 +353,5 @@ end
 
 rfresponse = ab + k .* ba;
 rfresponse = sum(rfresponse, 3);
-
-end
-
-function rgim = PlottableRgOpponency(rch, gch)
-
-rgim(:, :, 1) =  rch - gch;
-rgim(:, :, 2) = -rch + gch;
-rgim(:, :, 3) = 0;
-rgim = NormaliseChannel(rgim, [], [], [], []);
-
-end
-
-function ybim = PlottableYbOpponency(rch, gch, bch)
-
-ybim(:, :, 1) =  rch + gch - bch;
-ybim(:, :, 2) =  rch + gch - bch;
-ybim(:, :, 3) = -rch - gch + bch;
-ybim = NormaliseChannel(ybim, [], [], [], []);
 
 end

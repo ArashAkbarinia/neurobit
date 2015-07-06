@@ -19,8 +19,14 @@ end
 
 if strcmpi(method, 'nothing')
   EstimatedLuminance = [1, 1, 1];
-elseif strcmpi(method, 'opponency')
-  [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false);
+elseif strcmpi(method, 'cgaussian')
+  [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false, 'cgaussian');
+elseif strcmpi(method, 'gaussian')
+  [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false, 'gaussian');
+elseif strcmpi(method, 'cudog')
+  [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false, 'cudog');
+elseif strcmpi(method, 'udog')
+  [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false, 'udog');
 elseif strcmpi(method, 'grey world')
   [~, EstimatedLuminance] = ColourConstancyGreyWorld(CurrentImage);
 elseif strcmpi(method, 'hist white patch')
