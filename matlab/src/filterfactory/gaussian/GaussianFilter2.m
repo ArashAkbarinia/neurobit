@@ -39,4 +39,6 @@ ys = ones(1, sizex)' * linspace(1, sizey, sizey) - centrey;
 
 h = exp(-0.5 .* ((xs ./ sigmax) .^ 2 + (ys ./ sigmay) .^ 2)) ./ (2 * pi * sigmax * sigmay);
 
+h = h ./ sum(h(:));
+
 end
