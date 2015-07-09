@@ -38,11 +38,8 @@ hs((m(1) - d(1)):(m(1) + d(1)), (m(2) - d(2)):(m(2) + d(2))) = 0;
 SigmaCentre = zeros(rows, cols, chns);
 SigmaSurround = zeros(rows, cols, chns);
 for i = 1:chns
-  StdCentre = stdfilt(InputImage, hc);
-  SigmaCentre(:, :, i) = StdCentre ./ max(StdCentre(:));
-  
-  StdSurround = stdfilt(InputImage, hs);
-  SigmaSurround(:, :, i) = StdSurround ./ max(StdSurround(:));
+  SigmaCentre(:, :, i) = stdfilt(InputImage, hc);
+  SigmaSurround(:, :, i) = stdfilt(InputImage, hs);
 end
 
 end
