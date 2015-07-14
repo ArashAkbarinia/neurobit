@@ -7,7 +7,7 @@ if nargin < 2
 end
 
 if nargin < 3
-  method = 'udog';
+  MethodName = 'udog';
 end
 
 if plotme
@@ -55,22 +55,31 @@ rg = opponent(:, :, 1);
 yb = opponent(:, :, 2);
 wb = opponent(:, :, 3);
 
-if strcmpi(method, 'cgaussian')
+MethodName = method{1};
+if strcmpi(MethodName, 'cgaussian')
   [dorg, doyb, dowb] = ApplyGaussianContrast(rg, yb, wb);
-elseif strcmpi(method, 'gaussian')
+elseif strcmpi(MethodName, 'gaussian')
   [dorg, doyb, dowb] = ApplyGaussianNormal(rg, yb, wb);
-elseif strcmpi(method, 'cudog')
+elseif strcmpi(MethodName, 'cudog')
   [dorg, doyb, dowb] = ApplyUnbalancedDogContrast(rg, yb, wb);
-elseif strcmpi(method, 'udog')
+elseif strcmpi(MethodName, 'udog')
   [dorg, doyb, dowb] = ApplyUnbalancedDogNormal(rg, yb, wb);
-elseif strcmpi(method, 'cd1')
+elseif strcmpi(MethodName, 'cd1')
   [dorg, doyb, dowb] = ApplyGaussianGradientContrast1(rg, yb, wb);
-elseif strcmpi(method, 'd1')
+elseif strcmpi(MethodName, 'd1')
   [dorg, doyb, dowb] = ApplyGaussianGradientNormal1(rg, yb, wb);
-elseif strcmpi(method, 'cd2')
+elseif strcmpi(MethodName, 'cd2')
   [dorg, doyb, dowb] = ApplyGaussianGradientContrast2(rg, yb, wb);
-elseif strcmpi(method, 'd2')
+elseif strcmpi(MethodName, 'd2')
   [dorg, doyb, dowb] = ApplyGaussianGradientNormal2(rg, yb, wb);
+elseif strcmpi(MethodName, 'arash')
+  CentreSize = method{2};
+  x = method{3};
+  ContrastEnlarge = method{4};
+  SurroundEnlarge = method{5};
+  k1 = method{6};
+  k4 = method{7};
+  [dorg, doyb, dowb] = arash(rg, yb, wb, CentreSize, x, ContrastEnlarge, SurroundEnlarge, k1, k4);
 end
 % [dorg, doyb, dowb] = ApplyDog(rg, yb, wb);
 
@@ -111,16 +120,83 @@ end
 
 end
 
+function [dorg, doyb, dowb] = arash(rg, yb, wb, CentreSize, x, ContrastEnlarge, SurroundEnlarge, k1, k4)
+
+dorg = raquel(rg, CentreSize, x, ContrastEnlarge, SurroundEnlarge, k1, k4);
+doyb = raquel(yb, CentreSize, x, ContrastEnlarge, SurroundEnlarge, k1, k4);
+dowb = raquel(wb, CentreSize, x, ContrastEnlarge, SurroundEnlarge, k1, k4);
+
+end
+
+function dorg = raquel(rg, CentreSize, x, ContrastEnlarge, SurroundEnlarge, k1, k4)
+
+[rows, cols] = size(rg);
+
+if CentreSize == -1
+  CentreSize = floor(visualangle2pixel(0.36, [], [], rows));
+end
+[rgc, rgs] = RelativePixelContrast(rg, CentreSize, 5 * CentreSize);
+
+rgcth = 0.10;%graythresh(rgc);
+rgsth = 0.20;%graythresh(rgs);
+rgcbw = im2bw(rgc, rgcth);
+rgsbw = im2bw(rgs, rgsth);
+
+% x = 0.80;
+% x = size(rg, 1) * mean(rgc(:)) * 0.5;
+% ContrastEnlarge = 2.0;
+
+% SurroundEnlarge = 5.0;
+
+% k1 = -0.87;
+% k4 = -0.67;
+
+d = (k1 - k4) / 3;
+k2 = k1 - d;
+k3 = k4 + d;
+
+dogk1 = SurroundInfluence(rg, x, x * SurroundEnlarge, 1, k1);
+dogk2 = SurroundInfluence(rg, x, x * SurroundEnlarge, 1, k2);
+dogk3 = SurroundInfluence(rg, x * ContrastEnlarge, x * SurroundEnlarge, 1, k3);
+dogk4 = SurroundInfluence(rg, x * ContrastEnlarge, x * SurroundEnlarge, 1, k4);
+
+dorg = zeros(rows, cols);
+
+dorg( rgcbw &  rgsbw) = dogk1( rgcbw &  rgsbw);
+dorg( rgcbw & ~rgsbw) = dogk2( rgcbw & ~rgsbw);
+dorg(~rgcbw &  rgsbw) = dogk3(~rgcbw &  rgsbw);
+dorg(~rgcbw & ~rgsbw) = dogk4(~rgcbw & ~rgsbw);
+
+% g2rga = SingleOpponentGradientGaussian(rg, x * ContrastEnlarge, 2);
+% g2rgb = SingleOpponentGradientGaussian(rg, x * SurroundEnlarge, 2);
+% for i = 1:2
+%   g2rga(:, :, i) = im2bw(g2rga(:, :, i), mean2(g2rga(:, :, i)));
+%   g2rgb(:, :, i) = im2bw(g2rgb(:, :, i), mean2(g2rgb(:, :, i)));
+% end
+
+% hedgesa = edge(dorg1a, 'prewitt', [], 'horizontal', 'nothinning');
+% vedgesa = edge(dorg1a, 'prewitt', [], 'vertical', 'nothinning');
+% hedgesb = edge(dorg1b, 'prewitt', [], 'horizontal', 'nothinning');
+% vedgesb = edge(dorg1b, 'prewitt', [], 'vertical', 'nothinning');
+% 
+% dorg(~rgcbw & ~rgsbw) = dorg(~rgcbw & ~rgsbw) .* ~(vedgesa(~rgcbw & ~rgsbw) .* hedgesb(~rgcbw & ~rgsbw)) + (1.0 .* DoubleOpponent(dorg1b(~rgcbw & ~rgsbw), dorg2a(~rgcbw & ~rgsbw), -0.6) .* vedgesa(~rgcbw & ~rgsbw) .* hedgesb(~rgcbw & ~rgsbw));
+% dorg(~rgcbw & ~rgsbw) = dorg(~rgcbw & ~rgsbw) .* ~(vedgesa(~rgcbw & ~rgsbw) .* hedgesb(~rgcbw & ~rgsbw)) + (1.0 .* DoubleOpponent(dorg1b(~rgcbw & ~rgsbw), dorg2a(~rgcbw & ~rgsbw), -0.6) .* vedgesb(~rgcbw & ~rgsbw) .* hedgesa(~rgcbw & ~rgsbw));
+
+end
+
 function luminance = CalculateLuminance(dtmap)
 
+% MaxVals = max(max(dtmap));
+
 dtmap = dtmap ./ max(dtmap(:));
-stddtmap = mean(mean(LocalStdContrast(dtmap, 3)));
+CentreSize = 3;
+StdImg = LocalStdContrast(dtmap, CentreSize);
+stddtmap = mean(mean(StdImg));
 stddtmap = reshape(stddtmap, 1, 3);
 Cutoff = mean(stddtmap);
 dtmap = dtmap .* ((2 ^ 16) - 1);
-
-% MaxVals = max(max(dtmap));
 MaxVals = PoolingHistMax(dtmap, Cutoff);
+
 luminance = MaxVals;
 
 end
@@ -192,8 +268,7 @@ function rfresponse = SingleOpponentContrastGradientGaussian(isignal, EnlargeFac
 
 [rows, cols, ~] = size(isignal);
 
-contraststd = LocalStdContrast(isignal, 3);
-zctr = 1 - contraststd;
+zctr = GetContrastImage(isignal);
 
 nContrastLevels = 4;
 StartingSigma = 1.5 * EnlargeFactor;
@@ -253,6 +328,23 @@ function [dorg, doyb, dowb] = ApplyGaussianContrast(rg, yb, wb)
 dorg = SingleOpponentContrast(rg, 1);
 doyb = SingleOpponentContrast(yb, 1);
 dowb = SingleOpponentContrast(wb, 1);
+
+end
+
+function rfresponse = SurroundInfluence(rg, EnlargeFactor, SurroundEnlarge, ci, si)
+
+StartingSigma = 2.5;
+lambdax = StartingSigma * EnlargeFactor;
+lambday = StartingSigma * EnlargeFactor;
+rf1 = GaussianFilter2(lambdax, lambday, 0, 0);
+
+lambdax = StartingSigma * SurroundEnlarge;
+lambday = StartingSigma * SurroundEnlarge;
+rf2 = GaussianFilter2(lambdax, lambday, 0, 0);
+rf2 = rf2 .* si;
+
+rf = dog2(rf1, rf2);
+rfresponse = imfilter(rg, rf, 'replicate');
 
 end
 
@@ -317,8 +409,7 @@ function rfresponse = SingleOpponentContrast(isignal, EnlargeFactor)
 
 [rows, cols, ~] = size(isignal);
 
-contraststd = LocalStdContrast(isignal, 3);
-zctr = 1 - contraststd;
+zctr = GetContrastImage(isignal);
 
 nContrastLevels = 4;
 StartingSigma = 1.5 * EnlargeFactor;
@@ -365,5 +456,19 @@ end
 
 rfresponse = ab + k .* ba;
 rfresponse = sum(rfresponse, 3);
+
+end
+
+function ContrastImage = GetContrastImage(isignal)
+
+% contraststd = LocalStdContrast(isignal, 3);
+
+[rgc, rgs] = RelativePixelContrast(isignal);
+contraststd = rgc ./ rgs;
+contraststd(isnan(contraststd)) = 0;
+contraststd(isinf(contraststd)) = 1;
+contraststd(contraststd > 1) = 1;
+
+ContrastImage = 1 - contraststd;
 
 end
