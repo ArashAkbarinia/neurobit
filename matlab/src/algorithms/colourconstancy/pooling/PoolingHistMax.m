@@ -1,4 +1,4 @@
-function HistMax = PoolingHistMax(InputImage, CutoffPercent)
+function HistMax = PoolingHistMax(InputImage, CutoffPercent, UseAveragePixels)
 %PoolingHistMax  pooling the maximum value based on the histogram.
 %   Instead of choosing the maximum intensity for each colour channel, this
 %   function chooses the intensity such that number of pixels with
@@ -6,12 +6,17 @@ function HistMax = PoolingHistMax(InputImage, CutoffPercent)
 %   EQUATION: eq-6.6-6.8 Ebner 2007, "Color Constancy"
 %
 % inputs
-%   InputImage     the input image.
-%   CutoffPercent  the cut off percentage, default is 0.01.
+%   InputImage        the input image.
+%   CutoffPercent     the cut off percentage, default is 0.01.
+%   UseAveragePixels  if true, returns mean of all pixels above cut off.
 %
 % outputs
 %   HistMax  the maximum value that satisfies CutoffPercent in range [0, 1]
 %
+
+if nargin < 3
+  UseAveragePixels = false;
+end
 
 [rows, cols, chns] = size(InputImage);
 npixels = rows * cols;
@@ -50,8 +55,16 @@ for i = 1:chns
         % if we have passed the upper bound, final HistMax is the one
         % before the lower bound.
         HistMax(1, i) = centres(j - 1);
+        if UseAveragePixels
+          AllBiggerPixels = ichan(ichan >= centres(j - 1));
+          HistMax(1, i) = mean(AllBiggerPixels(:));
+        end
       else
         HistMax(1, i) = centres(j);
+        if UseAveragePixels
+          AllBiggerPixels = ichan(ichan >= centres(j));
+          HistMax(1, i) = mean(AllBiggerPixels(:));
+        end
       end
       break;
     end
