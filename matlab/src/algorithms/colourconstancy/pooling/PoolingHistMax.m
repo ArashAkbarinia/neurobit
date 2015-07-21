@@ -19,9 +19,14 @@ if nargin < 3
 end
 
 [rows, cols, chns] = size(InputImage);
+HistMax = zeros(1, chns);
 npixels = rows * cols;
 
 MaxVal = max(InputImage(:));
+if MaxVal == 0
+  return;
+end
+
 if MaxVal < (2 ^ 8)
   nbins = 2 ^ 8;
 elseif MaxVal < (2 ^ 16)
@@ -41,22 +46,21 @@ LowerMaxPixels = CutoffPercent .* npixels;
 % if we don't succeed we choose the closest value to the lower bound.
 UpperMaxPixels = LowerMaxPixels * 1.5;
 
-HistMax = zeros(1, chns);
 for i = 1:chns
   ichan = InputImage(:, :, i);
   [ihist, centres] = hist(ichan(:), nbins);
   
   HistMax(1, i) = centres(end);
   jpixels = 0;
-  for j = nbins:-1:1
+  for j = nbins - 1:-1:1
     jpixels = ihist(j) + jpixels;
     if jpixels > LowerMaxPixels(i)
       if jpixels > UpperMaxPixels
         % if we have passed the upper bound, final HistMax is the one
         % before the lower bound.
-        HistMax(1, i) = centres(j - 1);
+        HistMax(1, i) = centres(j + 1);
         if UseAveragePixels
-          AllBiggerPixels = ichan(ichan >= centres(j - 1));
+          AllBiggerPixels = ichan(ichan >= centres(j + 1));
           HistMax(1, i) = mean(AllBiggerPixels(:));
         end
       else
