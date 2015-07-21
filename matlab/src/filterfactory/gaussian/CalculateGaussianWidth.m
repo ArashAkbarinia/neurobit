@@ -13,7 +13,7 @@ if nargin < 2
   MaxWidth = 100;
 end
 
-threshold = 0.0001;
+threshold = 1e-4;
 pw = 1:MaxWidth;
 FilterWidth = find(exp(-(pw .^ 2) / (2 * sigma .^ 2)) > threshold, 1, 'last');
 if isempty(FilterWidth)
