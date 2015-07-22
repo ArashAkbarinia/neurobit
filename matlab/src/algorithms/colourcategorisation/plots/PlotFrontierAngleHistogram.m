@@ -1,5 +1,5 @@
-function FrontierHistogram = PlotFrontierHistogram(CartPoints, AngleStep, plotme, normalise)
-%PlotFrontierHistogram  makes a histogram of one frontier and plots it.
+function FrontierHistogram = PlotFrontierAngleHistogram(CartPoints, AngleStep, plotme, normalise)
+%PlotFrontierAngleHistogram  makes a histogram of one frontier and plots it.
 %
 % inputs
 %   CartPoints  the frontier points.

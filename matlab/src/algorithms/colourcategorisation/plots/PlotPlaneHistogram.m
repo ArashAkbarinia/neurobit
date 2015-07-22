@@ -30,7 +30,7 @@ for i = 1:numel(ColourNames)
       end
     end
     if ~DuplicateBorder
-      PlaneHistograms(end + 1, :) = PlotFrontierHistogram(CurrentColour.GetBorderWithColour(luminance, CurrentBorderNames{j})); %#ok
+      PlaneHistograms(end + 1, :) = PlotFrontierAngleHistogram(CurrentColour.GetBorderWithColour(luminance, CurrentBorderNames{j})); %#ok
       BorderNames(end + 1, :) = {ColourNames{i}, CurrentBorderNames{j}}; %#ok
     end
   end
