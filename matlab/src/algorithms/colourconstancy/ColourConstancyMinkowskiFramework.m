@@ -1,5 +1,5 @@
-function luminance = ColourConstnacyMinkowskiFramework(LuminanceImage, MinkNorm, OriginalImage)
-%ColourConstnacyMinkowskiFramework  the genral colour constancy framework.
+function luminance = ColourConstancyMinkowskiFramework(LuminanceImage, MinkNorm, OriginalImage)
+%ColourConstancyMinkowskiFramework  the genral colour constancy framework.
 %   Explanation van de Weijer 2007, "Edge-based color constancy".
 %
 % inputs

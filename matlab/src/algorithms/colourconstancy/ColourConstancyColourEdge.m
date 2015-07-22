@@ -28,7 +28,7 @@ for i = 1:3
 end
 
 MinkNorm = 5;
-luminance = ColourConstnacyMinkowskiFramework(LuminanceImage, MinkNorm, InputImage);
+luminance = ColourConstancyMinkowskiFramework(LuminanceImage, MinkNorm, InputImage);
 ColourConstantImage = MatChansMulK(InputImage, 1.0 ./ luminance);
 
 end
