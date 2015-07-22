@@ -410,27 +410,73 @@ end
 [ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'yellow', 'green', [], lsY_58_Y_G, lsY_81_Y_G);
 [ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'pink', 'orange', [], [], lsY_81_Pk_O);
 
-lsY_36_W_G   = [lsY_36_W_G_c;   lsY_36_W_G_a];
-lsY_36_W_B   = [lsY_36_W_B_c;   lsY_36_W_B_a];
-lsY_36_W_Pp  = [lsY_36_W_Pp_c;  lsY_36_W_Pp_a];
-lsY_36_W_Pk  = [lsY_36_W_Pk_c;  lsY_36_W_Pk_a];
-lsY_36_W_R   = [lsY_36_W_R_c;   lsY_36_W_R_a];
-lsY_36_W_Br  = [lsY_36_W_Br_c;  lsY_36_W_Br_a];
-
-lsY_58_W_G   = [lsY_58_W_G_c;   lsY_58_W_G_a];
-lsY_58_W_B   = [lsY_58_W_B_c;   lsY_58_W_B_a];
-lsY_58_W_Pp  = [lsY_58_W_Pp_c;  lsY_58_W_Pp_a];
-lsY_58_W_Pk  = [lsY_58_W_Pk_c;  lsY_58_W_Pk_a];
-lsY_58_W_R   = [lsY_58_W_R_c;   lsY_58_W_R_a];
-lsY_58_W_O   = [lsY_58_W_O_c;   lsY_58_W_O_a];
-lsY_58_W_Y   = [lsY_58_W_Y_c;   lsY_58_W_Y_a];
-
-lsY_81_W_G   = [lsY_81_W_G_c;   lsY_81_W_G_a];
-lsY_81_W_B   = [lsY_81_W_B_c;   lsY_81_W_B_a];
-lsY_81_W_Pp  = [lsY_81_W_Pp_c;  lsY_81_W_Pp_a];
-lsY_81_W_Pk  = [lsY_81_W_Pk_c;  lsY_81_W_Pk_a];
-lsY_81_W_O   = [lsY_81_W_O_c;   lsY_81_W_O_a];
-lsY_81_W_Y   = [lsY_81_W_Y_c;   lsY_81_W_Y_a];
+if BackgroundType == 0
+  lsY_36_W_G   = [lsY_36_W_G_c;   lsY_36_W_G_a];
+  lsY_36_W_B   = [lsY_36_W_B_c;   lsY_36_W_B_a];
+  lsY_36_W_Pp  = [lsY_36_W_Pp_c;  lsY_36_W_Pp_a];
+  lsY_36_W_Pk  = [lsY_36_W_Pk_c;  lsY_36_W_Pk_a];
+  lsY_36_W_R   = [lsY_36_W_R_c;   lsY_36_W_R_a];
+  lsY_36_W_Br  = [lsY_36_W_Br_c;  lsY_36_W_Br_a];
+  
+  lsY_58_W_G   = [lsY_58_W_G_c;   lsY_58_W_G_a];
+  lsY_58_W_B   = [lsY_58_W_B_c;   lsY_58_W_B_a];
+  lsY_58_W_Pp  = [lsY_58_W_Pp_c;  lsY_58_W_Pp_a];
+  lsY_58_W_Pk  = [lsY_58_W_Pk_c;  lsY_58_W_Pk_a];
+  lsY_58_W_R   = [lsY_58_W_R_c;   lsY_58_W_R_a];
+  lsY_58_W_O   = [lsY_58_W_O_c;   lsY_58_W_O_a];
+  lsY_58_W_Y   = [lsY_58_W_Y_c;   lsY_58_W_Y_a];
+  
+  lsY_81_W_G   = [lsY_81_W_G_c;   lsY_81_W_G_a];
+  lsY_81_W_B   = [lsY_81_W_B_c;   lsY_81_W_B_a];
+  lsY_81_W_Pp  = [lsY_81_W_Pp_c;  lsY_81_W_Pp_a];
+  lsY_81_W_Pk  = [lsY_81_W_Pk_c;  lsY_81_W_Pk_a];
+  lsY_81_W_O   = [lsY_81_W_O_c;   lsY_81_W_O_a];
+  lsY_81_W_Y   = [lsY_81_W_Y_c;   lsY_81_W_Y_a];
+elseif BackgroundType == 1 % chromatic
+  lsY_36_W_G   = lsY_36_W_G_c;
+  lsY_36_W_B   = lsY_36_W_B_c;
+  lsY_36_W_Pp  = lsY_36_W_Pp_c;
+  lsY_36_W_Pk  = lsY_36_W_Pk_c;
+  lsY_36_W_R   = lsY_36_W_R_c;
+  lsY_36_W_Br  = lsY_36_W_Br_c;
+  
+  lsY_58_W_G   = lsY_58_W_G_c;
+  lsY_58_W_B   = lsY_58_W_B_c;
+  lsY_58_W_Pp  = lsY_58_W_Pp_c;
+  lsY_58_W_Pk  = lsY_58_W_Pk_c;
+  lsY_58_W_R   = lsY_58_W_R_c;
+  lsY_58_W_O   = lsY_58_W_O_c;
+  lsY_58_W_Y   = lsY_58_W_Y_c;
+  
+  lsY_81_W_G   = lsY_81_W_G_c;
+  lsY_81_W_B   = lsY_81_W_B_c;
+  lsY_81_W_Pp  = lsY_81_W_Pp_c;
+  lsY_81_W_Pk  = lsY_81_W_Pk_c;
+  lsY_81_W_O   = lsY_81_W_O_c;
+  lsY_81_W_Y   = lsY_81_W_Y_c;
+elseif BackgroundType == 2 % achromatic
+  lsY_36_W_G   = lsY_36_W_G_a;
+  lsY_36_W_B   = lsY_36_W_B_a;
+  lsY_36_W_Pp  = lsY_36_W_Pp_a;
+  lsY_36_W_Pk  = lsY_36_W_Pk_a;
+  lsY_36_W_R   = lsY_36_W_R_a;
+  lsY_36_W_Br  = lsY_36_W_Br_a;
+  
+  lsY_58_W_G   = lsY_58_W_G_a;
+  lsY_58_W_B   = lsY_58_W_B_a;
+  lsY_58_W_Pp  = lsY_58_W_Pp_a;
+  lsY_58_W_Pk  = lsY_58_W_Pk_a;
+  lsY_58_W_R   = lsY_58_W_R_a;
+  lsY_58_W_O   = lsY_58_W_O_a;
+  lsY_58_W_Y   = lsY_58_W_Y_a;
+  
+  lsY_81_W_G   = lsY_81_W_G_a;
+  lsY_81_W_B   = lsY_81_W_B_a;
+  lsY_81_W_Pp  = lsY_81_W_Pp_a;
+  lsY_81_W_Pk  = lsY_81_W_Pk_a;
+  lsY_81_W_O   = lsY_81_W_O_a;
+  lsY_81_W_Y   = lsY_81_W_Y_a;
+end
 
 [ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'grey', 'green', lsY_36_W_G, lsY_58_W_G, lsY_81_W_G);
 [ColourFrontiers, borders] = AddColourBorders365881(borders, ColourFrontiers, 'grey', 'blue', lsY_36_W_B, lsY_58_W_B, lsY_81_W_B);
