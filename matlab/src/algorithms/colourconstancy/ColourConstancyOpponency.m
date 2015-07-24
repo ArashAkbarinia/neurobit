@@ -164,8 +164,8 @@ rgsbw = im2bw(rgs, rgsth);
 
 % SurroundEnlarge = 5.0;
 
-m1 = 1 - mean(mean((rgc( rgcbw &  rgsbw) + rgs( rgcbw &  rgsbw)))) ./ 2;
-m4 = 1 - mean(mean((rgc(~rgcbw & ~rgsbw) + rgs(~rgcbw & ~rgsbw)))) ./ 2;
+% m1 = 1 - mean(mean((rgc( rgcbw &  rgsbw) + rgs( rgcbw &  rgsbw)))) ./ 2;
+% m4 = 1 - mean(mean((rgc(~rgcbw & ~rgsbw) + rgs(~rgcbw & ~rgsbw)))) ./ 2;
 
 % mpercent = m1 / m4;
 % s4 = s1 * mpercent;
@@ -195,6 +195,33 @@ dog1b = SingleOpponentGaussian(rg, x * ContrastEnlarge);
 
 dog2a = SingleOpponentGaussian(rg, x * SurroundEnlarge);
 
+%%%%%%%%%%%%%%%%%%%%%
+% [mag1a, dir1a] = imgradient(dog1a);
+% [mag1b, dir1b] = imgradient(dog1b);
+% [mag2a, dir2a] = imgradient(dog2a);
+% 
+% dir1a(dir1a < 0) = dir1a(dir1a < 0) + 180;
+% dir1b(dir1b < 0) = dir1b(dir1b < 0) + 180;
+% dir2a(dir2a < 0) = dir2a(dir2a < 0) + 180;
+% 
+% dir1a = dir1a ./ 180;
+% dir1b = dir1b ./ 180;
+% dir2a = dir2a ./ 180;
+
+% s1 = s1 + abs(dir1a - dir2a);
+% s1 = s1( rgcbw &  rgsbw);
+% 
+% s2 = s2 + abs(dir1a - dir2a);
+% s2 = s2( rgcbw & ~rgsbw);
+% 
+% s3 = s3 + abs(dir1b - dir2a);
+% s3 = s3(~rgcbw &  rgsbw);
+% 
+% s4 = s4 + abs(dir1b - dir2a);
+% s4 = s4(~rgcbw & ~rgsbw);
+
+%%%%%%%%%%%%%%%%%%%%%
+
 dorg( rgcbw &  rgsbw) = DoubleOpponent(dog1a( rgcbw &  rgsbw), dog2a( rgcbw &  rgsbw), s1);
 dorg( rgcbw & ~rgsbw) = DoubleOpponent(dog1a( rgcbw & ~rgsbw), dog2a( rgcbw & ~rgsbw), s2);
 dorg(~rgcbw &  rgsbw) = DoubleOpponent(dog1b(~rgcbw &  rgsbw), dog2a(~rgcbw &  rgsbw), s3);
@@ -215,8 +242,8 @@ end
 
 function dorg = OrinetationSelectivity(rg, ContrastSigma, SurroundSigma)
 
-g2rga = SingleOpponentGradientGaussian(rg, ContrastSigma, 2, 4);
-g2rgb = SingleOpponentGradientGaussian(rg, SurroundSigma, 2, 4);
+g2rga = ApplyGaussianGradient(rg, ContrastSigma, 2, 4);
+g2rgb = ApplyGaussianGradient(rg, SurroundSigma, 2, 4);
 dorg = false(size(rg));
 j = size(g2rga, 3) / 2;
 for i = 1:size(g2rga, 3)
@@ -254,6 +281,8 @@ Cutoff = mean(StdImg(:));
 dtmap = dtmap .* ((2 ^ 8) - 1);
 MaxVals = PoolingHistMax(dtmap, Cutoff, false);
 
+% MaxVals = ColourConstancyMinkowskiFramework(dtmap, 5);
+
 luminance = MaxVals;
 
 end
@@ -290,7 +319,7 @@ dowb = SingleOpponentContrastGradientGaussian(wb, 1, 2);
 
 end
 
-function rfresponse = SingleOpponentGradientGaussian(isignal, EnlargeFactor, order, nangles)
+function GaussianGradients = ApplyGaussianGradient(isignal, EnlargeFactor, order, nangles)
 
 if nargin < 4
   nangles = 2;
@@ -320,20 +349,34 @@ for i = 1:chns
   rfresponse(:, :, i) = (rfresponsei .^ 2) * weights(i);
 end
 
-rfresponse = sqrt(rfresponse);
-rfresponse = sum(rfresponse, 3);
+GaussianGradients = sqrt(rfresponse);
 
 end
 
-function rfresponse = SingleOpponentContrastGradientGaussian(isignal, EnlargeFactor, order)
+function rfresponse = SingleOpponentGradientGaussian(isignal, EnlargeFactor, order, nangles)
+
+if nargin < 4
+  nangles = 2;
+end
+
+GaussianGradients = ApplyGaussianGradient(isignal, EnlargeFactor, order, nangles);
+rfresponse = sum(GaussianGradients, 3);
+
+end
+
+function rfresponse = SingleOpponentContrastGradientGaussian(isignal, EnlargeFactor, order, nangles)
+
+if nargin < 4
+  nangles = 2;
+end
 
 [rows, cols, ~] = size(isignal);
 
 zctr = GetContrastImage(isignal);
 
 nContrastLevels = 4;
-StartingSigma = 1.5 * EnlargeFactor;
-FinishingSigma = 3.5 * EnlargeFactor;
+StartingSigma = 2 * EnlargeFactor;
+FinishingSigma = 4 * EnlargeFactor;
 sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
 
 MinPix = min(zctr(:));
@@ -346,7 +389,7 @@ ContrastLevels = imquantize(zctr, levels);
 nContrastLevels = unique(ContrastLevels(:));
 nContrastLevels = nContrastLevels';
 
-angles = 0:pi/2:pi;
+angles = 0:pi/nangles:pi;
 chns = length(angles) - 1;
 weights = ones(length(angles), 1);
 weights([1, ceil(end / 2), end]) = 1;
