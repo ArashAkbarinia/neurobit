@@ -18,7 +18,7 @@ if nargin > 2
   MaskImage = double(MaskImage == 0);
   MaskImage = set_border(MaskImage, sigma + 1, 0);
 else
-  MaskImage = ones(size(LuminanceImage));
+  MaskImage = ones(size(LuminanceImage, 1), size(LuminanceImage, 2));
 end
 
 if nargin < 2
