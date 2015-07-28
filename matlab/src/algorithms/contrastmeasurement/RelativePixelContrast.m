@@ -13,21 +13,23 @@ function [SigmaCentre, SigmaSurround] = RelativePixelContrast(InputImage, Centre
 InputImage = double(InputImage);
 
 if nargin < 2
-  CentreSize = 17;
+  CentreSize(1) = 17;
+end
+if length(CentreSize) == 1
+  CentreSize(2) = CentreSize(1);
 end
 if nargin < 3
-  SurroundSize = 5 * CentreSize;
+  SurroundSize = 5 .* CentreSize;
+end
+if length(SurroundSize) == 1
+  SurroundSize(2) = SurroundSize(1);
 end
 
-if mod(CentreSize, 2) == 0
-  CentreSize = CentreSize + 1;
-end
-if mod(SurroundSize, 2) == 0
-  SurroundSize = SurroundSize + 1;
-end
+CentreSize = MakeSizeOdd(CentreSize);
+SurroundSize = MakeSizeOdd(SurroundSize);
 
-hc = ones(CentreSize, CentreSize);
-hs = ones(SurroundSize, SurroundSize);
+hc = ones(CentreSize(1), CentreSize(2));
+hs = ones(SurroundSize(1), SurroundSize(2));
 [hcx, hcy] = size(hc);
 d = [(hcx + 1) / 2, (hcy + 1) / 2] - 1;
 [hsx, hsy] = size(hs);
@@ -40,6 +42,18 @@ SigmaSurround = zeros(rows, cols, chns);
 for i = 1:chns
   SigmaCentre(:, :, i) = stdfilt(InputImage(:, :, i), hc);
   SigmaSurround(:, :, i) = stdfilt(InputImage(:, :, i), hs);
+end
+
+end
+
+function OddSize = MakeSizeOdd(InputSize)
+
+OddSize = InputSize;
+
+for i = 1:length(InputSize)
+  if mod(InputSize(i), 2) == 0
+    OddSize(i) = InputSize(i) + 1;
+  end
 end
 
 end
