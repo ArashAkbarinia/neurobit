@@ -152,7 +152,7 @@ nk = method{10};
 if CentreSize == -1
   CentreSize = floor(visualangle2pixel(0.36, [], [], rows));
 end
-[rgc, rgs] = RelativePixelContrast(rg, CentreSize, 5 * CentreSize);
+[rgc, rgs] = RelativePixelContrast(rg, CentreSize, SurroundEnlarge * CentreSize);
 
 rgcth = graythresh(rgc);
 rgsth = graythresh(rgs);
@@ -219,7 +219,6 @@ dog2a = SingleOpponentGaussian(rg, x * SurroundEnlarge);
 % 
 % s4 = s4 + abs(dir1b - dir2a);
 % s4 = s4(~rgcbw & ~rgsbw);
-
 %%%%%%%%%%%%%%%%%%%%%
 
 dorg( rgcbw &  rgsbw) = DoubleOpponent(dog1a( rgcbw &  rgsbw), dog2a( rgcbw &  rgsbw), s1);
