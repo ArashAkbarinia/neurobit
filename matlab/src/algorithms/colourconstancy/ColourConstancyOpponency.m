@@ -184,9 +184,21 @@ sd = (s1 - s4) / 3;
 s2 = s1 - sd;
 s3 = s4 + sd;
 
-% cd = (c1 - c4) / 3;
-% c2 = c1 - cd;
-% c3 = c4 + cd;
+s1 = ones(rows, cols) .* s1;
+s2 = ones(rows, cols) .* s2;
+s3 = ones(rows, cols) .* s3;
+s4 = ones(rows, cols) .* s4;
+
+c1 = 1 + mean(rgc(:));
+c4 = 1 + mean(rgs(:));
+cd = (c1 - c4) / 3;
+c2 = c1 - cd;
+c3 = c4 + cd;
+
+c1 = ones(rows, cols) .* c1;
+c2 = ones(rows, cols) .* c2;
+c3 = ones(rows, cols) .* c3;
+c4 = ones(rows, cols) .* c4;
 
 dorg = zeros(rows, cols);
 
@@ -221,10 +233,10 @@ dog2a = SingleOpponentGaussian(rg, x * SurroundEnlarge);
 % s4 = s4(~rgcbw & ~rgsbw);
 %%%%%%%%%%%%%%%%%%%%%
 
-dorg( rgcbw &  rgsbw) = DoubleOpponent(dog1a( rgcbw &  rgsbw), dog2a( rgcbw &  rgsbw), s1);
-dorg( rgcbw & ~rgsbw) = DoubleOpponent(dog1a( rgcbw & ~rgsbw), dog2a( rgcbw & ~rgsbw), s2);
-dorg(~rgcbw &  rgsbw) = DoubleOpponent(dog1b(~rgcbw &  rgsbw), dog2a(~rgcbw &  rgsbw), s3);
-dorg(~rgcbw & ~rgsbw) = DoubleOpponent(dog1b(~rgcbw & ~rgsbw), dog2a(~rgcbw & ~rgsbw), s4);
+dorg( rgcbw &  rgsbw) = DoubleOpponent(dog1a( rgcbw &  rgsbw), dog2a( rgcbw &  rgsbw), s1( rgcbw &  rgsbw), c1( rgcbw &  rgsbw));
+dorg( rgcbw & ~rgsbw) = DoubleOpponent(dog1a( rgcbw & ~rgsbw), dog2a( rgcbw & ~rgsbw), s2( rgcbw & ~rgsbw), c2( rgcbw & ~rgsbw));
+dorg(~rgcbw &  rgsbw) = DoubleOpponent(dog1b(~rgcbw &  rgsbw), dog2a(~rgcbw &  rgsbw), s3(~rgcbw &  rgsbw), c3(~rgcbw &  rgsbw));
+dorg(~rgcbw & ~rgsbw) = DoubleOpponent(dog1b(~rgcbw & ~rgsbw), dog2a(~rgcbw & ~rgsbw), s4(~rgcbw & ~rgsbw), c4(~rgcbw & ~rgsbw));
 
 % either this or that
 % dogk1 = SurroundInfluence(rg, x, x * SurroundEnlarge, c1, s1);
@@ -583,13 +595,16 @@ rfresponse = imfilter(isignal, rf, 'replicate');
 
 end
 
-function rfresponse = DoubleOpponent(ab, ba, k)
+function rfresponse = DoubleOpponent(ab, ba, k, j)
 
 if nargin < 3
   k = 0.5;
 end
+if nargin < 4
+  j = 1.0;
+end
 
-rfresponse = ab + k .* ba;
+rfresponse = j .* ab + k .* ba;
 rfresponse = sum(rfresponse, 3);
 
 end
