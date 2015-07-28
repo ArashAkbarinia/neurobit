@@ -8,10 +8,11 @@ matlabpool(mycluster);
 
 %% ours partially
 
-params = {'arash', 3, 0.8, 2, 5, -0.82, -0.72, -0.82, -0.72, 4};
+params = {'arash', 3, 0.8, 2, 5, -0.82, -0.72, 0, 0, 0};
 % [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(params, false, 1:3:321); mean(AngularErrors(1:3:321)), median(AngularErrors(1:3:321))
 [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall(params, false, 1:100:11346); mean(AngularErrors(1:100:11346)), median(AngularErrors(1:100:11346))
 % [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi(params, false, 1:5:568); mean(AngularErrors(1:5:568)), median(AngularErrors(1:5:568))
+% [AngularErrors, LuminanceDiffs] = ColourConstancyReportBarcelona(params, false, 1:5:448); mean(AngularErrors(1:5:448)), median(AngularErrors(1:5:448))
 
 %% tmp
 
@@ -26,28 +27,26 @@ params = {'arash', 3, 0.8, 2, 5, -0.82, -0.72, -0.82, -0.72, 4};
 
 % methods = {'gaussian', 'cgaussian', 'udog', 'cudog', 'd1', 'cd1', 'd2', 'cd2'};
 methods = {'arash'};
-SurroundEnlarge = 5;
-u = -0.68;
-d = -0.48;
+% u = -0.82;
+% d = -0.72;
 % CentreSize = 3;
 % x = 0.8;
-% ContrastEnlarge = 2;
+ContrastEnlarge = 2;
+SurroundEnlarge = 5;
 for i = 1:1:numel(methods)
   for CentreSize = 3
-    for x = 0.8
-      for ContrastEnlarge = 2
-        for k3 = 1
-          for k4 = 1
-            CurrentMethod = {methods{i}, CentreSize, x, ContrastEnlarge, SurroundEnlarge, u, d, -u/k3, -d/k4, 32};
-            [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(CurrentMethod, false);
-            save(['SfuLab-', methods{i}, '-', num2str(CentreSize), '-', num2str(x), '-', num2str(ContrastEnlarge), '-', num2str(k3), '-', num2str(k4), '.mat'], 'AngularErrors', 'LuminanceDiffs');
-            
-            [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall(CurrentMethod, false);
-            save(['GreyBall-', methods{i}, '-', num2str(CentreSize), '-', num2str(x), '-', num2str(ContrastEnlarge), '-', num2str(k3), '-', num2str(k4), '.mat'], 'AngularErrors', 'LuminanceDiffs');
-            
-            [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi(CurrentMethod, false);
-            save(['Gehlershi-', methods{i}, '-', num2str(CentreSize), '-', num2str(x), '-', num2str(ContrastEnlarge), '-', num2str(k3), '-', num2str(k4), '.mat'], 'AngularErrors', 'LuminanceDiffs');
-          end
+    for x = 0.7
+      for u = -0.82
+        for d = -0.72
+          CurrentMethod = {methods{i}, CentreSize, x, ContrastEnlarge, SurroundEnlarge, u, d, 0, 0, 0};
+          [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(CurrentMethod, false);
+          save(['SfuLab-', methods{i}, '-r', num2str(CentreSize), '-', num2str(x), '-s', num2str(SurroundEnlarge), '-c', num2str(ContrastEnlarge), '-u', num2str(u), '-d', num2str(d), '.mat'], 'AngularErrors', 'LuminanceDiffs');
+          
+          [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall(CurrentMethod, false);
+          save(['GreyBall-', methods{i}, '-r', num2str(CentreSize), '-', num2str(x), '-s', num2str(SurroundEnlarge), '-c', num2str(ContrastEnlarge), '-u', num2str(u), '-d', num2str(d), '.mat'], 'AngularErrors', 'LuminanceDiffs');
+          
+          [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi(CurrentMethod, false);
+          save(['Gehlershi-', methods{i}, '-r', num2str(CentreSize), '-', num2str(x), '-s', num2str(SurroundEnlarge), '-c', num2str(ContrastEnlarge), '-u', num2str(u), '-d', num2str(d), '.mat'], 'AngularErrors', 'LuminanceDiffs');
         end
       end
     end
