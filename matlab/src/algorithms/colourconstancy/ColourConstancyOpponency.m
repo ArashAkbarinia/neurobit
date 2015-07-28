@@ -180,7 +180,7 @@ rgsbw = im2bw(rgs, rgsth);
 % return;
 %%%%%%%%%%%%%%%%%%%%%
 
-sd = (s1 - s4) / 3;
+sd = (s1 - s4) ./ 3;
 s2 = s1 - sd;
 s3 = s4 + sd;
 
@@ -191,7 +191,7 @@ s4 = ones(rows, cols) .* s4;
 
 c1 = 1 + mean(rgc(:));
 c4 = 1 + mean(rgs(:));
-cd = (c1 - c4) / 3;
+cd = (c1 - c4) ./ 3;
 c2 = c1 - cd;
 c3 = c4 + cd;
 
