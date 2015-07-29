@@ -152,7 +152,7 @@ nk = method{10};
 if CentreSize == -1
   CentreSize = floor(visualangle2pixel(0.36, [], [], rows));
 end
-[rgc, rgs] = RelativePixelContrast(rg, CentreSize, SurroundEnlarge * CentreSize);
+[rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
 
 rgcth = graythresh(rgc);
 rgsth = graythresh(rgs);
