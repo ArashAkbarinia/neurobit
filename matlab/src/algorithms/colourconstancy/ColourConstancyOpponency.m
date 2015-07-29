@@ -276,7 +276,10 @@ function luminance = CalculateLuminance(dtmap, InputImage)
 
 % to make the comparison exactly like Joost's Grey Edges
 SaturationThreshold = max(InputImage(:));
-SaturatedPixels = (dilation33(double(max(InputImage, [], 3) >= SaturationThreshold)));
+DarkThreshold = min(InputImage(:));
+MaxImage = max(InputImage, [], 3);
+MinImage = min(InputImage, [], 3);
+SaturatedPixels = (dilation33(double(MaxImage >= SaturationThreshold | MinImage <= DarkThreshold)));
 SaturatedPixels = double(SaturatedPixels == 0);
 sigma = 2;
 SaturatedPixels = set_border(SaturatedPixels, sigma + 1, 0);
@@ -293,7 +296,12 @@ dtmap = dtmap ./ max(dtmap(:));
 StdImg = LocalStdContrast(dtmap, CentreSize);
 Cutoff = mean(StdImg(:));
 dtmap = dtmap .* ((2 ^ 8) - 1);
-MaxVals = PoolingHistMax(dtmap, Cutoff, false);
+% MaxVals = PoolingHistMax(dtmap, Cutoff, false);
+for i = 1:3
+  tmp = dtmap(:, :, i);
+  tmp = tmp(SaturatedPixels == 1);
+  MaxVals(1, i) = PoolingHistMax2(tmp(:), Cutoff, false);
+end
 
 % MaxVals = ColourConstancyMinkowskiFramework(dtmap, 5);
 
@@ -632,5 +640,67 @@ contraststd = LocalStdContrast(isignal, 3);
 % contraststd = contraststd ./ max(contraststd(:));
 
 ContrastImage = 1 - contraststd;
+
+end
+
+function HistMax = PoolingHistMax2(InputImage, CutoffPercent, UseAveragePixels)
+
+
+if nargin < 3
+  UseAveragePixels = false;
+end
+
+npixels = length(InputImage);
+HistMax = zeros(1, 1);
+
+MaxVal = max(InputImage(:));
+if MaxVal == 0
+  return;
+end
+
+if MaxVal < (2 ^ 8)
+  nbins = 2 ^ 8;
+elseif MaxVal < (2 ^ 16)
+  nbins = 2 ^ 16;
+end
+
+if nargin < 2 || isempty(CutoffPercent)
+  CutoffPercent = 0.01;
+end
+
+LowerMaxPixels = CutoffPercent .* npixels;
+% setting the upper bound to 50% bigger than the lower bound, this means we
+% try to find the final HistMax between the lower and upper bounds. However
+% if we don't succeed we choose the closest value to the lower bound.
+UpperMaxPixels = LowerMaxPixels * 1.5;
+
+for i = 1:1
+  ichan = InputImage;
+  [ihist, centres] = hist(ichan(:), nbins);
+  
+  HistMax(1, i) = centres(end);
+  jpixels = 0;
+  for j = nbins - 1:-1:1
+    jpixels = ihist(j) + jpixels;
+    if jpixels > LowerMaxPixels(i)
+      if jpixels > UpperMaxPixels
+        % if we have passed the upper bound, final HistMax is the one
+        % before the lower bound.
+        HistMax(1, i) = centres(j + 1);
+        if UseAveragePixels
+          AllBiggerPixels = ichan(ichan >= centres(j + 1));
+          HistMax(1, i) = mean(AllBiggerPixels(:));
+        end
+      else
+        HistMax(1, i) = centres(j);
+        if UseAveragePixels
+          AllBiggerPixels = ichan(ichan >= centres(j));
+          HistMax(1, i) = mean(AllBiggerPixels(:));
+        end
+      end
+      break;
+    end
+  end
+end
 
 end
