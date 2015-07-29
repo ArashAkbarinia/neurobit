@@ -268,7 +268,7 @@ SaturationThreshold = max(InputImage(:));
 DarkThreshold = min(InputImage(:));
 MaxImage = max(InputImage, [], 3);
 MinImage = min(InputImage, [], 3);
-SaturatedPixels = (dilation33(double(MaxImage >= SaturationThreshold | MinImage <= DarkThreshold)));
+SaturatedPixels = dilation33(double(MaxImage >= SaturationThreshold | MinImage <= DarkThreshold));
 SaturatedPixels = double(SaturatedPixels == 0);
 sigma = 2;
 SaturatedPixels = set_border(SaturatedPixels, sigma + 1, 0);
