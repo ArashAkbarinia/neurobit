@@ -159,17 +159,6 @@ rgsth = graythresh(rgs);
 rgcbw = im2bw(rgc, rgcth);
 rgsbw = im2bw(rgs, rgsth);
 
-% x = 0.80;
-% ContrastEnlarge = 2.0;
-
-% SurroundEnlarge = 5.0;
-
-% m1 = 1 - mean(mean((rgc( rgcbw &  rgsbw) + rgs( rgcbw &  rgsbw)))) ./ 2;
-% m4 = 1 - mean(mean((rgc(~rgcbw & ~rgsbw) + rgs(~rgcbw & ~rgsbw)))) ./ 2;
-
-% mpercent = m1 / m4;
-% s4 = s1 * mpercent;
-
 %%%%%%%%%%%%%%%%%%%%%
 % sorg = SingleOpponentContrast(rg, 1);
 % 
