@@ -11,9 +11,39 @@ function h = PlotImagePixelGrid(InputImage, gts)
 
 InputImage([1, 10], 2:end, :) = 128;
 figure;
-h = imshow(InputImage, 'InitialMagnification', 'fit');
+
 
 hold on;
+
+if strcmpi(gts, 'berlin')
+  PlotGreenBerlin();
+  PlotBlueBerlin();
+  PlotPurpleBerlin();
+  PlotPinkBerlin();
+  PlotRedBerlin();
+  PlotOrangeBerlin();
+  PlotYellowBerlin();
+  PlotBrownBerlin();
+  PlotGreyBerlin();
+  PlotWhiteBerlin();
+  PlotBlackBerlin();
+end
+
+if strcmpi(gts, 'sturge')
+  PlotGreenSturge();
+  PlotBlueSturge();
+  PlotPurpleSturge();
+  PlotPinkSturge();
+  PlotRedSturge();
+  PlotOrangeSturge();
+  PlotYellowSturge();
+  PlotBrownSturge();
+  PlotGreySturge();
+  PlotWhiteSturge();
+  PlotBlackSturge();
+end
+
+h = imshow(InputImage, 'InitialMagnification', 'fit');
 
 if strcmpi(gts, 'berlin')
   PlotGreenBerlin();
@@ -297,16 +327,16 @@ function [] = PlotWhiteBerlin()
 
 x = [0.5, 0.5];
 y = [0.5, 2.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [1.5, 1.5];
 y = [0.5, 2.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [0.5, 1.5];
 y = [0.5, 0.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [0.5, 1.5];
 y = [2.5, 2.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 
 end
 
@@ -314,16 +344,16 @@ function [] = PlotBlackBerlin()
 
 x = [0.5, 0.5];
 y = [8.5, 10.5];
-plot(x, y, 'Color', 'white', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [1.5, 1.5];
 y = [8.5, 10.5];
-plot(x, y, 'Color', 'white', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [0.5, 1.5];
 y = [8.5, 8.5];
-plot(x, y, 'Color', 'white', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [0.5, 1.5];
 y = [10.5, 10.5];
-plot(x, y, 'Color', 'white', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 
 end
 
@@ -639,16 +669,16 @@ function [] = PlotWhiteSturge()
 
 x = [0.5, 0.5];
 y = [0.5, 1.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [1.5, 1.5];
 y = [0.5, 1.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [0.5, 1.5];
 y = [0.5, 0.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [0.5, 1.5];
 y = [1.5, 1.5];
-plot(x, y, 'Color', 'black', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 
 end
 
@@ -656,15 +686,15 @@ function [] = PlotBlackSturge()
 
 x = [0.5, 0.5];
 y = [9.5, 10.5];
-plot(x, y, 'Color', 'white', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [1.5, 1.5];
 y = [9.5, 10.5];
-plot(x, y, 'Color', 'white', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [0.5, 1.5];
 y = [9.5, 9.5];
-plot(x, y, 'Color', 'white', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 x = [0.5, 1.5];
 y = [10.5, 10.5];
-plot(x, y, 'Color', 'white', 'LineStyle', '-', 'LineWidth', 3);
+plot(x, y, 'Color', 'blue', 'LineStyle', '-', 'LineWidth', 3);
 
 end
