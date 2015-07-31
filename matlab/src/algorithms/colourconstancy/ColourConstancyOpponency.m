@@ -124,14 +124,21 @@ c1 = method{8};
 c4 = method{9};
 nk = method{10};
 
-sorg = SingleOpponentContrast(rg, 1);
+sorg = SingleOpponentContrast(rg, 1, nk);
 
 EnlargeFactor = 10 / 2.5;
 sogr = SingleOpponentGaussian(rg, EnlargeFactor);
 
+[rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
+mrgc = mean(rgc(:));
+mrgs = mean(rgs(:));
+c1 = 1 + mrgc;
+c4 = 1 + mrgs;
+
 ks = linspace(s1, s4, nk);
-% OppositeOrientaions = OrinetationSelectivity(rg, 4 / 2.5, 10 / 2.5);
-dorg = ApplyNeighbourImpact(rg, sorg, sogr, ks);
+js = linspace(c1, c4, nk);
+
+dorg = ApplyNeighbourImpact(rg, sorg, sogr, ks, js);
 
 end
 
@@ -158,16 +165,6 @@ rgcth = graythresh(rgc);
 rgsth = graythresh(rgs);
 rgcbw = im2bw(rgc, rgcth);
 rgsbw = im2bw(rgs, rgsth);
-
-%%%%%%%%%%%%%%%%%%%%%
-% sorg = SingleOpponentContrast(rg, 1);
-% 
-% EnlargeFactor = 10 / 2.5;
-% sogr = SingleOpponentGaussian(rg, EnlargeFactor);
-% ks = linspace(s1, s4, nk);
-% dorg = ApplyNeighbourImpact(rg, sorg, sogr, ks);
-% return;
-%%%%%%%%%%%%%%%%%%%%%
 
 mrgc = mean(rgc(:));
 mrgs = mean(rgs(:));
@@ -229,17 +226,6 @@ dorg( rgcbw &  rgsbw) = DoubleOpponent(dog1a( rgcbw &  rgsbw), dog2a( rgcbw &  r
 dorg( rgcbw & ~rgsbw) = DoubleOpponent(dog1a( rgcbw & ~rgsbw), dog2a( rgcbw & ~rgsbw), s2( rgcbw & ~rgsbw), c2( rgcbw & ~rgsbw));
 dorg(~rgcbw &  rgsbw) = DoubleOpponent(dog1b(~rgcbw &  rgsbw), dog2a(~rgcbw &  rgsbw), s3(~rgcbw &  rgsbw), c3(~rgcbw &  rgsbw));
 dorg(~rgcbw & ~rgsbw) = DoubleOpponent(dog1b(~rgcbw & ~rgsbw), dog2a(~rgcbw & ~rgsbw), s4(~rgcbw & ~rgsbw), c4(~rgcbw & ~rgsbw));
-
-% either this or that
-% dogk1 = SurroundInfluence(rg, x, x * SurroundEnlarge, c1, s1);
-% dogk2 = SurroundInfluence(rg, x, x * SurroundEnlarge, c2, s2);
-% dogk3 = SurroundInfluence(rg, x * ContrastEnlarge, x * SurroundEnlarge, c3, s3);
-% dogk4 = SurroundInfluence(rg, x * ContrastEnlarge, x * SurroundEnlarge, c4, s4);
-% 
-% dorg( rgcbw &  rgsbw) = dogk1( rgcbw &  rgsbw);
-% dorg( rgcbw & ~rgsbw) = dogk2( rgcbw & ~rgsbw);
-% dorg(~rgcbw &  rgsbw) = dogk3(~rgcbw &  rgsbw);
-% dorg(~rgcbw & ~rgsbw) = dogk4(~rgcbw & ~rgsbw);
 
 end
 
@@ -525,7 +511,7 @@ dowb = DoubleOpponent(sowb, sobw, k);
 
 end
 
-function dorg = ApplyNeighbourImpact(rg, sorg, sogr, SurroundImpacts)
+function dorg = ApplyNeighbourImpact(rg, sorg, sogr, SurroundImpacts, CentreImpacts)
 
 nContrastLevels = length(SurroundImpacts);
 zctr = GetContrastImage(rg);
@@ -542,7 +528,7 @@ nContrastLevels = nContrastLevels';
 
 dorg = zeros(size(rg));
 for i = nContrastLevels
-  dorg(ContrastLevels == i) = DoubleOpponent(sorg(ContrastLevels == i), sogr(ContrastLevels == i), SurroundImpacts(i));
+  dorg(ContrastLevels == i) = DoubleOpponent(sorg(ContrastLevels == i), sogr(ContrastLevels == i), SurroundImpacts(i), CentreImpacts(i));
 %   dorg(ContrastLevels == i & ~OppositeOrientaions) = DoubleOpponent(sorg(ContrastLevels == i & ~OppositeOrientaions), sogr(ContrastLevels == i & ~OppositeOrientaions), SurroundImpacts(i));
 %   j = length(SurroundImpacts) + 1 - i;
 %   dorg(ContrastLevels == i & OppositeOrientaions) = DoubleOpponent(sorg(ContrastLevels == i & OppositeOrientaions), sogr(ContrastLevels == i & OppositeOrientaions), -SurroundImpacts(j) * 1.1);
@@ -552,13 +538,16 @@ end
 
 end
 
-function rfresponse = SingleOpponentContrast(isignal, EnlargeFactor)
+function rfresponse = SingleOpponentContrast(isignal, EnlargeFactor, nContrastLevels)
 
 [rows, cols, ~] = size(isignal);
 
 zctr = GetContrastImage(isignal);
 
-nContrastLevels = 4;
+if nargin < 3
+  nContrastLevels = 4;
+end
+
 StartingSigma = 2 * EnlargeFactor;
 FinishingSigma = 4 * EnlargeFactor;
 sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
@@ -633,7 +622,6 @@ ContrastImage = 1 - contraststd;
 end
 
 function HistMax = PoolingHistMax2(InputImage, CutoffPercent, UseAveragePixels)
-
 
 if nargin < 3
   UseAveragePixels = false;
