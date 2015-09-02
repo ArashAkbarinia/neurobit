@@ -1,4 +1,4 @@
-function [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(method, plotme, ImageNumbers)
+function [AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportSfuLab(method, plotme, ImageNumbers)
 %ColourConstancyReportSfuLab  applies colour constancy on SFU Lab dataset.
 %   http://www.cs.sfu.ca/~colour/data/colour_constancy_test_images/index.html
 %
@@ -12,6 +12,7 @@ function [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(method, p
 %                   ground truth.
 %   LuminanceDiffs  the differences between estimated luminance and ground
 %                   truth.
+%   EstiLuminances  the estimated luminances.
 %
 
 if nargin < 1
@@ -38,6 +39,7 @@ end
 
 AngularErrors = zeros(nimages, 1);
 LuminanceDiffs = zeros(nimages, 3);
+EstiLuminances = zeros(nimages, 3);
 
 parfor i = 1:nimages
   if isempty(find(ImageNumbers == i, 1))
@@ -54,6 +56,7 @@ parfor i = 1:nimages
   
   AngularErrors(i, :) = CurrentAngularError;
   LuminanceDiffs(i, :) = CurrentLumDiff;
+  EstiLuminances(i, :) = EstimatedLuminance;
 end
 
 fprintf('Average angular error mean %f\n', mean(AngularErrors));

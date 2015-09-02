@@ -1,4 +1,4 @@
-function [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi(method, plotme, ImageNumbers)
+function [AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportGehlershi(method, plotme, ImageNumbers)
 %ColourConstancyReportGehlershi  applies colour constancy on Gehler-Shi.
 %   http://www.cs.sfu.ca/~colour/data/shi_gehler/
 %
@@ -12,6 +12,7 @@ function [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi(method
 %                   ground truth.
 %   LuminanceDiffs  the differences between estimated luminance and ground
 %                   truth.
+%   EstiLuminances  the estimated luminances.
 %
 
 if nargin < 1
@@ -41,6 +42,7 @@ end
 
 AngularErrors = zeros(nimages, 1);
 LuminanceDiffs = zeros(nimages, 3);
+EstiLuminances = zeros(nimages, 3);
 
 parfor i = 1:nimages
   if isempty(find(ImageNumbers == i, 1))
@@ -72,6 +74,7 @@ parfor i = 1:nimages
   
   AngularErrors(i, :) = CurrentAngularError;
   LuminanceDiffs(i, :) = CurrentLumDiff;
+  EstiLuminances(i, :) = EstimatedLuminance;
 end
 
 fprintf('Average angular error mean %f\n', mean(AngularErrors));
