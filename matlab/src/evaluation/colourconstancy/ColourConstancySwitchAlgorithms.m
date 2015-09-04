@@ -37,7 +37,7 @@ elseif strcmpi(method, 'gamut mapping')
 elseif strcmpi(method, 'bayesian')
   EstimatedLuminance = BayesianColourConstancy(CurrentImage);
 else
-  [~, EstimatedLuminance] = ColourConstancyOpponency(CurrentImage, false, method);
+  [~, EstimatedLuminance] = ColourConstancySurroundModulation(CurrentImage, false, method);
 end
 if isxyz
   EstimatedLuminance = EstimatedLuminance ./ max(EstimatedLuminance(:));
