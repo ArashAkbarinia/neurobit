@@ -14,6 +14,9 @@ InputImage = double(InputImage);
 if nargin < 2
   CentreSize = 5;
 end
+if length(CentreSize) == 1
+  CentreSize(1, 2) = CentreSize(1, 1);
+end
 
 hc = fspecial('average', CentreSize);
 MeanCentre = imfilter(InputImage, hc, 'replicate');
