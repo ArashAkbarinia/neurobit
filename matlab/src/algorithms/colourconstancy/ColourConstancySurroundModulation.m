@@ -100,11 +100,11 @@ c1 = method{8};
 c4 = method{9};
 nk = method{10};
 
-% [rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
-% mrgc = mean(rgc(:));
-% mrgs = mean(rgs(:));
-% c1 = 1 + mrgc;
-% c4 = 1 + mrgs;
+[rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
+mrgc = mean(rgc(:));
+mrgs = mean(rgs(:));
+c1 = c1 + mrgc;
+c4 = c4 + mrgs;
 
 sorg = SingleOpponentContrast(rg, GaussianSigma, ContrastEnlarge, nk);
 
