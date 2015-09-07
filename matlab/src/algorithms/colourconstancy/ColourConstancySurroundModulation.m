@@ -100,9 +100,9 @@ c1 = method{8};
 c4 = method{9};
 nk = method{10};
 
-[rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
-mrgc = mean(rgc(:));
-mrgs = mean(rgs(:));
+% [rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
+% mrgc = mean(rgc(:));
+% mrgs = mean(rgs(:));
 % c1 = 1 + mrgc;
 % c4 = 1 + mrgs;
 
@@ -219,14 +219,9 @@ end
 function dorg = ApplyNeighbourImpact(rg, sorg, sogr, SurroundImpacts, CentreImpacts)
 
 nContrastLevels = length(SurroundImpacts);
-zctr = GetContrastImage(rg);
+ContrastImage = GetContrastImage(rg, [17, 17]);
 
-MinPix = min(zctr(:));
-MaxPix = max(zctr(:));
-step = ((MaxPix - MinPix) / nContrastLevels);
-levels = MinPix:step:MaxPix;
-levels = levels(2:end-1);
-ContrastLevels = imquantize(zctr, levels);
+ContrastLevels = GetContrastLevels(ContrastImage, nContrastLevels);
 
 nContrastLevels = unique(ContrastLevels(:));
 nContrastLevels = nContrastLevels';
@@ -247,7 +242,8 @@ function rfresponse = SingleOpponentContrast(isignal, StartingSigma, ContrastEnl
 
 [rows, cols, ~] = size(isignal);
 
-zctr = GetContrastImage(isignal);
+ContrastImx = GetContrastImage(isignal, [17, 1]);
+ContrastImy = GetContrastImage(isignal, [1, 17]);
 
 if nargin < 4
   nContrastLevels = 4;
@@ -256,24 +252,36 @@ end
 FinishingSigma = StartingSigma * ContrastEnlarge;
 sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
 
-MinPix = min(zctr(:));
-MaxPix = max(zctr(:));
+ContrastLevelsX = GetContrastLevels(ContrastImx, nContrastLevels);
+ContrastLevelsY = GetContrastLevels(ContrastImy, nContrastLevels);
+
+nContrastLevelsX = unique(ContrastLevelsX(:));
+nContrastLevelsX = nContrastLevelsX';
+
+nContrastLevelsY = unique(ContrastLevelsY(:));
+nContrastLevelsY = nContrastLevelsY';
+
+rfresponse = zeros(rows, cols);
+for i = nContrastLevelsX
+  lambdaxi = sigmas(i);
+  for j = nContrastLevelsY
+    lambdayi = sigmas(j);
+    rfi = GaussianFilter2(lambdaxi, lambdayi, 0, 0);
+    rfresponsei = imfilter(isignal, rfi, 'replicate');
+    rfresponse(ContrastLevelsX == i & ContrastLevelsY == j) = rfresponsei(ContrastLevelsX == i & ContrastLevelsY == j);
+  end
+end
+
+end
+
+function ContrastLevels = GetContrastLevels(ContrastIm, nContrastLevels)
+
+MinPix = min(ContrastIm(:));
+MaxPix = max(ContrastIm(:));
 step = ((MaxPix - MinPix) / nContrastLevels);
 levels = MinPix:step:MaxPix;
 levels = levels(2:end-1);
-ContrastLevels = imquantize(zctr, levels);
-
-nContrastLevels = unique(ContrastLevels(:));
-nContrastLevels = nContrastLevels';
-
-rfresponse = zeros(rows, cols);
-for i = nContrastLevels
-  lambdaxi = sigmas(i);
-  lambdayi = sigmas(i);
-  rfi = GaussianFilter2(lambdaxi, lambdayi, 0, 0);
-  rfresponsei = imfilter(isignal, rfi, 'replicate');
-  rfresponse(ContrastLevels == i) = rfresponsei(ContrastLevels == i);
-end
+ContrastLevels = imquantize(ContrastIm, levels);
 
 end
 
@@ -301,9 +309,13 @@ rfresponse = sum(rfresponse, 3);
 
 end
 
-function ContrastImage = GetContrastImage(isignal)
+function ContrastImage = GetContrastImage(isignal, SurroundSize)
 
-contraststd = LocalStdContrast(isignal, 3);
+if nargin < 2
+  SurroundSize = [3, 3];
+end
+contraststd = LocalStdContrast(isignal, SurroundSize);
+
 % contraststd = stdfilt(isignal);
 % rf = dog2(GaussianFilter2(0.5), GaussianFilter2(2.5));
 % rf = GaussianGradient2(GaussianFilter2(2.5));
