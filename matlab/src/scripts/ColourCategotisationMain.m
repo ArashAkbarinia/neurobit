@@ -1,3 +1,5 @@
+function ColourCategotisationMain()
+
 %% Initialisation
 
 clearvars;
@@ -7,27 +9,19 @@ clc;
 dociwam = 0;
 docolourconstancy = 0;
 donoiseremoval = 0;
-docomparegt = 0;
+docomparegt = 1;
 
 ColourSpace = 'lab';
 
-[ImageRGB, GroundTruth] = ColourBoxes();
-
-ImageRGB = WcsChart();
-GroundTruth = WcsResults({'berlin', 'sturges', 'benavente'});
-
-% ImageRGB = imread('/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ebay/cars/black/011.jpg');
-ImageRGB = imread('peppers.png');
 GroundTruth = [];
 
-% ImageRGB = MacbethColourChecker();
-% [ImageRGB, GroundTruth] = SatfacesColourCube();
+ImageRGB = WcsChart();
 
 %% Colour constancy
 
 if docolourconstancy
-  ColourConstantImage = ColourConstancyACE(ImageRGB);
-  ColourConstantImage = uint8(NormaliseChannel(ColourConstantImage, 0, 255, [], []));
+  ColourConstantImage = ColourConstancyOpponency(ImageRGB);
+  %   ColourConstantImage = uint8(NormaliseChannel(ColourConstantImage, 0, 255, [], []));
   CategorisationInput = ColourConstantImage;
   
   figure('NumberTitle', 'Off', 'Name', 'Colour Categorisation - ACE');
@@ -48,7 +42,7 @@ if dociwam
   nplans = floor(log(max(size(ImageRGB(:, :, 1)) - 1) / MidaMin) / log(2)) + 1;
   
   WindowSize = [3, 6];
-  nu0 = 3;
+  nu0 = 4;
   gamma = 1;
   sRGBFlag = 0;
   
@@ -70,22 +64,20 @@ end
 %% Colour categorisation
 
 PlotResults = 1;
-BelongingImage = rgb2belonging(CategorisationInput, ColourSpace, [], PlotResults, GroundTruth);
-
+BelongingImage = rgb2belonging(CategorisationInput, ColourSpace, PlotResults, GroundTruth);
 % PostProcessedImage = PostProcessBelongingImage(ImageRGB, BelongingImage, 1);
 
 %% compare with gt
 if docomparegt
-  ColouredBelongingImage = belonging2naming(BelongingImage);
-  [ErrorIndsB, GtIndsB] = CompareResultGroundTruth(ColouredBelongingImage, belonging2naming(WcsResults({'berlin'})));
-  [ErrorIndsS, GtIndsS] = CompareResultGroundTruth(ColouredBelongingImage, belonging2naming(WcsResults({'sturges'})));
+  BerlinBelonging = WcsResults({'berlin'});
+  SturgeBelonging = WcsResults({'sturges'});
   
-  figure;
-  subplot(121);image(ColourLabelImage(ErrorIndsB));
-  subplot(122);image(ColourLabelImage(GtIndsB));
-  figure;
-  subplot(121);image(ColourLabelImage(ErrorIndsS));
-  subplot(122);image(ColourLabelImage(GtIndsS));
+  fprintf('Berlin:\n');
+  PlotColourNamingDifferences(BelongingImage, BerlinBelonging);
+  
+  fprintf('Sturges:\n');
+  PlotColourNamingDifferences(BelongingImage, SturgeBelonging);
+  
 end
 
 %% Noise removal
@@ -105,4 +97,6 @@ if donoiseremoval
   subplot(1, 2, 2);
   imshow(NoiseRemovedImg);
   title('Noise removed Image');
+end
+
 end
