@@ -57,9 +57,21 @@ opponent_L1=((1/3)^(1/2))*R1+((1/3)^(1/2))*G1+((1/3)^(1/2))*B1;
 Sgaus = Gauss1D(sigma);
 Lgaus = Gauss1D(3*sigma);
 
+MaxVal(1) = max(opponent_RG1(:));
+MaxVal(2) = max(opponent_BY1(:));
+MaxVal(3) = max(opponent_L1(:));
+opponent_RG1 = opponent_RG1 ./ max(MaxVal(:));
+opponent_BY1 = opponent_BY1 ./ max(MaxVal(:));
+opponent_L1 = opponent_L1 ./ max(MaxVal(:));
+
 double_RG1 = Doubleopponent(opponent_RG1,Sgaus,Lgaus,k);
 double_BY1 = Doubleopponent(opponent_BY1,Sgaus,Lgaus,k);
 double_L1 = Doubleopponent(opponent_L1,Sgaus,Lgaus,k);
+
+% double_RG1 = Doubleopponent_arash(opponent_RG1,Sgaus,Lgaus,k);
+% double_BY1 = Doubleopponent_arash(opponent_BY1,Sgaus,Lgaus,k);
+% double_L1 = Doubleopponent_arash(opponent_L1,Sgaus,Lgaus,k);
+
 %%
 DoBoPicture1(:,:,1)=double_RG1;
 DoBoPicture1(:,:,2)=double_BY1;
