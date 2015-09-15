@@ -24,11 +24,22 @@ end
 
 [rows, cols, chns] = size(x);
 
+OriginalMin = min(x(:));
+OriginalMax = max(x(:));
+
 if isempty(a)
-  a = 0.0;
+  if OriginalMin >= 0
+    a = 0.0;
+  else
+    a = -1.0;
+  end
 end
 if isempty(b)
-  b = 1.0;
+  if OriginalMax >= 0
+    b = 1.0;
+  else
+    b = 0.0;
+  end
 end
 if length(a) == 1
   a(2:chns) = a(1);
