@@ -29,13 +29,15 @@
 
 function [white_R ,white_G ,white_B] = general_cc(input_data,njet,mink_norm,sigma,mask_im)
 
+InputImage = input_data;
+
 if(nargin<2), njet=0; end
 if(nargin<3), mink_norm=1; end
 if(nargin<4), sigma=1; end
 if(nargin<5), mask_im=zeros(size(input_data,1),size(input_data,2)); end
 
 % remove all saturated points
-saturation_threshold = 255;
+saturation_threshold = 1;
 mask_im2 = mask_im + (dilation33(double(max(input_data,[],3)>=saturation_threshold)));   
 mask_im2=double(mask_im2==0);
 mask_im2=set_border(mask_im2,sigma+1,0);
@@ -54,6 +56,7 @@ end
 
 if(njet>0)
     [Rx,Gx,Bx]=norm_derivative(input_data, sigma, njet);
+%     [Rx,Gx,Bx]=norm_derivative_arash(input_data, sigma, njet);
     
     input_data(:,:,1)=Rx;
     input_data(:,:,2)=Gx;
@@ -89,6 +92,114 @@ else                    %minkowski-norm is infinit: Max-algorithm
     white_G=white_G/som;
     white_B=white_B/som;
 end
+
+% ARASH
+% InputImage = InputImage ./ max(InputImage(:));
+% luminance = CalculateLuminance(input_data, InputImage);
+% white_R = luminance(1);
+% white_G = luminance(2);
+% white_B = luminance(3);
+
 % output_data(:,:,1)=output_data(:,:,1)/(white_R*sqrt(3));
 % output_data(:,:,2)=output_data(:,:,2)/(white_G*sqrt(3));
 % output_data(:,:,3)=output_data(:,:,3)/(white_B*sqrt(3));
+
+end
+
+function luminance = CalculateLuminance(dtmap, InputImage)
+
+% to make the comparison exactly like Joost's Grey Edges
+SaturationThreshold = max(InputImage(:));
+DarkThreshold = min(InputImage(:));
+MaxImage = max(InputImage, [], 3);
+MinImage = min(InputImage, [], 3);
+SaturatedPixels = dilation33(double(MaxImage >= SaturationThreshold | MinImage <= DarkThreshold));
+SaturatedPixels = double(SaturatedPixels == 0);
+sigma = 2;
+SaturatedPixels = set_border(SaturatedPixels, sigma + 1, 0);
+
+for i = 1:3
+  dtmap(:, :, i) = dtmap(:, :, i) .* (dtmap(:, :, i) > 0);
+  dtmap(:, :, i) = dtmap(:, :, i) .* SaturatedPixels;
+end
+
+% MaxVals = max(max(dtmap));
+
+CentreSize = 3;
+dtmap = dtmap ./ max(dtmap(:));
+StdImg = LocalStdContrast(dtmap, CentreSize);
+Cutoff = mean(StdImg(:));
+dtmap = dtmap .* ((2 ^ 8) - 1);
+% MaxVals = PoolingHistMax(dtmap, Cutoff, false);
+for i = 1:3
+  tmp = dtmap(:, :, i);
+  tmp = tmp(SaturatedPixels == 1);
+  MaxVals(1, i) = PoolingHistMax2(tmp(:), Cutoff, false);
+end
+
+% MaxVals = ColourConstancyMinkowskiFramework(dtmap, 5);
+
+luminance = MaxVals;
+
+end
+
+function HistMax = PoolingHistMax2(InputImage, CutoffPercent, UseAveragePixels)
+
+if nargin < 3
+  UseAveragePixels = false;
+end
+
+npixels = length(InputImage);
+HistMax = zeros(1, 1);
+
+MaxVal = max(InputImage(:));
+if MaxVal == 0
+  return;
+end
+
+if MaxVal < (2 ^ 8)
+  nbins = 2 ^ 8;
+elseif MaxVal < (2 ^ 16)
+  nbins = 2 ^ 16;
+end
+
+if nargin < 2 || isempty(CutoffPercent)
+  CutoffPercent = 0.01;
+end
+
+LowerMaxPixels = CutoffPercent .* npixels;
+% setting the upper bound to 50% bigger than the lower bound, this means we
+% try to find the final HistMax between the lower and upper bounds. However
+% if we don't succeed we choose the closest value to the lower bound.
+UpperMaxPixels = LowerMaxPixels * 1.5;
+
+for i = 1:1
+  ichan = InputImage;
+  [ihist, centres] = hist(ichan(:), nbins);
+  
+  HistMax(1, i) = centres(end);
+  jpixels = 0;
+  for j = nbins - 1:-1:1
+    jpixels = ihist(j) + jpixels;
+    if jpixels > LowerMaxPixels(i)
+      if jpixels > UpperMaxPixels
+        % if we have passed the upper bound, final HistMax is the one
+        % before the lower bound.
+        HistMax(1, i) = centres(j + 1);
+        if UseAveragePixels
+          AllBiggerPixels = ichan(ichan >= centres(j + 1));
+          HistMax(1, i) = mean(AllBiggerPixels(:));
+        end
+      else
+        HistMax(1, i) = centres(j);
+        if UseAveragePixels
+          AllBiggerPixels = ichan(ichan >= centres(j));
+          HistMax(1, i) = mean(AllBiggerPixels(:));
+        end
+      end
+      break;
+    end
+  end
+end
+
+end
