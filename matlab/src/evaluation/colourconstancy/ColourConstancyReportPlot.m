@@ -13,6 +13,9 @@ function [ ] = ColourConstancyReportPlot(CurrentImage, EstimatedLuminance, Groun
 %
 
 if plotme
+  EstimatedLuminance = EstimatedLuminance ./ sum(EstimatedLuminance(:));
+  GroundtruthLuminance = GroundtruthLuminance ./ sum(GroundtruthLuminance(:));
+  
   ColourConstantImage = MatChansMulK(CurrentImage, 1 ./ EstimatedLuminance);
   ColourConstantImage = ColourConstantImage ./ max(ColourConstantImage(:));
   ColourConstantImage = uint8(ColourConstantImage .* 255);
