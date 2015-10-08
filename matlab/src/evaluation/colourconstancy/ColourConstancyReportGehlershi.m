@@ -77,8 +77,9 @@ parfor i = 1:nimages
   EstiLuminances(i, :) = EstimatedLuminance;
 end
 
-fprintf('Average angular error mean %f\n', mean(AngularErrors));
-fprintf('Average angular error median %f\n', median(AngularErrors));
+fprintf('Mean angular error %f\n', mean(AngularErrors));
+fprintf('Median angular error %f\n', median(AngularErrors));
+fprintf('Trimean angular error %f\n', TrimeanError(AngularErrors));
 fprintf('Average luminance difference [%f %f %f]\n', mean(abs(LuminanceDiffs)));
 
 end
