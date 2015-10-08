@@ -108,73 +108,17 @@ c4 = c4 + mrgs;
 
 sorg = SingleOpponentContrast(rg, GaussianSigma, ContrastEnlarge, nk);
 
-sogr = SingleOpponentGaussian(rg, GaussianSigma * SurroundEnlarge);
+% sogr = SurroundContrast(rg, GaussianSigma, ContrastEnlarge, SurroundEnlarge, nk);
+sogr = SingleOpponentGaussian(rg, GaussianSigma, SurroundEnlarge);
+% sofar = SingleOpponentGaussian(rg, GaussianSigma * SurroundEnlarge, 3);
+sofar = 0;
 
 ks = linspace(s1, s4, nk);
 js = linspace(c1, c4, nk);
+fs = 0;
 
-dorg = ApplyNeighbourImpact(rg, sorg, sogr, ks, js);
-
-end
-
-function dorg = raque1(rg, method)
-
-CentreSize = method{2};
-GaussianSigma = method{3};
-ContrastEnlarge = method{4};
-SurroundEnlarge = method{5};
-s1 = method{6};
-s4 = method{7};
-c1 = method{8};
-c4 = method{9};
-nk = method{10};
-
-[rows, cols] = size(rg);
-
-if CentreSize == -1
-  CentreSize = floor(visualangle2pixel(0.36, [], [], rows));
-end
-[rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
-
-rgcth = graythresh(rgc);
-rgsth = graythresh(rgs);
-rgcbw = im2bw(rgc, rgcth);
-rgsbw = im2bw(rgs, rgsth);
-
-mrgc = mean(rgc(:));
-mrgs = mean(rgs(:));
-
-sd = (s1 - s4) ./ 3;
-s2 = s1 - sd;
-s3 = s4 + sd;
-
-s1 = ones(rows, cols) .* s1;
-s2 = ones(rows, cols) .* s2;
-s3 = ones(rows, cols) .* s3;
-s4 = ones(rows, cols) .* s4;
-
-c1 = c1 + mrgc;
-c4 = c4 + mrgs;
-cd = (c1 - c4) ./ 3;
-c2 = c1 - cd;
-c3 = c4 + cd;
-
-c1 = ones(rows, cols) .* c1;
-c2 = ones(rows, cols) .* c2;
-c3 = ones(rows, cols) .* c3;
-c4 = ones(rows, cols) .* c4;
-
-dorg = zeros(rows, cols);
-
-dog1a = SingleOpponentGaussian(rg, GaussianSigma);
-dog1b = SingleOpponentGaussian(rg, GaussianSigma * ContrastEnlarge);
-
-dog2a = SingleOpponentGaussian(rg, GaussianSigma * SurroundEnlarge);
-
-dorg( rgcbw &  rgsbw) = DoubleOpponent(dog1a( rgcbw &  rgsbw), dog2a( rgcbw &  rgsbw), s1( rgcbw &  rgsbw), c1( rgcbw &  rgsbw));
-dorg( rgcbw & ~rgsbw) = DoubleOpponent(dog1a( rgcbw & ~rgsbw), dog2a( rgcbw & ~rgsbw), s2( rgcbw & ~rgsbw), c2( rgcbw & ~rgsbw));
-dorg(~rgcbw &  rgsbw) = DoubleOpponent(dog1b(~rgcbw &  rgsbw), dog2a(~rgcbw &  rgsbw), s3(~rgcbw &  rgsbw), c3(~rgcbw &  rgsbw));
-dorg(~rgcbw & ~rgsbw) = DoubleOpponent(dog1b(~rgcbw & ~rgsbw), dog2a(~rgcbw & ~rgsbw), s4(~rgcbw & ~rgsbw), c4(~rgcbw & ~rgsbw));
+dorg = ApplyNeighbourImpact(rg, sorg, sogr, sofar, ks, js, fs);
+% dorg = dorg + 0.1 .* sofar;
 
 end
 
@@ -216,7 +160,7 @@ luminance = MaxVals;
 
 end
 
-function dorg = ApplyNeighbourImpact(rg, sorg, sogr, SurroundImpacts, CentreImpacts)
+function dorg = ApplyNeighbourImpact(rg, sorg, sogr, sofar, SurroundImpacts, CentreImpacts, FarImpacts)
 
 nContrastLevels = length(SurroundImpacts);
 ContrastImage = GetContrastImage(rg, [17, 17]);
@@ -229,12 +173,7 @@ nContrastLevels = nContrastLevels';
 dorg = zeros(size(rg));
 for i = nContrastLevels
   dorg(ContrastLevels == i) = DoubleOpponent(sorg(ContrastLevels == i), sogr(ContrastLevels == i), SurroundImpacts(i), CentreImpacts(i));
-%   dorg(ContrastLevels == i & ~OppositeOrientaions) = DoubleOpponent(sorg(ContrastLevels == i & ~OppositeOrientaions), sogr(ContrastLevels == i & ~OppositeOrientaions), SurroundImpacts(i));
-%   j = length(SurroundImpacts) + 1 - i;
-%   dorg(ContrastLevels == i & OppositeOrientaions) = DoubleOpponent(sorg(ContrastLevels == i & OppositeOrientaions), sogr(ContrastLevels == i & OppositeOrientaions), -SurroundImpacts(j) * 1.1);
 end
-
-% dorg(OppositeOrientaions) = DoubleOpponent(sorg(OppositeOrientaions), sogr(OppositeOrientaions), 0.64);
 
 end
 
@@ -274,6 +213,45 @@ end
 
 end
 
+function rfresponse = SurroundContrast(isignal, StartingSigma, ContrastEnlarge, SurroundEnlarge, nContrastLevels)
+
+[rows, cols, ~] = size(isignal);
+
+ContrastImx = GetContrastImage(isignal, [17, 1]);
+ContrastImy = GetContrastImage(isignal, [1, 17]);
+
+if nargin < 5
+  nContrastLevels = 4;
+end
+
+FinishingSigma = StartingSigma * ContrastEnlarge;
+sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
+
+ContrastLevelsX = GetContrastLevels(ContrastImx, nContrastLevels);
+ContrastLevelsY = GetContrastLevels(ContrastImy, nContrastLevels);
+
+nContrastLevelsX = unique(ContrastLevelsX(:));
+nContrastLevelsX = nContrastLevelsX';
+
+nContrastLevelsY = unique(ContrastLevelsY(:));
+nContrastLevelsY = nContrastLevelsY';
+
+rfs = GaussianFilter2(StartingSigma * SurroundEnlarge, StartingSigma * SurroundEnlarge, 0, 0);
+
+rfresponse = zeros(rows, cols);
+for i = nContrastLevelsX
+  lambdaxi = sigmas(i);
+  for j = nContrastLevelsY
+    lambdayi = sigmas(j);
+    rfc = GaussianFilter2(lambdaxi, lambdayi, 0, 0);
+    rfs = CentreZero(rfs, rfc);
+    rfresponsei = imfilter(isignal, rfs, 'replicate');
+    rfresponse(ContrastLevelsX == i & ContrastLevelsY == j) = rfresponsei(ContrastLevelsX == i & ContrastLevelsY == j);
+  end
+end
+
+end
+
 function ContrastLevels = GetContrastLevels(ContrastIm, nContrastLevels)
 
 MinPix = min(ContrastIm(:));
@@ -285,13 +263,27 @@ ContrastLevels = imquantize(ContrastIm, levels);
 
 end
 
-function rfresponse = SingleOpponentGaussian(isignal, StartingSigma)
+function rfresponse = SingleOpponentGaussian(isignal, StartingSigma, SurroundEnlarge)
 
-lambdax = StartingSigma;
-lambday = StartingSigma;
+lambdax = StartingSigma * SurroundEnlarge;
+lambday = StartingSigma * SurroundEnlarge;
 
-rf = GaussianFilter2(lambdax, lambday, 0, 0);
-rfresponse = imfilter(isignal, rf, 'replicate');
+rfs = GaussianFilter2(lambdax, lambday, 0, 0);
+
+rfresponse = imfilter(isignal, rfs, 'replicate');
+
+end
+
+function rfs = CentreZero(rfs, rfc)
+
+[ws, hs] = size(rfs);
+[wc, hc] = size(rfc);
+lw = floor(ws / 2) - floor(wc / 2);
+hw = lw + wc;
+lh = floor(hs / 2) - floor(hc / 2);
+hh = lh + hc;
+rfs(lw:hw,lh:hh) = 0;
+rfs = rfs ./ sum(rfs(:));
 
 end
 
