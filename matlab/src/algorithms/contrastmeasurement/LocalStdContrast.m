@@ -1,9 +1,10 @@
-function ImageContrast = LocalStdContrast(InputImage, CentreSize)
+function ImageContrast = LocalStdContrast(InputImage, WindowSize, CentreSize)
 %LocalStdContrast  calculates the local std of an image
 %
 % inputs
 %   InputImage  the input image with n channel.
-%   CentreSize  the size of the neighbourhoud.
+%   WindowSize  the size of the neighbourhoud.
+%   CentreSize  if provided the centre is set to 0.
 %
 % outputs
 %   ImageContrast  calculated local std of each channel.
@@ -12,13 +13,20 @@ function ImageContrast = LocalStdContrast(InputImage, CentreSize)
 InputImage = double(InputImage);
 
 if nargin < 2
-  CentreSize = 5;
+  WindowSize = 5;
+end
+if length(WindowSize) == 1
+  WindowSize(1, 2) = WindowSize(1, 1);
+end
+if nargin < 3
+  CentreSize = 0;
 end
 if length(CentreSize) == 1
   CentreSize(1, 2) = CentreSize(1, 1);
 end
 
-hc = fspecial('average', CentreSize);
+hc = fspecial('average', WindowSize);
+hc = CentreZero(hc, CentreSize);
 MeanCentre = imfilter(InputImage, hc, 'replicate');
 stdv = (InputImage - MeanCentre) .^ 2;
 MeanStdv = imfilter(stdv, hc, 'replicate');
