@@ -69,7 +69,7 @@ parfor i = 1:nimages
   CurrentImage = CurrentImage ./ ((2 ^ 12) - 1);
   
   GroundtruthLuminance = GehlershiGroundtruthIlluminations(i, :);
-  [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, method, GroundtruthLuminance);
+  [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, DebugImagePath, method, GroundtruthLuminance);
   
   ColourConstancyReportPlot(CurrentImage, EstimatedLuminance, GroundtruthLuminance, CurrentAngularError, i, plotme);
   
