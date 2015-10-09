@@ -162,7 +162,7 @@ f4 = method{12};
 
 CentreWeights = NormaliseChannel(GetContrastImage(opponent, CentreSize), c1, c4, [], []);
 SurroundWeights = NormaliseChannel(GetContrastImage(opponent, SurroundEnlarge * CentreSize, CentreSize), s1, s4, [], []);
-FarWeights = NormaliseChannel(GetContrastImage(opponent, FarEnlarge * CentreSize, FarEnlarge * CentreSize), f1, f4, [], []);
+FarWeights = NormaliseChannel(GetContrastImage(opponent, FarEnlarge * CentreSize, SurroundEnlarge * CentreSize), f1, f4, [], []);
 
 % [gmag, gdir] = imgradient(rg);
 % gdir(gdir < 0) = gdir(gdir < 0) + 180;
