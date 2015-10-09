@@ -82,8 +82,11 @@ end
 
 function doresponse = arash(opponent, method)
 
-[CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method);
-[CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method);
+DebugImagePath = method{1};
+SlashIndices = strfind(DebugImagePath, '/');
+
+[CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method, SlashIndices(end));
+[CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method, SlashIndices(end));
 
 doresponse = zeros(size(opponent));
 for i = 1:3
@@ -92,16 +95,15 @@ end
 
 end
 
-function [CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method)
+function [CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method, LastIndex)
 
 DebugImagePath = method{1};
 
-SlashIndices = strfind(DebugImagePath, '/');
-DebugFolderPath = [DebugImagePath(1:SlashIndices(length(SlashIndices))), 'DebugGaussianFolder/'];
+DebugFolderPath = [DebugImagePath(1:LastIndex), 'DebugGaussianFolder/'];
 if ~exist(DebugFolderPath, 'dir')
   mkdir(DebugFolderPath);
 end
-DebugPathMat = [DebugFolderPath, DebugImagePath(SlashIndices(length(SlashIndices)) + 1 : length(DebugImagePath) - 4), '.mat'];
+DebugPathMat = [DebugFolderPath, DebugImagePath(LastIndex + 1 : length(DebugImagePath) - 4), '.mat'];
 
 if ~exist(DebugPathMat, 'file')
   [CentreGaussian, SurroundGaussian, FarGaussian] = GaussianProcesses(opponent, method);
@@ -138,16 +140,15 @@ end
 
 end
 
-function [CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method)
+function [CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method, LastIndex)
 
 DebugImagePath = method{1};
 
-SlashIndices = strfind(DebugImagePath, '/');
-DebugFolderPath = [DebugImagePath(1:SlashIndices(length(SlashIndices))), 'DebugContrastFolder/'];
+DebugFolderPath = [DebugImagePath(1:LastIndex), 'DebugContrastFolder/'];
 if ~exist(DebugFolderPath, 'dir')
   mkdir(DebugFolderPath);
 end
-DebugPathMat = [DebugFolderPath, DebugImagePath(SlashIndices(length(SlashIndices)) + 1 : length(DebugImagePath) - 4), '.mat'];
+DebugPathMat = [DebugFolderPath, DebugImagePath(LastIndex + 1 : length(DebugImagePath) - 4), '.mat'];
 
 if ~exist(DebugPathMat, 'file')
   [CentreContrast, SurroundContrast, FarContrast] = ContrastProcesses(opponent, method);
