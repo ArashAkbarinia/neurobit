@@ -24,8 +24,30 @@ else
 end
 InputImageDouble = double(InputImage);
 
-rgb2do = 1;
+% EQUATION: eq-2.4-2.8 Ebner 2007, "Color Constancy"
+rgb2do = ...
+  [
+  1 / sqrt(2), -1 / sqrt(2),  0;
+  1 / sqrt(6),  1 / sqrt(6), -sqrt(2 / 3);
+  1 / sqrt(3),  1 / sqrt(3),  1 / sqrt(3);
+  ];
+
+% http://graphics.stanford.edu/~boulos/papers/orgb_sig.pdf
+rgb2do = ...
+  [
+  0.2990,  0.5870,  0.1140;
+  0.5000,  0.5000, -1.0000;
+  0.8660, -0.8660,  0.0000;
+  ];
+
+% rgb2do = 1;
 do2rgb = rgb2do';
+do2rgb = ...
+  [
+  1.0000    0.1140    0.7436;
+  1.0000    0.1140   -0.4111;
+  1.0000   -0.8860    0.1663;
+  ];
 
 opponent = rgb2do * reshape(InputImageDouble, rows * cols, chns)';
 opponent = reshape(opponent', rows, cols, chns);
@@ -36,29 +58,7 @@ if plotme
   PlotLmsOpponency(InputImage);
 end
 
-% cone opoonent retinal ganglion cells
-rg = opponent(:, :, 1);
-yb = opponent(:, :, 2);
-wb = opponent(:, :, 3);
-
-MethodName = method{1};
-if strcmpi(MethodName, 'arash')
-  [dorg, doyb, dowb] = arash(rg, yb, wb, method);
-end
-
-if plotme
-  figure;
-  FigRow = 2;
-  FigCol = 2;
-  subplot(FigRow, FigCol, 1); imshow(dorg, []); title('DO R-G');
-  subplot(FigRow, FigCol, 2); imshow(doyb, []); title('DO G-R');
-  subplot(FigRow, FigCol, 3:4); imshow(dowb, []); title('DO Luminance');
-end
-
-doresponse = zeros(rows, cols, chns);
-doresponse(:, :, 1) = dorg;
-doresponse(:, :, 2) = doyb;
-doresponse(:, :, 3) = dowb;
+doresponse = arash(opponent, method);
 doresponse = reshape(doresponse, rows * cols, chns);
 dtmap = (do2rgb * doresponse')';
 dtmap = reshape(dtmap, rows, cols, chns);
@@ -80,46 +80,105 @@ end
 
 end
 
-function [dorg, doyb, dowb] = arash(rg, yb, wb, method)
+function doresponse = arash(opponent, method)
 
-dorg = raquel(rg, method);
-doyb = raquel(yb, method);
-dowb = raquel(wb, method);
+[CentreGaussian, SurroundGaussian] = LoadGaussianProcesses(opponent, method);
+doresponse = CombineCentreSurround(opponent, CentreGaussian, SurroundGaussian, method);
 
 end
 
-function dorg = raquel(rg, method)
+function [CentreGaussian, SurroundGaussian] = LoadGaussianProcesses(opponent, method)
 
-CentreSize = method{2};
+DebugImagePath = method{1};
+
+SlashIndices = strfind(DebugImagePath, '/');
+DebugFolderPath = [DebugImagePath(1:SlashIndices(length(SlashIndices))), 'DebugGaussianFolder/'];
+if ~exist(DebugFolderPath, 'dir')
+  mkdir(DebugFolderPath);
+end
+DebugPathMat = [DebugFolderPath, DebugImagePath(SlashIndices(length(SlashIndices)) + 1 : length(DebugImagePath) - 4), '.mat'];
+
+if ~exist(DebugPathMat, 'file')
+  [CentreGaussian, SurroundGaussian] = GaussianProcesses(opponent, method);
+  
+  save(DebugPathMat, 'CentreGaussian', 'SurroundGaussian');
+else
+  AlreayStoredData = load(DebugPathMat);
+  CentreGaussian = AlreayStoredData.CentreGaussian;
+  SurroundGaussian = AlreayStoredData.SurroundGaussian;
+end
+
+end
+
+function [CentreGaussian, SurroundGaussian] = GaussianProcesses(opponent, method)
+
 GaussianSigma = method{3};
 ContrastEnlarge = method{4};
+SurroundEnlarge = method{5};
+nk = method{10};
+
+CentreGaussian = zeros(size(opponent));
+SurroundGaussian = zeros(size(opponent));
+for i = 1:3
+  CentreGaussian(:, :, i) = SingleOpponentContrast(opponent(:, :, i), GaussianSigma, ContrastEnlarge, nk);
+  
+  % sogr = SurroundContrast(rg, GaussianSigma, ContrastEnlarge, SurroundEnlarge, nk);
+  SurroundGaussian(:, :, i) = SingleOpponentGaussian(opponent(:, :, i), GaussianSigma, SurroundEnlarge);
+end
+
+end
+
+function doresponse = CombineCentreSurround(opponent, CentreGaussian, SurroundGaussian, method)
+
+doresponse = zeros(size(opponent));
+for i = 1:3
+  doresponse(:, :, i) = raquel(opponent(:, :, i), CentreGaussian(:, :, i), SurroundGaussian(:, :, i), method);
+end
+
+end
+
+function dorg = raquel(opponent, CentreGaussian, SurroundGaussian, method)
+
+CentreSize = method{2};
 SurroundEnlarge = method{5};
 s1 = method{6};
 s4 = method{7};
 c1 = method{8};
 c4 = method{9};
-nk = method{10};
 
-[rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
-mrgc = mean(rgc(:));
-mrgs = mean(rgs(:));
-c1 = c1 + mrgc;
-c4 = c4 + mrgs;
-
-sorg = SingleOpponentContrast(rg, GaussianSigma, ContrastEnlarge, nk);
-
-% sogr = SurroundContrast(rg, GaussianSigma, ContrastEnlarge, SurroundEnlarge, nk);
-sogr = SingleOpponentGaussian(rg, GaussianSigma, SurroundEnlarge);
+% [rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
+% mrgc = mean(rgc(:));
+% mrgs = mean(rgs(:));
+% c1 = c1 + mrgc;
+% c4 = c4 + mrgs;
 
 % sofar = SingleOpponentGaussian(rg, GaussianSigma * SurroundEnlarge, 3);
-sofar = 0;
 
-ks = linspace(s1, s4, nk);
-js = linspace(c1, c4, nk);
-fs = 0;
+% ks = linspace(s1, s4, nk);
+ks = NormaliseChannel(GetContrastImage(opponent, SurroundEnlarge * CentreSize, CentreSize), s1, s4, [], []);
+% js = linspace(c1, c4, nk);
+js = NormaliseChannel(GetContrastImage(opponent, CentreSize), c1, c4, [], []);
+% fs = 0;
 
-dorg = ApplyNeighbourImpact(rg, sorg, sogr, sofar, ks, js, fs);
-% dorg = dorg + 0.1 .* sofar;
+% [gmag, gdir] = imgradient(rg);
+% gdir(gdir < 0) = gdir(gdir < 0) + 180;
+% MeanCentre = MeanCentreSurround(gdir, [3, 3], [0, 0]);
+% MeanSurround = MeanCentreSurround(gdir, [15, 15], [3, 3]);
+% 
+% dirdiff = abs(MeanCentre - MeanSurround);
+% dirdiff = NormaliseChannel(dirdiff, 0, 0.1, [], []);
+
+% dorg = ApplyNeighbourImpact(rg, sorg, sogr, sofar, ks, js, fs);
+dorg = DoubleOpponent(CentreGaussian, SurroundGaussian, ks, js);
+% dorg = dorg - 0.25 .* sofar;
+
+end
+
+function MeanImage = MeanCentreSurround(InputImage, WindowSize, CentreSize)
+
+hc = fspecial('average', WindowSize);
+hc = CentreZero(hc, CentreSize);
+MeanImage = imfilter(InputImage, hc, 'replicate');
 
 end
 
