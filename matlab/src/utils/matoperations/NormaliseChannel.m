@@ -74,7 +74,11 @@ end
 for i = 1:chns
   minv = mins(i);
   maxv = maxs(i);
-  noarmalisedx(:, :, i) = a(i) + (x(:, :, i) - minv) * (b(i) - a(i)) / (maxv - minv);
+  if a(i) == b(i)
+    noarmalisedx(:, :, i) = a(i);
+  else
+    noarmalisedx(:, :, i) = a(i) + (x(:, :, i) - minv) * (b(i) - a(i)) / (maxv - minv);
+  end
 end
 
 if chns == 1
