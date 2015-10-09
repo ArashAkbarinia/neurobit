@@ -82,12 +82,12 @@ end
 
 function doresponse = arash(opponent, method)
 
-[CentreGaussian, SurroundGaussian] = LoadGaussianProcesses(opponent, method);
-doresponse = CombineCentreSurround(opponent, CentreGaussian, SurroundGaussian, method);
+[CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method);
+doresponse = CombineCentreSurround(opponent, CentreGaussian, SurroundGaussian, FarGaussian, method);
 
 end
 
-function [CentreGaussian, SurroundGaussian] = LoadGaussianProcesses(opponent, method)
+function [CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method)
 
 DebugImagePath = method{1};
 
@@ -99,52 +99,60 @@ end
 DebugPathMat = [DebugFolderPath, DebugImagePath(SlashIndices(length(SlashIndices)) + 1 : length(DebugImagePath) - 4), '.mat'];
 
 if ~exist(DebugPathMat, 'file')
-  [CentreGaussian, SurroundGaussian] = GaussianProcesses(opponent, method);
+  [CentreGaussian, SurroundGaussian, FarGaussian] = GaussianProcesses(opponent, method);
   
-  save(DebugPathMat, 'CentreGaussian', 'SurroundGaussian');
+  save(DebugPathMat, 'CentreGaussian', 'SurroundGaussian', 'FarGaussian');
 else
   AlreayStoredData = load(DebugPathMat);
   CentreGaussian = AlreayStoredData.CentreGaussian;
   SurroundGaussian = AlreayStoredData.SurroundGaussian;
+  FarGaussian = AlreayStoredData.FarGaussian;
 end
 
 end
 
-function [CentreGaussian, SurroundGaussian] = GaussianProcesses(opponent, method)
+function [CentreGaussian, SurroundGaussian, FarGaussian] = GaussianProcesses(opponent, method)
 
 GaussianSigma = method{3};
 ContrastEnlarge = method{4};
 SurroundEnlarge = method{5};
+FarEnlarge = 3 * SurroundEnlarge;
 nk = method{10};
 
 CentreGaussian = zeros(size(opponent));
 SurroundGaussian = zeros(size(opponent));
+FarGaussian = zeros(size(opponent));
 for i = 1:3
   CentreGaussian(:, :, i) = SingleOpponentContrast(opponent(:, :, i), GaussianSigma, ContrastEnlarge, nk);
   
   % sogr = SurroundContrast(rg, GaussianSigma, ContrastEnlarge, SurroundEnlarge, nk);
   SurroundGaussian(:, :, i) = SingleOpponentGaussian(opponent(:, :, i), GaussianSigma, SurroundEnlarge);
+  
+  FarGaussian(:, :, i) = SingleOpponentGaussian(opponent(:, :, i), GaussianSigma, FarEnlarge);
 end
 
 end
 
-function doresponse = CombineCentreSurround(opponent, CentreGaussian, SurroundGaussian, method)
+function doresponse = CombineCentreSurround(opponent, CentreGaussian, SurroundGaussian, FarGaussian, method)
 
 doresponse = zeros(size(opponent));
 for i = 1:3
-  doresponse(:, :, i) = raquel(opponent(:, :, i), CentreGaussian(:, :, i), SurroundGaussian(:, :, i), method);
+  doresponse(:, :, i) = raquel(opponent(:, :, i), CentreGaussian(:, :, i), SurroundGaussian(:, :, i), FarGaussian(:, :, i), method);
 end
 
 end
 
-function dorg = raquel(opponent, CentreGaussian, SurroundGaussian, method)
+function dorg = raquel(opponent, CentreGaussian, SurroundGaussian, FarGaussian, method)
 
 CentreSize = method{2};
 SurroundEnlarge = method{5};
+FarEnlarge = 3 * SurroundEnlarge;
 s1 = method{6};
 s4 = method{7};
 c1 = method{8};
 c4 = method{9};
+f1 = method{11};
+f4 = method{12};
 
 % [rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
 % mrgc = mean(rgc(:));
@@ -152,13 +160,9 @@ c4 = method{9};
 % c1 = c1 + mrgc;
 % c4 = c4 + mrgs;
 
-% sofar = SingleOpponentGaussian(rg, GaussianSigma * SurroundEnlarge, 3);
-
-% ks = linspace(s1, s4, nk);
-ks = NormaliseChannel(GetContrastImage(opponent, SurroundEnlarge * CentreSize, CentreSize), s1, s4, [], []);
-% js = linspace(c1, c4, nk);
-js = NormaliseChannel(GetContrastImage(opponent, CentreSize), c1, c4, [], []);
-% fs = 0;
+CentreWeights = NormaliseChannel(GetContrastImage(opponent, CentreSize), c1, c4, [], []);
+SurroundWeights = NormaliseChannel(GetContrastImage(opponent, SurroundEnlarge * CentreSize, CentreSize), s1, s4, [], []);
+FarWeights = NormaliseChannel(GetContrastImage(opponent, FarEnlarge * CentreSize, FarEnlarge * CentreSize), f1, f4, [], []);
 
 % [gmag, gdir] = imgradient(rg);
 % gdir(gdir < 0) = gdir(gdir < 0) + 180;
@@ -169,8 +173,8 @@ js = NormaliseChannel(GetContrastImage(opponent, CentreSize), c1, c4, [], []);
 % dirdiff = NormaliseChannel(dirdiff, 0, 0.1, [], []);
 
 % dorg = ApplyNeighbourImpact(rg, sorg, sogr, sofar, ks, js, fs);
-dorg = DoubleOpponent(CentreGaussian, SurroundGaussian, ks, js);
-% dorg = dorg - 0.25 .* sofar;
+dorg = DoubleOpponent(CentreGaussian, SurroundGaussian, SurroundWeights, CentreWeights);
+dorg = dorg - FarWeights .* FarGaussian;
 
 end
 
