@@ -46,11 +46,12 @@ parfor i = 1:nimages
     continue;
   end
   
-  CurrentImage = double(imread([DataSetPath, SfuLabImageNames{i}, '.tif']));
+  DebugImagePath = [DataSetPath, SfuLabImageNames{i}, '.tif'];
+  CurrentImage = double(imread(DebugImagePath));
   CurrentImage = CurrentImage ./ ((2 ^ 8) - 1);
   
   GroundtruthLuminance = SfuGroundtruthIlluminations(i, :);
-  [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, method, GroundtruthLuminance);
+  [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, DebugImagePath, method, GroundtruthLuminance);
   
   ColourConstancyReportPlot(CurrentImage, EstimatedLuminance, GroundtruthLuminance, CurrentAngularError, i, plotme);
   

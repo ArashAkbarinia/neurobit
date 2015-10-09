@@ -1,8 +1,9 @@
-function [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, method, GroundtruthLuminance, isxyz)
+function [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, DebugImagePath, method, GroundtruthLuminance, isxyz)
 %ColourConstancyReportAlgoithms  estimatied luminance and calculate error.
 %
 % inputs
 %   CurrentImage          the image to be processed.
+%   DebugImagePath        the path to the image, for debugging proposes.
 %   method                desired method.
 %   GroundtruthLuminance  the luminance of groundtruth.
 %   isxyz                 if the image is in XYZ space, default false.
@@ -13,11 +14,11 @@ function [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConst
 %                         estimated luminance.
 %
 
-if nargin < 4 || isempty(isxyz)
+if nargin < 5 || isempty(isxyz)
   isxyz = false;
 end
 
-EstimatedLuminance = ColourConstancySwitchAlgorithms(CurrentImage, method, isxyz);
+EstimatedLuminance = ColourConstancySwitchAlgorithms(CurrentImage, DebugImagePath, method, isxyz);
 
 % normalising the groundtruth
 GroundtruthNorm = sum(GroundtruthLuminance(:));

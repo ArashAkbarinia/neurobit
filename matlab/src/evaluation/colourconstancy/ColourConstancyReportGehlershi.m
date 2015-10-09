@@ -49,7 +49,8 @@ parfor i = 1:nimages
     continue;
   end
   
-  CurrentImage = double(imread([DataSetPath, GehlershiImageNames{i}]));
+  DebugImagePath = [DataSetPath, GehlershiImageNames{i}];
+  CurrentImage = double(imread(DebugImagePath));
   
   % based on http://www.cs.sfu.ca/~colour/data/process_568.m
   if i > 87   % subtract black level

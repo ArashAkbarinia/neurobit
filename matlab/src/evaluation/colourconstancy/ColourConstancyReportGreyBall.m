@@ -45,8 +45,9 @@ parfor i = 1:nimages
   if isempty(find(ImageNumbers == i, 1))
     continue;
   end
-  
-  CurrentImage = double(imread([DataSetPath, GreyBallImageNames{i}]));
+
+  DebugImagePath = [DataSetPath, GreyBallImageNames{i}];
+  CurrentImage = double(imread(DebugImagePath));
   CurrentImage = CurrentImage ./ ((2 ^ 8) - 1);
   
   GroundtruthLuminance = GreyBallGroundtruthIlluminations(i, :);
