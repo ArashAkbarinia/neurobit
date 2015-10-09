@@ -83,7 +83,12 @@ end
 function doresponse = arash(opponent, method)
 
 [CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method);
-doresponse = CombineCentreSurround(opponent, CentreGaussian, SurroundGaussian, FarGaussian, method);
+[CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method);
+
+doresponse = zeros(size(opponent));
+for i = 1:3
+  doresponse(:, :, i) = CombineCentreSurround(CentreGaussian(:, :, i), SurroundGaussian(:, :, i), FarGaussian(:, :, i), CentreContrast(:, :, i), SurroundContrast(:, :, i), FarContrast(:, :, i), method);
+end
 
 end
 
@@ -133,20 +138,49 @@ end
 
 end
 
-function doresponse = CombineCentreSurround(opponent, CentreGaussian, SurroundGaussian, FarGaussian, method)
+function [CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method)
 
-doresponse = zeros(size(opponent));
-for i = 1:3
-  doresponse(:, :, i) = raquel(opponent(:, :, i), CentreGaussian(:, :, i), SurroundGaussian(:, :, i), FarGaussian(:, :, i), method);
+DebugImagePath = method{1};
+
+SlashIndices = strfind(DebugImagePath, '/');
+DebugFolderPath = [DebugImagePath(1:SlashIndices(length(SlashIndices))), 'DebugContrastFolder/'];
+if ~exist(DebugFolderPath, 'dir')
+  mkdir(DebugFolderPath);
+end
+DebugPathMat = [DebugFolderPath, DebugImagePath(SlashIndices(length(SlashIndices)) + 1 : length(DebugImagePath) - 4), '.mat'];
+
+if ~exist(DebugPathMat, 'file')
+  [CentreContrast, SurroundContrast, FarContrast] = ContrastProcesses(opponent, method);
+  
+  save(DebugPathMat, 'CentreContrast', 'SurroundContrast', 'FarContrast');
+else
+  AlreayStoredData = load(DebugPathMat);
+  CentreContrast = AlreayStoredData.CentreContrast;
+  SurroundContrast = AlreayStoredData.SurroundContrast;
+  FarContrast = AlreayStoredData.FarContrast;
 end
 
 end
 
-function dorg = raquel(opponent, CentreGaussian, SurroundGaussian, FarGaussian, method)
+function [CentreContrast, SurroundContrast, FarContrast] = ContrastProcesses(opponent, method)
 
 CentreSize = method{2};
 SurroundEnlarge = method{5};
 FarEnlarge = 3 * SurroundEnlarge;
+
+CentreContrast = zeros(size(opponent));
+SurroundContrast = zeros(size(opponent));
+FarContrast = zeros(size(opponent));
+for i = 1:3
+  CentreContrast(:, :, i) = GetContrastImage(opponent(:, :, i), CentreSize);
+  SurroundContrast(:, :, i) = GetContrastImage(opponent(:, :, i), SurroundEnlarge * CentreSize, CentreSize);
+  FarContrast(:, :, i) = GetContrastImage(opponent(:, :, i), FarEnlarge * CentreSize, SurroundEnlarge * CentreSize);
+end
+
+end
+
+function dorg = CombineCentreSurround(CentreGaussian, SurroundGaussian, FarGaussian, CentreContrast, SurroundContrast, FarContrast, method)
+
 s1 = method{6};
 s4 = method{7};
 c1 = method{8};
@@ -160,9 +194,9 @@ f4 = method{12};
 % c1 = c1 + mrgc;
 % c4 = c4 + mrgs;
 
-CentreWeights = NormaliseChannel(GetContrastImage(opponent, CentreSize), c1, c4, [], []);
-SurroundWeights = NormaliseChannel(GetContrastImage(opponent, SurroundEnlarge * CentreSize, CentreSize), s1, s4, [], []);
-FarWeights = NormaliseChannel(GetContrastImage(opponent, FarEnlarge * CentreSize, SurroundEnlarge * CentreSize), f1, f4, [], []);
+CentreWeights = NormaliseChannel(CentreContrast, c1, c4, [], []);
+SurroundWeights = NormaliseChannel(SurroundContrast, s1, s4, [], []);
+FarWeights = NormaliseChannel(FarContrast, f1, f4, [], []);
 
 % [gmag, gdir] = imgradient(rg);
 % gdir(gdir < 0) = gdir(gdir < 0) + 180;
