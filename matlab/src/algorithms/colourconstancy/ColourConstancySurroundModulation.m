@@ -209,7 +209,7 @@ FarWeights = NormaliseChannel(FarContrast, f1, f4, [], []);
 
 % dorg = ApplyNeighbourImpact(rg, sorg, sogr, sofar, ks, js, fs);
 dorg = DoubleOpponent(CentreGaussian, SurroundGaussian, SurroundWeights, CentreWeights);
-dorg = dorg - FarWeights .* FarGaussian;
+dorg = dorg + FarWeights .* FarGaussian;
 
 end
 
