@@ -1,4 +1,4 @@
-function labs = PlotColourFrontiersResults(FilePath, condition, luminance, plotme)
+function [labs, ResultTable] = PlotColourFrontiersResults(FilePath, condition, luminance, plotme)
 %PlotColourFrontiersResults  plots the results of colour frontiers.
 %
 % inputs
@@ -8,7 +8,8 @@ function labs = PlotColourFrontiersResults(FilePath, condition, luminance, plotm
 %   plotme     if true itplots the lab values.
 %
 % outputs
-%   labs  the L*a*a coordinates of the plotted poitns.
+%   labs         the L*a*a coordinates of the plotted poitns.
+%   ResultTable  the polar coordinates.
 %
 
 if nargin < 4
