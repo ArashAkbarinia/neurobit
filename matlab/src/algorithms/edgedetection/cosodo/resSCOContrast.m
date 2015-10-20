@@ -22,27 +22,27 @@ NewColourSpace = reshape(NewColourSpace', w, h, d);
 %   OpponentImage(:, :, i) = OpponentImage(:, :, i) ./ max(max(OpponentImage(:, :, i)));
 % end
 
-% OpponentImage(:, :, 1) = NewColourSpace(:, :, 2);
-% OpponentImage(:, :, 2) = NewColourSpace(:, :, 2);
-% OpponentImage(:, :, 3) = NewColourSpace(:, :, 3);
-% OpponentImage(:, :, 4) = NewColourSpace(:, :, 3);
-% OpponentImage(:, :, 5) = NewColourSpace(:, :, 1);
-% OpponentImage(:, :, 6) = NewColourSpace(:, :, 1);
+OpponentImage(:, :, 1) = NewColourSpace(:, :, 2);
+OpponentImage(:, :, 2) = NewColourSpace(:, :, 2);
+OpponentImage(:, :, 3) = NewColourSpace(:, :, 3);
+OpponentImage(:, :, 4) = NewColourSpace(:, :, 3);
+OpponentImage(:, :, 5) = NewColourSpace(:, :, 1);
+OpponentImage(:, :, 6) = NewColourSpace(:, :, 1);
 
-R = map(:,:,1);   % Cone-L
-G = map(:,:,2);   % Cone-M
-B = map(:,:,3);   % Cone-S
-Y = (R+G)/2;
-OpponentImage(:, :, 1) = R;
-OpponentImage(:, :, 2) = G;
-OpponentImage(:, :, 3) = B;
-OpponentImage(:, :, 4) = Y;
+% R = map(:,:,1);   % Cone-L
+% G = map(:,:,2);   % Cone-M
+% B = map(:,:,3);   % Cone-S
+% Y = (R+G)/2;
+% OpponentImage(:, :, 1) = R;
+% OpponentImage(:, :, 2) = G;
+% OpponentImage(:, :, 3) = B;
+% OpponentImage(:, :, 4) = Y;
 
 % [Drg Dgr]= OrientedDoubleOpponent(map,'RG',sigma,angles,weights);
 % [Dby Dyb]= OrientedDoubleOpponent(map,'BY',sigma,angles,weights);
 [Boundary(:, :, 1:2), Orients(:, :, 1:2)] = resSCOContrastOneChannel(OpponentImage(:, :, [1, 2]),sigma,angles,weights,ws); % 'RG'
 [Boundary(:, :, 3:4), Orients(:, :, 3:4)] = resSCOContrastOneChannel(OpponentImage(:, :, [3, 4]),sigma,angles,weights,ws); % 'BY'
-% [Boundary(:, :, 5:6), Orients(:, :, 5:6)] = resSCOContrastOneChannel(OpponentImage(:, :, 5:6),sigma,angles,weights,ws); % 'WB'
+[Boundary(:, :, 5:6), Orients(:, :, 5:6)] = resSCOContrastOneChannel(OpponentImage(:, :, [5, 6]),sigma,angles,weights,ws); % 'WB'
 
 % max-pool
 [Re(:,:),idx(:,:)]= max(Boundary,[],3);
@@ -72,7 +72,7 @@ CBgr = CBgr./max(CBgr(:));
 
 % SPrg=SparIndex(CBrg,ws);
 % SPgr=SparIndex(CBgr,ws);
-%
+% 
 % CBrg = CBrg.*SPrg;
 % CBgr = CBgr.*SPgr;
 

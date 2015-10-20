@@ -9,7 +9,7 @@ CentreContrastLevels = 16;
 [Ch12, Ch21] = SingleOpponentContrast(map,CentreSigma,weights, CentreContrastEnlarge, CentreContrastLevels);
 
 % construct RF of the oriented double-opponent
-SurroundSigma = 2 * CentreSigma;
+SurroundSigma = 2 * 1.1;%2 * CentreSigma;
 DO12 = zeros(size(map,1),size(map,2),angles);
 DO21 = zeros(size(map,1),size(map,2),angles);
 
@@ -26,8 +26,8 @@ for i = 1:angles
   t1 = conByfft(Ch12,dgau2D/S); % Ch12
   DO12(:,:,i) = abs(t1);
   
-  t2 = conByfft(Ch21,dgau2D/S); % Ch21
-  DO21(:,:,i) = abs(t2);
+%   t2 = conByfft(Ch21,dgau2D/S); % Ch21
+%   DO21(:,:,i) = abs(t2);
 end
 
 SurroundContrastEnlarge = 2;
@@ -35,6 +35,6 @@ SurroundContrastLevels = 4;
 % DO12 = abs(ContrastDependantGaussianGradient(Ch12, SurroundSigma, SurroundContrastEnlarge, SurroundContrastLevels, 1, thetas, map));
 % DO21 = abs(ContrastDependantGaussianGradient(Ch21, sigma, ContrastEnlarge, ContrastLevels, 1, thetas));
 
-% DO21 = DO12;
+DO21 = DO12;
 
 end
