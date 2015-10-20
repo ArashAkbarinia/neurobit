@@ -36,7 +36,7 @@ else
     sumR_max = 0;
     cntP_max = 0;
     sumP_max = 0;
-    scores = zeros(length(S),5);
+    scores = zeros(length(S),6);
 
     for i = 1:length(S),
 
@@ -55,7 +55,7 @@ else
         F = fmeasure(R,P);
 
         [bestT,bestR,bestP,bestF] = maxF(thresh,R,P);
-        scores(i,:) = [i bestT bestR bestP bestF];
+        scores(i,:) = [str2double(iid) i bestT bestR bestP bestF];
 
         cntR_total = cntR_total + cntR;
         sumR_total = sumR_total + sumR;
@@ -80,7 +80,7 @@ else
     if fid==-1,
         error('Could not open file %s for writing.',fname);
     end
-    fprintf(fid,'%10d %10g %10g %10g %10g\n',scores');
+    fprintf(fid,'%10d %10d %10g %10g %10g %10g\n',scores');
     fclose(fid);
 
     fname = fullfile(pbDir,'eval_bdry_thr.txt');
