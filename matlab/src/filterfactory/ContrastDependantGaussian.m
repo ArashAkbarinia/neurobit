@@ -68,8 +68,8 @@ end
 
 function ContrastLevels = GetContrastLevels(ContrastIm, nContrastLevels)
 
-MinPix = min(ContrastIm(:));
-MaxPix = max(ContrastIm(:));
+MinPix = 0.29;%min(ContrastIm(:));
+MaxPix = 1;%max(ContrastIm(:));
 step = ((MaxPix - MinPix) / nContrastLevels);
 levels = MinPix:step:MaxPix;
 levels = levels(2:end-1);
