@@ -1,12 +1,14 @@
-function fb = SCOBoundaryContrast(map,sigma,angles,weights,ws)
+function fb = SCOBoundaryContrast(map,sigma,angles,ws, DebugImagePath, weights1)
 
 
-if nargin < 5, ws= 5; end
-if nargin < 4, weights= -0.7; end
+if nargin < 5
+  DebugImagePath = false;
+end
+if nargin < 4, ws= 5; end
 if nargin < 3,  angles = 8;  end
 
 % obtain the final response
-[Res, theta] = resSCOContrast(map,sigma,angles,weights,ws);
+[Res, theta] = resSCOContrast(map,sigma,angles,ws, DebugImagePath, weights1);
 Re = Res./max(Res(:));
 
 % non-max suppression...

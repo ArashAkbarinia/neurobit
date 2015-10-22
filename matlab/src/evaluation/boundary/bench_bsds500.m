@@ -19,11 +19,12 @@ if doedge
   parfor i = 1:nfiles
     disp(['processing ', ImageList(i).name]);
     CurrentFileName = ImageList(i).name;
-    CurrentImage = imread([ImageDirectory, '/', CurrentFileName]);
+    ImagePath = [ImageDirectory, '/', CurrentFileName];
+    CurrentImage = imread(ImagePath);
     CurrentImage = double(CurrentImage) ./ 255;
     
 %     EdgeImage = SCOBoundary(CurrentImage, 1.1);
-    EdgeImage = SCOBoundaryContrast(CurrentImage, 0.5);
+    EdgeImage = SCOBoundaryContrast(CurrentImage, 1.1, 8, 5, ImagePath);
     
     ResultName = CurrentFileName(1:end-4);
     imwrite(EdgeImage, [ResultDirectory, '/', ResultName, '.png']);

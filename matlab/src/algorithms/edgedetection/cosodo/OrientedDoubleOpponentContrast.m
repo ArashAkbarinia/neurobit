@@ -1,71 +1,203 @@
-function [DO12, DO21] = OrientedDoubleOpponentContrast(map, CentreSigma, angles, weights)
+function dor = OrientedDoubleOpponentContrast(isignal, CentreSigma, nangles, DebugImagePath, c, weights1)
 
-if nargin < 5, weights= -0.7; end
-if nargin < 4,  angles = 8;  end
+if nargin < 3
+  nangles = 8;
+end
 
-CentreContrastEnlarge = 10;
-CentreContrastLevels = 16;
+CentreContrastEnlarge = 2;
+CentreContrastLevels = 8;
+
 % compute responses of single-opponent cells
-[Ch12, Ch21] = SingleOpponentContrast(map,CentreSigma,weights, CentreContrastEnlarge, CentreContrastLevels);
+% sor = SingleOpponentContrast(isignal, CentreSigma, CentreContrastEnlarge, CentreContrastLevels);
 
 % construct RF of the oriented double-opponent
 SurroundSigma = 2 * 1.1;%2 * CentreSigma;
-DO12 = zeros(size(map,1),size(map,2),angles);
-DO21 = zeros(size(map,1),size(map,2),angles);
+% dor = zeros(size(isignal,1),size(isignal,2),nangles);
 
 % Obtain the response with the filters in degree of [0 pi],
 % and then taking the absolute value, which is same as rotating the  filters
 % in [0 2*pi]
-thetas = zeros(1, angles);
-for i = 1:angles
-  thetas(i) = (i-1)*pi/angles;
+thetas = zeros(1, nangles);
+for i = 1:nangles
+  thetas(i) = (i - 1) * pi / nangles;
   
-  dgau2D = DivGauss2D(SurroundSigma,thetas(i));
-  S = sum(abs(dgau2D(:)));
-  
-  t1 = conByfft(Ch12,dgau2D/S); % Ch12
-  DO12(:,:,i) = abs(t1);
-  
-%   t2 = conByfft(Ch21,dgau2D/S); % Ch21
-%   DO21(:,:,i) = abs(t2);
+  %   dgau2D = GaussianGradient1(GaussianFilter2(SurroundSigma), thetas(i));
+  %   t1 = conByfft(sor, dgau2D);
+  %
+  %   dor(:,:,i) = abs(t1);
 end
 
 SurroundContrastEnlarge = 2;
 SurroundContrastLevels = 4;
-% DO12 = abs(ContrastDependantGaussianGradient(Ch12, SurroundSigma, SurroundContrastEnlarge, SurroundContrastLevels, 1, thetas, map));
-% DO21 = abs(ContrastDependantGaussianGradient(Ch21, sigma, ContrastEnlarge, ContrastLevels, 1, thetas));
-
-DO21 = DO12;
+% dor = abs(ContrastDependantGaussianGradient(isignal, SurroundSigma, SurroundContrastEnlarge, SurroundContrastLevels, 1, thetas, map));
+% dor = abs(ContrastDependantGaussian(isignal, CentreSigma, CentreContrastEnlarge, CentreContrastLevels, thetas));
+dor = SurroundContrast(isignal, CentreSigma, CentreContrastEnlarge, CentreContrastLevels, thetas, DebugImagePath, c, weights1);
 
 end
 
-function [Ch12, Ch21] = SingleOpponentContrast(map,sigma,weights,ContrastEnlarge, ContrastLevels)
+function sor = SingleOpponentContrast(isignal, CentreSigma, ContrastEnlarge, ContrastLevels)
 
-if nargin < 4, weights= -0.7; end
+NearSigma = CentreSigma * 5;
+FarSigma = NearSigma * 3;
 
-[rr, cc, d] = size(map);
+cr = ContrastDependantGaussian(isignal, CentreSigma, ContrastEnlarge, ContrastLevels);
+sr = imfilter(isignal, GaussianFilter2(NearSigma), 'replicate');
+fr = imfilter(isignal, GaussianFilter2(FarSigma), 'replicate');
 
-channel1 = map(:, :, 1);
-channel2 = map(:, :, 2);
+sor = 1.0 .* cr - 0.5 .* sr + 0.2 * fr;
 
-% compute the response of center-only single opponent cells
-w1 = 1.0 * ones(rr,cc);
-w2 = weights .* ones(rr,cc);
+end
 
-% original code
-gau2D = gaus(1.1);
-Ch1 = imfilter(channel1,gau2D,'conv','replicate');
-% Ch2 = imfilter(channel2,gau2D,'conv','replicate');
+function sor = SurroundContrast(isignal, CentreSigma, ContrastEnlarge, ContrastLevels, thetas, DebugImagePath, c, weights1)
 
-% our improvement
-ContrastGaussian = ContrastDependantGaussian(channel1, sigma, ContrastEnlarge, ContrastLevels);
-Ch1 = Ch1 + ContrastGaussian;
-% Ch2 = Ch2 + ContrastDependantGaussian(channel2, sigma, ContrastEnlarge, ContrastLevels);
+if ~DebugImagePath
+  NearSigma = CentreSigma * 5;
+  FarSigma = NearSigma * 3;
+  
+  cr = abs(ContrastDependantGaussian(isignal, CentreSigma, ContrastEnlarge, ContrastLevels, thetas));
+  nr = abs(ContrastDependantGaussian(isignal, NearSigma, 1, 1, thetas));
+  fr = abs(ContrastDependantGaussian(isignal, FarSigma, 1, 1, thetas));
+  
+  CentreSize = 3;
+  [CentreContrast, NearContrast, FarContrast] = ContrastProcesses(isignal, CentreSize);
+else
+  SlashIndices = strfind(DebugImagePath, '/');
+  LastIndex = SlashIndices(end);
+  DebugFolderPath = [DebugImagePath(1:LastIndex), 'DebugFolder/'];
+  if ~exist(DebugFolderPath, 'dir')
+    mkdir(DebugFolderPath);
+  end
+  DebugPathMat = [DebugFolderPath, DebugImagePath(LastIndex + 1 : length(DebugImagePath) - 4), '-', num2str(c), '.mat'];
+  
+  if ~exist(DebugPathMat, 'file')
+    NearSigma = CentreSigma * 5;
+    FarSigma = NearSigma * 3;
+    
+    cr = abs(ContrastDependantGaussian(isignal, CentreSigma, ContrastEnlarge, ContrastLevels, thetas));
+    nr = abs(ContrastDependantGaussian(isignal, NearSigma, 1, 1, thetas));
+    fr = abs(ContrastDependantGaussian(isignal, FarSigma, 1, 1, thetas));
+    
+    CentreSize = 3;
+    [CentreContrast, NearContrast, FarContrast] = ContrastProcesses(isignal, CentreSize);
+    
+    save(DebugPathMat, 'cr', 'nr', 'fr', 'CentreContrast', 'NearContrast', 'FarContrast');
+  else
+    AlreayStoredData = load(DebugPathMat);
+    
+    cr = AlreayStoredData.cr;
+    nr = AlreayStoredData.nr;
+    fr = AlreayStoredData.fr;
+    
+    CentreContrast = AlreayStoredData.CentreContrast;
+    NearContrast = AlreayStoredData.NearContrast;
+    FarContrast = AlreayStoredData.FarContrast;
+  end
+end
 
-Ch12 = Ch1;
-Ch21 = Ch1;
+% latest results
+% weights1 = [0.50, 1.00, -0.75, +0.75, -0.15, 0.15];
+contrasts = {CentreContrast, NearContrast, FarContrast};
+rfs = {cr, nr, fr};
+sor = ContrastSurroundImpact(weights1, contrasts, rfs);
 
-% Ch12 = w1.*Ch1 + w2.*Ch2;   % Ch1+ Ch2-
-% Ch21 = w2.*Ch1 + w1.*Ch2;   % Ch1- Ch2+
+
+% weights1 = [0.75, 1.00, -0.75, -0.25, 0.00, 0.15];
+% contrasts = {CentreContrast, NearContrast, FarContrast};
+% rfs = {cr, nr, fr};
+% 
+% weights2 = [0.75, 1.00, 0.25, 0.75, 0.00, 0.15];
+% 
+% sor1 = ContrastSurroundImpact(weights1, contrasts, rfs);
+% sor2 = OrientationSurroundImpact(weights2, contrasts, rfs);
+% 
+% sor = sor1 + sor2;
+
+end
+
+function sor = ContrastSurroundImpact(weights, contrasts, rfs)
+
+cl = weights(1);
+ch = weights(2);
+nl = weights(3);
+nh = weights(4);
+fl = weights(5);
+fh = weights(6);
+
+CentreContrast = contrasts{1};
+NearContrast = contrasts{2};
+FarContrast = contrasts{3};
+
+CentreWeights = NormaliseChannel(CentreContrast, cl, ch, [], []);
+NearWeights = NormaliseChannel(NearContrast, nl, nh, [], []);
+FarWeights = NormaliseChannel(FarContrast, fl, fh, [], []);
+
+cr = rfs{1};
+nr = rfs{2};
+fr = rfs{3};
+
+sor = zeros(size(cr));
+for i = 1:size(cr, 3)
+  sor(:, :, i) = CentreWeights .* cr(:, :, i) + NearWeights .* nr(:, :, i) + FarWeights .* fr(:, :, i);
+end
+
+end
+
+function sor = OrientationSurroundImpact(weights, contrasts, rfs)
+
+cl = weights(1);
+ch = weights(2);
+nl = weights(3);
+nh = weights(4);
+fl = weights(5);
+fh = weights(6);
+
+CentreContrast = contrasts{1};
+NearContrast = contrasts{2};
+FarContrast = contrasts{3};
+
+CentreWeights = NormaliseChannel(CentreContrast, cl, ch, [], []);
+
+cr = rfs{1};
+nr = rfs{2};
+fr = rfs{3};
+
+sor = zeros(size(cr));
+for i = 1:size(cr, 3)
+  j = i + 4;
+  if j > size(cr, 3)
+    j = i - 4;
+  end
+  ndiff = abs(cr(:, :, i) - nr(:, :, j));
+  NearWeights = NormaliseChannel(ndiff, nl, nh, [], []);
+  
+  fdiff = abs(cr(:, :, i) - fr(:, :, j));
+  FarWeights = NormaliseChannel(fdiff, fl, fh, [], []);
+  sor(:, :, i) = CentreWeights .* cr(:, :, i) + NearWeights .* nr(:, :, j) + FarWeights .* fr(:, :, j);
+end
+
+end
+
+function [CentreContrast, SurroundContrast, FarContrast] = ContrastProcesses(isignal, CentreSize)
+
+SurroundEnlarge = 5;
+FarEnlarge = 3 * SurroundEnlarge;
+
+CentreContrast = GetContrastImage(isignal, CentreSize);
+SurroundContrast = GetContrastImage(isignal, SurroundEnlarge * CentreSize, CentreSize);
+FarContrast = GetContrastImage(isignal, FarEnlarge * CentreSize, SurroundEnlarge * CentreSize);
+
+end
+
+function ContrastImage = GetContrastImage(isignal, SurroundSize, CentreSize)
+
+if nargin < 2
+  SurroundSize = [3, 3];
+end
+if nargin < 3
+  CentreSize = [0, 0];
+end
+contraststd = LocalStdContrast(isignal, SurroundSize, CentreSize);
+
+ContrastImage = 1 - contraststd;
 
 end
