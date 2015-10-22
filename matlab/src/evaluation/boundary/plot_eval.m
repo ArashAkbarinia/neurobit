@@ -10,7 +10,7 @@ if exist(fullfile(evalDir,'eval_bdry_thr.txt'),'file'),
     open('isoF.fig');
     hold on
     prvals = dlmread(fullfile(evalDir,'eval_bdry_thr.txt')); % thresh,r,p,f
-    f=find(prvals(:,2)>=0.01);
+    f= prvals(:,2)>=0.01;
     prvals = prvals(f,:);
 
 
