@@ -73,9 +73,9 @@ else
     NearSigma = CentreSigma * 5;
     FarSigma = NearSigma * 3;
     
-    cr = abs(ContrastDependantGaussian(isignal, CentreSigma, ContrastEnlarge, ContrastLevels, thetas));
-    nr = abs(ContrastDependantGaussian(isignal, NearSigma, 1, 1, thetas));
-    fr = abs(ContrastDependantGaussian(isignal, FarSigma, 1, 1, thetas));
+    cr = abs(ContrastDependantGaussianGradient(isignal, CentreSigma, ContrastEnlarge, ContrastLevels, thetas));
+    nr = abs(ContrastDependantGaussianGradient(isignal, NearSigma, 1, 1, thetas));
+    fr = abs(ContrastDependantGaussianGradient(isignal, FarSigma, 1, 1, thetas));
     
     CentreSize = 3;
     [CentreContrast, NearContrast, FarContrast] = ContrastProcesses(isignal, CentreSize);
