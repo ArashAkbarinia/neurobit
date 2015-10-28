@@ -82,11 +82,8 @@ end
 
 function doresponse = arash(opponent, method)
 
-DebugImagePath = method{1};
-SlashIndices = strfind(DebugImagePath, '/');
-
-[CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method, SlashIndices(end));
-[CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method, SlashIndices(end));
+[CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method);
+[CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method);
 
 doresponse = zeros(size(opponent));
 for i = 1:3
@@ -95,26 +92,9 @@ end
 
 end
 
-function [CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method, LastIndex)
+function [CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method)
 
-DebugImagePath = method{1};
-
-DebugFolderPath = [DebugImagePath(1:LastIndex), 'DebugGaussianFolder/'];
-if ~exist(DebugFolderPath, 'dir')
-  mkdir(DebugFolderPath);
-end
-DebugPathMat = [DebugFolderPath, DebugImagePath(LastIndex + 1 : length(DebugImagePath) - 4), '.mat'];
-
-if ~exist(DebugPathMat, 'file')
-  [CentreGaussian, SurroundGaussian, FarGaussian] = GaussianProcesses(opponent, method);
-  
-  save(DebugPathMat, 'CentreGaussian', 'SurroundGaussian', 'FarGaussian');
-else
-  AlreayStoredData = load(DebugPathMat);
-  CentreGaussian = AlreayStoredData.CentreGaussian;
-  SurroundGaussian = AlreayStoredData.SurroundGaussian;
-  FarGaussian = AlreayStoredData.FarGaussian;
-end
+[CentreGaussian, SurroundGaussian, FarGaussian] = GaussianProcesses(opponent, method);
 
 end
 
@@ -140,26 +120,9 @@ end
 
 end
 
-function [CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method, LastIndex)
+function [CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method)
 
-DebugImagePath = method{1};
-
-DebugFolderPath = [DebugImagePath(1:LastIndex), 'DebugContrastFolder/'];
-if ~exist(DebugFolderPath, 'dir')
-  mkdir(DebugFolderPath);
-end
-DebugPathMat = [DebugFolderPath, DebugImagePath(LastIndex + 1 : length(DebugImagePath) - 4), '.mat'];
-
-if ~exist(DebugPathMat, 'file')
-  [CentreContrast, SurroundContrast, FarContrast] = ContrastProcesses(opponent, method);
-  
-  save(DebugPathMat, 'CentreContrast', 'SurroundContrast', 'FarContrast');
-else
-  AlreayStoredData = load(DebugPathMat);
-  CentreContrast = AlreayStoredData.CentreContrast;
-  SurroundContrast = AlreayStoredData.SurroundContrast;
-  FarContrast = AlreayStoredData.FarContrast;
-end
+[CentreContrast, SurroundContrast, FarContrast] = ContrastProcesses(opponent, method);
 
 end
 
