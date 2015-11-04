@@ -28,6 +28,7 @@ if nargin<5, nthresh = 99; end
 
 
 iids = dir(fullfile(imgDir,'*.jpg'));
+iids = [iids; dir(fullfile(imgDir,'*.pgm'))];
 parfor i = 1:numel(iids),
     evFile = fullfile(outDir, strcat(iids(i).name(1:end-4),'_ev1.txt'));
     if exist('evFile','file'), continue; end
