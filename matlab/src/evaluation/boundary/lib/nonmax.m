@@ -55,7 +55,7 @@ idxA = idx + h;
 idxB = idx + h + 1;
 d = tan(theta(idx));
 imI = im(idxA).*(1-d) + im(idxB).*d;
-mask(idx(find(im(idx)<imI))) = 0;
+mask(idx(im(idx)<imI)) = 0;
 
 % case 5
 idx = find( mask15 & ix>1 & iy>1);
@@ -63,7 +63,7 @@ idxA = idx - h;
 idxB = idx - h - 1;
 d = tan(theta(idx));
 imI = im(idxA).*(1-d) + im(idxB).*d;
-mask(idx(find(im(idx)<imI))) = 0;
+mask(idx(im(idx)<imI)) = 0;
 
 % case 2
 idx = find( mask26 & ix<w & iy<h );
@@ -71,7 +71,7 @@ idxA = idx + 1;
 idxB = idx + h + 1;
 d = tan(pi/2-theta(idx));
 imI = im(idxA).*(1-d) + im(idxB).*d;
-mask(idx(find(im(idx)<imI))) = 0;
+mask(idx(im(idx)<imI)) = 0;
 
 % case 6
 idx = find( mask26 & ix>1 & iy>1 );
@@ -79,7 +79,7 @@ idxA = idx - 1;
 idxB = idx - h - 1;
 d = tan(pi/2-theta(idx));
 imI = im(idxA).*(1-d) + im(idxB).*d;
-mask(idx(find(im(idx)<imI))) = 0;
+mask(idx(im(idx)<imI)) = 0;
 
 % case 3
 idx = find( mask37 & ix>1 & iy<h );
@@ -87,7 +87,7 @@ idxA = idx + 1;
 idxB = idx - h + 1;
 d = tan(theta(idx)-pi/2);
 imI = im(idxA).*(1-d) + im(idxB).*d;
-mask(idx(find(im(idx)<imI))) = 0;
+mask(idx(im(idx)<imI)) = 0;
 
 % case 7
 idx = find( mask37 & ix<w & iy>1 );
@@ -95,7 +95,7 @@ idxA = idx - 1;
 idxB = idx + h - 1;
 d = tan(theta(idx)-pi/2);
 imI = im(idxA).*(1-d) + im(idxB).*d;
-mask(idx(find(im(idx)<imI))) = 0;
+mask(idx(im(idx)<imI)) = 0;
 
 % case 4
 idx = find( mask48 & ix>1 & iy<h );
@@ -103,7 +103,7 @@ idxA = idx - h;
 idxB = idx - h + 1;
 d = tan(pi-theta(idx));
 imI = im(idxA).*(1-d) + im(idxB).*d;
-mask(idx(find(im(idx)<imI))) = 0;
+mask(idx(im(idx)<imI)) = 0;
 
 % case 8
 idx = find( mask48 & ix<w & iy>1 );
@@ -111,7 +111,9 @@ idxA = idx + h;
 idxB = idx + h - 1;
 d = tan(pi-theta(idx));
 imI = im(idxA).*(1-d) + im(idxB).*d;
-mask(idx(find(im(idx)<imI))) = 0;
+mask(idx(im(idx)<imI)) = 0;
 
 % apply mask
 im = im .* mask;
+
+end
