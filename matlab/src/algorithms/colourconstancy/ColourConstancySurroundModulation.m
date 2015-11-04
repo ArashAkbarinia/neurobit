@@ -388,7 +388,7 @@ contraststd = LocalStdContrast(isignal, SurroundSize, CentreSize);
 
 % contraststd = stdfilt(isignal);
 % rf = dog2(GaussianFilter2(0.5), GaussianFilter2(2.5));
-% rf = GaussianGradient2(GaussianFilter2(2.5));
+% rf = Gaussian2Gradient2(GaussianFilter2(2.5));
 % contraststd = imfilter(isignal, rf, 'replicate');
 % contraststd = contraststd + abs(min(contraststd(:)));
 % contraststd = contraststd ./ max(contraststd(:));

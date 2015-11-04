@@ -1,5 +1,5 @@
-function g1 = GaussianGradient1(GaussianKernel, theta)
-%GaussianGradient1  calculating the gradient of Gaussian.
+function g1 = Gaussian2Gradient1(GaussianKernel, theta)
+%Gaussian2Gradient1  calculating the gradient of 2D Gaussian.
 %
 % inputs
 %   GaussianKernel  the Gaussian filter.

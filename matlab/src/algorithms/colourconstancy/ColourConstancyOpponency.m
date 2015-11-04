@@ -338,9 +338,9 @@ rf = GaussianFilter2(lambdax, lambday, 0, 0);
 
 for i = 1:chns
   if order == 1
-    rfi = GaussianGradient1(rf, angles(i));
+    rfi = Gaussian2Gradient1(rf, angles(i));
   elseif order == 2
-    rfi = GaussianGradient2(rf, angles(i));
+    rfi = Gaussian2Gradient2(rf, angles(i));
   end
   rfresponsei = imfilter(isignal, rfi, 'replicate');
   rfresponse(:, :, i) = (rfresponsei .^ 2) * weights(i);
@@ -399,9 +399,9 @@ for i = 1:chns
     rf = GaussianFilter2(lambdaxj, lambdayj, 0, 0);
     
     if order == 1
-      rfi = GaussianGradient1(rf, angles(i));
+      rfi = Gaussian2Gradient1(rf, angles(i));
     elseif order == 2
-      rfi = GaussianGradient2(rf, angles(i));
+      rfi = Gaussian2Gradient2(rf, angles(i));
     end
     rfresponsei = imfilter(isignal, rfi, 'replicate');
     rfresponsei = (rfresponsei .^ 2) * weights(i);
@@ -603,7 +603,7 @@ function ContrastImage = GetContrastImage(isignal)
 contraststd = LocalStdContrast(isignal, 3);
 % contraststd = stdfilt(isignal);
 % rf = dog2(GaussianFilter2(0.5), GaussianFilter2(2.5));
-% rf = GaussianGradient2(GaussianFilter2(2.5));
+% rf = Gaussian2Gradient2(GaussianFilter2(2.5));
 % contraststd = imfilter(isignal, rf, 'replicate');
 % contraststd = contraststd + abs(min(contraststd(:)));
 % contraststd = contraststd ./ max(contraststd(:));
