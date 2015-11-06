@@ -12,8 +12,8 @@ if nargin < 4
 end
 
 if nContrastLevels > 1
-  ContrastImx = GetContrastImage(InputImage, [17, 1]);
-  ContrastImy = GetContrastImage(InputImage, [1, 17]);
+  ContrastImx = GetContrastImage(InputImage, [1, 17]);
+  ContrastImy = GetContrastImage(InputImage, [17, 1]);
   
   FinishingSigma = StartingSigma * ContrastEnlarge;
   sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
