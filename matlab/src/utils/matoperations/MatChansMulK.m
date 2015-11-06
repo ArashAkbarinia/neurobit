@@ -12,7 +12,7 @@ function matrixk = MatChansMulK(m, k)
 
 m = double(m);
 [rows, cols, chns] = size(m);
-k = reshape(k, 1, 3);
+k = reshape(k, 1, chns);
 
 matrixk = zeros(rows, cols, chns);
 for i = 1:chns
