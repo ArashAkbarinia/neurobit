@@ -1,87 +1,87 @@
-function [OurVertical, OurHorizontal] = SurroundModulationEdgeDetector(im)
-%SurroundModulationEdgeDetector Summary of this function goes here
-%   Detailed explanation goes here
+function EdgeImageResponse = SurroundModulationEdgeDetector(InputImage)
 
-h = SurroundModulationFilter();
+[rows, cols, chns] = size(InputImage);
 
-% h(:, [1:7, 11:17]) = 0;
-% h(1:7, 1:7) = 0;
-% h(1:7, 11:17) = 0;
-% h(11:17, 1:7) = 0;
-% h(11:17, 11:17) = 0;
-
-figure;
-subplot(2, 2, 1);
-imshow(im); title('Original Image');
-subplot(2, 2, 2);
-imagesc(h); title('Our Filter');
-subplot(2, 2, 3);
-% OurVertical = nlfilter(im2double(im), [size(h, 1), size(h, 2)], @(x) OurEdgeDetector(h, x));
-OurVertical = imfilter(im, h, 'symmetric');
-imshow(OurVertical); title('Vertical Edges');
-subplot(2, 2, 4);
-% OurHorizontal = nlfilter(im2double(im), [size(h, 1), size(h, 2)], @(x) OurEdgeDetector(h', x));
-OurHorizontal = imfilter(im, h', 'symmetric');
-imshow(OurHorizontal); title('Horizontal Edges');
-
-% figure;
-% OtherFilter = fspecial('sobel');
-% subplot(2, 2, 1);
-% imshow(im); title('Original Image');
-% subplot(2, 2, 2);
-% imagesc(OtherFilter); title('Sobel Filter');
-% subplot(2, 2, 3);
-% OtherVertical = imfilter(im, OtherFilter, 'symmetric');
-% imshow(OtherVertical); title('Vertical Edges');
-% subplot(2, 2, 4);
-% OtherHorizontal = imfilter(im, OtherFilter', 'symmetric');
-% imshow(OtherHorizontal);  title('Horizontal Edges');
-
+% convert to opponent image
+if chns == 3
+  rgb2do = ...
+    [
+    0.2990,  0.5870,  0.1140;
+    0.5000,  0.5000, -1.0000;
+    0.8660, -0.8660,  0.0000;
+    ];
+  OpponentImage = rgb2do * reshape(InputImage, rows * cols, chns)';
+  OpponentImage = reshape(OpponentImage', rows, cols, chns);
+else
+  OpponentImage = InputImage;
 end
 
-function GradientVal = OurEdgeDetector(h, x)
+nlevels = 4;
+nangles = 8;
+EdgeImageResponse = zeros(rows, cols, chns, nlevels, nangles);
 
-% CentreContrast = MichelsonContrast(x);
+LevelEdge = ones(rows, cols, chns, nangles);
+for i = nlevels:-1:1
+  iimage = imresize(OpponentImage, 1 / i, 'bicubic');
+  iiedge = GaussianGradientEdges(iimage, 1.1, LevelEdge);
+  LevelEdge = abs(iiedge);
+  EdgeImageResponse(:, :, :, i, :) = LevelEdge;
+end
 
-CentreSize = 3;
-hc = ones(1, CentreSize);
-xcen = x(13:15, 13:15);
-MeanCentre = conv2(xcen, hc / CentreSize ^ 2, 'same');
-SigmaCentre = sqrt(conv2(xcen .^ 2, hc / CentreSize ^ 2, 'same') - MeanCentre .^ 2);
-% CentreContrast = mean(SigmaCentre(:));
-CentreContrast = std(xcen(:));
-
-if CentreContrast > 0.10
-  TmpCentre = h(13:15, 13:15);
-  TmpSurround = h(10:18, 10:18);
-  TmpNear = h(7:21, 7:21);
-  TmpFar = h(4:24, 4:24);
-  h(4:24, 4:24) = 0;
-  h(7:21, 7:21) = TmpNear;
-  h(10:18, 10:18) = -TmpSurround;
-  h(13:15, 13:15) = TmpCentre;
-elseif CentreContrast < 0.05
-  TmpCentre = h(13:15, 13:15);
-  TmpSurround = h(10:18, 10:18);
-  TmpNear = h(7:21, 7:21);
-  TmpFar = h(4:24, 4:24);
-  
-  FarSize = 21;
-  hc = ones(1, FarSize);
-  xfar = x(4:24, 4:24);
-  xfar(7:21, 7:21) = 0;
-  MeanFar = conv2(xfar, hc / FarSize ^ 2, 'same');
-  SigmaFar = sqrt(conv2(xfar .^ 2, hc / FarSize ^ 2, 'same') - MeanFar .^ 2);
-  %   FarContrast = mean(SigmaFar(:));
-  FarContrast = std(xfar(:));
-  if FarContrast < 0.10
-    h(4:24, 4:24) = TmpFar * 10;
-    h(7:21, 7:21) = TmpNear;
+ExtraDimensions = [3, 4, 5];
+ExtraPoolings = {'max', 'max', 'max'};
+for i = 1:length(ExtraDimensions)
+  CurrentDimension = ExtraDimensions(i);
+  if strcmpi(ExtraPoolings{i}, 'sum')
+    EdgeImageResponse = sum(EdgeImageResponse, CurrentDimension);
+  elseif strcmpi(ExtraPoolings{i}, 'max')
+    EdgeImageResponse = max(EdgeImageResponse, [], CurrentDimension);
   end
-  
-  h(10:18, 10:18) = TmpSurround * 4;
-  h(13:15, 13:15) = TmpCentre * 2;
 end
-GradientVal = sum(sum((h .* x)));
+
+EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
+
+% [~, orientation] = imgradient(EdgeImageResponse);
+% orientation = deg2rad(orientation);
+% orientation(orientation < 0) = orientation(orientation < 0) + pi;
+% EdgeImageResponse = NonMaxChannel(EdgeImageResponse, orientation);
+
+% mask out 1-pixel border where nonmax suppression fails
+EdgeImageResponse([1, end], :) = 0;
+EdgeImageResponse(:, [1, end]) = 0;
+
+end
+
+function d = NonMaxChannel(d, t)
+
+for i = 1:size(d, 3)
+  d(:, :, i) = d(:, :, i) ./ max(max(d(:, :, i)));
+  d(:, :, i) = nonmax(d(:, :, i), t);
+  d(:, :, i) = max(0, min(1, d(:, :, i)));
+end
+
+end
+
+function OutEdges = GaussianGradientEdges(InputImage, CentreSigma, LevelEdge)
+
+[w, h, d, nangles] = size(LevelEdge);
+
+OutEdges = zeros(w, h, d, nangles);
+for i = 1:d
+  OutEdges(:, :, i, :) = GaussianGradientChannel(InputImage(:, :, i), CentreSigma, LevelEdge(:, :, i, :));
+end
+
+end
+
+function OutEdges = GaussianGradientChannel(isignal, CentreSigma, LevelEdge)
+
+[rows, cols, ~, nangles] = size(LevelEdge);
+thetas = zeros(1, nangles);
+for i = 1:nangles
+  thetas(i) = (i - 1) * pi / nangles;
+end
+
+LevelEdge = reshape(LevelEdge, rows, cols, nangles);
+OutEdges = abs(ContrastDependantGaussianGradient(isignal, CentreSigma, 2, 4, thetas, LevelEdge));
 
 end

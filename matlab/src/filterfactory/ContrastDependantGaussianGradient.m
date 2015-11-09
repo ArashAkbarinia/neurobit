@@ -1,6 +1,79 @@
-function rfresponse = ContrastDependantGaussianGradient(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas)
+function rfresponse = ContrastDependantGaussianGradient(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas, LevelEdge)
 %ContrastDependantGaussian Summary of this function goes here
 %   Detailed explanation goes here
+
+% rfresponse = XYSeparate(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas);
+rfresponse = XYTogether(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas, LevelEdge);
+
+end
+
+function rfresponse = XYTogether(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas, LevelEdge)
+
+[rows1, cols1, ~] = size(InputImage);
+[rows2, cols2, ~] = size(LevelEdge);
+
+LevelEdge = imresize(LevelEdge, [rows1, cols1]);
+if mean(LevelEdge(:)) == 1
+  CalculateContrast = true;
+else
+  CalculateContrast = false;
+  LevelEdge = LevelEdge ./ max(LevelEdge(:));
+end
+
+if nargin < 3
+  ContrastEnlarge = 2;
+end
+if nargin < 4
+  nContrastLevels = 4;
+end
+
+nThetas = length(thetas);
+rfresponse = zeros(rows1, cols1, nThetas);
+
+for t = 1:nThetas
+  rfresponset = rfresponse(:, :, t);
+  theta = thetas(t);
+  
+  if nContrastLevels > 1
+    if CalculateContrast
+      ContrastIm = 1 - LocalStdGradient(InputImage, theta, CalculateGaussianWidth(StartingSigma));
+    else
+      ContrastIm = 1 - LevelEdge(:, :, t);
+    end
+    
+    FinishingSigma = StartingSigma * ContrastEnlarge;
+    sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
+    
+    ContrastLevelsIm = GetContrastLevels(ContrastIm, nContrastLevels);
+    
+    nContrastLevelsToDo = unique(ContrastLevelsIm(:));
+    nContrastLevelsToDo = nContrastLevelsToDo';
+  else
+    sigmas = StartingSigma;
+    nContrastLevelsToDo = 1;
+    ContrastLevelsIm = ones(rows1, cols1);
+  end
+  
+  for i = nContrastLevelsToDo
+    lambdaxi = sigmas(i);
+    lambdayi = lambdaxi;
+    
+    sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
+    soresponse = imfilter(InputImage, sorf, 'replicate');
+    
+    dorf = Gaussian2Gradient1(sorf, theta);
+    doresponse = imfilter(soresponse, dorf, 'symmetric');
+    rfresponset(ContrastLevelsIm == i) = doresponse(ContrastLevelsIm == i);
+    rfresponse(:, :, t) = rfresponset;
+  end
+  
+end
+
+rfresponse = imresize(rfresponse, [rows2, cols2]);
+
+end
+
+function rfresponse = XYSeparate(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas)
 
 [rows, cols, ~] = size(InputImage);
 
@@ -86,7 +159,7 @@ end
 
 function ContrastLevels = GetContrastLevels(ContrastIm, nContrastLevels)
 
-MinPix = 0.29;%min(ContrastIm(:));
+MinPix = 0;%min(ContrastIm(:));
 MaxPix = 1;%max(ContrastIm(:));
 step = ((MaxPix - MinPix) / nContrastLevels);
 levels = MinPix:step:MaxPix;
