@@ -16,17 +16,25 @@ else
   OpponentImage = InputImage;
 end
 
-nlevels = 4;
+nlevels = 1;
 nangles = 8;
 EdgeImageResponse = zeros(rows, cols, chns, nlevels, nangles);
 
+ContrastEnlarge = 1;
+ContrastLevels = 1;
+params(1, :) = [1.1, ContrastEnlarge, ContrastLevels];
+params(2, :) = [2.2, ContrastEnlarge, ContrastLevels];
+params(3, :) = [2.2, ContrastEnlarge, ContrastLevels];
+
 LevelEdge = ones(rows, cols, chns, nangles);
 for i = nlevels:-1:1
-  iimage = imresize(OpponentImage, 1 / i, 'bicubic');
-  iiedge = GaussianGradientEdges(iimage, 1.1, LevelEdge);
+  iimage = imresize(OpponentImage, 1 / (1.6 ^ i), 'bicubic');
+  iiedge = GaussianGradientEdges(iimage, params, LevelEdge);
   LevelEdge = abs(iiedge);
   EdgeImageResponse(:, :, :, i, :) = LevelEdge;
 end
+
+lsnr = LocalSnr(OpponentImage(:, :, 1));
 
 ExtraDimensions = [3, 4, 5];
 ExtraPoolings = {'max', 'max', 'max'};
@@ -36,6 +44,19 @@ for i = 1:length(ExtraDimensions)
     EdgeImageResponse = sum(EdgeImageResponse, CurrentDimension);
   elseif strcmpi(ExtraPoolings{i}, 'max')
     EdgeImageResponse = max(EdgeImageResponse, [], CurrentDimension);
+  elseif strcmpi(ExtraPoolings{i}, 'both')
+    EdgeImageResponseSum = sum(EdgeImageResponse, CurrentDimension);
+    EdgeImageResponseMax = max(EdgeImageResponse, [], CurrentDimension);
+    EdgeImageResponse = EdgeImageResponseSum;
+    UseMaxPixels = true(size(EdgeImageResponse));
+    for c = 1:size(EdgeImageResponse, 3)
+      for l = 1:size(EdgeImageResponse, 4)
+        for a = 1:size(EdgeImageResponse, 5)
+          UseMaxPixels(:, :, c, l, a) = reshape(lsnr < 1.0, rows, cols, 1, 1, 1);
+        end
+      end
+    end
+    EdgeImageResponse(UseMaxPixels) = EdgeImageResponseMax(UseMaxPixels);
   end
 end
 
@@ -62,18 +83,18 @@ end
 
 end
 
-function OutEdges = GaussianGradientEdges(InputImage, CentreSigma, LevelEdge)
+function OutEdges = GaussianGradientEdges(InputImage, params, LevelEdge)
 
 [w, h, d, nangles] = size(LevelEdge);
 
 OutEdges = zeros(w, h, d, nangles);
 for i = 1:d
-  OutEdges(:, :, i, :) = GaussianGradientChannel(InputImage(:, :, i), CentreSigma, LevelEdge(:, :, i, :));
+  OutEdges(:, :, i, :) = GaussianGradientChannel(InputImage(:, :, i), params(i, :), LevelEdge(:, :, i, :));
 end
 
 end
 
-function OutEdges = GaussianGradientChannel(isignal, CentreSigma, LevelEdge)
+function OutEdges = GaussianGradientChannel(isignal, params, LevelEdge)
 
 [rows, cols, ~, nangles] = size(LevelEdge);
 thetas = zeros(1, nangles);
@@ -82,6 +103,6 @@ for i = 1:nangles
 end
 
 LevelEdge = reshape(LevelEdge, rows, cols, nangles);
-OutEdges = abs(ContrastDependantGaussianGradient(isignal, CentreSigma, 2, 4, thetas, LevelEdge));
+OutEdges = abs(ContrastDependantGaussianGradient(isignal, params(1), params(2), params(3), thetas, LevelEdge));
 
 end
