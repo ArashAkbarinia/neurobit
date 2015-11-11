@@ -4,14 +4,7 @@ function EdgeImageResponse = SurroundModulationEdgeDetector(InputImage)
 
 % convert to opponent image
 if chns == 3
-  rgb2do = ...
-    [
-    0.2990,  0.5870,  0.1140;
-    0.5000,  0.5000, -1.0000;
-    0.8660, -0.8660,  0.0000;
-    ];
-  OpponentImage = rgb2do * reshape(InputImage, rows * cols, chns)';
-  OpponentImage = reshape(OpponentImage', rows, cols, chns);
+  OpponentImage = double(applycform(uint8(InputImage .* 255), makecform('srgb2lab'))) ./ 255;
 else
   OpponentImage = InputImage;
 end
@@ -22,9 +15,12 @@ EdgeImageResponse = zeros(rows, cols, chns, nlevels, nangles);
 
 ContrastEnlarge = 1;
 ContrastLevels = 1;
-params(1, :) = [1.1, ContrastEnlarge, ContrastLevels];
-params(2, :) = [2.2, ContrastEnlarge, ContrastLevels];
-params(3, :) = [2.2, ContrastEnlarge, ContrastLevels];
+wbsigma = 1.1;
+rgsigma = 1.1;
+ybsigma = 1.1;
+params(1, :) = [wbsigma, ContrastEnlarge, ContrastLevels];
+params(2, :) = [rgsigma, ContrastEnlarge, ContrastLevels];
+params(3, :) = [ybsigma, ContrastEnlarge, ContrastLevels];
 
 LevelEdge = ones(rows, cols, chns, nangles);
 for i = nlevels:-1:1
@@ -36,15 +32,17 @@ end
 
 lsnr = LocalSnr(OpponentImage(:, :, 1));
 
-ExtraDimensions = [3, 4, 5];
-ExtraPoolings = {'max', 'max', 'max'};
-for i = 1:length(ExtraDimensions)
-  CurrentDimension = ExtraDimensions(i);
-  if strcmpi(ExtraPoolings{i}, 'sum')
+DimOri = {3, 'max'};
+DimLev = {4, 'max'};
+DimAng = {5, 'max'};
+ExtraDimensions = {DimOri, DimLev, DimAng};
+for i = 1:numel(ExtraDimensions)
+  CurrentDimension = ExtraDimensions{i}{1};
+  if strcmpi(ExtraDimensions{i}{2}, 'sum')
     EdgeImageResponse = sum(EdgeImageResponse, CurrentDimension);
-  elseif strcmpi(ExtraPoolings{i}, 'max')
+  elseif strcmpi(ExtraDimensions{i}{2}, 'max')
     EdgeImageResponse = max(EdgeImageResponse, [], CurrentDimension);
-  elseif strcmpi(ExtraPoolings{i}, 'both')
+  elseif strcmpi(ExtraDimensions{i}{2}, 'both')
     EdgeImageResponseSum = sum(EdgeImageResponse, CurrentDimension);
     EdgeImageResponseMax = max(EdgeImageResponse, [], CurrentDimension);
     EdgeImageResponse = EdgeImageResponseSum;
@@ -67,9 +65,8 @@ EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
 % orientation(orientation < 0) = orientation(orientation < 0) + pi;
 % EdgeImageResponse = NonMaxChannel(EdgeImageResponse, orientation);
 
-% mask out 1-pixel border where nonmax suppression fails
-EdgeImageResponse([1, end], :) = 0;
-EdgeImageResponse(:, [1, end]) = 0;
+% EdgeImageResponse([1, end], :) = 0;
+% EdgeImageResponse(:, [1, end]) = 0;
 
 end
 
