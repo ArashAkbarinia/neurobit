@@ -9,6 +9,10 @@ function opp_img = rgb2opponent(img, gamma, srgb_flag)
 %   gamma: gamma value for gamma correction
 %   srgb_flag: 0 if img is rgb; 1 if img is srgb
 
+if nargin < 3
+  srgb_flag = false;
+end
+
 img = double(img);
 
 % normalise RGB values if necessary:
