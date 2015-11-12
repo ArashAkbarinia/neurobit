@@ -1,13 +1,13 @@
-function rfresponse = ContrastDependantGaussianGradient(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas, LevelEdge)
+function rfresponse = ContrastDependantGaussianGradient(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas, LevelEdge, colch)
 %ContrastDependantGaussian Summary of this function goes here
 %   Detailed explanation goes here
 
 % rfresponse = XYSeparate(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas);
-rfresponse = XYTogether(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas, LevelEdge);
+rfresponse = XYTogether(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas, LevelEdge, colch);
 
 end
 
-function rfresponse = XYTogether(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas, LevelEdge)
+function rfresponse = XYTogether(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels, thetas, LevelEdge, colch)
 
 [rows1, cols1, ~] = size(InputImage);
 [rows2, cols2, ~] = size(LevelEdge);
@@ -58,10 +58,19 @@ for t = 1:nThetas
     lambdaxi = sigmas(i);
     lambdayi = lambdaxi;
     
-    sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
-    soresponse = imfilter(InputImage, sorf, 'replicate');
+    if colch ~= 1
+      sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
+      soresponse = imfilter(InputImage, sorf, 'replicate');
+    else
+      sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
+      soresponse = imfilter(InputImage, sorf, 'replicate');
+    end
     
-    dorf = Gaussian2Gradient1(sorf, theta);
+    if colch ~= 1
+      dorf = Gaussian2Gradient1(GaussianFilter2(1 * lambdaxi, 1 * lambdayi, 0, 0, theta), theta);
+    else
+      dorf = Gaussian2Gradient1(GaussianFilter2(1 * lambdaxi, 1 * lambdayi, 0, 0, theta), theta);
+    end
     doresponse = imfilter(soresponse, dorf, 'symmetric');
     rfresponset(ContrastLevelsIm == i) = doresponse(ContrastLevelsIm == i);
     rfresponse(:, :, t) = rfresponset;
@@ -69,7 +78,10 @@ for t = 1:nThetas
   
 end
 
-rfresponse = imresize(rfresponse, [rows2, cols2]);
+rfresponse = abs(imresize(rfresponse, [rows2, cols2]));
+
+rfresponse = rfresponse ./ max(rfresponse(:));
+% rfresponse = MatChansMulK(rfresponse, 1 ./ max(max(rfresponse)));
 
 end
 

@@ -9,18 +9,20 @@ else
   OpponentImage = InputImage;
 end
 
-nlevels = 1;
+nlevels = 3;
 nangles = 8;
 EdgeImageResponse = zeros(rows, cols, chns, nlevels, nangles);
 
+wbContrastEnlarge = 1;
+wbContrastLevels = 1;
 ContrastEnlarge = 1;
 ContrastLevels = 1;
-wbsigma = 1.1;
-rgsigma = 1.1;
-ybsigma = 1.1;
-params(1, :) = [wbsigma, ContrastEnlarge, ContrastLevels];
-params(2, :) = [rgsigma, ContrastEnlarge, ContrastLevels];
-params(3, :) = [ybsigma, ContrastEnlarge, ContrastLevels];
+wbSigma = 1.1;
+rgSigma = 1.6;
+ybSigma = 1.6;
+params(1, :) = [wbSigma, wbContrastEnlarge, wbContrastLevels];
+params(2, :) = [rgSigma, ContrastEnlarge, ContrastLevels];
+params(3, :) = [ybSigma, ContrastEnlarge, ContrastLevels];
 
 LevelEdge = ones(rows, cols, chns, nangles);
 for i = nlevels:-1:1
@@ -30,18 +32,28 @@ for i = nlevels:-1:1
   EdgeImageResponse(:, :, :, i, :) = LevelEdge;
 end
 
-lsnr = LocalSnr(OpponentImage(:, :, 1));
+lsnr = LocalSnr(InputImage);
 
-DimOri = {3, 'max'};
-DimLev = {4, 'max'};
+DimChn = {3, 'max'};
+DimLev = {4, 'sum'};
 DimAng = {5, 'max'};
-ExtraDimensions = {DimOri, DimLev, DimAng};
+ExtraDimensions = {DimLev, DimAng, DimChn};
+SelectedOrientations = [];
+FinalOrientations = zeros(rows, cols);
 for i = 1:numel(ExtraDimensions)
   CurrentDimension = ExtraDimensions{i}{1};
   if strcmpi(ExtraDimensions{i}{2}, 'sum')
     EdgeImageResponse = sum(EdgeImageResponse, CurrentDimension);
   elseif strcmpi(ExtraDimensions{i}{2}, 'max')
-    EdgeImageResponse = max(EdgeImageResponse, [], CurrentDimension);
+    [EdgeImageResponse, MaxInds] = max(EdgeImageResponse, [], CurrentDimension);
+    if CurrentDimension == 5
+      SelectedOrientations = MaxInds;
+    elseif ~isempty(SelectedOrientations)
+      for c = 1:max(MaxInds(:))
+        corien = SelectedOrientations(:, :, c);
+        FinalOrientations(MaxInds == c) = corien(MaxInds == c);
+      end
+    end
   elseif strcmpi(ExtraDimensions{i}{2}, 'both')
     EdgeImageResponseSum = sum(EdgeImageResponse, CurrentDimension);
     EdgeImageResponseMax = max(EdgeImageResponse, [], CurrentDimension);
@@ -50,7 +62,7 @@ for i = 1:numel(ExtraDimensions)
     for c = 1:size(EdgeImageResponse, 3)
       for l = 1:size(EdgeImageResponse, 4)
         for a = 1:size(EdgeImageResponse, 5)
-          UseMaxPixels(:, :, c, l, a) = reshape(lsnr < 1.0, rows, cols, 1, 1, 1);
+          UseMaxPixels(:, :, c, l, a) = reshape(lsnr(:, :, c) < mean2(lsnr(:, :, c)), rows, cols, 1, 1, 1);
         end
       end
     end
@@ -58,15 +70,26 @@ for i = 1:numel(ExtraDimensions)
   end
 end
 
+UseSparsity = false;
+UseNonMax = true;
+
+% EdgeImageResponse = log2(EdgeImageResponse);
 EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
 
-% [~, orientation] = imgradient(EdgeImageResponse);
-% orientation = deg2rad(orientation);
-% orientation(orientation < 0) = orientation(orientation < 0) + pi;
-% EdgeImageResponse = NonMaxChannel(EdgeImageResponse, orientation);
+if UseSparsity
+  SPrg = SparIndex(EdgeImageResponse, 5);
+  EdgeImageResponse = EdgeImageResponse .* SPrg;
+  EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
+end
 
-% EdgeImageResponse([1, end], :) = 0;
-% EdgeImageResponse(:, [1, end]) = 0;
+if UseNonMax
+  FinalOrientations = (FinalOrientations - 1) * pi / nangles;
+  FinalOrientations = mod(FinalOrientations + pi / 2, pi);
+  EdgeImageResponse = NonMaxChannel(EdgeImageResponse, FinalOrientations);
+  EdgeImageResponse([1, end], :) = 0;
+  EdgeImageResponse(:, [1, end]) = 0;
+  EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
+end
 
 end
 
@@ -86,12 +109,20 @@ function OutEdges = GaussianGradientEdges(InputImage, params, LevelEdge)
 
 OutEdges = zeros(w, h, d, nangles);
 for i = 1:d
-  OutEdges(:, :, i, :) = GaussianGradientChannel(InputImage(:, :, i), params(i, :), LevelEdge(:, :, i, :));
+  OutEdges(:, :, i, :) = GaussianGradientChannel(InputImage(:, :, i), params(i, :), LevelEdge(:, :, i, :), i);
 end
+
+% arash = OutEdges(:, :, 1, :) - OutEdges(:, :, 2, :);
+% for i = 2:3
+%   OutEdges(:, :, i, :) = OutEdges(:, :, i, :) + OutEdges(:, :, 1, :);
+% %   OutEdges(:, :, i, :) = OutEdges(:, :, i, :) ./ max(max(max(OutEdges(:, :, i, :))));
+% end
+% 
+% OutEdges(:, :, 1, :) = max(arash, 0);
 
 end
 
-function OutEdges = GaussianGradientChannel(isignal, params, LevelEdge)
+function OutEdges = GaussianGradientChannel(isignal, params, LevelEdge, colch)
 
 [rows, cols, ~, nangles] = size(LevelEdge);
 thetas = zeros(1, nangles);
@@ -100,6 +131,6 @@ for i = 1:nangles
 end
 
 LevelEdge = reshape(LevelEdge, rows, cols, nangles);
-OutEdges = abs(ContrastDependantGaussianGradient(isignal, params(1), params(2), params(3), thetas, LevelEdge));
+OutEdges = abs(ContrastDependantGaussianGradient(isignal, params(1), params(2), params(3), thetas, LevelEdge, colch));
 
 end
