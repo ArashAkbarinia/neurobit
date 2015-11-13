@@ -3,6 +3,12 @@ function EdgeImageResponse = SurroundModulationEdgeDetector(InputImage)
 % convert to opponent image
 if size(InputImage, 3) == 3
   OpponentImage = double(applycform(uint8(InputImage .* 255), makecform('srgb2lab'))) ./ 255;
+
+%   OpponentImage(:, :, 1) = rgb2gray(InputImage);
+%   OpponentImage(:, :, 1) = +1.0 .* InputImage(:, :, 1) - 0.7 .* InputImage(:, :, 2);
+%   OpponentImage(:, :, 2) = -0.7 .* InputImage(:, :, 1) + 1.0 .* InputImage(:, :, 2);
+%   OpponentImage(:, :, 3) = +1.0 .* InputImage(:, :, 3) - 0.7 .* mean(InputImage(:, :, 1:2), 3);
+%   OpponentImage(:, :, 4) = -0.7 .* InputImage(:, :, 3) + 1.0 .* mean(InputImage(:, :, 1:2), 3);
   
 %   OpponentImage(:, :, 1) = sum(InputImage, 3);
 %   OpponentImage(:, :, 2:4) = InputImage;
@@ -18,31 +24,26 @@ end
 
 [rows, cols, chns] = size(OpponentChannels);
 
-nlevels = 3;
+nlevels = 4;
 nangles = 8;
 EdgeImageResponse = zeros(rows, cols, chns, nlevels, nangles);
 
-ContrastEnlarge = 1;
-ContrastLevels = 1;
-wbSigma = 1.6;
-rgSigma = 1.6;
-ybSigma = 1.6;
-params(1, :) = [wbSigma, ContrastEnlarge, ContrastEnlarge];
-params(2, :) = [rgSigma, ContrastEnlarge, ContrastLevels];
-params(3, :) = [ybSigma, ContrastEnlarge, ContrastLevels];
+wbSigma = 1.5;
+rgSigma = 1.5;
+ybSigma = 1.5;
+params(1, :) = [wbSigma];
+params(2, :) = [rgSigma];
+params(3, :) = [ybSigma];
 for i = 4:chns
-  params(i, :) = [ybSigma, ContrastEnlarge, ContrastLevels];
+  params(i, :) = params(3, :);
 end
 
 LevelEdge = ones(rows, cols, chns, nangles);
-for i = nlevels:-1:1
-  iimage = imresize(OpponentChannels, 1 / (1.6 ^ i), 'bicubic');
+for i = 1:nlevels
+  iimage = imresize(OpponentChannels, 1 / (1.6 ^ (i - 1)), 'bicubic');
   iiedge = GaussianGradientEdges(iimage, params, LevelEdge);
-  LevelEdge = abs(iiedge);
-  EdgeImageResponse(:, :, :, i, :) = LevelEdge;
+  EdgeImageResponse(:, :, :, i, :) = abs(iiedge);
 end
-
-lsnr = LocalSnr(InputImage);
 
 DimChn = {3, 'max'};
 DimLev = {4, 'sum'};
@@ -52,11 +53,19 @@ SelectedOrientations = [];
 FinalOrientations = zeros(rows, cols);
 for i = 1:numel(ExtraDimensions)
   CurrentDimension = ExtraDimensions{i}{1};
+  
   if strcmpi(ExtraDimensions{i}{2}, 'sum')
     EdgeImageResponse = sum(EdgeImageResponse, CurrentDimension);
+    
   elseif strcmpi(ExtraDimensions{i}{2}, 'max')
     StdImg = std(EdgeImageResponse, [], CurrentDimension);
+    
+    if CurrentDimension == 3
+%       EdgeImageResponse = SparsityChannel(EdgeImageResponse, 5);
+    end
+    
     [EdgeImageResponse, MaxInds] = max(EdgeImageResponse, [], CurrentDimension);
+    
     if CurrentDimension == 5
       EdgeImageResponse = EdgeImageResponse .* StdImg;
       SelectedOrientations = MaxInds;
@@ -66,19 +75,6 @@ for i = 1:numel(ExtraDimensions)
         FinalOrientations(MaxInds == c) = corien(MaxInds == c);
       end
     end
-  elseif strcmpi(ExtraDimensions{i}{2}, 'both')
-    EdgeImageResponseSum = sum(EdgeImageResponse, CurrentDimension);
-    EdgeImageResponseMax = max(EdgeImageResponse, [], CurrentDimension);
-    EdgeImageResponse = EdgeImageResponseSum;
-    UseMaxPixels = true(size(EdgeImageResponse));
-    for c = 1:size(EdgeImageResponse, 3)
-      for l = 1:size(EdgeImageResponse, 4)
-        for a = 1:size(EdgeImageResponse, 5)
-          UseMaxPixels(:, :, c, l, a) = reshape(lsnr(:, :, c) < mean2(lsnr(:, :, c)), rows, cols, 1, 1, 1);
-        end
-      end
-    end
-    EdgeImageResponse(UseMaxPixels) = EdgeImageResponseMax(UseMaxPixels);
   end
 end
 
@@ -86,6 +82,7 @@ UseSparsity = false;
 UseNonMax = true;
 
 % EdgeImageResponse = log2(EdgeImageResponse);
+% EdgeImageResponse = sqrt(EdgeImageResponse);
 EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
 
 if UseSparsity
@@ -117,7 +114,7 @@ function d = NonMaxChannel(d, t)
 
 for i = 1:size(d, 3)
   d(:, :, i) = d(:, :, i) ./ max(max(d(:, :, i)));
-  d(:, :, i) = nonmax(d(:, :, i), t);
+  d(:, :, i) = nonmax(d(:, :, i), t(:, :, i));
   d(:, :, i) = max(0, min(1, d(:, :, i)));
 end
 
@@ -143,6 +140,39 @@ for i = 1:nangles
 end
 
 LevelEdge = reshape(LevelEdge, rows, cols, nangles);
-OutEdges = abs(ContrastDependantGaussianGradient(isignal, params(1), params(2), params(3), thetas, LevelEdge, colch));
+OutEdges = abs(gedges(isignal, params(1), thetas, LevelEdge, colch));
+
+end
+
+function rfresponse = gedges(InputImage, StartingSigma, thetas, LevelEdge, colch)
+
+[rows1, cols1, ~] = size(InputImage);
+[rows2, cols2, ~] = size(LevelEdge);
+
+sigmas = StartingSigma;
+
+nThetas = length(thetas);
+rfresponse = zeros(rows1, cols1, nThetas);
+lambdaxi = sigmas;
+lambdayi = sigmas;
+for t = 1:nThetas
+  theta = thetas(t);
+  if colch ~= 1
+    sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
+    soresponse = imfilter(InputImage, sorf, 'replicate');
+    dorf = Gaussian2Gradient1(sorf, theta);
+  else
+    sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
+    soresponse = imfilter(InputImage, sorf, 'replicate');
+    dorf = Gaussian2Gradient1(sorf, theta);
+  end
+  
+  doresponse = imfilter(soresponse, dorf, 'symmetric');
+  rfresponse(:, :, t) = doresponse;
+end
+
+rfresponse = abs(imresize(rfresponse, [rows2, cols2]));
+
+rfresponse = rfresponse ./ max(rfresponse(:));
 
 end
