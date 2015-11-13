@@ -62,7 +62,7 @@ for t = 1:nThetas
       sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
       soresponse = imfilter(InputImage, sorf, 'replicate');
     else
-      sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
+      sorf = GaussianFilter2(2 * lambdaxi, 2 * lambdayi, 0, 0, theta);
       soresponse = imfilter(InputImage, sorf, 'replicate');
     end
     
