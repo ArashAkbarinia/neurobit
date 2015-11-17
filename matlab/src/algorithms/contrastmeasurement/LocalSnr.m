@@ -27,7 +27,7 @@ if length(CentreSize) == 1
   CentreSize(1, 2) = CentreSize(1, 1);
 end
 if nargin < 4
-  cliplstd = false;
+  cliplstd = true;
 end
 
 hc = fspecial('average', WindowSize);
@@ -41,7 +41,11 @@ dbcons = 1;
 lsnr = dbcons .* log10(MeanCentre ./ lstd);
 
 if cliplstd
-  lsnr(lstd < 1e-4) = dbcons;
+  for i = 1:size(InputImage, 3)
+    CurrentChannel = lsnr(:, :, i);
+    CurrentChannel(lstd(:, :, i) < 1e-4) = dbcons;
+    lsnr(:, :, i) = CurrentChannel;
+  end
 end
 
 end
