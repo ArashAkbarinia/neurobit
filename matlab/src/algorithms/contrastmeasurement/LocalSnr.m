@@ -15,7 +15,7 @@ function lsnr = LocalSnr(InputImage, WindowSize, CentreSize, cliplstd)
 InputImage = double(InputImage);
 
 if nargin < 2 || isempty(WindowSize)
-  WindowSize = 5;
+  WindowSize = 3;
 end
 if length(WindowSize) == 1
   WindowSize(1, 2) = WindowSize(1, 1);
@@ -46,8 +46,7 @@ if cliplstd
     CurrentChannel(lstd(:, :, i) < 1e-4) = max(~isinf(CurrentChannel(:)));
     lsnr(:, :, i) = CurrentChannel;
   end
+  lsnr = max(lsnr, 0);
 end
-
-lsnr = max(lsnr, 0);
 
 end
