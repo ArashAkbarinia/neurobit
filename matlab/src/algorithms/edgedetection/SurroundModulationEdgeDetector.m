@@ -158,24 +158,30 @@ OutEdges = abs(gedges(isignal, params(1), thetas, colch, clevel));
 
 end
 
-function rfresponse = gedges(InputImage, StartingSigma, thetas, colch, clevel)
+function rfresponse = gedges(InputImage, sigma, thetas, colch, clevel)
 
 [rows1, cols1, ~] = size(InputImage);
+
+gresize = GaussianFilter2(0.3 * clevel);
 
 % consider two points here
 % 1. the Gaussian should happen before or after the resizing?
 % 2. should we apply the contrast dependant smoothing?
-InputImage = imfilter(InputImage, GaussianFilter2(0.5 * clevel), 'replicate');
+InputImage = imfilter(InputImage, gresize, 'replicate');
 InputImage = imresize(InputImage, 1 / (2.0 ^ (clevel - 1)));
+
+if colch ~= 1
+  lsnr = LocalSnr(InputImage, 3);
+else
+  lsnr = 1;
+end
 
 [rows2, cols2, ~] = size(InputImage);
 
-sigmas = StartingSigma;
-
 nThetas = length(thetas);
 rfresponse = zeros(rows2, cols2, nThetas);
-lambdaxi = sigmas;
-lambdayi = sigmas;
+lambdaxi = sigma;
+lambdayi = sigma;
 for t = 1:nThetas
   theta = thetas(t);
   
@@ -183,21 +189,22 @@ for t = 1:nThetas
     sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
     soresponse = imfilter(InputImage, sorf, 'replicate');
     dorf = Gaussian2Gradient1(sorf, theta);
+    doresponse = imfilter(soresponse, dorf, 'symmetric');
   else
     sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
     soresponse = imfilter(InputImage, sorf, 'replicate');
     dorf = Gaussian2Gradient1(sorf, theta);
+    doresponse = imfilter(soresponse, dorf, 'symmetric');
   end
   
-  doresponse = imfilter(soresponse, dorf, 'symmetric');
-  rfresponse(:, :, t) = doresponse;
+  rfresponse(:, :, t) = doresponse .* lsnr;
 end
 
 % consider two points here
 % 1. the Gaussian should happen before or after the resizing?
 % 2. should we apply the contrast dependant smoothing?
 rfresponse = abs(imresize(rfresponse, [rows1, cols1]));
-rfresponse = imfilter(rfresponse, GaussianFilter2(0.5 * clevel), 'replicate');
+rfresponse = imfilter(rfresponse, gresize, 'replicate');
 
 rfresponse = rfresponse ./ max(rfresponse(:));
 
