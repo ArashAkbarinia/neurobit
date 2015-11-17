@@ -43,7 +43,7 @@ lsnr = dbcons .* log10(MeanCentre ./ lstd);
 if cliplstd
   for i = 1:size(InputImage, 3)
     CurrentChannel = lsnr(:, :, i);
-    CurrentChannel(lstd(:, :, i) < 1e-4) = dbcons;
+    CurrentChannel(lstd(:, :, i) < 1e-4) = max(~isinf(CurrentChannel(:)));
     lsnr(:, :, i) = CurrentChannel;
   end
 end
