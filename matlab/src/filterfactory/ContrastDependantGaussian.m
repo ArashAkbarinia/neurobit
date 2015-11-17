@@ -2,14 +2,24 @@ function rfresponse = ContrastDependantGaussian(InputImage, StartingSigma, Contr
 %ContrastDependantGaussian Summary of this function goes here
 %   Detailed explanation goes here
 
-[rows, cols, ~] = size(InputImage);
-
 if nargin < 3
   ContrastEnlarge = 2;
 end
 if nargin < 4
   nContrastLevels = 4;
 end
+
+[rows, cols, chns] = size(InputImage);
+rfresponse = zeros(rows, cols, chns);
+for i = 1:chns
+  rfresponse(:, :, i) = ContrastDependantGaussianChannel(InputImage(:, :, i), StartingSigma, ContrastEnlarge, nContrastLevels);
+end
+
+end
+
+function rfresponse = ContrastDependantGaussianChannel(InputImage, StartingSigma, ContrastEnlarge, nContrastLevels)
+
+[rows, cols, ~] = size(InputImage);
 
 ContrastImx = GetContrastImage(InputImage, [1, 17]);
 ContrastImy = GetContrastImage(InputImage, [17, 1]);
