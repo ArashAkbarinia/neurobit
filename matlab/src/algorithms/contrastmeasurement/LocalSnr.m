@@ -48,4 +48,6 @@ if cliplstd
   end
 end
 
+lsnr = max(lsnr, 0);
+
 end
