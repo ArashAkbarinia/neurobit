@@ -15,7 +15,7 @@ function lsnr = LocalSnr(InputImage, WindowSize, CentreSize, cliplstd)
 InputImage = double(InputImage);
 
 if nargin < 2 || isempty(WindowSize)
-  WindowSize = 3;
+  WindowSize = 3 * 5 * 3;
 end
 if length(WindowSize) == 1
   WindowSize(1, 2) = WindowSize(1, 1);
@@ -38,12 +38,14 @@ MeanStdv = imfilter(stdv, hc, 'replicate');
 lstd = sqrt(MeanStdv);
 
 dbcons = 1;
-lsnr = dbcons .* log10(MeanCentre ./ lstd);
+% we consider the signal as the Gaussian blurred version of the image
+signal = imfilter(InputImage, GaussianFilter2(WindowSize(1) / 30), 'replicate');
+lsnr = dbcons .* log10(signal ./ lstd);
 
 if cliplstd
   for i = 1:size(InputImage, 3)
     CurrentChannel = lsnr(:, :, i);
-    CurrentChannel(lstd(:, :, i) < 1e-4) = max(CurrentChannel(~isinf(CurrentChannel)));
+    CurrentChannel(isinf(CurrentChannel)) = max(CurrentChannel(~isinf(CurrentChannel)));
     lsnr(:, :, i) = CurrentChannel;
   end
   lsnr = max(lsnr, 0);
