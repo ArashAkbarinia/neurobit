@@ -52,9 +52,6 @@ if nargin < 3
   UseNonMax = true;
 end
 
-% EdgeImageResponse = log2(EdgeImageResponse);
-% EdgeImageResponse = sqrt(EdgeImageResponse);
-% EdgeImageResponse = imfilter(EdgeImageResponse, GaussianFilter2(3.0), 'replicate');
 EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
 
 if UseSparity
@@ -74,45 +71,95 @@ end
 
 function [EdgeImageResponse, FinalOrientations] = CombineAll(EdgeImageResponse)
 
-[rows, cols, ~] = size(EdgeImageResponse);
-
 DimChn = {3, 'max'};
 DimLev = {4, 'sum'};
 DimAng = {5, 'max'};
 ExtraDimensions = {DimLev, DimAng, DimChn};
-SelectedOrientations = [];
-FinalOrientations = zeros(rows, cols);
+FinalOrientations = [];
+
 for i = 1:numel(ExtraDimensions)
   CurrentDimension = ExtraDimensions{i}{1};
   
-  if strcmpi(ExtraDimensions{i}{2}, 'sum')
-    EdgeImageResponse = sum(EdgeImageResponse, CurrentDimension);
-    
-  elseif strcmpi(ExtraDimensions{i}{2}, 'max')
-    StdImg = std(EdgeImageResponse, [], CurrentDimension);
-    
-    if CurrentDimension == 3
-      %       EdgeImageResponse = SparsityChannel(EdgeImageResponse, 5);
-      %       SumAllChennels = sum(EdgeImageResponse, CurrentDimension);
-    end
-    
-    [EdgeImageResponse, MaxInds] = max(EdgeImageResponse, [], CurrentDimension);
-    
-    if CurrentDimension == 3
-      %       EdgeImageResponse = EdgeImageResponse + SumAllChennels;
-    end
-    
-    if CurrentDimension == 5
-      EdgeImageResponse = EdgeImageResponse .* StdImg;
-      SelectedOrientations = MaxInds;
-    elseif ~isempty(SelectedOrientations)
-      for c = 1:max(MaxInds(:))
-        corien = SelectedOrientations(:, :, c);
-        FinalOrientations(MaxInds == c) = corien(MaxInds == c);
-      end
+  switch CurrentDimension
+    case 3
+      [EdgeImageResponse, FinalOrientations] = CollapseChannels(EdgeImageResponse, FinalOrientations);
+    case 4
+      [EdgeImageResponse, FinalOrientations] = CollapsePlanes(EdgeImageResponse, FinalOrientations);
+    case 5
+      [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, FinalOrientations);
+  end
+  
+end
+
+end
+
+function [EdgeImageResponse, FinalOrientations] = CollapseChannels(EdgeImageResponse, SelectedOrientations)
+
+CurrentDimension = 3;
+
+[rows, cols, ~] = size(EdgeImageResponse);
+FinalOrientations = zeros(rows, cols);
+
+%       EdgeImageResponse = SparsityChannel(EdgeImageResponse, 5);
+lsnr = ExtraDimensionsSnr(EdgeImageResponse, CurrentDimension);
+SumEdgeResponse = sum(EdgeImageResponse, CurrentDimension);
+
+[EdgeImageResponse, MaxInds] = max(EdgeImageResponse, [], CurrentDimension);
+
+EdgeImageResponse = SelectMaxOrSum(EdgeImageResponse, SumEdgeResponse, lsnr);
+
+for c = 1:max(MaxInds(:))
+  corien = SelectedOrientations(:, :, c);
+  FinalOrientations(MaxInds == c) = corien(MaxInds == c);
+end
+
+end
+
+function [EdgeImageResponse, FinalOrientations] = CollapsePlanes(EdgeImageResponse, SelectedOrientations)
+
+CurrentDimension = 4;
+
+EdgeImageResponse = sum(EdgeImageResponse, CurrentDimension);
+FinalOrientations = [];
+
+end
+
+function [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, SelectedOrientations)
+
+CurrentDimension = 5;
+
+StdImg = std(EdgeImageResponse, [], CurrentDimension);
+
+[EdgeImageResponse, FinalOrientations] = max(EdgeImageResponse, [], CurrentDimension);
+
+EdgeImageResponse = EdgeImageResponse .* StdImg;
+
+end
+
+function EdgeImageResponse = SelectMaxOrSum(MaxEdgeResponse, SumEdgeResponse, lsnr)
+
+EdgeImageResponse = MaxEdgeResponse;
+thr = mean(lsnr(:)) + -2 .* std(lsnr(:));
+
+EdgeImageResponse(lsnr > thr) = SumEdgeResponse(lsnr > thr);
+
+end
+
+function lsnr = ExtraDimensionsSnr(EdgeImageResponse, CurrentDimension)
+
+StdImg = std(EdgeImageResponse, [], CurrentDimension);
+MeanImg = mean(EdgeImageResponse, CurrentDimension);
+lsnr = 1 .* log10(MeanImg ./ StdImg);
+for c = 1:size(lsnr, 3)
+  for l = 1:size(lsnr, 4)
+    for o = 1:size(lsnr, 5)
+      CurrentChannel = lsnr(:, :, c, l, o);
+      CurrentChannel(StdImg(:, :, c, l, o) < 1e-4) = max(~isinf(CurrentChannel(:)));
+      lsnr(:, :, c, l, o) = CurrentChannel;
     end
   end
 end
+lsnr = max(lsnr, 0);
 
 end
 
