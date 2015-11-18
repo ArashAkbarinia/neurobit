@@ -43,7 +43,25 @@ for i = 1:nlevels
   EdgeImageResponse(:, :, :, i, :) = abs(iiedge);
 end
 
-[EdgeImageResponse, FinalOrientations] = CombineAll(EdgeImageResponse);
+DimChn = {3, 'max'};
+DimLev = {4, 'sum'};
+DimAng = {5, 'max'};
+ExtraDimensions = {DimLev, DimAng, DimChn};
+FinalOrientations = [];
+
+for i = 1:numel(ExtraDimensions)
+  CurrentDimension = ExtraDimensions{i}{1};
+  
+  switch CurrentDimension
+    case 3
+      [EdgeImageResponse, FinalOrientations] = CollapseChannels(EdgeImageResponse, FinalOrientations);
+    case 4
+      [EdgeImageResponse, FinalOrientations] = CollapsePlanes(EdgeImageResponse, FinalOrientations);
+    case 5
+      [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, FinalOrientations);
+  end
+  
+end
 
 if nargin < 2
   UseSparity = false;
@@ -69,30 +87,6 @@ end
 
 end
 
-function [EdgeImageResponse, FinalOrientations] = CombineAll(EdgeImageResponse)
-
-DimChn = {3, 'max'};
-DimLev = {4, 'sum'};
-DimAng = {5, 'max'};
-ExtraDimensions = {DimLev, DimAng, DimChn};
-FinalOrientations = [];
-
-for i = 1:numel(ExtraDimensions)
-  CurrentDimension = ExtraDimensions{i}{1};
-  
-  switch CurrentDimension
-    case 3
-      [EdgeImageResponse, FinalOrientations] = CollapseChannels(EdgeImageResponse, FinalOrientations);
-    case 4
-      [EdgeImageResponse, FinalOrientations] = CollapsePlanes(EdgeImageResponse, FinalOrientations);
-    case 5
-      [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, FinalOrientations);
-  end
-  
-end
-
-end
-
 function [EdgeImageResponse, FinalOrientations] = CollapseChannels(EdgeImageResponse, SelectedOrientations)
 
 CurrentDimension = 3;
@@ -100,7 +94,6 @@ CurrentDimension = 3;
 [rows, cols, ~] = size(EdgeImageResponse);
 FinalOrientations = zeros(rows, cols);
 
-%       EdgeImageResponse = SparsityChannel(EdgeImageResponse, 5);
 lsnr = ExtraDimensionsSnr(EdgeImageResponse, CurrentDimension);
 SumEdgeResponse = sum(EdgeImageResponse, CurrentDimension);
 
@@ -154,7 +147,7 @@ for c = 1:size(lsnr, 3)
   for l = 1:size(lsnr, 4)
     for o = 1:size(lsnr, 5)
       CurrentChannel = lsnr(:, :, c, l, o);
-      CurrentChannel(StdImg(:, :, c, l, o) < 1e-4) = max(~isinf(CurrentChannel(:)));
+      CurrentChannel(isinf(CurrentChannel)) = max(CurrentChannel(~isinf(CurrentChannel)));
       lsnr(:, :, c, l, o) = CurrentChannel;
     end
   end
@@ -217,8 +210,9 @@ gresize = GaussianFilter2(0.3 * clevel);
 InputImage = imfilter(InputImage, gresize, 'replicate');
 InputImage = imresize(InputImage, 1 / (2.0 ^ (clevel - 1)));
 
+% consider to calculate the local SNR here LocalSnr(InputImage);
 if colch ~= 1
-  lsnr = LocalSnr(InputImage);
+  lsnr = 1;
 else
   lsnr = 1;
 end
