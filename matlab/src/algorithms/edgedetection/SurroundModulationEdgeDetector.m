@@ -38,19 +38,17 @@ for i = 4:chns
   params(i, :) = params(3, :);
 end
 
+% calculate the Gaussian gradients
 for i = 1:nlevels
   iiedge = GaussianGradientEdges(OpponentImage, params, nangles, i);
   EdgeImageResponse(:, :, :, i, :) = abs(iiedge);
 end
 
-DimChn = {3, 'max'};
-DimLev = {4, 'sum'};
-DimAng = {5, 'max'};
-ExtraDimensions = {DimLev, DimAng, DimChn};
+ExtraDimensions = [4, 5, 3];
 FinalOrientations = [];
 
 for i = 1:numel(ExtraDimensions)
-  CurrentDimension = ExtraDimensions{i}{1};
+  CurrentDimension = ExtraDimensions(i);
   
   switch CurrentDimension
     case 3
@@ -94,16 +92,19 @@ CurrentDimension = 3;
 [rows, cols, ~] = size(EdgeImageResponse);
 FinalOrientations = zeros(rows, cols);
 
-lsnr = ExtraDimensionsSnr(EdgeImageResponse, CurrentDimension);
+% lsnr = ExtraDimensionsSnr(EdgeImageResponse, CurrentDimension);
 SumEdgeResponse = sum(EdgeImageResponse, CurrentDimension);
 
-[EdgeImageResponse, MaxInds] = max(EdgeImageResponse, [], CurrentDimension);
+[~, MaxInds] = max(EdgeImageResponse, [], CurrentDimension);
 
-EdgeImageResponse = SelectMaxOrSum(EdgeImageResponse, SumEdgeResponse, lsnr);
+% EdgeImageResponse = SelectMaxOrSum(EdgeImageResponse, SumEdgeResponse, lsnr);
+EdgeImageResponse = SumEdgeResponse;
 
-for c = 1:max(MaxInds(:))
-  corien = SelectedOrientations(:, :, c);
-  FinalOrientations(MaxInds == c) = corien(MaxInds == c);
+if ~isempty(SelectedOrientations)
+  for c = 1:max(MaxInds(:))
+    corien = SelectedOrientations(:, :, c);
+    FinalOrientations(MaxInds == c) = corien(MaxInds == c);
+  end
 end
 
 end
