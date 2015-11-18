@@ -1,4 +1,27 @@
-function [dtmap, luminance] = ColourConstancySurroundModulation(InputImage, plotme, method)
+function [dtmap, luminance] = ColourConstancySurroundModulation(InputImage, plotme, params)
+
+if nargin < 2
+  plotme = 0;
+end
+
+if nargin < 3
+  params = {'arash', 3, 1.5, 2, 5, -0.87, -0.63, 0.95, 0.99, 4, -0.01, 0};
+end
+
+if size(InputImage, 3) == 3
+  [dtmap, luminance] = ColourConstancySurroundModulationChannel(InputImage, plotme, params);
+else
+  % just a silly temporarily solution to have for one channel
+  InputImage(:, :, 2) = InputImage(:, :, 1);
+  InputImage(:, :, 3) = InputImage(:, :, 1);
+  [tmp, luminance] = ColourConstancySurroundModulationChannel(InputImage, plotme, params);
+  
+  dtmap = tmp(:, :, 1);
+end
+
+end
+
+function [dtmap, luminance] = ColourConstancySurroundModulationChannel(InputImage, plotme, params)
 %ColourConstancyOpponency Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -7,7 +30,7 @@ if nargin < 2
 end
 
 if nargin < 3
-  MethodName = 'udog';
+  params = {'arash', 3, 1.5, 2, 5, -0.87, -0.63, 0.95, 0.99, 4, -0.01, 0};
 end
 
 if plotme
@@ -58,7 +81,7 @@ if plotme
   PlotLmsOpponency(InputImage);
 end
 
-doresponse = arash(opponent, method);
+doresponse = arash(opponent, params);
 doresponse = reshape(doresponse, rows * cols, chns);
 dtmap = (do2rgb * doresponse')';
 dtmap = reshape(dtmap, rows, cols, chns);
@@ -424,6 +447,8 @@ if MaxVal < (2 ^ 8)
   nbins = 2 ^ 8;
 elseif MaxVal < (2 ^ 16)
   nbins = 2 ^ 16;
+else
+  return;
 end
 
 if nargin < 2 || isempty(CutoffPercent)
