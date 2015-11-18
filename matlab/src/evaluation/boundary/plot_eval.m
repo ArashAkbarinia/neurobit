@@ -2,7 +2,7 @@ function plot_eval(evalDir,col)
 % plot evaluation results.
 % Pablo Arbelaez <arbelaez@eecs.berkeley.edu>
 
-if nargin<2, col = 'r'; end
+if nargin<2, col = '-mx'; end
 
 fwrite(2,sprintf('\n%s\n',evalDir));
 
