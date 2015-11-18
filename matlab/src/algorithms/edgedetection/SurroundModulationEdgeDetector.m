@@ -218,7 +218,7 @@ InputImage = imfilter(InputImage, gresize, 'replicate');
 InputImage = imresize(InputImage, 1 / (2.0 ^ (clevel - 1)));
 
 if colch ~= 1
-  lsnr = LocalSnr(InputImage, 3);
+  lsnr = LocalSnr(InputImage);
 else
   lsnr = 1;
 end
