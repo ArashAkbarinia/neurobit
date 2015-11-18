@@ -1,13 +1,14 @@
-function plot_eval(evalDir,col)
+function plot_eval(evalDir,col, FigPath)
 % plot evaluation results.
 % Pablo Arbelaez <arbelaez@eecs.berkeley.edu>
 
 if nargin<2, col = '-mx'; end
+if nargin<3, FigPath = 'isoF.fig'; end
 
 fwrite(2,sprintf('\n%s\n',evalDir));
 
 if exist(fullfile(evalDir,'eval_bdry_thr.txt'),'file'),
-    open('isoF.fig');
+    open(FigPath);
     hold on
     prvals = dlmread(fullfile(evalDir,'eval_bdry_thr.txt')); % thresh,r,p,f
     f= prvals(:,2)>=0.01;
