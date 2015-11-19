@@ -1,6 +1,12 @@
 function EdgeImageResponse = SurroundModulationEdgeDetector(InputImage, UseSparity, UseNonMax)
 
-% convert to opponent image
+% input image is from retina
+
+% size of RF in LGN
+LgnSigma = 0.5;
+InputImage = imfilter(InputImage, GaussianFilter2(LgnSigma), 'replicate');
+
+% convert to opponent image this happens in LGN
 if size(InputImage, 3) == 3
   OpponentImage = double(applycform(uint8(InputImage .* 255), makecform('srgb2lab'))) ./ 255;
   
@@ -28,9 +34,11 @@ nlevels = 4;
 nangles = 8;
 EdgeImageResponse = zeros(rows, cols, chns, nlevels, nangles);
 
-wbSigma = 1.5;
-rgSigma = 1.5;
-ybSigma = 1.5;
+% how many times the neurons in V1 are larger than LGN?
+lgn2v1 = 2.7;
+wbSigma = LgnSigma * lgn2v1;
+rgSigma = LgnSigma * lgn2v1;
+ybSigma = LgnSigma * lgn2v1;
 params(1, :) = wbSigma;
 params(2, :) = rgSigma;
 params(3, :) = ybSigma;
@@ -203,7 +211,7 @@ function rfresponse = gedges(InputImage, sigma, thetas, colch, clevel)
 
 [rows1, cols1, ~] = size(InputImage);
 
-gresize = GaussianFilter2(0.3 * clevel);
+gresize = GaussianFilter2(0.3 * (clevel - 1));
 
 % consider two points here
 % 1. the Gaussian should happen before or after the resizing?
@@ -211,7 +219,8 @@ gresize = GaussianFilter2(0.3 * clevel);
 InputImage = imfilter(InputImage, gresize, 'replicate');
 InputImage = imresize(InputImage, 1 / (2.0 ^ (clevel - 1)));
 
-% consider to calculate the local SNR here LocalSnr(InputImage);
+% consider to calculate the local SNR here according to Zhaoping
+% lsnr = LocalSnr(InputImage);
 if colch ~= 1
   lsnr = 1;
 else
@@ -222,21 +231,15 @@ end
 
 nThetas = length(thetas);
 rfresponse = zeros(rows2, cols2, nThetas);
-lambdaxi = sigma;
-lambdayi = sigma;
 for t = 1:nThetas
   theta = thetas(t);
   
   if colch ~= 1
-    sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
-    soresponse = imfilter(InputImage, sorf, 'replicate');
-    dorf = Gaussian2Gradient1(sorf, theta);
-    doresponse = imfilter(soresponse, dorf, 'symmetric');
+    dorf = DivGauss2D(sigma, theta);
+    doresponse = imfilter(InputImage, dorf, 'symmetric');
   else
-    sorf = GaussianFilter2(lambdaxi, lambdayi, 0, 0, theta);
-    soresponse = imfilter(InputImage, sorf, 'replicate');
-    dorf = Gaussian2Gradient1(sorf, theta);
-    doresponse = imfilter(soresponse, dorf, 'symmetric');
+    dorf = DivGauss2D(sigma, theta);
+    doresponse = imfilter(InputImage, dorf, 'symmetric');
   end
   
   rfresponse(:, :, t) = doresponse .* lsnr;
