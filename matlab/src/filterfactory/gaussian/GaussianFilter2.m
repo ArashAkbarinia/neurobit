@@ -20,6 +20,11 @@ if nargin < 2 || isempty(sigmay)
   sigmay = sigmax;
 end
 
+if sigmax == 0 || sigmay == 0
+  h = 1;
+  return;
+end
+
 sizex = CalculateGaussianWidth(sigmax);
 sizey = CalculateGaussianWidth(sigmay);
 
