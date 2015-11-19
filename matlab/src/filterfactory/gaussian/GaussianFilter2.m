@@ -25,8 +25,9 @@ if sigmax == 0 || sigmay == 0
   return;
 end
 
-sizex = CalculateGaussianWidth(sigmax);
-sizey = CalculateGaussianWidth(sigmay);
+MaxSigma = max(sigmax, sigmay);
+sizex = CalculateGaussianWidth(MaxSigma);
+sizey = CalculateGaussianWidth(MaxSigma);
 
 if nargin < 3 || isempty(meanx)
   meanx = 0;
