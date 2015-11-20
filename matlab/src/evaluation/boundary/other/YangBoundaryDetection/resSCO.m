@@ -37,15 +37,17 @@ CBgr = CBgr./max(CBgr(:));
 CBby = CBby./max(CBby(:));
 CByb = CByb./max(CByb(:));
 
-SPrg=SparIndex(CBrg,ws);
-SPgr=SparIndex(CBgr,ws);
-SPby=SparIndex(CBby,ws);
-SPyb=SparIndex(CByb,ws);
-
-CBrg = CBrg.*SPrg;    
-CBgr = CBgr.*SPgr;
-CBby = CBby.*SPby;
-CByb = CByb.*SPyb;
+if ws > 0
+  SPrg=SparIndex(CBrg,ws);
+  SPgr=SparIndex(CBgr,ws);
+  SPby=SparIndex(CBby,ws);
+  SPyb=SparIndex(CByb,ws);
+  
+  CBrg = CBrg.*SPrg;
+  CBgr = CBgr.*SPgr;
+  CBby = CBby.*SPby;
+  CByb = CByb.*SPyb;
+end
 
 Boundary(:,:,1) = CBrg;
 Boundary(:,:,2) = CBgr;
