@@ -1,7 +1,6 @@
-% addpath benchmarks
+function bench_bsds500()
 
-%clear all;close all;clc;
-TestName = 'centre-0.5-10-16'; % -surround-1.0-2-4
+TestName = 'tmp';
 
 doedge = true;
 dothresh = true;
@@ -14,6 +13,7 @@ mkdir(ResultDirectory);
 
 ImageList = dir([ImageDirectory, '/*.jpg']);
 nfiles = length(ImageList);
+
 tic;
 if doedge
   parfor i = 1:nfiles
@@ -23,8 +23,8 @@ if doedge
     CurrentImage = imread(ImagePath);
     CurrentImage = double(CurrentImage) ./ 255;
     
-%     EdgeImage = SCOBoundary(CurrentImage, 1.1);
-    EdgeImage = SCOBoundaryContrast(CurrentImage, 1.1, 8, 5, ImagePath);
+    EdgeImage = SurroundModulationEdgeDetector(CurrentImage);
+%     EdgeImage = SCOBoundary(CurrentImage, 1.1, 6, -0.7, 5);
     
     ResultName = CurrentFileName(1:end-4);
     imwrite(EdgeImage, [ResultDirectory, '/', ResultName, '.png']);
@@ -49,4 +49,6 @@ if dothresh
 end
 toc;
 
-plot_eval(PlotsDirectory);
+plot_eval(PlotsDirectory, '-mx', 'isoF-b.fig');
+
+end
