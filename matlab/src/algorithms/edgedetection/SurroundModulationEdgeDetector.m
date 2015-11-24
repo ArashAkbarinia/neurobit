@@ -129,10 +129,32 @@ end
 function [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, SelectedOrientations)
 
 CurrentDimension = 5;
+nThetas = size(EdgeImageResponse, CurrentDimension);
 
 StdImg = std(EdgeImageResponse, [], CurrentDimension);
 
 [EdgeImageResponse, FinalOrientations] = max(EdgeImageResponse, [], CurrentDimension);
+
+% V2 area pie-wedge shape 
+for c = 1:size(EdgeImageResponse, 3)
+  CurrentChannel = EdgeImageResponse(:, :, c);
+  CurrentOrientation = FinalOrientations(:, :, c);
+  for t = 1:nThetas
+    theta = (t - 1) * pi / nThetas;
+    theta = theta + (pi / 2);
+    
+    xsigma = 0.5 * 2.7 * 2.7;
+    ysigma = xsigma / 8;
+%     if t == 1 || t == ((nThetas / 2) + 1)
+%       ysigma = xsigma / 16;
+%     end
+    v2responsec = imfilter(CurrentChannel, GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
+    v2responses = imfilter(CurrentChannel, GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
+    v2response = abs(v2responsec - v2responses);
+    CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
+  end
+  EdgeImageResponse(:, :, c) = CurrentChannel;
+end
 
 EdgeImageResponse = EdgeImageResponse .* StdImg;
 
@@ -231,6 +253,7 @@ end
 
 nThetas = length(thetas);
 rfresponse = zeros(rows2, cols2, nThetas);
+ysigma = 0.1;
 for t = 1:nThetas
   theta = thetas(t);
   
@@ -239,15 +262,15 @@ for t = 1:nThetas
   
   x1 = 0.25;
   x2 = 0.25;
-  gsigma = 3 * sigma;
+  xsigma = 3 * sigma;
   if t == 1 || t == ((nThetas / 2) + 1)
-    gsigma = gsigma * 2;
+    xsigma = xsigma * 2;
     x1 = x1 * 2;
     x2 = x2 * 2;
   end
-  SameOrientationGaussian = CentreZero(GaussianFilter2(gsigma, 0.1, 0, 0, theta), [1, 1]);
+  SameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta), [1, 1]);
   SameOrientation = imfilter(doresponse, SameOrientationGaussian, 'symmetric');
-  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(gsigma / 4, 0.1, 0, 0, theta + (pi / 2)), [1, 1]);
+  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta + (pi / 2)), [1, 1]);
   OrthogonalOrientation = imfilter(doresponse, OrthogonalOrientationGaussian, 'symmetric');
   
   doresponse = doresponse + x1 .* SameOrientation - x2 .* OrthogonalOrientation;
@@ -263,9 +286,9 @@ for t = 1:nThetas
   
   x1 = 0.25;
   x2 = 0.25;
-  gsigma = 3 * sigma;
+  xsigma = 3 * sigma;
   if t == 1 || t == ((nThetas / 2) + 1)
-    gsigma = gsigma * 2;
+    xsigma = xsigma * 2;
     x1 = x1 * 2;
     x2 = x2 * 2;
   end
@@ -273,9 +296,9 @@ for t = 1:nThetas
   oppresponse = rfresponse(:, :, o);
   doresponse = rfresponse(:, :, t);
   
-  SameOrientationGaussian = CentreZero(GaussianFilter2(gsigma, 0.1, 0, 0, theta), [1, 1]);
+  SameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta), [1, 1]);
   SameOrientation = imfilter(oppresponse, SameOrientationGaussian, 'symmetric');
-  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(gsigma / 4, 0.1, 0, 0, theta + (pi / 2)), [1, 1]);
+  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta + (pi / 2)), [1, 1]);
   OrthogonalOrientation = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
   
   doresponse = doresponse - x1 .* SameOrientation + x2 .* OrthogonalOrientation;
