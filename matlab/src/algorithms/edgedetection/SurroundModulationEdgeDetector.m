@@ -246,9 +246,9 @@ for t = 1:nThetas
     x2 = x2 * 2;
   end
   SameOrientationGaussian = CentreZero(GaussianFilter2(gsigma, 0.1, 0, 0, theta), [1, 1]);
-  SameOrientation = imfilter(doresponse, SameOrientationGaussian);
+  SameOrientation = imfilter(doresponse, SameOrientationGaussian, 'symmetric');
   OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(gsigma / 4, 0.1, 0, 0, theta + (pi / 2)), [1, 1]);
-  OrthogonalOrientation = imfilter(doresponse, OrthogonalOrientationGaussian);
+  OrthogonalOrientation = imfilter(doresponse, OrthogonalOrientationGaussian, 'symmetric');
   
   doresponse = doresponse + x1 .* SameOrientation - x2 .* OrthogonalOrientation;
   rfresponse(:, :, t) = doresponse .* lsnr;
@@ -274,9 +274,9 @@ for t = 1:nThetas
   doresponse = rfresponse(:, :, t);
   
   SameOrientationGaussian = CentreZero(GaussianFilter2(gsigma, 0.1, 0, 0, theta), [1, 1]);
-  SameOrientation = imfilter(oppresponse, SameOrientationGaussian);
+  SameOrientation = imfilter(oppresponse, SameOrientationGaussian, 'symmetric');
   OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(gsigma / 4, 0.1, 0, 0, theta + (pi / 2)), [1, 1]);
-  OrthogonalOrientation = imfilter(oppresponse, OrthogonalOrientationGaussian);
+  OrthogonalOrientation = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
   
   doresponse = doresponse - x1 .* SameOrientation + x2 .* OrthogonalOrientation;
   rfresponse(:, :, t) = doresponse .* lsnr;
