@@ -31,7 +31,7 @@ end
 [rows, cols, chns] = size(OpponentChannels);
 
 nlevels = 4;
-nangles = 8;
+nangles = 6;
 EdgeImageResponse = zeros(rows, cols, chns, nlevels, nangles);
 
 % how many times the neurons in V1 are larger than LGN?
@@ -234,14 +234,18 @@ rfresponse = zeros(rows2, cols2, nThetas);
 for t = 1:nThetas
   theta = thetas(t);
   
-  if colch ~= 1
-    dorf = DivGauss2D(sigma, theta);
-    doresponse = imfilter(InputImage, dorf, 'symmetric');
-  else
-    dorf = DivGauss2D(sigma, theta);
-    doresponse = imfilter(InputImage, dorf, 'symmetric');
-  end
+  dorf = DivGauss2D(sigma, theta);
+  doresponse = imfilter(InputImage, dorf, 'symmetric');
   
+  gsigma = 3 * sigma;
+  if t == 1 || t == ((nThetas / 2) + 1)
+    gsigma = 6 * sigma;
+  end
+  SameOrientationGaussian = CentreZero(GaussianFilter2(gsigma, 0.1, 0, 0, theta), [1, 1]);
+  SameOrientation = imfilter(doresponse, SameOrientationGaussian);
+  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(gsigma / 4, 0.1, 0, 0, theta + (pi / 2)), [1, 1]);
+  OrthogonalOrientation = imfilter(doresponse, OrthogonalOrientationGaussian);
+  doresponse = doresponse + 0.5 .* SameOrientation - 0.5 .* OrthogonalOrientation;
   rfresponse(:, :, t) = doresponse .* lsnr;
 end
 
