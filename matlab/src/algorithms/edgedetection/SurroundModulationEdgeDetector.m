@@ -9,20 +9,7 @@ InputImage = imfilter(InputImage, GaussianFilter2(LgnSigma), 'replicate');
 % convert to opponent image this happens in LGN
 if size(InputImage, 3) == 3
   OpponentImage = double(applycform(uint8(InputImage .* 255), makecform('srgb2lab'))) ./ 255;
-  
-  %   OpponentImage(:, :, 1) = rgb2gray(InputImage);
-  %   OpponentImage(:, :, 1) = +1.0 .* InputImage(:, :, 1) - 0.7 .* InputImage(:, :, 2);
-  %   OpponentImage(:, :, 2) = -0.7 .* InputImage(:, :, 1) + 1.0 .* InputImage(:, :, 2);
-  %   OpponentImage(:, :, 3) = +1.0 .* InputImage(:, :, 3) - 0.7 .* mean(InputImage(:, :, 1:2), 3);
-  %   OpponentImage(:, :, 4) = -0.7 .* InputImage(:, :, 3) + 1.0 .* mean(InputImage(:, :, 1:2), 3);
-  
-  %   OpponentImage(:, :, 1) = sum(InputImage, 3);
-  %   OpponentImage(:, :, 2:4) = InputImage;
-  %   OpponentImage(:, :, 5) = +1.0 .* InputImage(:, :, 1) - 1.0 .* InputImage(:, :, 2);
-  %   OpponentImage(:, :, 6) = +1.0 .* InputImage(:, :, 1) - 0.7 .* InputImage(:, :, 2);
-  %   OpponentImage(:, :, 7) = +1.0 .* InputImage(:, :, 3) - 1.0 .* mean(InputImage(:, :, 1:2), 3);
-  %   OpponentImage(:, :, 8) = +1.0 .* InputImage(:, :, 3) - 0.7 .* mean(InputImage(:, :, 1:2), 3);
-  
+    
   OpponentChannels = OpponentImage;
 else
   OpponentChannels = InputImage;
@@ -73,7 +60,7 @@ if nargin < 2
   UseSparity = false;
 end
 if nargin < 3
-  UseNonMax = true;
+  UseNonMax = false;
 end
 
 EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
@@ -145,11 +132,9 @@ for c = 1:size(EdgeImageResponse, 3)
     
     xsigma = 0.5 * 2.7 * 2.7;
     ysigma = xsigma / 8;
-%     if t == 1 || t == ((nThetas / 2) + 1)
-%       ysigma = xsigma / 16;
-%     end
-    v2responsec = imfilter(CurrentChannel, GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
-    v2responses = imfilter(CurrentChannel, GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
+
+    v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
+    v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
     v2response = abs(v2responsec - v2responses);
     CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
   end
