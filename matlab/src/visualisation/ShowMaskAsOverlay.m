@@ -231,11 +231,14 @@ catch
   set(h,'alphadata', opacity, 'tag', 'opaqueOverlay');
 end
 if nargout > 0
-  varargout{1} = imhandles(imgca);
+  varargout{1} = h;
 end
 if nargout > 1
-  varargout{2} = getframe;
-  varargout{2} = varargout{2}.cdata;
+  varargout{2} = imhandles(imgca);
+end
+if nargout > 2
+  varargout{3} = getframe;
+  varargout{3} = varargout{3}.cdata;
 end
 
 end
