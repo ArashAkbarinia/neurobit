@@ -115,6 +115,21 @@ CurrentDimension = 3;
 [rows, cols, ~] = size(EdgeImageResponse);
 FinalOrientations = zeros(rows, cols);
 
+% V4 area sum of 4 pie-wedge shape 
+% for c = 1:size(EdgeImageResponse, CurrentDimension)
+%   CurrentChannel = EdgeImageResponse(:, :, c);
+%   for theta = [0, pi / 2] 
+%     xsigma = 0.5 * 2.7 * 2.7 * 2.7;
+%     ysigma = xsigma / 8;
+% 
+%     v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
+%     v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
+%     v2response = abs(v2responsec - v2responses);
+%     CurrentChannel = CurrentChannel + v2response;
+%   end
+%   EdgeImageResponse(:, :, c) = CurrentChannel;
+% end
+
 % lsnr = ExtraDimensionsSnr(EdgeImageResponse, CurrentDimension);
 SumEdgeResponse = sum(EdgeImageResponse, CurrentDimension);
 
