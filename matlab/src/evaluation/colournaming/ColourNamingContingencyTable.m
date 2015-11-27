@@ -31,12 +31,46 @@ for j = 1:nSubFolder
     ErrorMatsCat(k, :) = mean(CurrentErrorMat, 1);
   end
   ErrorMatsAll(j, :) = mean(ErrorMatsCat, 1);
-  fprintf('%s\t- Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', SubFolders{j}, ErrorMatsAll(j, :));
+  fprintf('%s\t- Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', SubFolders{j}, ErrorMatsAll(j, 1:4));
   SaveResults(DirPathJ, method, ErrorMatsCat);
 end
 SaveResults(DirPath, method, ErrorMatsAll);
 
-fprintf('All\t- Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', mean(ErrorMatsAll, 1));
+fprintf('All average\t- Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', mean(ErrorMatsAll(:, 1:4), 1));
+
+PrintPixelAverage(ErrorMatsAll);
+
+end
+
+function [] = PrintPixelAverage(ErrorMatsAll)
+
+sa = sum(ErrorMatsAll, 1);
+tp = sa(1, 5);
+fp = sa(1, 6);
+fn = sa(1, 7);
+tn = sa(1, 8);
+
+sens = tp / (tp + fn);
+if isnan(sens)
+  sens = 0;
+end
+% specificity
+spec = tn / (fp + tn);
+if isnan(spec)
+  spec = 0;
+end
+% positive predictive value
+ppv = tp / (tp + fp);
+if isnan(ppv)
+  ppv = 0;
+end
+% negative predictive value
+npv = tn / (fn + tn);
+if isnan(npv)
+  npv = 0;
+end
+
+fprintf('Pixel average\t- Sensitivity: %0.2f Specificity %0.2f Positive predictive %0.2f Negative predictive %0.2f\n', sens, spec, ppv, npv);
 
 end
 
