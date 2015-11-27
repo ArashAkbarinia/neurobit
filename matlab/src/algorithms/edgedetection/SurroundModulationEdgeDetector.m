@@ -1,4 +1,11 @@
-function EdgeImageResponse = SurroundModulationEdgeDetector(InputImage, UseSparity, UseNonMax)
+function EdgeImageResponse = SurroundModulationEdgeDetector(InputImage, ImagePath)
+
+if nargin < 2
+  ImagePath = false;
+end
+if ImagePath
+  DebugPath = ImagePath(1:end - 4);
+end
 
 % input image is from retina
 
@@ -9,34 +16,24 @@ InputImage = imfilter(InputImage, GaussianFilter2(LgnSigma), 'replicate');
 % convert to opponent image this happens in LGN
 if size(InputImage, 3) == 3
   OpponentImage = double(applycform(uint8(InputImage .* 255), makecform('srgb2lab'))) ./ 255;
-    
-  OpponentChannels = OpponentImage;
 else
-  OpponentChannels = InputImage;
+  OpponentImage = InputImage;
 end
-
-[rows, cols, chns] = size(OpponentChannels);
 
 nlevels = 4;
 nangles = 6;
-EdgeImageResponse = zeros(rows, cols, chns, nlevels, nangles);
-
-% how many times the neurons in V1 are larger than LGN?
-lgn2v1 = 2.7;
-wbSigma = LgnSigma * lgn2v1;
-rgSigma = LgnSigma * lgn2v1;
-ybSigma = LgnSigma * lgn2v1;
-params(1, :) = wbSigma;
-params(2, :) = rgSigma;
-params(3, :) = ybSigma;
-for i = 4:chns
-  params(i, :) = params(3, :);
-end
 
 % calculate the Gaussian gradients
-for i = 1:nlevels
-  iiedge = GaussianGradientEdges(OpponentImage, params, nangles, i);
-  EdgeImageResponse(:, :, :, i, :) = abs(iiedge);
+if ImagePath
+  if exist([DebugPath, '-v1.mat'], 'file')
+    v1mat = load([DebugPath, '-v1.mat']);
+    EdgeImageResponse = v1mat.EdgeImageResponse;
+  else
+    EdgeImageResponse = DoV1(OpponentImage, nangles, nlevels, LgnSigma);
+    save([DebugPath, '-v1.mat'], 'EdgeImageResponse');
+  end
+else
+    EdgeImageResponse = DoV1(OpponentImage, nangles, nlevels, LgnSigma);
 end
 
 ExtraDimensions = [4, 5, 3];
@@ -51,17 +48,24 @@ for i = 1:numel(ExtraDimensions)
     case 4
       [EdgeImageResponse, FinalOrientations] = CollapsePlanes(EdgeImageResponse, FinalOrientations);
     case 5
-      [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, FinalOrientations);
+      if ImagePath
+        if exist([DebugPath, '-v2.mat'], 'file')
+          v2mat = load([DebugPath, '-v2.mat']);
+          EdgeImageResponse = v2mat.EdgeImageResponse;
+          FinalOrientations = v2mat.FinalOrientations;
+        else
+          [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, FinalOrientations);
+          save([DebugPath, '-v2.mat'], 'EdgeImageResponse', 'FinalOrientations');
+        end
+      else
+        [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, FinalOrientations);
+      end
   end
   
 end
 
-if nargin < 2
-  UseSparity = false;
-end
-if nargin < 3
-  UseNonMax = false;
-end
+UseSparity = false;
+UseNonMax = true;
 
 EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
 
@@ -76,6 +80,30 @@ if UseNonMax
   EdgeImageResponse([1, end], :) = 0;
   EdgeImageResponse(:, [1, end]) = 0;
   EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
+end
+
+end
+
+function EdgeImageResponse = DoV1(OpponentImage, nangles, nlevels, LgnSigma)
+
+[rows, cols, chns] = size(OpponentImage);
+EdgeImageResponse = zeros(rows, cols, chns, nlevels, nangles);
+
+% how many times the neurons in V1 are larger than LGN?
+lgn2v1 = 2.7;
+wbSigma = LgnSigma * lgn2v1;
+rgSigma = LgnSigma * lgn2v1;
+ybSigma = LgnSigma * lgn2v1;
+params(1, :) = wbSigma;
+params(2, :) = rgSigma;
+params(3, :) = ybSigma;
+for i = 4:chns
+  params(i, :) = params(3, :);
+end
+
+for i = 1:nlevels
+  iiedge = GaussianGradientEdges(OpponentImage, params, nangles, i);
+  EdgeImageResponse(:, :, :, i, :) = abs(iiedge);
 end
 
 end
