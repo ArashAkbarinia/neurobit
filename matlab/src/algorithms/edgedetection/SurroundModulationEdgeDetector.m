@@ -291,7 +291,7 @@ for t = 1:nThetas
   theta = thetas(t);
   
   dorf = DivGauss2D(sigma, theta);
-  doresponse = imfilter(InputImage, dorf, 'symmetric');
+  doresponse = imfilter(InputImage, dorf, 'symmetric') .* lsnr;
   
   x1 = 0.25;
   x2 = 0.25;
