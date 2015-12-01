@@ -186,6 +186,7 @@ for c = 1:size(EdgeImageResponse, 3)
   EdgeImageResponse(:, :, c) = CurrentChannel;
 end
 
+% STD before V2 is not good
 EdgeImageResponse = EdgeImageResponse .* StdImg;
 
 end
