@@ -33,7 +33,7 @@ if ImagePath
     save([DebugPath, '-v1.mat'], 'EdgeImageResponse');
   end
 else
-    EdgeImageResponse = DoV1(OpponentImage, nangles, nlevels, LgnSigma);
+  EdgeImageResponse = DoV1(OpponentImage, nangles, nlevels, LgnSigma);
 end
 
 ExtraDimensions = [4, 5, 3];
@@ -115,15 +115,17 @@ CurrentDimension = 3;
 [rows, cols, ~] = size(EdgeImageResponse);
 FinalOrientations = zeros(rows, cols);
 
-% V4 area sum of 4 pie-wedge shape 
+% V4 area sum of 4 pie-wedge shape
+% nThetas = 2;
 % for c = 1:size(EdgeImageResponse, CurrentDimension)
 %   CurrentChannel = EdgeImageResponse(:, :, c);
-%   for theta = [0, pi / 2] 
+%   for t = 1:nThetas
+%     theta = (t - 1) * pi / nThetas;
 %     xsigma = 0.5 * 2.7 * 2.7 * 2.7;
-%     ysigma = xsigma / 8;
-% 
+%     ysigma = xsigma / 3;
+%
 %     v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
-%     v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
+%     v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 3, ysigma * 3, 0, 0, theta), 'symmetric');
 %     v2response = abs(v2responsec - v2responses);
 %     CurrentChannel = CurrentChannel + v2response;
 %   end
@@ -165,7 +167,7 @@ StdImg = std(EdgeImageResponse, [], CurrentDimension);
 
 [EdgeImageResponse, FinalOrientations] = max(EdgeImageResponse, [], CurrentDimension);
 
-% V2 area pie-wedge shape 
+% V2 area pie-wedge shape
 for c = 1:size(EdgeImageResponse, 3)
   CurrentChannel = EdgeImageResponse(:, :, c);
   CurrentOrientation = FinalOrientations(:, :, c);
@@ -175,7 +177,7 @@ for c = 1:size(EdgeImageResponse, 3)
     
     xsigma = 0.5 * 2.7 * 2.7;
     ysigma = xsigma / 8;
-
+    
     v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
     v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
     v2response = abs(v2responsec - v2responses);
@@ -282,6 +284,9 @@ end
 nThetas = length(thetas);
 rfresponse = zeros(rows2, cols2, nThetas);
 ysigma = 0.1;
+
+% in the same orientation, orthogonality suppresses and parallelism
+% facilitates.
 for t = 1:nThetas
   theta = thetas(t);
   
@@ -302,9 +307,11 @@ for t = 1:nThetas
   OrthogonalOrientation = imfilter(doresponse, OrthogonalOrientationGaussian, 'symmetric');
   
   doresponse = doresponse + x1 .* SameOrientation - x2 .* OrthogonalOrientation;
-  rfresponse(:, :, t) = doresponse .* lsnr;
+  rfresponse(:, :, t) = doresponse;
 end
 
+% in the oppositie orientation, orthogonality facilitates and parallelism
+% suppresses.
 for t = 1:nThetas
   theta = thetas(t);
   o = t + (nThetas / 2);
@@ -330,7 +337,7 @@ for t = 1:nThetas
   OrthogonalOrientation = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
   
   doresponse = doresponse - x1 .* SameOrientation + x2 .* OrthogonalOrientation;
-  rfresponse(:, :, t) = doresponse .* lsnr;
+  rfresponse(:, :, t) = doresponse;
 end
 
 % consider two points here
@@ -339,6 +346,10 @@ end
 rfresponse = abs(imresize(rfresponse, [rows1, cols1]));
 rfresponse = imfilter(rfresponse, gresize, 'replicate');
 
+% consider two different options:
+% normalise based on all orientations
 rfresponse = rfresponse ./ max(rfresponse(:));
+% normalise each orientation separately
+% rfresponse = MatChansMulK(rfresponse, 1 ./ max(max(rfresponse)));
 
 end
