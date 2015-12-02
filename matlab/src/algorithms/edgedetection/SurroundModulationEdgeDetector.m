@@ -295,19 +295,21 @@ for t = 1:nThetas
   dorf = DivGauss2D(sigma, theta1);
   doresponse = imfilter(InputImage, dorf, 'symmetric') .* lsnr;
   
-  x1 = 0.25;
-  x2 = 0.25;
   xsigma = 3 * sigma;
   if t == 1 || t == ((nThetas / 2) + 1)
     xsigma = xsigma * 2;
-    x1 = x1 * 2;
-    x2 = x2 * 2;
   end
   SameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
   SameOrientation = imfilter(doresponse, SameOrientationGaussian, 'symmetric');
   OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
   OrthogonalOrientation = imfilter(doresponse, OrthogonalOrientationGaussian, 'symmetric');
   
+  x1 = 0.25;
+  x2 = 0.25;
+  if t == 1 || t == ((nThetas / 2) + 1)
+    x1 = x1 * 2;
+    x2 = x2 * 2;
+  end
   doresponse = doresponse + x1 .* SameOrientation - x2 .* OrthogonalOrientation;
   rfresponse(:, :, t) = doresponse;
 end
@@ -323,13 +325,9 @@ for t = 1:nThetas
     o = t - (nThetas / 2);
   end
   
-  x1 = 0.25;
-  x2 = 0.25;
   xsigma = 3 * sigma;
   if t == 1 || t == ((nThetas / 2) + 1)
     xsigma = xsigma * 2;
-    x1 = x1 * 2;
-    x2 = x2 * 2;
   end
   
   oppresponse = rfresponse(:, :, o);
@@ -340,6 +338,12 @@ for t = 1:nThetas
   OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
   OrthogonalOrientation = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
   
+  x1 = 0.25;
+  x2 = 0.25;
+  if t == 1 || t == ((nThetas / 2) + 1)
+    x1 = x1 * 2;
+    x2 = x2 * 2;
+  end
   doresponse = doresponse - x1 .* SameOrientation + x2 .* OrthogonalOrientation;
   rfresponse(:, :, t) = doresponse;
 end
