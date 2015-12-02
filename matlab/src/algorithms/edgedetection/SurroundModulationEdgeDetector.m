@@ -289,9 +289,10 @@ ysigma = 0.1;
 % in the same orientation, orthogonality suppresses and parallelism
 % facilitates.
 for t = 1:nThetas
-  theta = thetas(t);
+  theta1 = thetas(t);
+  theta2 = theta1 + (pi / 2);
   
-  dorf = DivGauss2D(sigma, theta);
+  dorf = DivGauss2D(sigma, theta1);
   doresponse = imfilter(InputImage, dorf, 'symmetric') .* lsnr;
   
   x1 = 0.25;
@@ -302,9 +303,9 @@ for t = 1:nThetas
     x1 = x1 * 2;
     x2 = x2 * 2;
   end
-  SameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta), [1, 1]);
+  SameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
   SameOrientation = imfilter(doresponse, SameOrientationGaussian, 'symmetric');
-  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta + (pi / 2)), [1, 1]);
+  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
   OrthogonalOrientation = imfilter(doresponse, OrthogonalOrientationGaussian, 'symmetric');
   
   doresponse = doresponse + x1 .* SameOrientation - x2 .* OrthogonalOrientation;
@@ -314,7 +315,9 @@ end
 % in the oppositie orientation, orthogonality facilitates and parallelism
 % suppresses.
 for t = 1:nThetas
-  theta = thetas(t);
+  theta1 = thetas(t);
+  theta2 = theta1 + (pi / 2);
+  
   o = t + (nThetas / 2);
   if o > nThetas
     o = t - (nThetas / 2);
@@ -332,9 +335,9 @@ for t = 1:nThetas
   oppresponse = rfresponse(:, :, o);
   doresponse = rfresponse(:, :, t);
   
-  SameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta), [1, 1]);
+  SameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
   SameOrientation = imfilter(oppresponse, SameOrientationGaussian, 'symmetric');
-  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta + (pi / 2)), [1, 1]);
+  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
   OrthogonalOrientation = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
   
   doresponse = doresponse - x1 .* SameOrientation + x2 .* OrthogonalOrientation;
