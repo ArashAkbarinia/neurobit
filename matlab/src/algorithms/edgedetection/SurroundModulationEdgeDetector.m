@@ -103,7 +103,7 @@ end
 
 for i = 1:nlevels
   iiedge = GaussianGradientEdges(OpponentImage, params, nangles, i);
-  EdgeImageResponse(:, :, :, i, :) = abs(iiedge);
+  EdgeImageResponse(:, :, :, i, :) = iiedge;
 end
 
 end
@@ -180,7 +180,9 @@ for c = 1:size(EdgeImageResponse, 3)
     
     v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
     v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
+    % consider here abs or max of 0
     v2response = abs(v2responsec - v2responses);
+%     v2response = max(v2responsec - v2responses, 0);
     CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
   end
   EdgeImageResponse(:, :, c) = CurrentChannel;
@@ -256,7 +258,7 @@ for i = 1:nangles
   thetas(i) = (i - 1) * pi / nangles;
 end
 
-OutEdges = abs(gedges(isignal, params(1), thetas, colch, clevel));
+OutEdges = gedges(isignal, params(1), thetas, colch, clevel);
 
 end
 
@@ -351,7 +353,9 @@ end
 % consider two points here
 % 1. the Gaussian should happen before or after the resizing?
 % 2. should we apply the contrast dependant smoothing?
+% consider here abs or max of 0
 rfresponse = abs(imresize(rfresponse, [rows1, cols1]));
+% rfresponse = max(imresize(rfresponse, [rows1, cols1]), 0);
 rfresponse = imfilter(rfresponse, gresize, 'replicate');
 
 % consider two different options:
