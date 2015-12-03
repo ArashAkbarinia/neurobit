@@ -171,6 +171,11 @@ StdImg = std(EdgeImageResponse, [], CurrentDimension);
 for c = 1:size(EdgeImageResponse, 3)
   CurrentChannel = EdgeImageResponse(:, :, c);
   CurrentOrientation = FinalOrientations(:, :, c);
+  
+  si = LocalStdContrast(CurrentChannel);
+  si = max(si(:)) - si;
+  si = NormaliseChannel(si, 0.7, 1.0, [], []);
+  
   for t = 1:nThetas
     theta = (t - 1) * pi / nThetas;
     theta = theta + (pi / 2);
@@ -180,9 +185,8 @@ for c = 1:size(EdgeImageResponse, 3)
     
     v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
     v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
-    % consider here abs or max of 0
-    v2response = abs(v2responsec - v2responses);
-%     v2response = max(v2responsec - v2responses, 0);
+    
+    v2response = max(v2responsec - si .* v2responses, 0);
     CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
   end
   EdgeImageResponse(:, :, c) = CurrentChannel;
