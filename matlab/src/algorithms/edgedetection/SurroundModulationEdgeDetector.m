@@ -353,9 +353,7 @@ end
 % consider two points here
 % 1. the Gaussian should happen before or after the resizing?
 % 2. should we apply the contrast dependant smoothing?
-% consider here abs or max of 0
 rfresponse = abs(imresize(rfresponse, [rows1, cols1]));
-% rfresponse = max(imresize(rfresponse, [rows1, cols1]), 0);
 rfresponse = imfilter(rfresponse, gresize, 'replicate');
 
 % consider two different options:
