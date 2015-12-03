@@ -299,7 +299,7 @@ for t = 1:nThetas
   theta2 = theta1 + (pi / 2);
   
   dorf = DivGauss2D(sigma, theta1);
-  doresponse = imfilter(InputImage, dorf, 'symmetric') .* lsnr;
+  doresponse = abs(imfilter(InputImage, dorf, 'symmetric') .* lsnr);
   
   xsigma = 3 * sigma;
   if t == 1 || t == ((nThetas / 2) + 1)
