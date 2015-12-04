@@ -99,8 +99,8 @@ ybSigma = LgnSigma * lgn2v1;
 params(1, :) = wbSigma;
 params(2, :) = rgSigma;
 params(3, :) = ybSigma;
-params(4, :) = LgnSigma * lgn2v;
-params(5, :) = LgnSigma * lgn2v;
+params(4, :) = LgnSigma * lgn2v1;
+params(5, :) = LgnSigma * lgn2v1;
 for i = 6:chns
   params(i, :) = params(3, :);
 end
