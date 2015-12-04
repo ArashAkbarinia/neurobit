@@ -292,6 +292,16 @@ nThetas = length(thetas);
 rfresponse = zeros(rows2, cols2, nThetas);
 ysigma = 0.1;
 
+sp1 = 0.2;
+sp2 = 0.4;
+sn1 = 0.3;
+sn2 = 0.4;
+
+op1 = 0.2;
+op2 = 0.3;
+on1 = 0.2;
+on2 = 0.3;
+
 % in the same orientation, orthogonality suppresses and parallelism
 % facilitates.
 for t = 1:nThetas
@@ -310,8 +320,9 @@ for t = 1:nThetas
   OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
   OrthogonalOrientation = imfilter(doresponse, OrthogonalOrientationGaussian, 'symmetric');
   
-  x1 = 0.25;
-  x2 = 0.25;
+  si = LocalStdContrast(doresponse);
+  x1 = NormaliseChannel(max(si(:)) - si, sp1, sp2, [], []);
+  x2 = NormaliseChannel(si, sn1, sn2, [], []);
   if t == 1 || t == ((nThetas / 2) + 1)
     x1 = x1 * 2;
     x2 = x2 * 2;
@@ -344,8 +355,8 @@ for t = 1:nThetas
   OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
   OrthogonalOrientation = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
   
-  x1 = 0.25;
-  x2 = 0.25;
+  x1 = NormaliseChannel(si, on1, on2, [], []);
+  x2 = NormaliseChannel(max(si(:)) - si, op1, op2, [], []);
   if t == 1 || t == ((nThetas / 2) + 1)
     x1 = x1 * 2;
     x2 = x2 * 2;
