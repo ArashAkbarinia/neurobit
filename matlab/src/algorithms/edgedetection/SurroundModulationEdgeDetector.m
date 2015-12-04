@@ -16,6 +16,8 @@ InputImage = imfilter(InputImage, GaussianFilter2(LgnSigma), 'replicate');
 % convert to opponent image this happens in LGN
 if size(InputImage, 3) == 3
   OpponentImage = double(applycform(uint8(InputImage .* 255), makecform('srgb2lab'))) ./ 255;
+  OpponentImage(:, :, 4) = InputImage(:, :, 1) - 0.7 .* InputImage(:, :, 2);
+  OpponentImage(:, :, 5) = InputImage(:, :, 3) - 0.7 .* mean(InputImage(:, :, 2:3), 3);
 else
   OpponentImage = InputImage;
 end
