@@ -359,6 +359,7 @@ for t = 1:nThetas
   OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
   OrthogonalOrientation = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
   
+  si = LocalStdContrast(doresponse);
   x1 = NormaliseChannel(si, on1, on2, [], []);
   x2 = NormaliseChannel(max(si(:)) - si, op1, op2, [], []);
   if t == 1 || t == ((nThetas / 2) + 1)
