@@ -1,4 +1,4 @@
-function dgau2D = DivGauss2D(sigma,seta)
+function dgau2D = DivGauss2D(sigma,seta, r)
 % function dgau2D = DivGauss2D(sigma,seta)
 % Design the filters - a derivative of 2D gaussian with different orientation
 % inputs:
@@ -12,7 +12,9 @@ function dgau2D = DivGauss2D(sigma,seta)
 %=========================================================================%
 
 GaussianDieOff = .000001;
-r = 0.5;
+if nargin < 3
+  r = 0.50;
+end
 pw = 1:50; % possible width
 ssq = sigma^2;
 width = find(exp(-(pw.*pw)/(2*ssq))>GaussianDieOff,1,'last');
