@@ -12,12 +12,38 @@ if size(InputImage, 3) == 3
   [dtmap, luminance] = ColourConstancySurroundModulationChannel(InputImage, plotme, params);
 else
   % just a silly temporarily solution to have for one channel
-  InputImage(:, :, 2) = InputImage(:, :, 1);
-  InputImage(:, :, 3) = InputImage(:, :, 1);
-  [tmp, luminance] = ColourConstancySurroundModulationChannel(InputImage, plotme, params);
-  
-  dtmap = tmp(:, :, 1);
+  [dtmap, luminance] = ColourConstancySurroundModulationOneChannel(InputImage, plotme, params);
 end
+
+end
+
+function [dtmap, luminance] = ColourConstancySurroundModulationOneChannel(InputImage, plotme, params)
+%ColourConstancyOpponency Summary of this function goes here
+%   Detailed explanation goes here
+
+if nargin < 3
+  params = {'arash', 3, 1.5, 2, 5, -0.87, -0.63, 0.95, 0.99, 4, -0.01, 0};
+end
+
+[rows, cols, chns] = size(InputImage);
+if isa(InputImage, 'uint16')
+  MaxVal = (2 ^ 16) - 1;
+elseif isa(InputImage, 'uint8')
+  MaxVal = (2 ^ 8) - 1;
+else
+  MaxVal = 1;
+end
+InputImageDouble = double(InputImage);
+
+rgb2do = 1;
+
+opponent = rgb2do * reshape(InputImageDouble, rows * cols, chns)';
+opponent = reshape(opponent', rows, cols, chns);
+
+opponent = opponent ./ MaxVal;
+
+dtmap = arash(opponent, params);
+luminance = 1;
 
 end
 
@@ -109,7 +135,7 @@ function doresponse = arash(opponent, method)
 [CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method);
 
 doresponse = zeros(size(opponent));
-for i = 1:3
+for i = 1:size(opponent, 3)
   doresponse(:, :, i) = CombineCentreSurround(CentreGaussian(:, :, i), SurroundGaussian(:, :, i), FarGaussian(:, :, i), CentreContrast(:, :, i), SurroundContrast(:, :, i), FarContrast(:, :, i), method);
 end
 
@@ -132,7 +158,7 @@ nk = method{10};
 CentreGaussian = zeros(size(opponent));
 SurroundGaussian = zeros(size(opponent));
 FarGaussian = zeros(size(opponent));
-for i = 1:3
+for i = 1:size(opponent, 3)
   CentreGaussian(:, :, i) = SingleOpponentContrast(opponent(:, :, i), GaussianSigma, ContrastEnlarge, nk);
   
   % sogr = SurroundContrast(rg, GaussianSigma, ContrastEnlarge, SurroundEnlarge, nk);
@@ -158,7 +184,7 @@ FarEnlarge = 3 * SurroundEnlarge;
 CentreContrast = zeros(size(opponent));
 SurroundContrast = zeros(size(opponent));
 FarContrast = zeros(size(opponent));
-for i = 1:3
+for i = 1:size(opponent, 3)
   CentreContrast(:, :, i) = GetContrastImage(opponent(:, :, i), CentreSize);
   SurroundContrast(:, :, i) = GetContrastImage(opponent(:, :, i), SurroundEnlarge * CentreSize, CentreSize);
   FarContrast(:, :, i) = GetContrastImage(opponent(:, :, i), FarEnlarge * CentreSize, SurroundEnlarge * CentreSize);
