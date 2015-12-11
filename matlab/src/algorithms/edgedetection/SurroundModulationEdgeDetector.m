@@ -297,17 +297,6 @@ ElongatedFactor = 0.5;
 
 nThetas = length(thetas);
 rfresponse = zeros(rows2, cols2, nThetas);
-ysigma = 0.1;
-
-sp1 = 0.2;
-sp2 = 0.4;
-sn1 = 0.3;
-sn2 = 0.4;
-
-op1 = 0.2;
-op2 = 0.3;
-on1 = 0.2;
-on2 = 0.3;
 
 % in the same orientation, orthogonality suppresses and parallelism
 % facilitates.
@@ -321,6 +310,22 @@ for t = 1:nThetas
 end
 
 rfresponse = rfresponse ./ max(rfresponse(:));
+
+CentreSize = size(dorf, 1);
+CentreContrast = LocalStdContrast(InputImage, CentreSize);
+CentreContrast = CentreContrast ./ max(CentreContrast(:));
+
+sps = max(CentreContrast(:)) - CentreContrast;
+sps = sps .* 0.66;
+sns = CentreContrast;
+sns = sns .* 0.66;
+
+ops = max(CentreContrast(:)) - CentreContrast;
+ops = ops .* 0.5;
+ons = CentreContrast;
+ons = ons .* 0.5;
+
+ysigma = 0.1;
 
 % in the oppositie orientation, orthogonality facilitates and parallelism
 % suppresses.
@@ -341,30 +346,16 @@ for t = 1:nThetas
   oppresponse = rfresponse(:, :, o);
   doresponse = rfresponse(:, :, t);
   
-  DoresponseContrast = LocalStdContrast(doresponse);
-  
   PositiveSameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
   PositiveSameOrientation = imfilter(doresponse, PositiveSameOrientationGaussian, 'symmetric');
   NegativeOrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
   NegativeOrthogonalOrientation = imfilter(doresponse, NegativeOrthogonalOrientationGaussian, 'symmetric');
-  
-  sps = NormaliseChannel(max(DoresponseContrast(:)) - DoresponseContrast, sp1, sp2, [], []);
-  sns = NormaliseChannel(DoresponseContrast, sn1, sn2, [], []);
   
   NegativeSameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
   NegativeSameOrientation = imfilter(oppresponse, NegativeSameOrientationGaussian, 'symmetric');
   PositiveOrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
   PositiveOrthogonalOrientation = imfilter(oppresponse, PositiveOrthogonalOrientationGaussian, 'symmetric');
   
-  ons = NormaliseChannel(DoresponseContrast, on1, on2, [], []);
-  ops = NormaliseChannel(max(DoresponseContrast(:)) - DoresponseContrast, op1, op2, [], []);
-  if t == 1 || t == ((nThetas / 2) + 1)
-    sps = sps * 2;
-    sns = sns * 2;
-    
-    ons = ons * 2;
-    ops = ops * 2;
-  end
   doresponse = doresponse + sps .* PositiveSameOrientation - sns .* NegativeOrthogonalOrientation;
   doresponse = doresponse - ons .* NegativeSameOrientation + ops .* PositiveOrthogonalOrientation;
   rfresponse(:, :, t) = doresponse;
