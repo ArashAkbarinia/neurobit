@@ -370,10 +370,13 @@ for t = 1:nThetas
   rfresponse(:, :, t) = doresponse;
 end
 
+% consider max or abs
+rfresponse = abs(rfresponse);
+
 % consider two points here
 % 1. the Gaussian should happen before or after the resizing?
 % 2. should we apply the contrast dependant smoothing?
-rfresponse = abs(imresize(rfresponse, [rows1, cols1]));
+rfresponse = imresize(rfresponse, [rows1, cols1]);
 rfresponse = imfilter(rfresponse, gresize, 'replicate');
 
 % consider two different options:
