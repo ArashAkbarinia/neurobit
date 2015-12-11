@@ -291,6 +291,8 @@ else
   lsnr = 1;
 end
 
+ElongatedFactor = 0.5;
+
 [rows2, cols2, ~] = size(InputImage);
 
 nThetas = length(thetas);
@@ -311,30 +313,14 @@ on2 = 0.3;
 % facilitates.
 for t = 1:nThetas
   theta1 = thetas(t);
-  theta2 = theta1 + (pi / 2);
   
-  dorf = DivGauss2D(sigma, theta1);
+  dorf = DivGauss2D(sigma, theta1, ElongatedFactor);
   doresponse = abs(imfilter(InputImage, dorf, 'symmetric') .* lsnr);
   
-  xsigma = 3 * sigma;
-  if t == 1 || t == ((nThetas / 2) + 1)
-    xsigma = xsigma * 2;
-  end
-  SameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
-  SameOrientation = imfilter(doresponse, SameOrientationGaussian, 'symmetric');
-  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
-  OrthogonalOrientation = imfilter(doresponse, OrthogonalOrientationGaussian, 'symmetric');
-  
-  si = LocalStdContrast(doresponse);
-  x1 = NormaliseChannel(max(si(:)) - si, sp1, sp2, [], []);
-  x2 = NormaliseChannel(si, sn1, sn2, [], []);
-  if t == 1 || t == ((nThetas / 2) + 1)
-    x1 = x1 * 2;
-    x2 = x2 * 2;
-  end
-  doresponse = doresponse + x1 .* SameOrientation - x2 .* OrthogonalOrientation;
   rfresponse(:, :, t) = doresponse;
 end
+
+rfresponse = rfresponse ./ max(rfresponse(:));
 
 % in the oppositie orientation, orthogonality facilitates and parallelism
 % suppresses.
@@ -355,19 +341,32 @@ for t = 1:nThetas
   oppresponse = rfresponse(:, :, o);
   doresponse = rfresponse(:, :, t);
   
-  SameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
-  SameOrientation = imfilter(oppresponse, SameOrientationGaussian, 'symmetric');
-  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
-  OrthogonalOrientation = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
+  DoresponseContrast = LocalStdContrast(doresponse);
   
-  si = LocalStdContrast(doresponse);
-  x1 = NormaliseChannel(si, on1, on2, [], []);
-  x2 = NormaliseChannel(max(si(:)) - si, op1, op2, [], []);
+  PositiveSameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
+  PositiveSameOrientation = imfilter(doresponse, PositiveSameOrientationGaussian, 'symmetric');
+  NegativeOrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
+  NegativeOrthogonalOrientation = imfilter(doresponse, NegativeOrthogonalOrientationGaussian, 'symmetric');
+  
+  sps = NormaliseChannel(max(DoresponseContrast(:)) - DoresponseContrast, sp1, sp2, [], []);
+  sns = NormaliseChannel(DoresponseContrast, sn1, sn2, [], []);
+  
+  NegativeSameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
+  NegativeSameOrientation = imfilter(oppresponse, NegativeSameOrientationGaussian, 'symmetric');
+  PositiveOrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
+  PositiveOrthogonalOrientation = imfilter(oppresponse, PositiveOrthogonalOrientationGaussian, 'symmetric');
+  
+  ons = NormaliseChannel(DoresponseContrast, on1, on2, [], []);
+  ops = NormaliseChannel(max(DoresponseContrast(:)) - DoresponseContrast, op1, op2, [], []);
   if t == 1 || t == ((nThetas / 2) + 1)
-    x1 = x1 * 2;
-    x2 = x2 * 2;
+    sps = sps * 2;
+    sns = sns * 2;
+    
+    ons = ons * 2;
+    ops = ops * 2;
   end
-  doresponse = doresponse - x1 .* SameOrientation + x2 .* OrthogonalOrientation;
+  doresponse = doresponse + sps .* PositiveSameOrientation - sns .* NegativeOrthogonalOrientation;
+  doresponse = doresponse - ons .* NegativeSameOrientation + ops .* PositiveOrthogonalOrientation;
   rfresponse(:, :, t) = doresponse;
 end
 
