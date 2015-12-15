@@ -26,7 +26,7 @@ end
 
 belongings = zeros(VectorRows, nelpisd);
 
-for i = 1:nelpisd
+parfor i = 1:nelpisd
   [ibelonging, ~] = EllipsoidEvaluateBelonging(InputImage, ColourEllipsoids(i, :));
   
   belongings(:, i) = ibelonging;
