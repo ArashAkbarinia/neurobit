@@ -181,6 +181,7 @@ for c = 1:size(EdgeImageResponse, 3)
   CurrentOrientation = FinalOrientations(:, :, c);
   
   si = LocalStdContrast(CurrentChannel);
+  si = si ./ max(si(:));
   si = max(si(:)) - si;
   si = NormaliseChannel(si, 0.7, 1.0, [], []);
   
@@ -312,8 +313,6 @@ for t = 1:nThetas
   rfresponse(:, :, t) = doresponse;
 end
 
-rfresponse = rfresponse ./ max(rfresponse(:));
-
 CentreSize = size(dorf, 1);
 rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, thetas, sigma);
 
@@ -332,6 +331,8 @@ rfresponse = rfresponse ./ max(rfresponse(:));
 end
 
 function rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, thetas, sigma)
+
+rfresponse = rfresponse ./ max(rfresponse(:));
 
 CentreContrast = LocalStdContrast(InputImage, CentreSize);
 CentreContrast = CentreContrast ./ max(CentreContrast(:));
@@ -385,5 +386,7 @@ end
 
 % consider max or abs
 rfresponse = abs(rfresponse);
+
+rfresponse = rfresponse ./ max(rfresponse(:));
 
 end
