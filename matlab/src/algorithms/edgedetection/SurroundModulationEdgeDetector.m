@@ -172,6 +172,9 @@ StdImg = std(EdgeImageResponse, [], CurrentDimension);
 
 [EdgeImageResponse, FinalOrientations] = max(EdgeImageResponse, [], CurrentDimension);
 
+v1sigma = 0.5 * 2.7;
+v1v2 = 2.7;
+
 % V2 area pie-wedge shape
 for c = 1:size(EdgeImageResponse, 3)
   CurrentChannel = EdgeImageResponse(:, :, c);
@@ -185,7 +188,7 @@ for c = 1:size(EdgeImageResponse, 3)
     theta = (t - 1) * pi / nThetas;
     theta = theta + (pi / 2);
     
-    xsigma = 0.5 * 2.7 * 2.7;
+    xsigma = v1sigma * v1v2;
     ysigma = xsigma / 8;
     
     v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
@@ -312,6 +315,24 @@ end
 rfresponse = rfresponse ./ max(rfresponse(:));
 
 CentreSize = size(dorf, 1);
+rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, thetas, sigma);
+
+% consider two points here
+% 1. the Gaussian should happen before or after the resizing?
+% 2. should we apply the contrast dependant smoothing?
+rfresponse = imresize(rfresponse, [rows1, cols1]);
+rfresponse = imfilter(rfresponse, gresize, 'replicate');
+
+% consider two different options:
+% normalise based on all orientations
+rfresponse = rfresponse ./ max(rfresponse(:));
+% normalise each orientation separately
+% rfresponse = MatChansMulK(rfresponse, 1 ./ max(max(rfresponse)));
+
+end
+
+function rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, thetas, sigma)
+
 CentreContrast = LocalStdContrast(InputImage, CentreSize);
 CentreContrast = CentreContrast ./ max(CentreContrast(:));
 
@@ -329,6 +350,7 @@ ysigma = 0.1;
 
 % in the oppositie orientation, orthogonality facilitates and parallelism
 % suppresses.
+nThetas = length(thetas);
 for t = 1:nThetas
   theta1 = thetas(t);
   theta2 = theta1 + (pi / 2);
@@ -363,17 +385,5 @@ end
 
 % consider max or abs
 rfresponse = abs(rfresponse);
-
-% consider two points here
-% 1. the Gaussian should happen before or after the resizing?
-% 2. should we apply the contrast dependant smoothing?
-rfresponse = imresize(rfresponse, [rows1, cols1]);
-rfresponse = imfilter(rfresponse, gresize, 'replicate');
-
-% consider two different options:
-% normalise based on all orientations
-rfresponse = rfresponse ./ max(rfresponse(:));
-% normalise each orientation separately
-% rfresponse = MatChansMulK(rfresponse, 1 ./ max(max(rfresponse)));
 
 end
