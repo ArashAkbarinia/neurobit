@@ -337,7 +337,7 @@ function rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, si
 
 rfresponse = rfresponse ./ max(rfresponse(:));
 
-if ~isempty(InputImage) && ~isempty(CentreSize)
+if ~isempty(InputImage)
   CentreContrast = LocalStdContrast(InputImage, CentreSize);
   CentreContrast = CentreContrast ./ max(CentreContrast(:));
   
@@ -351,11 +351,11 @@ if ~isempty(InputImage) && ~isempty(CentreSize)
   ons = CentreContrast;
   ons = ons .* 0.5;
 else
-  sps = 0.25;
-  sns = 0.25;
+  sps = CentreSize;
+  sns = CentreSize;
   
-  ops = 0.25;
-  ons = 0.25;
+  ops = CentreSize;
+  ons = CentreSize;
 end
 
 ysigma = 0.1;
