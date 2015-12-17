@@ -317,7 +317,7 @@ for t = 1:nThetas
 end
 
 CentreSize = size(dorf, 1);
-rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, thetas, sigma);
+rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, sigma);
 
 % consider two points here
 % 1. the Gaussian should happen before or after the resizing?
@@ -333,7 +333,7 @@ rfresponse = rfresponse ./ max(rfresponse(:));
 
 end
 
-function rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, thetas, sigma)
+function rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, sigma)
 
 rfresponse = rfresponse ./ max(rfresponse(:));
 
@@ -362,9 +362,9 @@ ysigma = 0.1;
 
 % in the oppositie orientation, orthogonality facilitates and parallelism
 % suppresses.
-nThetas = length(thetas);
+nThetas = size(rfresponse, 3);
 for t = 1:nThetas
-  theta1 = thetas(t);
+  theta1 = (t - 1) * pi / nThetas;
   theta2 = theta1 + (pi / 2);
   
   o = t + (nThetas / 2);
