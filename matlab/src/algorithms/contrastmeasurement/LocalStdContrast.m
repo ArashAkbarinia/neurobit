@@ -27,9 +27,9 @@ end
 
 hc = fspecial('average', WindowSize);
 hc = CentreZero(hc, CentreSize);
-MeanCentre = imfilter(InputImage, hc, 'replicate');
+MeanCentre = imfilter(InputImage, hc, 'symmetric');
 stdv = (InputImage - MeanCentre) .^ 2;
-MeanStdv = imfilter(stdv, hc, 'replicate');
+MeanStdv = imfilter(stdv, hc, 'symmetric');
 ImageContrast = sqrt(MeanStdv);
 
 end
