@@ -21,10 +21,12 @@ function [] = PrintDiffGt(ErrorInds, BelongingImage, GtInds)
 [rows, cols, ~] = size(BelongingImage);
 diff = ErrorInds - GtInds;
 
+k = 1;
 for i = 1:rows
   for j = 1:cols
     if diff(i, j) ~= 0
-      fprintf('Us [%d, %f] - GT [%d, %f]\n', ErrorInds(i, j), BelongingImage(i, j, ErrorInds(i, j)), GtInds(i, j), BelongingImage(i, j, GtInds(i, j)));
+      fprintf('%d Us [%d, %f] - GT [%d, %f]\n', k, ErrorInds(i, j), BelongingImage(i, j, ErrorInds(i, j)), GtInds(i, j), BelongingImage(i, j, GtInds(i, j)));
+      k = k + 1;
     end
   end
 end
