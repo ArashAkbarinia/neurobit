@@ -180,6 +180,8 @@ for c = 1:size(EdgeImageResponse, 3)
   CurrentChannel = EdgeImageResponse(:, :, c);
   CurrentOrientation = FinalOrientations(:, :, c);
   
+  % consider calculating the contrast with a larger window size
+  % approperiate for V2.
   si = LocalStdContrast(CurrentChannel);
   si = si ./ max(si(:));
   si = max(si(:)) - si;
@@ -190,6 +192,7 @@ for c = 1:size(EdgeImageResponse, 3)
     theta = theta + (pi / 2);
     
     xsigma = v1sigma * v1v2;
+    % consider make this a parameter based on number of thetas
     ysigma = xsigma / 8;
     
     v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
