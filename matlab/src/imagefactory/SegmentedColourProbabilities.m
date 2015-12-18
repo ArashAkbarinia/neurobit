@@ -1,4 +1,4 @@
-function [ColourBoxesImage, GroundTruthImage] = SegmentedColourProbabilities(DirPath, nLimistPoitns)
+function [ColourBoxesImage, GroundTruthImage] = SegmentedColourProbabilities(DirPath, nLimistPoitns, quantize)
 
 if nargin < 1
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ebay/';
@@ -13,7 +13,9 @@ else
   [rgbs, gts] = SegmentedColourPoints(DirPath);
 end
 
-quantize = 4;
+if nargin < 3
+  quantize = 1;
+end
 rgbs = floor(double(rgbs) ./ quantize) + 1;
 
 [ColourBoxesImage, ~, IndUniqes] = unique(rgbs, 'rows');
