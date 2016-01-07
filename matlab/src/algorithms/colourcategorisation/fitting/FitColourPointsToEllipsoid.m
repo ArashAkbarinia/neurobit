@@ -96,7 +96,7 @@ end
 
 if saveme
   RGBTitles = {'G', 'B', 'Pp', 'Pk', 'R', 'O', 'Y', 'Br', 'Gr', 'W', 'Bl'}; %#ok
-  save([ColourSpace, '_ellipsoid_params_new.mat'], 'ColourEllipsoids', 'RGBTitles');
+  save([ColourSpace, '_ellipsoid_params_new.mat'], 'ColourEllipsoids', 'RGBTitles', 'ColourSpace');
 end
 
 end
