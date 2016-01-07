@@ -13,7 +13,7 @@ for j = 1:length(SubFolders)
   SubSubFolders = GetSubFolders(DirPathJ);
   for k = 1:length(SubSubFolders)
     DirPathJK = [DirPathJ, SubSubFolders{k}, '/'];
-    ColourNamingTestFolder(DirPathJK, method, true, SubSubFolders{k});
+    ColourNamingTestFolder(DirPathJK, method, true, SubSubFolders{k}, 2);
   end
 end
 

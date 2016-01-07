@@ -1,10 +1,12 @@
-function ErrorMats = ColourNamingTestFolder(DirPath, method, EvaluateGroundTruth, GroundTruthColour)
+function ErrorMats = ColourNamingTestFolder(DirPath, method, EvaluateGroundTruth, GroundTruthColour, GtIndex)
 
-if nargin < 3
+if nargin < 4
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/soccer/psv/';
   method = 'ourlab';
   EvaluateGroundTruth = false;
+  GtIndex = [];
 end
+GtPattern = ['*', num2str(GtIndex), '.png'];
 
 if strcmpi(method, 'ourlab')
   ConfigsMat = load('lab_ellipsoid_params');
@@ -49,7 +51,7 @@ ImageFiles = dir([DirPath, '*.jpg']);
 nimages = length(ImageFiles);
 
 if EvaluateGroundTruth
-  MaskFiles = dir([DirPath, '*.png']);
+  MaskFiles = dir([DirPath, GtPattern]);
   if nimages ~= length(MaskFiles)
     warning(['Directory ', DirPath, ' does not have same number of pictures and gts.']);
     EvaluateGroundTruth = false;
@@ -95,7 +97,7 @@ for i = 1:nimages
   
 end
 if EvaluateGroundTruth
-  save([ResultDirectory, 'ErrorMats.mat'], 'ErrorMats');
+  save([ResultDirectory, 'ErrorMats', num2str(GtIndex), '.mat'], 'ErrorMats');
 end
 
 end
