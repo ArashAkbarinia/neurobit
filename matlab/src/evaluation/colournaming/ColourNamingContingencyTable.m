@@ -36,10 +36,10 @@ for j = 1:nSubFolder
       end
       ErrorMatsCat(k, :) = mean(CurrentErrorMat, 1);
     else
-      for l = 11:nimages
+      for l = 1:10
         CurrentErrorMat(l, :) = struct2array(FolderResultMat.ErrorMats{l});
       end
-      ErrorMatsCat(k, :) = mean(CurrentErrorMat(11:nimages, :), 1);
+      ErrorMatsCat(k, :) = mean(CurrentErrorMat(1:10, :), 1);
     end
   end
   ErrorMatsAll(j, :) = mean(ErrorMatsCat, 1);
