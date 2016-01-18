@@ -20,6 +20,8 @@ for i = 1:ncolours
       rgbs(i, :) = [0.0, 0.0, 1.0];
     case {'br', 'brown'}
       rgbs(i, :) = [1.0, 0.5, 0.0] * 0.75;
+    case {'cr', 'cream'}
+      rgbs(i, :) = [1.0, 0.9, 0.8];
     case {'g', 'green'}
       rgbs(i, :) = [0.0, 1.0, 0.0];
     case {'gr', 'grey'}
