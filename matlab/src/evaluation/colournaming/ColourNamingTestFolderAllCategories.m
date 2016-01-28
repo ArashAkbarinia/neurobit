@@ -2,7 +2,7 @@ function ErrorMats = ColourNamingTestFolderAllCategories(DirPath, method, Evalua
 %ColourNamingTestFolderAllCategories Summary of this function goes here
 %   Detailed explanation goes here
 
-if nargin < 4
+if nargin < 3
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ColorNamingYuanliu/Car/';
   method = 'ourlab';
   EvaluateGroundTruth = true;
