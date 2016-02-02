@@ -1,10 +1,11 @@
-function ProbabilityDiffs = ColourNamingTestFolderAllCategoriesReportResults(DirPath, method)
+function ProbabilityDiffs = ColourNamingTestFolderAllCategoriesReportResults(DirPath, method, quantise)
 %ColourNamingTestFolderAllCategories Summary of this function goes here
 %   Detailed explanation goes here
 
-if nargin < 2
+if nargin < 3
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ColorNamingYuanliu/Small_object/';
   method = 'ourlab';
+  quantise = true;
 end
 
 method = lower(method);
@@ -25,23 +26,33 @@ if nimages ~= length(MaskFiles)
   return;
 end
 
-ProbabilityDiffs = zeros(nimages, 1);
-parfor i = 1:nimages
+ProbabilityDiffs = zeros(nimages, 2);
+for i = 1:nimages
   ResultMatFile = load([ResultDirectory, 'res_prob', ImageFiles(i).name(1:end - 3), 'mat']);
   BelongingImage = ResultMatFile.BelongingImage;
+  [rows, cols, chns] = size(BelongingImage);
+  BelongingImage = reshape(BelongingImage, rows * cols, chns);
+  
+  if quantise
+    BelongingImage(BelongingImage >= 0.875) = 1.0;
+    BelongingImage(BelongingImage < 0.875 & BelongingImage >= 0.625) = 0.75;
+    BelongingImage(BelongingImage < 0.625 & BelongingImage >= 0.375) = 0.50;
+    BelongingImage(BelongingImage < 0.375 & BelongingImage >= 0.125) = 0.25;
+  end
   
   MaskPath = [GtsPath, lower(ImageFiles(i).name(1:end - 3)), 'mat'];
   GtMat = load(MaskPath);
   BelongingImageGt = GtMat.BelongingImageGt;
+  BelongingImageGt = reshape(BelongingImageGt, rows * cols, chns);
   
-  diff = BelongingImageGt - BelongingImage;
-  diff = diff(:);
-  diff = mean(diff(diff > 0));
-  ProbabilityDiffs(i, 1) = diff;
+  diff = abs(BelongingImageGt(BelongingImageGt > 0) - BelongingImage(BelongingImageGt > 0));
+  ProbabilityDiffs(i, :) = [mean(diff), length(diff)];
   disp(['[', num2str(i), '] ', ImageFiles(i).name, ' - probability diffs ', num2str(ProbabilityDiffs(i, 1))]);
 end
 
-disp(['Mean - probability diffs ', num2str(mean(ProbabilityDiffs))]);
+FinalError = ProbabilityDiffs(:, 1) .* ProbabilityDiffs(:, 2);
+FinalError = sum(FinalError, 1) ./ sum(ProbabilityDiffs(:, 2), 1);
+disp(['Mean - probability diffs ', num2str(FinalError)]);
 
 save([ResultDirectory, 'ErrorMatsBelonging.mat'], 'ProbabilityDiffs');
 
