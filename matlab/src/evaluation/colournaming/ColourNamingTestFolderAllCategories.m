@@ -79,6 +79,7 @@ for i = 1:nimages
       [NamingImage, BelongingImage] = ColourNamingRobert(ImageRGB, ConfigsMat, ConversionMat);
   end
   
+  save([ResultDirectory, 'res_prob', ImageFiles(i).name(1:end - 3), 'mat', 'BelongingImage')
   % plotting
   figurei = PlotAllChannels(ImageRGB, BelongingImage, EllipsoidsTitles, EllipsoidsRGBs, 'Colour Categorisation - Colour Planes');
   saveas(figurei, [ResultDirectory, 'res_prob', ImageFiles(i).name(1:end - 3), 'jpg']);
