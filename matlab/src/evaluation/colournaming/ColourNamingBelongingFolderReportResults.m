@@ -1,4 +1,4 @@
-function ProbabilityDiffs = ColourNamingTestFolderAllCategoriesReportResults(DirPath, method, quantise)
+function ProbabilityDiffs = ColourNamingBelongingFolderReportResults(DirPath, method, quantise)
 %ColourNamingTestFolderAllCategories Summary of this function goes here
 %   Detailed explanation goes here
 
