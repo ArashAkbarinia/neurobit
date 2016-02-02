@@ -54,6 +54,10 @@ FinalError = ProbabilityDiffs(:, 1) .* ProbabilityDiffs(:, 2);
 FinalError = sum(FinalError, 1) ./ sum(ProbabilityDiffs(:, 2), 1);
 disp(['Mean - probability diffs ', num2str(FinalError)]);
 
-save([ResultDirectory, 'ErrorMatsBelonging.mat'], 'ProbabilityDiffs');
+if quantise
+  save([ResultDirectory, 'ErrorMatsBelongingRounded.mat'], 'ProbabilityDiffs');
+else
+  save([ResultDirectory, 'ErrorMatsBelonging.mat'], 'ProbabilityDiffs');
+end
 
 end
