@@ -1,10 +1,11 @@
-function ErrorMatCategory = ColourNamingCategoryFolderReportResults(DirPath, method)
+function ErrorMatCategory = ColourNamingCategoryFolderReportResults(DirPath, method, CompareOrder)
 %ColourNamingTestFolderAllCategories Summary of this function goes here
 %   Detailed explanation goes here
 
-if nargin < 2
+if nargin < 3
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ColorNamingYuanliu/Small_object/';
   method = 'ourlab';
+  CompareOrder = false;
 end
 
 method = lower(method);
@@ -35,18 +36,25 @@ for i = 1:nimages
   NegativeIndeces = BelongingImageGt == 0;
   BelongingImageGt(all(NegativeIndeces, 2), :) = [];
   
-  % here get all gts
-  NamingImageGt = bsxfun(@eq, BelongingImageGt, max(BelongingImageGt, [], 2));
-  
   ResultMatFile = load([ResultDirectory, 'res_prob', ImageFiles(i).name(1:end - 3), 'mat']);
   BelongingImage = ResultMatFile.BelongingImage;
   BelongingImage = reshape(BelongingImage, rows * cols, chns);
   BelongingImage(all(NegativeIndeces, 2), :) = [];
-  NamingImage = bsxfun(@eq, BelongingImage, max(BelongingImage, [], 2));
   
-  tp = NamingImage & NamingImageGt;
-  tp = sum(tp(:));
-  fn = size(BelongingImage, 1) - tp;
+  if CompareOrder
+    [gtv, gti] = sort(BelongingImageGt, 2);
+    [~, ali] = sort(BelongingImage, 2);
+    algt = gti(gtv > 0) == ali(gtv > 0);
+    tp = sum(algt(:));
+    fn = size(algt, 1) - tp;
+  else
+    NamingImageGt = bsxfun(@eq, BelongingImageGt, max(BelongingImageGt, [], 2));
+    NamingImage = bsxfun(@eq, BelongingImage, max(BelongingImage, [], 2));
+    tp = NamingImage & NamingImageGt;
+    tp = sum(tp(:));
+    fn = size(BelongingImage, 1) - tp;
+  end
+  
   ErrorRate = tp / (tp + fn);
   
   ErrorMatCategory(i, :) = [tp, fn];
@@ -57,6 +65,10 @@ tpfn = sum(ErrorMatCategory, 1);
 FinalErrorRate = tpfn(1) / (tpfn(1) + tpfn(2));
 disp(['All ', num2str(FinalErrorRate)]);
 
-save([ResultDirectory, 'ErrorMatsCategory.mat'], 'ErrorMatCategory');
+if CompareOrder
+  save([ResultDirectory, 'ErrorMatsCategoryOrder.mat'], 'ErrorMatCategory');
+else
+  save([ResultDirectory, 'ErrorMatsCategory.mat'], 'ErrorMatCategory');
+end
 
 end
