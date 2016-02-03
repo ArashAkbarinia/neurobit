@@ -7,7 +7,7 @@ if nargin < 1
   DirPaths = {[OuterPath, 'Small_object/'], [OuterPath, 'Car/'], [OuterPath, 'MCN/']};
 end
 if nargin < 2
-  nLimistPoitns = inf;
+  nLimistPoitns = 1000;
 end
 
 rgbs = [];
@@ -30,6 +30,7 @@ for d = 1:numel(DirPaths)
   end
   
   for i = 1:nimages
+    disp([ImagesPath, ImageFiles(i).name]);
     ImageRGB = imread([ImagesPath, ImageFiles(i).name]);
     
     MaskPath = [GtsPath, lower(ImageFiles(i).name(1:end - 3)), 'mat'];
