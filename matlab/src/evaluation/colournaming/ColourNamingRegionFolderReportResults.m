@@ -37,8 +37,13 @@ for i = 1:nimages
   MaskPath = [GtsPath, lower(ImageFiles(i).name(1:end - 3)), 'mat'];
   GtMat = load(MaskPath);
   nRegions = size(GtMat.colorprop, 1);
-  ErrorMatsCat = zeros(nRegions, 1);
+  ErrorMatsCat = zeros(nRegions, 2);
   for c = 1:nRegions
+    NonZeroElements = find(GtMat.colorprop(c, :) > 0);
+    if sum(NonZeroElements(:)) == 0
+      continue;
+    end
+    
     ImageMask = GtMat.objmap;
     ImageMask = ImageMask == c;
     
@@ -49,6 +54,7 @@ for i = 1:nimages
         CurrentChannel = CurrentChannel(ImageMask);
         RegionBelonging(1, b) = mean(CurrentChannel(:));
       end
+      RegionBelonging = RegionBelonging ./ sum(RegionBelonging(:));
       [~, RegionMaxInds] = max(RegionBelonging);
       
       MaxPercent = max(GtMat.colorprop(c, :));
@@ -60,6 +66,14 @@ for i = 1:nimages
           ErrorMatsCat(c, 1) = 1;
         end
       end
+      
+      [~, SortedIndeces] = sort(RegionBelonging, 'descend');
+      RegionBelonging(:) = 0;
+      RegionBelonging(SortedIndeces(1:length(NonZeroElements))) = 1;
+      comparison = RegionBelonging(1, EllipsoidDicMat.yuanliu2ellipsoid) & (GtMat.colorprop(c, :) > 0);
+      tp = sum(comparison(:));
+      fn = length(NonZeroElements) - tp;
+      ErrorMatsCat(c, 2) = tp / (tp + fn);
     else
       RegionResult = NamingImage(ImageMask);
       UniqueRegions = unique(RegionResult);
@@ -78,6 +92,14 @@ for i = 1:nimages
           end
         end
       end
+      
+      [~, SortedIndeces] = sort(RegionHist, 'descend');
+      RegionBelonging = zeros(1, 11);
+      RegionBelonging(UniqueRegions(SortedIndeces(1:min(length(NonZeroElements), length(SortedIndeces))))) = 1;
+      comparison = RegionBelonging(1, EllipsoidDicMat.yuanliu2ellipsoid) & (GtMat.colorprop(c, :) > 0);
+      tp = sum(comparison(:));
+      fn = length(NonZeroElements) - tp;
+      ErrorMatsCat(c, 2) = tp / (tp + fn);
     end
     
     disp(['[', num2str(i), ',', num2str(c), '] ', ImageFiles(i).name, ' - region ', num2str(ErrorMatsCat(c, 1))]);
@@ -86,10 +108,11 @@ for i = 1:nimages
   ErrorMats = [ErrorMats; ErrorMatsCat]; %#ok
 end
 
-tp = sum(ErrorMats);
+tp = sum(ErrorMats(:, 1));
 fn = size(ErrorMats, 1) - tp;
 ErrorRate = tp / (tp + fn);
 disp(['Region accuracy ', num2str(ErrorRate)]);
+disp(['Region order difference ', num2str(mean(ErrorMats(:, 2)))]);
 
 if BelongingPool
   save([ResultDirectory, 'ErrorMatsRegionsBelongingPool.mat'], 'ErrorMats');
