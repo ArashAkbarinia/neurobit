@@ -1,11 +1,12 @@
-function ProbabilityDiffs = ColourNamingBelongingFolderReportResults(DirPath, method, quantise)
+function ProbabilityDiffs = ColourNamingBelongingFolderReportResults(DirPath, method, quantise, normalise)
 %ColourNamingTestFolderAllCategories Summary of this function goes here
 %   Detailed explanation goes here
 
-if nargin < 3
+if nargin < 4
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ColorNamingYuanliu/Small_object/';
   method = 'ourlab';
-  quantise = true;
+  quantise = false;
+  normalise = true;
 end
 
 method = lower(method);
@@ -33,6 +34,10 @@ for i = 1:nimages
   [rows, cols, chns] = size(BelongingImage);
   BelongingImage = reshape(BelongingImage, rows * cols, chns);
   
+  if normalise
+    BelongingImage = bsxfun(@rdivide, BelongingImage, sum(BelongingImage, 2));
+  end
+  
   if quantise
     BelongingImage(BelongingImage >= 0.875) = 1.0;
     BelongingImage(BelongingImage < 0.875 & BelongingImage >= 0.625) = 0.75;
@@ -56,6 +61,8 @@ disp(['Mean - probability diffs ', num2str(FinalError)]);
 
 if quantise
   save([ResultDirectory, 'ErrorMatsBelongingRounded.mat'], 'ProbabilityDiffs');
+elseif normalise
+  save([ResultDirectory, 'ErrorMatsBelongingNormalised.mat'], 'ProbabilityDiffs');
 else
   save([ResultDirectory, 'ErrorMatsBelonging.mat'], 'ProbabilityDiffs');
 end
