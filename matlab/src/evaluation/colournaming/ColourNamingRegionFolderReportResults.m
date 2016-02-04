@@ -1,10 +1,11 @@
-function ErrorMats = ColourNamingRegionFolderReportResults(DirPath, method)
+function ErrorMats = ColourNamingRegionFolderReportResults(DirPath, method, BelongingPool)
 %ColourNamingTestFolderAllCategories Summary of this function goes here
 %   Detailed explanation goes here
 
-if nargin < 2
+if nargin < 3
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ColorNamingYuanliu/Small_object/';
   method = 'ourlab';
+  BelongingPool = true;
 end
 
 method = lower(method);
@@ -41,20 +42,40 @@ for i = 1:nimages
     ImageMask = GtMat.objmap;
     ImageMask = ImageMask == c;
     
-    RegionResult = NamingImage(ImageMask);
-    UniqueRegions = unique(RegionResult);
-    RegionHist = histc(RegionResult, UniqueRegions);
-    RegionCount = max(RegionHist);
-    RegionMaxInds = find(RegionHist == RegionCount);
-    
-    MaxPercent = max(GtMat.colorprop(c, :));
-    MaxInds = find(GtMat.colorprop(c, :) == MaxPercent);
-    
-    for m = 1:length(MaxInds)
-      GroundTruthColour = EllipsoidDicMat.yuanliu2ellipsoid(MaxInds(m));
-      for r = 1:length(RegionMaxInds)
-        if UniqueRegions(RegionMaxInds(r)) == GroundTruthColour
+    if BelongingPool
+      RegionBelonging = zeros(1, 11);
+      for b = 1:11
+        CurrentChannel = BelongingImage(:, :, b);
+        CurrentChannel = CurrentChannel(ImageMask);
+        RegionBelonging(1, b) = mean(CurrentChannel(:));
+      end
+      [~, RegionMaxInds] = max(RegionBelonging);
+      
+      MaxPercent = max(GtMat.colorprop(c, :));
+      MaxInds = find(GtMat.colorprop(c, :) == MaxPercent);
+      
+      for m = 1:length(MaxInds)
+        GroundTruthColour = EllipsoidDicMat.yuanliu2ellipsoid(MaxInds(m));
+        if RegionMaxInds == GroundTruthColour
           ErrorMatsCat(c, 1) = 1;
+        end
+      end
+    else
+      RegionResult = NamingImage(ImageMask);
+      UniqueRegions = unique(RegionResult);
+      RegionHist = histc(RegionResult, UniqueRegions);
+      RegionCount = max(RegionHist);
+      RegionMaxInds = find(RegionHist == RegionCount);
+      
+      MaxPercent = max(GtMat.colorprop(c, :));
+      MaxInds = find(GtMat.colorprop(c, :) == MaxPercent);
+      
+      for m = 1:length(MaxInds)
+        GroundTruthColour = EllipsoidDicMat.yuanliu2ellipsoid(MaxInds(m));
+        for r = 1:length(RegionMaxInds)
+          if UniqueRegions(RegionMaxInds(r)) == GroundTruthColour
+            ErrorMatsCat(c, 1) = 1;
+          end
         end
       end
     end
@@ -70,6 +91,10 @@ fn = size(ErrorMats, 1) - tp;
 ErrorRate = tp / (tp + fn);
 disp(['Region accuracy ', num2str(ErrorRate)]);
 
-save([ResultDirectory, 'ErrorMatsRegions.mat'], 'ErrorMats');
+if BelongingPool
+  save([ResultDirectory, 'ErrorMatsRegionsBelongingPool.mat'], 'ErrorMats');
+else
+  save([ResultDirectory, 'ErrorMatsRegions.mat'], 'ErrorMats');
+end
 
 end
