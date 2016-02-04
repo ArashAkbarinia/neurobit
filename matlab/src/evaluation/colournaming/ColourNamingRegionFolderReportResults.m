@@ -42,7 +42,8 @@ for i = 1:nimages
     ImageMask = ImageMask == c;
     
     RegionResult = NamingImage(ImageMask);
-    RegionHist = hist(RegionResult, 11);
+    UniqueRegions = unique(RegionResult);
+    RegionHist = histc(RegionResult, UniqueRegions);
     RegionCount = max(RegionHist);
     RegionMaxInds = find(RegionHist == RegionCount);
     
@@ -52,13 +53,13 @@ for i = 1:nimages
     for m = 1:length(MaxInds)
       GroundTruthColour = EllipsoidDicMat.yuanliu2ellipsoid(MaxInds(m));
       for r = 1:length(RegionMaxInds)
-        if RegionMaxInds(r) == GroundTruthColour
+        if UniqueRegions(RegionMaxInds(r)) == GroundTruthColour
           ErrorMatsCat(c, 1) = 1;
         end
       end
     end
     
-%     disp(['[', num2str(i), ',', num2str(c), '] ', ImageFiles(i).name, ' - region ', num2str(ErrorMatsCat(c, 1))]);
+    disp(['[', num2str(i), ',', num2str(c), '] ', ImageFiles(i).name, ' - region ', num2str(ErrorMatsCat(c, 1))]);
   end
   
   ErrorMats = [ErrorMats; ErrorMatsCat]; %#ok
