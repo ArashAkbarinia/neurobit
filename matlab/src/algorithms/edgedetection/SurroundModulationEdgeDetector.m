@@ -178,33 +178,33 @@ v1sigma = 0.5 * 2.7;
 v1v2 = 2.7;
 
 % V2 area pie-wedge shape
-for c = 1:size(EdgeImageResponse, 3)
-  CurrentChannel = EdgeImageResponse(:, :, c);
-  CurrentOrientation = FinalOrientations(:, :, c);
-  
-  % consider calculating the contrast with a larger window size
-  % approperiate for V2.
-  si = LocalStdContrast(CurrentChannel);
-  si = si ./ max(si(:));
-  si = max(si(:)) - si;
-  si = NormaliseChannel(si, 0.7, 1.0, [], []);
-  
-  for t = 1:nThetas
-    theta = (t - 1) * pi / nThetas;
-    theta = theta + (pi / 2);
-    
-    xsigma = v1sigma * v1v2;
-    % consider make this a parameter based on number of thetas
-    ysigma = xsigma / 8;
-    
-    v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
-    v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
-    
-    v2response = max(v2responsec - si .* v2responses, 0);
-    CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
-  end
-  EdgeImageResponse(:, :, c) = CurrentChannel;
-end
+% for c = 1:size(EdgeImageResponse, 3)
+%   CurrentChannel = EdgeImageResponse(:, :, c);
+%   CurrentOrientation = FinalOrientations(:, :, c);
+%   
+%   % consider calculating the contrast with a larger window size
+%   % approperiate for V2.
+%   si = LocalStdContrast(CurrentChannel);
+%   si = si ./ max(si(:));
+%   si = max(si(:)) - si;
+%   si = NormaliseChannel(si, 0.7, 1.0, [], []);
+%   
+%   for t = 1:nThetas
+%     theta = (t - 1) * pi / nThetas;
+%     theta = theta + (pi / 2);
+%     
+%     xsigma = v1sigma * v1v2;
+%     % consider make this a parameter based on number of thetas
+%     ysigma = xsigma / 8;
+%     
+%     v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
+%     v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
+%     
+%     v2response = max(v2responsec - si .* v2responses, 0);
+%     CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
+%   end
+%   EdgeImageResponse(:, :, c) = CurrentChannel;
+% end
 
 % STD before V2 is not good
 EdgeImageResponse = EdgeImageResponse .* StdImg;
@@ -335,9 +335,9 @@ rfresponse = rfresponse ./ max(rfresponse(:));
 
 end
 
-function rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, sigma)
+function orfresponse = SurroundOrientation(InputImage, CentreSize, irfresponse, sigma)
 
-rfresponse = rfresponse ./ max(rfresponse(:));
+irfresponse = irfresponse ./ max(irfresponse(:));
 
 if ~isempty(InputImage)
   CentreContrast = LocalStdContrast(InputImage, CentreSize);
@@ -362,9 +362,11 @@ end
 
 ysigma = 0.1;
 
+orfresponse = irfresponse;
+
 % in the oppositie orientation, orthogonality facilitates and parallelism
 % suppresses.
-nThetas = size(rfresponse, 3);
+nThetas = size(irfresponse, 3);
 for t = 1:nThetas
   theta1 = (t - 1) * pi / nThetas;
   theta2 = theta1 + (pi / 2);
@@ -379,8 +381,8 @@ for t = 1:nThetas
     xsigma = xsigma * 2;
   end
   
-  oppresponse = rfresponse(:, :, o);
-  doresponse = rfresponse(:, :, t);
+  oppresponse = irfresponse(:, :, o);
+  doresponse = irfresponse(:, :, t);
   
   PositiveSameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
   PositiveSameOrientation = imfilter(doresponse, PositiveSameOrientationGaussian, 'symmetric');
@@ -391,15 +393,15 @@ for t = 1:nThetas
   NegativeSameOrientation = imfilter(oppresponse, NegativeSameOrientationGaussian, 'symmetric');
   PositiveOrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
   PositiveOrthogonalOrientation = imfilter(oppresponse, PositiveOrthogonalOrientationGaussian, 'symmetric');
-  
+
   doresponse = doresponse + sps .* PositiveSameOrientation - sns .* NegativeOrthogonalOrientation;
   doresponse = doresponse - ons .* NegativeSameOrientation + ops .* PositiveOrthogonalOrientation;
-  rfresponse(:, :, t) = doresponse;
+  orfresponse(:, :, t) = doresponse;
 end
 
 % consider max or abs
-rfresponse = abs(rfresponse);
+orfresponse = abs(orfresponse);
 
-rfresponse = rfresponse ./ max(rfresponse(:));
+orfresponse = orfresponse ./ max(orfresponse(:));
 
 end
