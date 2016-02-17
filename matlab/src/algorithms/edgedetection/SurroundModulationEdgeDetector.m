@@ -343,15 +343,11 @@ if ~isempty(InputImage)
   CentreContrast = LocalStdContrast(InputImage, CentreSize);
   CentreContrast = CentreContrast ./ max(CentreContrast(:));
   
-  sps = max(CentreContrast(:)) - CentreContrast;
-  sps = sps .* 0.66;
+  sps = 1 - CentreContrast;
   sns = CentreContrast;
-  sns = sns .* 0.66;
   
-  ops = max(CentreContrast(:)) - CentreContrast;
-  ops = ops .* 0.5;
+  ops = 1 - CentreContrast;
   ons = CentreContrast;
-  ons = ons .* 0.5;
 else
   sps = CentreSize;
   sns = CentreSize;
@@ -361,6 +357,9 @@ else
 end
 
 ysigma = 0.1;
+xsigma = 3 * sigma;
+AxesFactor = 4;
+CentreZeroSize = [1, 1];
 
 orfresponse = irfresponse;
 
@@ -376,31 +375,36 @@ for t = 1:nThetas
     o = t - (nThetas / 2);
   end
   
-  xsigma = 3 * sigma;
-  if t == 1 || t == ((nThetas / 2) + 1)
-    xsigma = xsigma * 2;
-  end
-  
   oppresponse = irfresponse(:, :, o);
   doresponse = irfresponse(:, :, t);
   
-  PositiveSameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
-  PositiveSameOrientation = imfilter(doresponse, PositiveSameOrientationGaussian, 'symmetric');
-  NegativeOrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
-  NegativeOrthogonalOrientation = imfilter(doresponse, NegativeOrthogonalOrientationGaussian, 'symmetric');
+  SameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), CentreZeroSize);
+  OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / AxesFactor, ysigma, 0, 0, theta2), CentreZeroSize);
   
-  NegativeSameOrientationGaussian = CentreZero(GaussianFilter2(xsigma, ysigma, 0, 0, theta1), [1, 1]);
-  NegativeSameOrientation = imfilter(oppresponse, NegativeSameOrientationGaussian, 'symmetric');
-  PositiveOrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / 4, ysigma, 0, 0, theta2), [1, 1]);
-  PositiveOrthogonalOrientation = imfilter(oppresponse, PositiveOrthogonalOrientationGaussian, 'symmetric');
-
-  doresponse = doresponse + sps .* PositiveSameOrientation - sns .* NegativeOrthogonalOrientation;
-  doresponse = doresponse - ons .* NegativeSameOrientation + ops .* PositiveOrthogonalOrientation;
+  axis1(:, :, 1) = imfilter(doresponse, SameOrientationGaussian, 'symmetric');
+  axis1(:, :, 2) = imfilter(doresponse, OrthogonalOrientationGaussian, 'symmetric');
+  
+  axis2(:, :, 1) = imfilter(oppresponse, SameOrientationGaussian, 'symmetric');
+  axis2(:, :, 2) = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
+  
+  AverageFilter = CentreZero(fspecial('average', CentreSize), CentreZeroSize .* 3);
+  AverageFilter = AverageFilter ./ sum(AverageFilter(:));
+%   NegativeFullSurround = imfilter(doresponse, AverageFilter);
+  PositiveFullSurround = imfilter(oppresponse, AverageFilter);  
+  
+  doresponse = doresponse + sps .* axis1(:, :, 1) - sns .* axis1(:, :, 2);
+  doresponse = doresponse - ons .* axis2(:, :, 1) + ops .* axis2(:, :, 2);
+  
+%   doresponse = doresponse - 0.05 .* NegativeFullSurround;
+  doresponse = doresponse + 0.50 .* PositiveFullSurround;
+  
   orfresponse(:, :, t) = doresponse;
 end
 
-% consider max or abs
-orfresponse = abs(orfresponse);
+% consider max or abs, I think max more sense as in this part we're
+% mimicking inhibition and facilitation.
+orfresponse = max(orfresponse, 0);
+% orfresponse = abs(orfresponse);
 
 orfresponse = orfresponse ./ max(orfresponse(:));
 
