@@ -41,6 +41,12 @@ else
   EdgeImageResponse = DoV1(OpponentImage, nangles, nlevels, LgnSigma);
 end
 
+EdgeImageResponse = DoHigherLevels(EdgeImageResponse, nangles);
+
+end
+
+function EdgeImageResponse = DoHigherLevels(EdgeImageResponse, nangles)
+
 ExtraDimensions = [4, 5, 3];
 FinalOrientations = [];
 
@@ -53,18 +59,7 @@ for i = 1:numel(ExtraDimensions)
     case 4
       [EdgeImageResponse, FinalOrientations] = CollapsePlanes(EdgeImageResponse, FinalOrientations);
     case 5
-      if ImagePath
-        if exist([DebugPath, '-v2.mat'], 'file')
-          v2mat = load([DebugPath, '-v2.mat']);
-          EdgeImageResponse = v2mat.EdgeImageResponse;
-          FinalOrientations = v2mat.FinalOrientations;
-        else
-          [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, FinalOrientations);
-          save([DebugPath, '-v2.mat'], 'EdgeImageResponse', 'FinalOrientations');
-        end
-      else
-        [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, FinalOrientations);
-      end
+      [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, FinalOrientations);
   end
   
 end
@@ -86,6 +81,7 @@ if UseNonMax
   EdgeImageResponse(:, [1, end]) = 0;
   EdgeImageResponse = EdgeImageResponse ./ max(EdgeImageResponse(:));
 end
+
 
 end
 
