@@ -262,21 +262,15 @@ function OutEdges = GaussianGradientEdges(InputImage, params, nangles, clevel)
 
 [w, h, d] = size(InputImage);
 
-OutEdges = zeros(w, h, d, nangles);
-for c = 1:d
-  OutEdges(:, :, c, :) = GaussianGradientChannel(InputImage(:, :, c), params(c, :), nangles, c, clevel);
-end
-
-end
-
-function OutEdges = GaussianGradientChannel(isignal, params, nangles, colch, clevel)
-
 thetas = zeros(1, nangles);
 for i = 1:nangles
   thetas(i) = (i - 1) * pi / nangles;
 end
 
-OutEdges = gedges(isignal, params(1), thetas, colch, clevel);
+OutEdges = zeros(w, h, d, nangles);
+for c = 1:d
+  OutEdges(:, :, c, :) = gedges(InputImage(:, :, c), params(c, 1), thetas, c, clevel);
+end
 
 end
 
