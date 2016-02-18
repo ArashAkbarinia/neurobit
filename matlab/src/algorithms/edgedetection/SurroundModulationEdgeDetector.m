@@ -346,6 +346,7 @@ if ~isempty(InputImage)
   sps = 1 - CentreContrast;
   sns = CentreContrast;
   
+  % consider reduce the influence of orthogonal surround
   ops = 1 - CentreContrast;
   ons = CentreContrast;
 else
@@ -360,6 +361,9 @@ ysigma = 0.1;
 xsigma = 3 * sigma;
 AxesFactor = 4;
 CentreZeroSize = [1, 1];
+
+AverageFilter = CentreZero(fspecial('average', CentreSize), CentreZeroSize .* 3);
+AverageFilter = AverageFilter ./ sum(AverageFilter(:));
 
 orfresponse = irfresponse;
 
@@ -382,26 +386,23 @@ for t = 1:nThetas
   OrthogonalOrientationGaussian = CentreZero(GaussianFilter2(xsigma / AxesFactor, ysigma, 0, 0, theta2), CentreZeroSize);
   
   axis1(:, :, 1) = imfilter(doresponse, SameOrientationGaussian, 'symmetric');
-  axis1(:, :, 2) = imfilter(doresponse, OrthogonalOrientationGaussian, 'symmetric');
+  axis2(:, :, 1) = imfilter(doresponse, OrthogonalOrientationGaussian, 'symmetric');
   
-  axis2(:, :, 1) = imfilter(oppresponse, SameOrientationGaussian, 'symmetric');
+  axis1(:, :, 2) = imfilter(oppresponse, SameOrientationGaussian, 'symmetric');
   axis2(:, :, 2) = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
   
-  AverageFilter = CentreZero(fspecial('average', CentreSize), CentreZeroSize .* 3);
-  AverageFilter = AverageFilter ./ sum(AverageFilter(:));
-%   NegativeFullSurround = imfilter(doresponse, AverageFilter);
-  PositiveFullSurround = imfilter(oppresponse, AverageFilter);  
+  % consider adding somthing for negative full surround
+  PositiveFullSurround = imfilter(oppresponse, AverageFilter);
   
-  doresponse = doresponse + sps .* axis1(:, :, 1) - sns .* axis1(:, :, 2);
-  doresponse = doresponse - ons .* axis2(:, :, 1) + ops .* axis2(:, :, 2);
+  doresponse = doresponse + sps .* axis1(:, :, 1) - sns .* axis2(:, :, 1);
+  doresponse = doresponse - ons .* axis1(:, :, 2) + ops .* axis2(:, :, 2);
   
-%   doresponse = doresponse - 0.05 .* NegativeFullSurround;
-  doresponse = doresponse + 0.50 .* PositiveFullSurround;
+  doresponse = doresponse + 0.5 .* PositiveFullSurround;
   
   orfresponse(:, :, t) = doresponse;
 end
 
-% consider max or abs, I think max more sense as in this part we're
+% consider max or abs, I think max makes more sense as in this part we're
 % mimicking inhibition and facilitation.
 orfresponse = max(orfresponse, 0);
 % orfresponse = abs(orfresponse);
