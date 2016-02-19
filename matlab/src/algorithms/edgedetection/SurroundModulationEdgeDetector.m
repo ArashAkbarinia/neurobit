@@ -41,11 +41,11 @@ else
   EdgeImageResponse = DoV1(OpponentImage, nangles, nlevels, LgnSigma);
 end
 
-EdgeImageResponse = DoHigherLevels(EdgeImageResponse, nangles);
+EdgeImageResponse = DoHigherLevels(EdgeImageResponse, nangles, OpponentImage);
 
 end
 
-function EdgeImageResponse = DoHigherLevels(EdgeImageResponse, nangles)
+function EdgeImageResponse = DoHigherLevels(EdgeImageResponse, nangles, OpponentImage)
 
 ExtraDimensions = [4, 5, 3];
 FinalOrientations = [];
@@ -57,9 +57,9 @@ for i = 1:numel(ExtraDimensions)
     case 3
       [EdgeImageResponse, FinalOrientations] = CollapseChannels(EdgeImageResponse, FinalOrientations);
     case 4
-      [EdgeImageResponse, FinalOrientations] = CollapsePlanes(EdgeImageResponse, FinalOrientations);
+      EdgeImageResponse = CollapsePlanes(EdgeImageResponse, OpponentImage);
     case 5
-      [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, FinalOrientations);
+      [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse);
   end
   
 end
@@ -152,12 +152,11 @@ end
 
 end
 
-function [EdgeImageResponse, FinalOrientations] = CollapsePlanes(EdgeImageResponse, SelectedOrientations)
+function EdgeImageResponse = CollapsePlanes(EdgeImageResponse, OpponentImage)
 
 CurrentDimension = 4;
 
 EdgeImageResponse = sum(EdgeImageResponse, CurrentDimension);
-FinalOrientations = [];
 
 % normalising the sum of all planes
 % it doesn't make the results better, but it makes a logical sense.
@@ -169,7 +168,7 @@ end
 
 end
 
-function [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, SelectedOrientations)
+function [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse)
 
 CurrentDimension = 5;
 nThetas = size(EdgeImageResponse, CurrentDimension);
