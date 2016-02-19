@@ -159,6 +159,14 @@ CurrentDimension = 4;
 EdgeImageResponse = sum(EdgeImageResponse, CurrentDimension);
 FinalOrientations = [];
 
+% normalising the sum of all planes
+% it doesn't make the results better, but it makes a logical sense.
+for i = 1:size(EdgeImageResponse, 3)
+  CurrentChannel = EdgeImageResponse(:, :, i, :, :);
+  CurrentChannel = CurrentChannel ./ max(CurrentChannel(:));
+  EdgeImageResponse(:, :, i, :, :) = CurrentChannel;
+end
+
 end
 
 function [EdgeImageResponse, FinalOrientations] = CollapseOrientations(EdgeImageResponse, SelectedOrientations)
@@ -330,6 +338,8 @@ function orfresponse = SurroundOrientation(InputImage, CentreSize, irfresponse, 
 irfresponse = irfresponse ./ max(irfresponse(:));
 
 if ~isempty(InputImage)
+  AverageSize = CentreSize;
+  
   CentreContrast = LocalStdContrast(InputImage, CentreSize);
   CentreContrast = CentreContrast ./ max(CentreContrast(:));
   
@@ -340,6 +350,8 @@ if ~isempty(InputImage)
   ops = 1 - CentreContrast;
   ons = CentreContrast;
 else
+  AverageSize = [15, 15];
+  
   sps = CentreSize;
   sns = CentreSize;
   
@@ -352,7 +364,7 @@ xsigma = 3 * sigma;
 AxesFactor = 4;
 CentreZeroSize = [1, 1];
 
-AverageFilter = CentreZero(fspecial('average', CentreSize), CentreZeroSize .* 3);
+AverageFilter = CentreZero(fspecial('average', AverageSize), CentreZeroSize .* 3);
 AverageFilter = AverageFilter ./ sum(AverageFilter(:));
 
 orfresponse = irfresponse;
