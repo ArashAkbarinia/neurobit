@@ -161,7 +161,7 @@ pstd = 1 - lstd;
 EdgeImageResponse = zeros(rows, cols, chns, 1, oris);
 
 for i = 1:plns
-  for j = 1:chns
+  for j = 1:oris
     CurrentChannel = inEdgeImageResponse(:, :, :, i, j) .* (pstd ./ i);
     EdgeImageResponse(:, :, :, 1, j) =  EdgeImageResponse(:, :, :, 1, j) + CurrentChannel;
   end
