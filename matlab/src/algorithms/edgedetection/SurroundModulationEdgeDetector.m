@@ -347,30 +347,30 @@ rfresponse = rfresponse ./ max(rfresponse(:));
 
 end
 
-function orfresponse = SurroundOrientation(InputImage, CentreSize, irfresponse, sigma)
+function orfresponse = SurroundOrientation(InputImage, GaussianSize, irfresponse, sigma)
 
 irfresponse = irfresponse ./ max(irfresponse(:));
 
 if ~isempty(InputImage)
-  AverageSize = CentreSize;
+  AverageSize = GaussianSize;
   
-  CentreContrast = LocalStdContrast(InputImage, CentreSize);
-  CentreContrast = CentreContrast ./ max(CentreContrast(:));
+  SurroundContrast = LocalStdContrast(InputImage, GaussianSize);
+  SurroundContrast = SurroundContrast ./ max(SurroundContrast(:));
   
-  sps = 1 - CentreContrast;
-  sns = CentreContrast;
+  sps = 1 - SurroundContrast;
+  sns = SurroundContrast;
   
   % consider reduce the influence of orthogonal surround
-  ops = 1 - CentreContrast;
-  ons = CentreContrast;
+  ops = 1 - SurroundContrast;
+  ons = SurroundContrast;
 else
   AverageSize = [15, 15];
   
-  sps = CentreSize;
-  sns = CentreSize;
+  sps = GaussianSize;
+  sns = GaussianSize;
   
-  ops = CentreSize;
-  ons = CentreSize;
+  ops = GaussianSize;
+  ons = GaussianSize;
 end
 
 ysigma = 0.1;
@@ -410,8 +410,8 @@ for t = 1:nThetas
   % consider adding somthing for negative full surround
   PositiveFullSurround = imfilter(oppresponse, AverageFilter);
   
-  doresponse = doresponse + sps .* axis1(:, :, 1) - sns .* axis2(:, :, 1);
-  doresponse = doresponse - ons .* axis1(:, :, 2) + ops .* axis2(:, :, 2);
+  doresponse = doresponse + sps .* axis1(:, :, 1) - ons .* axis1(:, :, 2);
+  doresponse = doresponse - sns .* axis2(:, :, 1) + ops .* axis2(:, :, 2);
   
   doresponse = doresponse + 0.5 .* PositiveFullSurround;
   
