@@ -196,33 +196,33 @@ v1sigma = 0.5 * 2.7;
 v1v2 = 2.7;
 
 % V2 area pie-wedge shape
-for c = 1:size(EdgeImageResponse, 3)
-  CurrentChannel = EdgeImageResponse(:, :, c);
-  CurrentOrientation = FinalOrientations(:, :, c);
-  
-  % consider calculating the contrast with a larger window size
-  % approperiate for V2.
-  si = LocalStdContrast(CurrentChannel);
-  si = si ./ max(si(:));
-  si = max(si(:)) - si;
-  si = NormaliseChannel(si, 0.7, 1.0, [], []);
-  
-  for t = 1:nThetas
-    theta = (t - 1) * pi / nThetas;
-    theta = theta + (pi / 2);
-    
-    xsigma = v1sigma * v1v2;
-    % consider make this a parameter based on number of thetas
-    ysigma = xsigma / 8;
-    
-    v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
-    v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
-    
-    v2response = max(v2responsec - si .* v2responses, 0);
-    CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
-  end
-  EdgeImageResponse(:, :, c) = CurrentChannel;
-end
+% for c = 1:size(EdgeImageResponse, 3)
+%   CurrentChannel = EdgeImageResponse(:, :, c);
+%   CurrentOrientation = FinalOrientations(:, :, c);
+%   
+%   % consider calculating the contrast with a larger window size
+%   % approperiate for V2.
+%   si = LocalStdContrast(CurrentChannel);
+%   si = si ./ max(si(:));
+%   si = max(si(:)) - si;
+%   si = NormaliseChannel(si, 0.7, 1.0, [], []);
+%   
+%   for t = 1:nThetas
+%     theta = (t - 1) * pi / nThetas;
+%     theta = theta + (pi / 2);
+%     
+%     xsigma = v1sigma * v1v2;
+%     % consider make this a parameter based on number of thetas
+%     ysigma = xsigma / 8;
+%     
+%     v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
+%     v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
+%     
+%     v2response = max(v2responsec - si .* v2responses, 0);
+%     CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
+%   end
+%   EdgeImageResponse(:, :, c) = CurrentChannel;
+% end
 
 % STD before V2 is not good
 EdgeImageResponse = EdgeImageResponse .* StdImg;
@@ -330,6 +330,7 @@ for t = 1:nThetas
   rfresponse(:, :, t) = doresponse;
 end
 
+% consider plascing this before or after resize.
 CentreSize = size(dorf, 1);
 rfresponse = SurroundOrientation(InputImage, CentreSize, rfresponse, sigma);
 
@@ -357,20 +358,20 @@ if ~isempty(InputImage)
   SurroundContrast = LocalStdContrast(InputImage, GaussianSize);
   SurroundContrast = SurroundContrast ./ max(SurroundContrast(:));
   
-  sps = 1 - SurroundContrast;
-  sns = SurroundContrast;
+  w11 = 1 - SurroundContrast;
+  w12 = -SurroundContrast;
   
   % consider reduce the influence of orthogonal surround
-  ops = 1 - SurroundContrast;
-  ons = SurroundContrast;
+  w21 = -SurroundContrast;
+  w22 = 1 - SurroundContrast;
 else
   AverageSize = [15, 15];
   
-  sps = GaussianSize;
-  sns = GaussianSize;
+  w11 = GaussianSize;
+  w12 = GaussianSize;
   
-  ops = GaussianSize;
-  ons = GaussianSize;
+  w21 = GaussianSize;
+  w22 = GaussianSize;
 end
 
 ysigma = 0.1;
@@ -378,8 +379,9 @@ xsigma = 3 * sigma;
 AxesFactor = 4;
 CentreZeroSize = [1, 1];
 
-AverageFilter = CentreZero(fspecial('average', AverageSize), CentreZeroSize .* 3);
+AverageFilter = CentreZero(fspecial('average', AverageSize), [3, 3]);
 AverageFilter = AverageFilter ./ sum(AverageFilter(:));
+FullSurroundOrientation = imfilter(irfresponse, AverageFilter);
 
 orfresponse = irfresponse;
 
@@ -407,13 +409,10 @@ for t = 1:nThetas
   axis1(:, :, 2) = imfilter(oppresponse, SameOrientationGaussian, 'symmetric');
   axis2(:, :, 2) = imfilter(oppresponse, OrthogonalOrientationGaussian, 'symmetric');
   
-  % consider adding somthing for negative full surround
-  PositiveFullSurround = imfilter(oppresponse, AverageFilter);
+  doresponse = doresponse + w11 .* axis1(:, :, 1) + w12 .* axis1(:, :, 2);
+  doresponse = doresponse + w21 .* axis2(:, :, 1) + w22 .* axis2(:, :, 2);
   
-  doresponse = doresponse + sps .* axis1(:, :, 1) - ons .* axis1(:, :, 2);
-  doresponse = doresponse - sns .* axis2(:, :, 1) + ops .* axis2(:, :, 2);
-  
-  doresponse = doresponse + 0.5 .* PositiveFullSurround;
+  doresponse = doresponse + 0.5 .* FullSurroundOrientation(:, :, o);
   
   orfresponse(:, :, t) = doresponse;
 end
