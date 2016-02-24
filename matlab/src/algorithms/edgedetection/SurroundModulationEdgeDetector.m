@@ -14,10 +14,10 @@ LgnSigma = 0.5;
 InputImage = imfilter(InputImage, GaussianFilter2(LgnSigma), 'replicate');
 
 SqrIm = sqrt(InputImage);
-LabImg = sqrt(double(applycform(uint8(SqrIm .* 255), makecform('srgb2lab'))) ./ 255);
 
 % convert to opponent image this happens in LGN
 if size(InputImage, 3) == 3
+  LabImg = sqrt(double(applycform(uint8(SqrIm .* 255), makecform('srgb2lab'))) ./ 255);
   OpponentImage = LabImg;
   OpponentImage(:, :, end + 1) = sqrt(LocalStdContrast(rgb2gray(SqrIm)));
   OpponentImage(:, :, end + 1) = InputImage(:, :, 1) - 0.7 .* InputImage(:, :, 2);
