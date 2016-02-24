@@ -9,8 +9,9 @@ function ch = CircularAverage(radius)
 %
 
 x = radius * 2 + 1;
-[rr, cc] = meshgrid(1:x - 1);
-ch = sqrt((rr - x / 2) .^ 2 + (cc - x / 2) .^ 2) <= radius;
+[rr, cc] = meshgrid(1:x);
+centre = ceil(x / 2);
+ch = sqrt((rr - centre) .^ 2 + (cc - centre) .^ 2) <= radius;
 
 ch = ch ./ sum(ch(:));
 

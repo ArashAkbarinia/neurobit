@@ -15,9 +15,10 @@ if CentreRadius == 0 || CentreRadius > min(ws, hs)
   return;
 end
 
-x = max(ws, hs) + 1;
-[rr, cc] = meshgrid(1:x - 1);
-ch = sqrt((rr - x / 2) .^ 2 + (cc - x / 2) .^ 2) <= CentreRadius;
+x = max(ws, hs);
+[rr, cc] = meshgrid(1:x);
+centre = ceil(x / 2);
+ch = sqrt((rr - centre) .^ 2 + (cc - centre) .^ 2) <= CentreRadius;
 
 SurroundMat(ch) = 0;
 
