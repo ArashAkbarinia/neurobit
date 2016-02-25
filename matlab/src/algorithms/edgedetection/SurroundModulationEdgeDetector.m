@@ -19,7 +19,7 @@ SqrIm = sqrt(InputImage);
 if size(InputImage, 3) == 3
   LabImg = sqrt(double(applycform(uint8(SqrIm .* 255), makecform('srgb2lab'))) ./ 255);
   OpponentImage = LabImg;
-  OpponentImage(:, :, end + 1) = sqrt(LocalStdContrast(rgb2gray(SqrIm)));
+  OpponentImage(:, :, end + 1) = sqrt(CircularLocalStdContrast(rgb2gray(SqrIm)));
   OpponentImage(:, :, end + 1) = InputImage(:, :, 1) - 0.7 .* InputImage(:, :, 2);
   OpponentImage(:, :, end + 1) = InputImage(:, :, 3) - 0.7 .* mean(InputImage(:, :, 2:3), 3);
 else
@@ -156,7 +156,7 @@ function EdgeImageResponse = CollapsePlanes(inEdgeImageResponse, OpponentImage)
 
 [rows, cols, chns, plns, oris] = size(inEdgeImageResponse);
 
-lstd = LocalStdContrast(OpponentImage, [41, 41]);
+lstd = CircularLocalStdContrast(OpponentImage, 41 / 2);
 pstd = 1 - lstd;
 
 EdgeImageResponse = zeros(rows, cols, chns, 1, oris);
@@ -202,7 +202,7 @@ for c = 1:size(EdgeImageResponse, 3)
   
   % consider calculating the contrast with a larger window size
   % approperiate for V2.
-  si = LocalStdContrast(CurrentChannel, [45, 45]);
+  si = CircularLocalStdContrast(CurrentChannel, 45 / 2);
   si = si ./ max(si(:));
   si = max(si(:)) - si;
   si = NormaliseChannel(si, 0.7, 1.0, [], []);
@@ -353,9 +353,9 @@ function orfresponse = SurroundOrientation(InputImage, GaussianSize, irfresponse
 irfresponse = irfresponse ./ max(irfresponse(:));
 
 if ~isempty(InputImage)
-  AverageSize = GaussianSize;
+  AverageSize = GaussianSize(1) / 2;
   
-  SurroundContrast = LocalStdContrast(InputImage, GaussianSize);
+  SurroundContrast = CircularLocalStdContrast(InputImage, GaussianSize(1) / 2);
   SurroundContrast = SurroundContrast ./ max(SurroundContrast(:));
   
   w11 = 1 - SurroundContrast;
@@ -365,7 +365,7 @@ if ~isempty(InputImage)
   w21 = -SurroundContrast;
   w22 = 1 - SurroundContrast;
 else
-  AverageSize = [15, 15];
+  AverageSize = 7.5;
   
   w11 = GaussianSize;
   w12 = GaussianSize;
@@ -379,7 +379,8 @@ xsigma = 3 * sigma;
 AxesFactor = 4;
 CentreZeroSize = [1, 1];
 
-AverageFilter = CentreZero(fspecial('average', AverageSize), [3, 3]);
+AverageFilter = CircularAverage(AverageSize);
+AverageFilter = CentreCircularZero(AverageFilter, AverageSize / 5);
 AverageFilter = AverageFilter ./ sum(AverageFilter(:));
 FullSurroundOrientation = imfilter(irfresponse, AverageFilter);
 
