@@ -27,6 +27,7 @@ end
 
 hc = fspecial('average', WindowSize);
 hc = CentreZero(hc, CentreSize);
+hc = hc ./ sum(hc(:));
 MeanCentre = imfilter(InputImage, hc, 'symmetric');
 stdv = (InputImage - MeanCentre) .^ 2;
 MeanStdv = imfilter(stdv, hc, 'symmetric');
