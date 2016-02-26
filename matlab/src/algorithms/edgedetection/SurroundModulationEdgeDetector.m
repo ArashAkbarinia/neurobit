@@ -154,14 +154,12 @@ end
 
 function EdgeImageResponse = CollapsePlanes(inEdgeImageResponse, OpponentImage)
 
-[rows, cols, chns, plns, oris] = size(inEdgeImageResponse);
-
-lstd = CircularLocalStdContrast(OpponentImage, 41 / 2);
+lstd = CircularLocalStdContrast(OpponentImage, 15 / 2);
 pstd = 1 - lstd;
 
-EdgeImageResponse = zeros(rows, cols, chns, 1, oris);
+EdgeImageResponse = inEdgeImageResponse(:, :, :, 1, :);
 
-for i = 1:plns
+for i = 2:plns
   for j = 1:oris
     CurrentChannel = inEdgeImageResponse(:, :, :, i, j) .* (pstd ./ i);
     EdgeImageResponse(:, :, :, 1, j) =  EdgeImageResponse(:, :, :, 1, j) + CurrentChannel;
@@ -171,7 +169,7 @@ end
 EdgeImageResponse = max(EdgeImageResponse, 0);
 
 % CurrentDimension = 4;
-% EdgeImageResponse = sum(EdgeImageResponse, CurrentDimension);
+% EdgeImageResponse = sum(inEdgeImageResponse, CurrentDimension);
 
 % normalising the sum of all planes
 % it doesn't make the results better, but it makes a logical sense.
