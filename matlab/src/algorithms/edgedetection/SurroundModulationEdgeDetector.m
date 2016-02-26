@@ -154,6 +154,8 @@ end
 
 function EdgeImageResponse = CollapsePlanes(inEdgeImageResponse, OpponentImage)
 
+[~, ~, ~, plns, oris] = size(inEdgeImageResponse);
+
 lstd = CircularLocalStdContrast(OpponentImage, 15 / 2);
 pstd = 1 - lstd;
 
