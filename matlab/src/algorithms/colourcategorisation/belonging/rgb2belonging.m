@@ -48,6 +48,10 @@ if DoAdaptEllipsoids && size(ImageOpponent, 1) * size(ImageOpponent, 2) > 500
 end
 
 BelongingImage = AllEllipsoidsEvaluateBelonging(ImageOpponent, ColourEllipsoids);
+SumProbabilities = sum(BelongingImage, 3);
+for i = 1:size(BelongingImage, 3)
+  BelongingImage(:, :, i) = BelongingImage(:, :, i) ./ SumProbabilities;
+end
 
 if plotme
   EllipsoidsTitles = ConfigsMat.RGBTitles;
