@@ -29,7 +29,7 @@ end
 EllipsoidDicMat = load('EllipsoidDic.mat');
 
 ErrorMats = [];
-for i = 1:nimages
+parfor i = 1:nimages
   ResultMatFile = load([ResultDirectory, 'res_prob', ImageFiles(i).name(1:end - 3), 'mat']);
   BelongingImage = ResultMatFile.BelongingImage;
   NamingImage = belonging2naming(BelongingImage);
@@ -105,7 +105,7 @@ for i = 1:nimages
     disp(['[', num2str(i), ',', num2str(c), '] ', ImageFiles(i).name, ' - region ', num2str(ErrorMatsCat(c, 1))]);
   end
   
-  ErrorMats = [ErrorMats; ErrorMatsCat]; %#ok
+  ErrorMats = [ErrorMats; ErrorMatsCat]; 
 end
 
 tp = sum(ErrorMats(:, 1));

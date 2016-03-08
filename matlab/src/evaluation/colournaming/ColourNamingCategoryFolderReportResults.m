@@ -27,7 +27,7 @@ if nimages ~= length(MaskFiles)
 end
 
 ErrorMatCategory = zeros(nimages, 2);
-for i = 1:nimages
+parfor i = 1:nimages
   MaskPath = [GtsPath, lower(ImageFiles(i).name(1:end - 3)), 'mat'];
   GtMat = load(MaskPath);
   BelongingImageGt = GtMat.BelongingImageGt;
