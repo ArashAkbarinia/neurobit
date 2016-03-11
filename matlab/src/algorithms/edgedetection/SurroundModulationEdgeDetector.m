@@ -23,7 +23,8 @@ if size(InputImage, 3) == 3
   OpponentImage(:, :, end + 1) = InputImage(:, :, 1) - 0.7 .* InputImage(:, :, 2);
   OpponentImage(:, :, end + 1) = InputImage(:, :, 3) - 0.7 .* mean(InputImage(:, :, 2:3), 3);
 else
-  OpponentImage = InputImage;
+  OpponentImage(:, :, 1) = InputImage;
+  OpponentImage(:, :, 2) = sqrt(CircularLocalStdContrast(SqrIm));
 end
 
 nlevels = 4;
@@ -164,7 +165,7 @@ EdgeImageResponse = inEdgeImageResponse(:, :, :, 1, :);
 for i = 2:plns
   for j = 1:oris
     CurrentChannel = inEdgeImageResponse(:, :, :, i, j) .* (pstd ./ i);
-    EdgeImageResponse(:, :, :, 1, j) =  EdgeImageResponse(:, :, :, 1, j) + CurrentChannel;
+    EdgeImageResponse(:, :, :, 1, j) = EdgeImageResponse(:, :, :, 1, j) + CurrentChannel;
   end
 end
 
