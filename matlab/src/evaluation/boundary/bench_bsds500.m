@@ -1,13 +1,21 @@
 function bench_bsds500()
 
-TestName = 'tmp';
+TestName = tmp';
 
-doedge = true;
-dothresh = true;
+doedge = false;
+dothresh = false;
 
+SubFolderName = 'test';
+if strcmpi(SubFolderName, 'test')
+  ResultFolder = 'results/';
+  PlotsFolder = 'plots/';
+elseif strcmpi(SubFolderName, 'val')
+  ResultFolder = 'results300/';
+  PlotsFolder = 'plots300/';
+end
 FOLDERPATH = '/home/arash/Software/Repositories/neurobit/data/dataset/BSR/';
 
-ImageDirectory = [FOLDERPATH, 'BSDS500/data/images/test'];
+ImageDirectory = [FOLDERPATH, 'BSDS500/data/images/', SubFolderName];
 ResultDirectory = [FOLDERPATH, 'BSDS500/results/', TestName];
 mkdir(ResultDirectory);
 
@@ -24,7 +32,7 @@ if doedge
     CurrentImage = double(CurrentImage) ./ 255;
     
     EdgeImage = SurroundModulationEdgeDetector(CurrentImage);
-%     EdgeImage = SCOBoundary(CurrentImage, 1.1, 6, -0.7, 5);
+    %     EdgeImage = SCOBoundary(CurrentImage, 1.1, 6, -0.7, 5);
     
     ResultName = CurrentFileName(1:end-4);
     imwrite(EdgeImage, [ResultDirectory, '/', ResultName, '.png']);
@@ -34,9 +42,9 @@ toc;
 
 %% boundary benchmark for results stored as contour images
 
-GroundtruthDirectory = [FOLDERPATH, 'BSDS500/data/groundTruth/test'];
-PlotsDirectory = [FOLDERPATH, 'BSDS500/plots/', TestName];
-ResultDirectory = [FOLDERPATH, 'BSDS500/results/', TestName];
+GroundtruthDirectory = [FOLDERPATH, 'BSDS500/data/groundTruth/', SubFolderName];
+PlotsDirectory = [FOLDERPATH, 'BSDS500/', PlotsFolder, TestName];
+ResultDirectory = [FOLDERPATH, 'BSDS500/', ResultFolder, TestName];
 nthresh = 99;
 
 tic;
