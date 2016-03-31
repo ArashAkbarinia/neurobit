@@ -1,6 +1,6 @@
 function bench_bsds500()
 
-TestName = tmp';
+TestName = 'tmp';
 
 doedge = true;
 dothresh = true;
