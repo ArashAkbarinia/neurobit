@@ -16,7 +16,7 @@ end
 FOLDERPATH = '/home/arash/Software/Repositories/neurobit/data/dataset/BSR/';
 
 ImageDirectory = [FOLDERPATH, 'BSDS500/data/images/', SubFolderName];
-ResultDirectory = [FOLDERPATH, 'BSDS500/results/', TestName];
+ResultDirectory = [FOLDERPATH, 'BSDS500/', ResultFolder, TestName];
 mkdir(ResultDirectory);
 
 ImageList = dir([ImageDirectory, '/*.jpg']);
