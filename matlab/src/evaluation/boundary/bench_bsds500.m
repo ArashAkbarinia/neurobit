@@ -2,8 +2,8 @@ function bench_bsds500()
 
 TestName = tmp';
 
-doedge = false;
-dothresh = false;
+doedge = true;
+dothresh = true;
 
 SubFolderName = 'test';
 if strcmpi(SubFolderName, 'test')
