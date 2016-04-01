@@ -13,13 +13,16 @@ end
 LgnSigma = 0.5;
 InputImage = imfilter(InputImage, GaussianFilter2(LgnSigma), 'replicate');
 
+% gamma correction
 SqrIm = sqrt(InputImage);
 
 % convert to opponent image this happens in LGN
 if size(InputImage, 3) == 3
   LabImg = sqrt(double(applycform(uint8(SqrIm .* 255), makecform('srgb2lab'))) ./ 255);
   OpponentImage = LabImg;
-  OpponentImage(:, :, end + 1) = sqrt(CircularLocalStdContrast(rgb2gray(SqrIm)));
+  % instead of CircularLocalStd you use NormDerivative as the feedback
+  % connection.
+  OpponentImage(:, :, end + 1) = sqrt(CircularLocalStdContrast(rgb2gray(SqrIm), 2.5));
   OpponentImage(:, :, end + 1) = InputImage(:, :, 1) - 0.7 .* InputImage(:, :, 2);
   OpponentImage(:, :, end + 1) = InputImage(:, :, 3) - 0.7 .* mean(InputImage(:, :, 2:3), 3);
 else
