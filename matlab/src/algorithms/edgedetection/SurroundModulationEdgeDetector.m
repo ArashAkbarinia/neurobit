@@ -198,6 +198,7 @@ StdImg = std(EdgeImageResponse, [], CurrentDimension);
 
 v1sigma = 0.5 * 2.7;
 v1v2 = 2.7;
+SurroundEnlagre = 5;
 
 % V2 area pie-wedge shape
 for c = 1:size(EdgeImageResponse, 3)
@@ -220,7 +221,7 @@ for c = 1:size(EdgeImageResponse, 3)
     ysigma = xsigma / 8;
     
     v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
-    v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * 5, ysigma * 5, 0, 0, theta), 'symmetric');
+    v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * SurroundEnlagre, ysigma * SurroundEnlagre, 0, 0, theta), 'symmetric');
     
     v2response = max(v2responsec - si .* v2responses, 0);
     CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
