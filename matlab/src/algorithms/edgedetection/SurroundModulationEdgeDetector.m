@@ -1,11 +1,4 @@
-function EdgeImageResponse = SurroundModulationEdgeDetector(InputImage, ImagePath)
-
-if nargin < 2
-  ImagePath = false;
-end
-if ImagePath
-  DebugPath = ImagePath(1:end - 4);
-end
+function EdgeImageResponse = SurroundModulationEdgeDetector(InputImage)
 
 % input image is from retina
 
@@ -33,19 +26,7 @@ end
 nlevels = 4;
 nangles = 6;
 
-% calculate the Gaussian gradients
-if ImagePath
-  if exist([DebugPath, '-v1.mat'], 'file')
-    v1mat = load([DebugPath, '-v1.mat']);
-    EdgeImageResponse = v1mat.EdgeImageResponse;
-  else
-    EdgeImageResponse = DoV1(OpponentImage, nangles, nlevels, LgnSigma);
-    save([DebugPath, '-v1.mat'], 'EdgeImageResponse');
-  end
-else
-  EdgeImageResponse = DoV1(OpponentImage, nangles, nlevels, LgnSigma);
-end
-
+EdgeImageResponse = DoV1(OpponentImage, nangles, nlevels, LgnSigma);
 EdgeImageResponse = DoHigherLevels(EdgeImageResponse, nangles, OpponentImage);
 
 end
