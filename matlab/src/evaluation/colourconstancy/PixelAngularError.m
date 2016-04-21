@@ -25,7 +25,7 @@ im2n = im2 ./ repmat(sqrt(sum(im2 .^ 2, 2)) + eps, [1, 3]);
 
 % DOT product and angular error
 dotp = sum(im1n .* im2n, 2);
-AngularErrorDist=real(acos(dotp));
+AngularErrorDist = real(acos(dotp));
 
 % removing the zero pixels (zero in GT image)
 indx = sum(im1, 2) == 0;
