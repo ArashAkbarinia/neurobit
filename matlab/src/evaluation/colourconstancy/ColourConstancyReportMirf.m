@@ -1,16 +1,29 @@
-function AngularErrors = ColourConstancyReportMirf(method, RealWorldFlag, plotme, ImageNumbers)
-%ColourConstancyReportMirf Summary of this function goes here
-%   Detailed explanation goes here
-
+function [AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportMirf(method, RealWorldFlag, plotme, ImageNumbers)
+%ColourConstancyReportMirf  applies colour constancy on MIRF dataset.
+%   https://www5.cs.fau.de/research/data/two-illuminant-dataset-with-computed-ground-truth/
+%
+% inputs
+%   method         name of the method to be used.
+%   RealWorldFlag  flag for laboratory or real wolrd images.
+%   plotme         if true the corrected images are displayed.
+%   ImageNumbers   number of images to be tested, by default all.
+%
+% outputs
+%   AngularErrors   the angular error between estimated luminance and
+%                   ground truth.
+%   LuminanceDiffs  the differences between estimated luminance and ground
+%                   truth.
+%   EstiLuminances  the estimated luminances.
+%
 
 if nargin < 1
   method = 'nothing';
 end
 if nargin < 2
-  plotme = false;
+  RealWorldFlag = false;
 end
-if nargin < 4
-  RealWorldFlag=false;
+if nargin < 3
+  plotme = false;
 end
 
 FunctionPath = mfilename('fullpath');
@@ -30,32 +43,45 @@ end
 MatFilePath = strrep(FunctionPath, 'matlab/src/evaluation/colourconstancy/ColourConstancyReportMirf', DataSetMatPath);
 
 MirfImageListMat = load(MatFilePath);
-image_names = MirfImageListMat.image_names;
+ImageNames = MirfImageListMat.image_names;
 
-% if nargin < 3
-%   ImageNumbers = 1:nimages;
-% end
+nimages = size(ImageNames, 2);
+if nargin < 4
+  ImageNumbers = 1:nimages;
+end
 
-nimages=size(image_names, 2);  % number of images
 AngularErrors = zeros(nimages, 1);
+LuminanceDiffs = cell(nimages, 1);
+EstiLuminances = cell(nimages, 1);
 
-parfor i = 1:nimages  % loop over images;
-  CurrentImage = double(imread([pathImages, image_names{i}, '.png']));
-  GroundTruthImage = double(imread([pathGT, image_names{i}, '.png']));
-  MaskImage = double(imread([pathMasks, image_names{i}, '.png']));
+parfor i = 1:nimages
+  if isempty(find(ImageNumbers == i, 1))
+    continue;
+  end
+  
+  CurrentImage = double(imread([pathImages, ImageNames{i}, '.png']));
+  GroundTruthImage = double(imread([pathGT, ImageNames{i}, '.png']));
+  MaskImage = double(imread([pathMasks, ImageNames{i}, '.png']));
   
   CurrentImage = CurrentImage ./ ((2 ^ 14) - 1);
   
-  EstimatedLuminance = ColourConstancySwitchAlgorithms(CurrentImage, method, false);
-  lumr = EstimatedLuminance(1);
-  lumg = EstimatedLuminance(2);
-  lumb = EstimatedLuminance(3);
-    
-  EstimatedLuminanceRep = repmat(reshape([lumr, lumg, lumb], 1, 1, 3), size(GroundTruthImage, 1), size(GroundTruthImage, 2));
-  adist = PixelAngularError(GroundTruthImage .* repmat(MaskImage, [1, 1, 3]), EstimatedLuminanceRep);
-  AngularErrors(i) = mean(adist) / pi * 180; % error in degrees
+  EstimatedLuminanceI = ColourConstancySwitchAlgorithms(CurrentImage, [], method, false);
+  if length(EstimatedLuminanceI) == 3
+    lumr = EstimatedLuminanceI(1);
+    lumg = EstimatedLuminanceI(2);
+    lumb = EstimatedLuminanceI(3);
+    EstimatedLuminanceRep = repmat(reshape([lumr, lumg, lumb], 1, 1, 3), size(GroundTruthImage, 1), size(GroundTruthImage, 2));
+  else
+    EstimatedLuminanceRep = EstimatedLuminanceI;
+  end
+  EstiLuminances{i} = EstimatedLuminanceRep;
+  LuminanceDiffs{i} = GroundTruthImage .* repmat(MaskImage, [1, 1, 3]) - EstimatedLuminanceRep;
   
-%   ColourConstancyReportPlot(CurrentImage, EstimatedLuminance, GroundtruthLuminance, CurrentAngularError, i, plotme);
+  adist = PixelAngularError(GroundTruthImage .* repmat(MaskImage, [1, 1, 3]), EstimatedLuminanceRep);
+  % error in degrees
+  AngularErrors(i) = mean(adist) / pi * 180;
+  
+  %   ColourConstancyReportPlot(CurrentImage, EstimatedLuminance, GroundtruthLuminance, CurrentAngularError, i, plotme);
 end
 
 fprintf('Average angular error mean %f\n', mean(AngularErrors));
