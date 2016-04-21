@@ -11,8 +11,11 @@ SqrIm = sqrt(InputImage);
 
 % convert to opponent image this happens in LGN
 if size(InputImage, 3) == 3
-  LabImg = sqrt(double(applycform(uint8(SqrIm .* 255), makecform('srgb2lab'))) ./ 255);
-  OpponentImage = LabImg;
+%   LabImg = sqrt(double(applycform(uint8(SqrIm .* 255), makecform('srgb2lab'))) ./ 255);
+%   OpponentImage = LabImg;
+  OpponentImage(:, :, 1) = SqrIm(:, :, 1) - SqrIm(:, :, 2);
+  OpponentImage(:, :, 2) = SqrIm(:, :, 3) - mean(SqrIm(:, :, 2:3), 3);
+  OpponentImage(:, :, 3) = (mean(SqrIm(:, :, 1:3), 3));
   % instead of CircularLocalStd you use NormDerivative as the feedback
   % connection.
   OpponentImage(:, :, end + 1) = sqrt(CircularLocalStdContrast(rgb2gray(SqrIm), 2.5));
@@ -211,7 +214,7 @@ for c = 1:size(EdgeImageResponse, 3)
 end
 
 % STD before V2 is not good
-EdgeImageResponse = EdgeImageResponse .* StdImg;
+EdgeImageResponse = EdgeImageResponse .* (StdImg + 1);
 
 end
 
