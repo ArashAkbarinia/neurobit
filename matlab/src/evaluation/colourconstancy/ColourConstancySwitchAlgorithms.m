@@ -3,7 +3,7 @@ function EstimatedLuminance = ColourConstancySwitchAlgorithms(CurrentImage, Debu
 %
 % inputs
 %   CurrentImage          the image to be processed.
-%   DebugImagePath        the path to the image, for debugging proposes
+%   DebugImagePath        the path to the image, for debugging proposes.
 %   method                desired method.
 %   isxyz                 if the image is in XYZ space, default false.
 %
@@ -38,8 +38,8 @@ elseif strcmpi(method, 'gamut mapping')
 elseif strcmpi(method, 'bayesian')
   EstimatedLuminance = BayesianColourConstancy(CurrentImage);
 else
-  method{1} = DebugImagePath;
-  [~, EstimatedLuminance] = ColourConstancySurroundModulation(CurrentImage, false, method);
+  method{end + 1} = DebugImagePath;
+  [~, EstimatedLuminance] = ColourConstancySurroundModulation(CurrentImage, method);
 end
 if isxyz
   EstimatedLuminance = EstimatedLuminance ./ max(EstimatedLuminance(:));
