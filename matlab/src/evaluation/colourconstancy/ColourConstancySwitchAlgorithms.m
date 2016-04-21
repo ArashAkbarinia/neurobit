@@ -46,7 +46,9 @@ if isxyz
   EstimatedLuminance = applycform(EstimatedLuminance, makecform('xyz2srgb'));
 end
 
-EstimatedLuminance = EstimatedLuminance';
+if size(EstimatedLuminance, 1) == 1
+  EstimatedLuminance = EstimatedLuminance';
+end
 
 % normalising the illuminant
 EstimatedNorm = sum(EstimatedLuminance(:));
