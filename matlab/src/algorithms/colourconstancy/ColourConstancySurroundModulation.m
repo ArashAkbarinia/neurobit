@@ -1,28 +1,17 @@
-function [dtmap, luminance] = ColourConstancySurroundModulation(InputImage, plotme, params)
+function [ColourConstantImage, luminance] = ColourConstancySurroundModulation(InputImage, params)
+%ColourConstancySurroundModulation  our model of surround modulation.
+%
+% inputs
+%   InputImage  the biased image.
+%   params      the desired parameters.
+%
+% outputs
+%   ColourConstantImage  the colour corrected image.
+%   luminance            the estimated luminance
+%
 
 if nargin < 2
-  plotme = 0;
-end
-
-if nargin < 3
-  params = {'arash', 3, 1.5, 2, 5, -0.87, -0.63, 0.95, 0.99, 4, -0.01, 0};
-end
-
-if size(InputImage, 3) == 3
-  [dtmap, luminance] = ColourConstancySurroundModulationChannel(InputImage, plotme, params);
-else
-  % just a silly temporarily solution to have for one channel
-  [dtmap, luminance] = ColourConstancySurroundModulationOneChannel(InputImage, plotme, params);
-end
-
-end
-
-function [dtmap, luminance] = ColourConstancySurroundModulationOneChannel(InputImage, plotme, params)
-%ColourConstancyOpponency Summary of this function goes here
-%   Detailed explanation goes here
-
-if nargin < 3
-  params = {'arash', 3, 1.5, 2, 5, -0.87, -0.63, 0.95, 0.99, 4, -0.01, 0};
+  params = {3, 1.5, 2, 5, -0.77, -0.67, 1, 1, 4};
 end
 
 [rows, cols, chns] = size(InputImage);
@@ -35,207 +24,67 @@ else
 end
 InputImageDouble = double(InputImage);
 
-rgb2do = 1;
+InputImageDouble = InputImageDouble ./ MaxVal;
 
-opponent = rgb2do * reshape(InputImageDouble, rows * cols, chns)';
-opponent = reshape(opponent', rows, cols, chns);
+rc = InputImageDouble(:, :, 1);
+bc = InputImageDouble(:, :, 2);
+gc = InputImageDouble(:, :, 3);
 
-opponent = opponent ./ MaxVal;
+[dorg, doyb, dowb] = ApplyAllChannels(rc, bc, gc, params);
 
-dtmap = arash(opponent, params);
-luminance = 1;
+doresponse = zeros(rows, cols, chns);
+doresponse(:, :, 1) = dorg;
+doresponse(:, :, 2) = doyb;
+doresponse(:, :, 3) = dowb;
 
-end
-
-function [dtmap, luminance] = ColourConstancySurroundModulationChannel(InputImage, plotme, params)
-%ColourConstancyOpponency Summary of this function goes here
-%   Detailed explanation goes here
-
-if nargin < 2
-  plotme = 0;
-end
-
-if nargin < 3
-  params = {'arash', 3, 1.5, 2, 5, -0.87, -0.63, 0.95, 0.99, 4, -0.01, 0};
-end
-
-if plotme
-  PlotRgb(InputImage);
-end
-
-[rows, cols, chns] = size(InputImage);
-if isa(InputImage, 'uint16')
-  MaxVal = (2 ^ 16) - 1;
-elseif isa(InputImage, 'uint8')
-  MaxVal = (2 ^ 8) - 1;
-else
-  MaxVal = 1;
-end
-InputImageDouble = double(InputImage);
-
-% EQUATION: eq-2.4-2.8 Ebner 2007, "Color Constancy"
-rgb2do = ...
-  [
-  1 / sqrt(2), -1 / sqrt(2),  0;
-  1 / sqrt(6),  1 / sqrt(6), -sqrt(2 / 3);
-  1 / sqrt(3),  1 / sqrt(3),  1 / sqrt(3);
-  ];
-
-% http://graphics.stanford.edu/~boulos/papers/orgb_sig.pdf
-rgb2do = ...
-  [
-  0.2990,  0.5870,  0.1140;
-  0.5000,  0.5000, -1.0000;
-  0.8660, -0.8660,  0.0000;
-  ];
-
-% rgb2do = 1;
-do2rgb = rgb2do';
-do2rgb = ...
-  [
-  1.0000    0.1140    0.7436;
-  1.0000    0.1140   -0.4111;
-  1.0000   -0.8860    0.1663;
-  ];
-
-opponent = rgb2do * reshape(InputImageDouble, rows * cols, chns)';
-opponent = reshape(opponent', rows, cols, chns);
-
-opponent = opponent ./ MaxVal;
-
-if plotme
-  PlotLmsOpponency(InputImage);
-end
-
-doresponse = arash(opponent, params);
-doresponse = reshape(doresponse, rows * cols, chns);
-dtmap = (do2rgb * doresponse')';
-dtmap = reshape(dtmap, rows, cols, chns);
-
-luminance = CalculateLuminance(dtmap, InputImage);
+luminance = CalculateLuminance(doresponse, InputImage);
 luminance = reshape(luminance, 1, 3);
+luminance = luminance ./ sum(luminance(:));
 ColourConstantImage = MatChansMulK(InputImageDouble, 1 ./ luminance);
-
-if plotme
-  ColourConstantImage = NormaliseChannel(ColourConstantImage, [], [], [],[]);
-  
-  ColourConstantImage = uint8(ColourConstantImage .* 255);
-  figure;
-  subplot(1, 2 , 1);
-  imshow(InputImage); title('original');
-  subplot(1, 2 , 2);
-  imshow(ColourConstantImage); title('Colour constant');
-end
+ColourConstantImage = ColourConstantImage ./ max(ColourConstantImage(:));
+ColourConstantImage = uint8(ColourConstantImage .* 255);
 
 end
 
-function doresponse = arash(opponent, method)
+function [orc, ogc, obc] = ApplyAllChannels(irc, igc, ibc, params)
 
-[CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method);
-[CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method);
-
-doresponse = zeros(size(opponent));
-for i = 1:size(opponent, 3)
-  doresponse(:, :, i) = CombineCentreSurround(CentreGaussian(:, :, i), SurroundGaussian(:, :, i), FarGaussian(:, :, i), CentreContrast(:, :, i), SurroundContrast(:, :, i), FarContrast(:, :, i), method);
-end
+orc = ApplyOneChannel(irc, params);
+ogc = ApplyOneChannel(igc, params);
+obc = ApplyOneChannel(ibc, params);
 
 end
 
-function [CentreGaussian, SurroundGaussian, FarGaussian] = LoadGaussianProcesses(opponent, method)
+function dorg = ApplyOneChannel(isignal, params)
 
-[CentreGaussian, SurroundGaussian, FarGaussian] = GaussianProcesses(opponent, method);
+CentreSize = params{1};
+GaussianSigma = params{2};
+ContrastEnlarge = params{3};
+SurroundEnlarge = params{4};
+s1 = params{5};
+s4 = params{6};
+c1 = params{7};
+c4 = params{8};
+nk = params{9};
 
-end
+[rgc, rgs] = RelativePixelContrast(isignal, CentreSize, round(SurroundEnlarge) * CentreSize);
+mrgc = mean(rgc(:));
+mrgs = mean(rgs(:));
+c1 = c1 + mrgc;
+c4 = c4 + mrgs;
 
-function [CentreGaussian, SurroundGaussian, FarGaussian] = GaussianProcesses(opponent, method)
+ab = SingleContrast(isignal, GaussianSigma, ContrastEnlarge, nk);
+ba = SingleGaussian(isignal, GaussianSigma * SurroundEnlarge);
 
-GaussianSigma = method{3};
-ContrastEnlarge = method{4};
-SurroundEnlarge = method{5};
-FarEnlarge = 3 * SurroundEnlarge;
-nk = method{10};
+ss = linspace(s1, s4, nk);
+cs = linspace(c1, c4, nk);
 
-CentreGaussian = zeros(size(opponent));
-SurroundGaussian = zeros(size(opponent));
-FarGaussian = zeros(size(opponent));
-for i = 1:size(opponent, 3)
-  CentreGaussian(:, :, i) = SingleOpponentContrast(opponent(:, :, i), GaussianSigma, ContrastEnlarge, nk);
-  
-  % sogr = SurroundContrast(rg, GaussianSigma, ContrastEnlarge, SurroundEnlarge, nk);
-  SurroundGaussian(:, :, i) = SingleOpponentGaussian(opponent(:, :, i), GaussianSigma, SurroundEnlarge);
-  
-  FarGaussian(:, :, i) = SingleOpponentGaussian(opponent(:, :, i), GaussianSigma, FarEnlarge);
-end
-
-end
-
-function [CentreContrast, SurroundContrast, FarContrast] = LoadContrastImages(opponent, method)
-
-[CentreContrast, SurroundContrast, FarContrast] = ContrastProcesses(opponent, method);
+dorg = ApplyNeighbourImpact(isignal, ab, ba, ss, cs);
 
 end
 
-function [CentreContrast, SurroundContrast, FarContrast] = ContrastProcesses(opponent, method)
+function luminance = CalculateLuminance(ModelResponse, InputImage)
 
-CentreSize = method{2};
-SurroundEnlarge = method{5};
-FarEnlarge = 3 * SurroundEnlarge;
-
-CentreContrast = zeros(size(opponent));
-SurroundContrast = zeros(size(opponent));
-FarContrast = zeros(size(opponent));
-for i = 1:size(opponent, 3)
-  CentreContrast(:, :, i) = GetContrastImage(opponent(:, :, i), CentreSize);
-  SurroundContrast(:, :, i) = GetContrastImage(opponent(:, :, i), SurroundEnlarge * CentreSize, CentreSize);
-  FarContrast(:, :, i) = GetContrastImage(opponent(:, :, i), FarEnlarge * CentreSize, SurroundEnlarge * CentreSize);
-end
-
-end
-
-function dorg = CombineCentreSurround(CentreGaussian, SurroundGaussian, FarGaussian, CentreContrast, SurroundContrast, FarContrast, method)
-
-s1 = method{6};
-s4 = method{7};
-c1 = method{8};
-c4 = method{9};
-f1 = method{11};
-f4 = method{12};
-
-% [rgc, rgs] = RelativePixelContrast(rg, CentreSize, round(SurroundEnlarge) * CentreSize);
-% mrgc = mean(rgc(:));
-% mrgs = mean(rgs(:));
-% c1 = c1 + mrgc;
-% c4 = c4 + mrgs;
-
-CentreWeights = NormaliseChannel(CentreContrast, c1, c4, [], []);
-SurroundWeights = NormaliseChannel(SurroundContrast, s1, s4, [], []);
-FarWeights = NormaliseChannel(FarContrast, f1, f4, [], []);
-
-% [gmag, gdir] = imgradient(rg);
-% gdir(gdir < 0) = gdir(gdir < 0) + 180;
-% MeanCentre = MeanCentreSurround(gdir, [3, 3], [0, 0]);
-% MeanSurround = MeanCentreSurround(gdir, [15, 15], [3, 3]);
-% 
-% dirdiff = abs(MeanCentre - MeanSurround);
-% dirdiff = NormaliseChannel(dirdiff, 0, 0.1, [], []);
-
-% dorg = ApplyNeighbourImpact(rg, sorg, sogr, sofar, ks, js, fs);
-dorg = DoubleOpponent(CentreGaussian, SurroundGaussian, SurroundWeights, CentreWeights);
-dorg = dorg + FarWeights .* FarGaussian;
-
-end
-
-function MeanImage = MeanCentreSurround(InputImage, WindowSize, CentreSize)
-
-hc = fspecial('average', WindowSize);
-hc = CentreZero(hc, CentreSize);
-MeanImage = imfilter(InputImage, hc, 'replicate');
-
-end
-
-function luminance = CalculateLuminance(dtmap, InputImage)
-
-% to make the comparison exactly like Joost's Grey Edges
+% to make the comparison exactly like Grey Edge
 SaturationThreshold = max(InputImage(:));
 DarkThreshold = min(InputImage(:));
 MaxImage = max(InputImage, [], 3);
@@ -246,57 +95,49 @@ sigma = 2;
 SaturatedPixels = set_border(SaturatedPixels, sigma + 1, 0);
 
 for i = 1:3
-  dtmap(:, :, i) = dtmap(:, :, i) .* (dtmap(:, :, i) > 0);
-  dtmap(:, :, i) = dtmap(:, :, i) .* SaturatedPixels;
+  ModelResponse(:, :, i) = ModelResponse(:, :, i) .* (ModelResponse(:, :, i) > 0);
+  ModelResponse(:, :, i) = ModelResponse(:, :, i) .* SaturatedPixels;
 end
 
-% MaxVals = max(max(dtmap));
-
-CentreSize = 3;
-dtmap = dtmap ./ max(dtmap(:));
-StdImg = LocalStdContrast(dtmap, CentreSize);
+CentreSize = floor(min(size(InputImage, 1), size(InputImage, 2)) .* 0.01);
+if mod(CentreSize, 2) == 0
+  CentreSize = CentreSize - 1;
+end
+CentreSize = max(CentreSize, 3);
+ModelResponse = ModelResponse ./ max(ModelResponse(:));
+StdImg = LocalStdContrast(ModelResponse, CentreSize);
 Cutoff = mean(StdImg(:));
-dtmap = dtmap .* ((2 ^ 8) - 1);
-% MaxVals = PoolingHistMax(dtmap, Cutoff, false);
+ModelResponse = ModelResponse .* ((2 ^ 8) - 1);
+MaxVals = zeros(1, 3);
 for i = 1:3
-  tmp = dtmap(:, :, i);
+  tmp = ModelResponse(:, :, i);
   tmp = tmp(SaturatedPixels == 1);
-  MaxVals(1, i) = PoolingHistMax2(tmp(:), Cutoff, false);
-%   MaxVals(1, i) = max(tmp(:));
+  MaxVals(1, i) = PoolingHistMax(tmp(:), Cutoff, false);
 end
-
-% MaxVals = ColourConstancyMinkowskiFramework(dtmap, 5);
 
 luminance = MaxVals;
 
 end
 
-function dorg = ApplyNeighbourImpact(rg, sorg, sogr, sofar, SurroundImpacts, CentreImpacts, FarImpacts)
+function osignal = ApplyNeighbourImpact(isignal, ab, ba, SurroundImpacts, CentreImpacts)
 
 nContrastLevels = length(SurroundImpacts);
+SurroundSize = [17, 17];
+ContrastImage = GetContrastImage(isignal, SurroundSize);
 
-CentreContrastImage = GetContrastImage(rg, 3);
-CentreContrastLevels = GetContrastLevels(CentreContrastImage, nContrastLevels);
+ContrastLevels = GetContrastLevels(ContrastImage, nContrastLevels);
 
-nContrastLevelsCentre = unique(CentreContrastLevels(:));
-nContrastLevelsCentre = nContrastLevelsCentre';
+nContrastLevels = unique(ContrastLevels(:));
+nContrastLevels = nContrastLevels';
 
-SurroundContrastImage = GetContrastImage(rg, 15, 3);
-SurroundContrastLevels = GetContrastLevels(SurroundContrastImage, nContrastLevels);
-
-nContrastLevelsSurround = unique(SurroundContrastLevels(:));
-nContrastLevelsSurround = nContrastLevelsSurround';
-
-dorg = zeros(size(rg));
-for i = nContrastLevelsCentre
-  for j = nContrastLevelsSurround
-    dorg(CentreContrastLevels == i & SurroundContrastLevels == j) = DoubleOpponent(sorg(CentreContrastLevels == i & SurroundContrastLevels == j), sogr(CentreContrastLevels == i & SurroundContrastLevels == j), SurroundImpacts(j), CentreImpacts(i));
-  end
+osignal = zeros(size(isignal));
+for i = nContrastLevels
+  osignal(ContrastLevels == i) = OverlapGaussian(ab(ContrastLevels == i), ba(ContrastLevels == i), SurroundImpacts(i), CentreImpacts(i));
 end
 
 end
 
-function rfresponse = SingleOpponentContrast(isignal, StartingSigma, ContrastEnlarge, nContrastLevels)
+function rfresponse = SingleContrast(isignal, StartingSigma, ContrastEnlarge, nContrastLevels)
 
 [rows, cols, ~] = size(isignal);
 
@@ -332,45 +173,6 @@ end
 
 end
 
-function rfresponse = SurroundContrast(isignal, StartingSigma, ContrastEnlarge, SurroundEnlarge, nContrastLevels)
-
-[rows, cols, ~] = size(isignal);
-
-ContrastImx = GetContrastImage(isignal, [17, 1]);
-ContrastImy = GetContrastImage(isignal, [1, 17]);
-
-if nargin < 5
-  nContrastLevels = 4;
-end
-
-FinishingSigma = StartingSigma * ContrastEnlarge;
-sigmas = linspace(StartingSigma, FinishingSigma, nContrastLevels);
-
-ContrastLevelsX = GetContrastLevels(ContrastImx, nContrastLevels);
-ContrastLevelsY = GetContrastLevels(ContrastImy, nContrastLevels);
-
-nContrastLevelsX = unique(ContrastLevelsX(:));
-nContrastLevelsX = nContrastLevelsX';
-
-nContrastLevelsY = unique(ContrastLevelsY(:));
-nContrastLevelsY = nContrastLevelsY';
-
-rfs = GaussianFilter2(StartingSigma * SurroundEnlarge, StartingSigma * SurroundEnlarge, 0, 0);
-
-rfresponse = zeros(rows, cols);
-for i = nContrastLevelsX
-  lambdaxi = sigmas(i);
-  for j = nContrastLevelsY
-    lambdayi = sigmas(j);
-    rfc = GaussianFilter2(lambdaxi, lambdayi, 0, 0);
-    rfs = CentreZero(rfs, size(rfc));
-    rfresponsei = imfilter(isignal, rfs, 'replicate');
-    rfresponse(ContrastLevelsX == i & ContrastLevelsY == j) = rfresponsei(ContrastLevelsX == i & ContrastLevelsY == j);
-  end
-end
-
-end
-
 function ContrastLevels = GetContrastLevels(ContrastIm, nContrastLevels)
 
 MinPix = min(ContrastIm(:));
@@ -382,46 +184,20 @@ ContrastLevels = imquantize(ContrastIm, levels);
 
 end
 
-function rfresponse = SingleOpponentGaussian(isignal, StartingSigma, SurroundEnlarge)
+function rfresponse = SingleGaussian(isignal, StartingSigma)
 
-lambdax = StartingSigma * SurroundEnlarge;
-lambday = StartingSigma * SurroundEnlarge;
+lambdax = StartingSigma;
+lambday = StartingSigma;
 
-rfs = GaussianFilter2(lambdax, lambday, 0, 0);
-
-rfresponse = imfilter(isignal, rfs, 'replicate');
+rf = GaussianFilter2(lambdax, lambday, 0, 0);
+rfresponse = imfilter(isignal, rf, 'replicate');
 
 end
 
-function rfresponse = DoubleOpponent(ab, ba, k, j)
-
-if nargin < 3
-  k = 0.5;
-end
-if nargin < 4
-  j = 1.0;
-end
+function rfresponse = OverlapGaussian(ab, ba, k, j)
 
 rfresponse = j .* ab + k .* ba;
 rfresponse = sum(rfresponse, 3);
-
-end
-
-function ContrastImage = GetContrastImageCentre(isignal, cz)
-
-ContrastImx = GetContrastImage(isignal, [cz, 1]);
-ContrastImy = GetContrastImage(isignal, [1, cz]);
-
-ContrastImage = (ContrastImx + ContrastImy) ./ 2;
-
-end
-
-function ContrastImage = GetContrastImageSurround(isignal, cz)
-
-ContrastImx = GetContrastImage(isignal, [cz, cz], [cz, 1]);
-ContrastImy = GetContrastImage(isignal, [cz, cz], [1, cz]);
-
-ContrastImage = (ContrastImx + ContrastImy) ./ 2;
 
 end
 
@@ -435,27 +211,11 @@ if nargin < 3
 end
 contraststd = LocalStdContrast(isignal, SurroundSize, CentreSize);
 
-% contraststd = stdfilt(isignal);
-% rf = dog2(GaussianFilter2(0.5), GaussianFilter2(2.5));
-% rf = Gaussian2Gradient2(GaussianFilter2(2.5));
-% contraststd = imfilter(isignal, rf, 'replicate');
-% contraststd = contraststd + abs(min(contraststd(:)));
-% contraststd = contraststd ./ max(contraststd(:));
-
-% [rgc, rgs] = RelativePixelContrast(isignal, 3);
-% contraststd = rgc ./ rgs;
-% contraststd(isnan(contraststd)) = 0;
-% contraststd(isinf(contraststd)) = 1;
-% contraststd(contraststd > 1) = 1;
-
-% contraststd = WeberContrast(isignal);
-% contraststd = contraststd ./ max(contraststd(:));
-
 ContrastImage = 1 - contraststd;
 
 end
 
-function HistMax = PoolingHistMax2(InputImage, CutoffPercent, UseAveragePixels)
+function HistMax = PoolingHistMax(InputImage, CutoffPercent, UseAveragePixels)
 
 if nargin < 3
   UseAveragePixels = false;
@@ -473,8 +233,6 @@ if MaxVal < (2 ^ 8)
   nbins = 2 ^ 8;
 elseif MaxVal < (2 ^ 16)
   nbins = 2 ^ 16;
-else
-  return;
 end
 
 if nargin < 2 || isempty(CutoffPercent)
