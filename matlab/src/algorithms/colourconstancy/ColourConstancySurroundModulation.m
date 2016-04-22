@@ -11,7 +11,7 @@ function [ColourConstantImage, luminance] = ColourConstancySurroundModulation(In
 %
 
 if nargin < 2
-  params = {3, 1.5, 2, 5, -0.77, -0.67, 1, 1, 4};
+  params = {3, 1.5, 2, 5, -0.77, -0.67, 1, 1, 4, 'single'};
 end
 
 [rows, cols, chns] = size(InputImage);
@@ -37,12 +37,22 @@ doresponse(:, :, 1) = dorg;
 doresponse(:, :, 2) = doyb;
 doresponse(:, :, 3) = dowb;
 
-luminance = CalculateLuminance(doresponse, InputImage);
-luminance = reshape(luminance, 1, 3);
-luminance = luminance ./ sum(luminance(:));
-ColourConstantImage = MatChansMulK(InputImageDouble, 1 ./ luminance);
-ColourConstantImage = ColourConstantImage ./ max(ColourConstantImage(:));
-ColourConstantImage = uint8(ColourConstantImage .* 255);
+if strcmpi(params{end - 1}, 'single')
+  luminance = CalculateLuminanceSingle(doresponse, InputImage);
+  luminance = reshape(luminance, 1, 3);
+  luminance = luminance ./ sum(luminance(:));
+  ColourConstantImage = MatChansMulK(InputImageDouble, 1 ./ luminance);
+  ColourConstantImage = ColourConstantImage ./ max(ColourConstantImage(:));
+  ColourConstantImage = uint8(ColourConstantImage .* 255);
+elseif strcmpi(params{end - 1}, 'multi')
+  luminance = CalculateLuminanceMulti(doresponse, InputImage);
+  ColourConstantImage = InputImageDouble ./ luminance;
+  ColourConstantImage = ColourConstantImage ./ max(ColourConstantImage(:));
+  ColourConstantImage = uint8(ColourConstantImage .* 255);
+else
+  luminance = [1, 1, 1];
+  ColourConstantImage = InputImage;
+end
 
 end
 
@@ -82,7 +92,7 @@ dorg = ApplyNeighbourImpact(isignal, ab, ba, ss, cs);
 
 end
 
-function luminance = CalculateLuminance(ModelResponse, InputImage)
+function luminance = CalculateLuminanceSingle(ModelResponse, InputImage)
 
 % to make the comparison exactly like Grey Edge
 SaturationThreshold = max(InputImage(:));
@@ -106,16 +116,88 @@ end
 CentreSize = max(CentreSize, 3);
 ModelResponse = ModelResponse ./ max(ModelResponse(:));
 StdImg = LocalStdContrast(ModelResponse, CentreSize);
-Cutoff = mean(StdImg(:));
+CutOff = mean(StdImg(:));
 ModelResponse = ModelResponse .* ((2 ^ 8) - 1);
 MaxVals = zeros(1, 3);
 for i = 1:3
   tmp = ModelResponse(:, :, i);
   tmp = tmp(SaturatedPixels == 1);
-  MaxVals(1, i) = PoolingHistMax(tmp(:), Cutoff, false);
+  MaxVals(1, i) = PoolingHistMax(tmp(:), CutOff, false);
 end
 
 luminance = MaxVals;
+
+end
+
+function RegionImage = GetSpatialRegions(rows, cols, nRegionsI, nRegionsJ)
+
+RegionImage = ones(rows, cols);
+
+RowChunks = floor(rows / nRegionsI);
+ColChunks = floor(cols / nRegionsJ);
+for i = 1:nRegionsI
+  RowIndex = (i - 1) * RowChunks + 1;
+  for j = 1:nRegionsJ
+    ColIndex = (j - 1) * ColChunks + 1;
+    RegionImage(RowIndex:RowIndex + RowChunks - 1, ColIndex:ColIndex  + ColChunks - 1) = (i - 1) * nRegionsI + j;
+  end
+end
+
+end
+
+function luminance = CalculateLuminanceMulti(ModelResponse, InputImage)
+
+% to make the comparison exactly like Grey Edge
+SaturationThreshold = max(InputImage(:));
+DarkThreshold = min(InputImage(:));
+MaxImage = max(InputImage, [], 3);
+MinImage = min(InputImage, [], 3);
+SaturatedPixels = dilation33(double(MaxImage >= SaturationThreshold | MinImage <= DarkThreshold));
+SaturatedPixels = double(SaturatedPixels == 0);
+sigma = 2;
+SaturatedPixels = set_border(SaturatedPixels, sigma + 1, 0);
+
+for i = 1:3
+  ModelResponse(:, :, i) = ModelResponse(:, :, i) .* (ModelResponse(:, :, i) > 0);
+  ModelResponse(:, :, i) = ModelResponse(:, :, i) .* SaturatedPixels;
+end
+
+CentreSize = floor(min(size(InputImage, 1), size(InputImage, 2)) .* 0.01);
+if mod(CentreSize, 2) == 0
+  CentreSize = CentreSize - 1;
+end
+CentreSize = max(CentreSize, 5);
+ModelResponse = ModelResponse ./ max(ModelResponse(:));
+
+StdImg = LocalStdContrast(ModelResponse, CentreSize);
+
+ModelResponse = ModelResponse .* ((2 ^ 8) - 1);
+
+[rows, cols, ~] = size(ModelResponse);
+nRegionsI = 2;
+nRegionsJ = 2;
+RegionImage = GetSpatialRegions(rows, cols, nRegionsI, nRegionsJ);
+nRegions = nRegionsI * nRegionsJ;
+
+luminance = ones(size(ModelResponse));
+ContrastChannel = mean(StdImg, 3);
+for i = 1:3
+  LuminanceChannel = luminance(:, :, i);
+  ModelChannel = ModelResponse(:, :, i);
+  for r = 1:nRegions
+    CurrentRegion = ContrastChannel(RegionImage == r);
+    CurrentRegion = CurrentRegion ./ max(CurrentRegion(:));
+    CutOff = mean(CurrentRegion);
+    tmp = ModelChannel(RegionImage == r);
+    if length(tmp) > 500
+      LuminanceChannel(RegionImage == r) = PoolingHistMax(tmp(:), CutOff, false);
+    else
+      % if region is too small just set the max of it
+      LuminanceChannel(RegionImage == r) = max(tmp(:));
+    end
+  end
+  luminance(:, :, i) = LuminanceChannel;
+end
 
 end
 
