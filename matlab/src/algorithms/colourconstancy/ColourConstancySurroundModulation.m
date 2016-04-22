@@ -188,11 +188,11 @@ for i = 1:3
     CurrentRegion = ContrastChannel(RegionImage == r);
     CurrentRegion = CurrentRegion ./ max(CurrentRegion(:));
     CutOff = mean(CurrentRegion);
-    tmp = ModelChannel(RegionImage == r);
+    tmp = ModelChannel(RegionImage == r & SaturatedPixels == 1);
     if length(tmp) > 500
       LuminanceChannel(RegionImage == r) = PoolingHistMax(tmp(:), CutOff, false);
     else
-      % if region is too small just set the max of it
+      % if region is too small just get the max of it
       LuminanceChannel(RegionImage == r) = max(tmp(:));
     end
   end
