@@ -2,84 +2,78 @@
 
 mycluster = parcluster('local');
 mycluster.NumWorkers = 8;
-matlabpool(mycluster);
+delete(gcp);
+parpool(mycluster);
 
 % matlabpool close
 
 %% ours partially
 
-params = {'arash', 3, 0.8, 2, 5, -0.82, -0.72, 0, 0, 0};
+% params = {'arash', 3, 1.5, 2, 5, -0.87, -0.63, 0.95, 0.99, 4, -0.01, 0};
+% SFU LAB [-0.870000000000000,-0.634887779498451,0.950648987143858,0.991387687664998,0,0.0135309907901242]
+params = {3, 1.5, 2, 5, -0.77, -0.67, 1, 1, 4, 'multi'};
+tic
+AngularErrors = ColourConstancyReportMirf(params, false);
+disp('real images:');
+AngularErrors = ColourConstancyReportMirf(params, true);
+% [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(params, false);
+toc
+% [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall(params, false);
+% [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi(params, false);
 % [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(params, false, 1:3:321); mean(AngularErrors(1:3:321)), median(AngularErrors(1:3:321))
-[AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall(params, false, 1:100:11346); mean(AngularErrors(1:100:11346)), median(AngularErrors(1:100:11346))
+% [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall(params, false, 1:100:11346); mean(AngularErrors(1:100:11346)), median(AngularErrors(1:100:11346))
 % [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi(params, false, 1:5:568); mean(AngularErrors(1:5:568)), median(AngularErrors(1:5:568))
 % [AngularErrors, LuminanceDiffs] = ColourConstancyReportBarcelona(params, false, 1:5:448); mean(AngularErrors(1:5:448)), median(AngularErrors(1:5:448))
+% AngularErrors = ColourConstancyReportMirf(params, true, false);
 
 %% tmp
 
-% [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab('joost', false);
-% save('SfuLab-JoostContrast.mat', 'AngularErrors', 'LuminanceDiffs');
-%
-% [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall('joost', false);
-% save('GreyBall-JoostContrast.mat', 'AngularErrors', 'LuminanceDiffs');
-%
-% [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi('joost', false);
-% save('Gehlershi-JoostContrast.mat', 'AngularErrors', 'LuminanceDiffs');
-
-% methods = {'gaussian', 'cgaussian', 'udog', 'cudog', 'd1', 'cd1', 'd2', 'cd2'};
-methods = {'arash'};
-% u = -0.82;
-% d = -0.72;
-% CentreSize = 3;
-% x = 0.8;
+methods = 'arash';
+CentreSize = 3;
+x = 1.5;
 ContrastEnlarge = 2;
 SurroundEnlarge = 5;
-for i = 1:1:numel(methods)
-  for CentreSize = 3
-    for x = 0.7
-      for u = -0.82
-        for d = -0.72
-          CurrentMethod = {methods{i}, CentreSize, x, ContrastEnlarge, SurroundEnlarge, u, d, 0, 0, 0};
-          [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(CurrentMethod, false);
-          save(['SfuLab-', methods{i}, '-r', num2str(CentreSize), '-', num2str(x), '-s', num2str(SurroundEnlarge), '-c', num2str(ContrastEnlarge), '-u', num2str(u), '-d', num2str(d), '.mat'], 'AngularErrors', 'LuminanceDiffs');
-          
-          [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall(CurrentMethod, false);
-          save(['GreyBall-', methods{i}, '-r', num2str(CentreSize), '-', num2str(x), '-s', num2str(SurroundEnlarge), '-c', num2str(ContrastEnlarge), '-u', num2str(u), '-d', num2str(d), '.mat'], 'AngularErrors', 'LuminanceDiffs');
-          
-          [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi(CurrentMethod, false);
-          save(['Gehlershi-', methods{i}, '-r', num2str(CentreSize), '-', num2str(x), '-s', num2str(SurroundEnlarge), '-c', num2str(ContrastEnlarge), '-u', num2str(u), '-d', num2str(d), '.mat'], 'AngularErrors', 'LuminanceDiffs');
-        end
-      end
-    end
+u = -0.87;
+d = -0.63;
+c1 = 0.95;
+c4 = 0.99;
+f1 = -0.01;
+f4 = 0.00;
+l = 4;
+suffix = '-MaxInf.mat';
+for p2 = CentreSize
+  for p3 = x
+    CurrentMethod = {methods, p2, p3, ContrastEnlarge, SurroundEnlarge, u, d, c1, c4, l, f1, f4};
+    prefix = [methods, '-r', num2str(p2), '-', num2str(p3), '-s', num2str(SurroundEnlarge), '-c', num2str(ContrastEnlarge), '-u', num2str(u), '-d', num2str(d), '-n', num2str(c1), '-f', num2str(c4), '-l', num2str(l)];
+    
+    tic
+    [AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportSfuLab(CurrentMethod, false);
+    toc
+    save(['SfuLab-', prefix, suffix], 'AngularErrors', 'LuminanceDiffs', 'EstiLuminances');
+    
+    tic
+    [AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportGreyBall(CurrentMethod, false);
+    toc
+    save(['GreyBall-', prefix, suffix], 'AngularErrors', 'LuminanceDiffs', 'EstiLuminances');
+    
+    tic
+    [AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportGehlershi(CurrentMethod, false);
+    toc
+    save(['Gehlershi-', prefix, suffix], 'AngularErrors', 'LuminanceDiffs', 'EstiLuminances');
   end
 end
 
-% [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab('gaussian', false);
-% save('SfuLab-Gaussian.mat', 'AngularErrors', 'LuminanceDiffs');
-%
-% [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall('gaussian', false);
-% save('GreyBall-Gaussian.mat', 'AngularErrors', 'LuminanceDiffs');
-%
-% [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi('gaussian', false);
-% save('Gehlershi-Gaussian.mat', 'AngularErrors', 'LuminanceDiffs');
-%
-% [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab('2nd gaussian', false);
-% save('SfuLab-d2Gaussian.mat', 'AngularErrors', 'LuminanceDiffs');
-%
-% [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall('2nd gaussian', false);
-% save('GreyBall-d2Gaussian.mat', 'AngularErrors', 'LuminanceDiffs');
-%
-% [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi('2nd gaussian', false);
-% save('Gehlershi-d2Gaussian.mat', 'AngularErrors', 'LuminanceDiffs');
-
 %% ours
-[AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab('opponency', false);
-save('SfuLab-Opponency.mat', 'AngularErrors', 'LuminanceDiffs');
+AlgorithmName = 'gao';
+SuffixName = 'DOFixArash';
+[AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportSfuLab(AlgorithmName, false);
+save(['SfuLab-', SuffixName, '.mat'], 'AngularErrors', 'LuminanceDiffs', 'EstiLuminances');
 
-[AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall('opponency', false);
-save('GreyBall-Opponency.mat', 'AngularErrors', 'LuminanceDiffs');
+[AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportGreyBall(AlgorithmName, false);
+save(['GreyBall-', SuffixName, '.mat'], 'AngularErrors', 'LuminanceDiffs', 'EstiLuminances');
 
-[AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi('opponency', false);
-save('Gehlershi-Opponency.mat', 'AngularErrors', 'LuminanceDiffs');
+[AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportGehlershi(AlgorithmName, false);
+save(['ColourChecker-', SuffixName, '.mat'], 'AngularErrors', 'LuminanceDiffs', 'EstiLuminances');
 
 %% SfuLab
 
@@ -156,7 +150,7 @@ save('GreyBall-Bayesian.mat', 'AngularErrors', 'LuminanceDiffs');
 [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi('opponency', false);
 save('Gehlershi-Opponency.mat', 'AngularErrors', 'LuminanceDiffs');
 
-[AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi('white patch', false);
+[AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportGehlershi('white patch', false);
 save('Gehlershi-WhitePatch.mat', 'AngularErrors', 'LuminanceDiffs');
 
 [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi('hist white patch', false);
@@ -168,7 +162,7 @@ save('Gehlershi-Gao.mat', 'AngularErrors', 'LuminanceDiffs');
 [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi('joost', false);
 save('Gehlershi-Joost.mat', 'AngularErrors', 'LuminanceDiffs');
 
-[AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi('grey world', false);
+[AngularErrors, LuminanceDiffs, EstiLuminances] = ColourConstancyReportGehlershi('grey world', false);
 save('Gehlershi-GreyWorld.mat', 'AngularErrors', 'LuminanceDiffs');
 
 [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi('local std', false);
