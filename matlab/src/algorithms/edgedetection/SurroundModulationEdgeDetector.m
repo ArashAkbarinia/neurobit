@@ -22,7 +22,7 @@ if size(InputImage, 3) == 3
   OpponentImage(:, :, end + 1) = InputImage(:, :, 1) - 0.7 .* InputImage(:, :, 2);
   OpponentImage(:, :, end + 1) = InputImage(:, :, 3) - 0.7 .* mean(InputImage(:, :, 2:3), 3);
 else
-  OpponentImage(:, :, 1) = InputImage;
+  OpponentImage(:, :, 1) = SqrIm;
   OpponentImage(:, :, 2) = sqrt(CircularLocalStdContrast(SqrIm));
 end
 
@@ -208,6 +208,7 @@ for c = 1:size(EdgeImageResponse, 3)
     v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * SurroundEnlagre, ysigma * SurroundEnlagre, 0, 0, theta), 'symmetric');
     
     v2response = max(v2responsec - si .* v2responses, 0);
+    
     CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
   end
   EdgeImageResponse(:, :, c) = CurrentChannel;
