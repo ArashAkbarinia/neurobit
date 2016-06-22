@@ -129,7 +129,7 @@ lb = ...
   ];
 ub = ...
   [
-  inf, inf, inf, inf, inf, inf, pi, pi, pi, inf;
+  inf, inf, inf, inf, inf, inf, pi, pi, pi, 1;
   ];
 options = optimoptions(@fmincon,'Algorithm', 'sqp', 'Display', 'off', 'MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
 
