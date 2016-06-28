@@ -11,7 +11,7 @@ function [ColourConstantImage, luminance] = ColourConstancySurroundModulation(In
 %
 
 if nargin < 2
-  params = {3, 1.5, 2, 5, -0.77, -0.67, 1, 1, 4, 'single'};
+  params = {3, 1.5, 2, 5, -0.77, -0.67, 1, 1, 4, 'single', []};
 end
 
 [rows, cols, chns] = size(InputImage);
