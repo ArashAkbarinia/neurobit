@@ -36,7 +36,7 @@ if nargin < 3
   ImageNumbers = 1:nimages;
 end
 
-AngularErrors = zeros(nimages, 1);
+AngularErrors = zeros(nimages, 2);
 LuminanceDiffs = zeros(nimages, 3);
 
 parfor i = 1:nimages
@@ -60,8 +60,9 @@ parfor i = 1:nimages
   LuminanceDiffs(i, :) = CurrentLumDiff;
 end
 
-fprintf('Average angular error mean %f\n', mean(AngularErrors));
-fprintf('Average angular error median %f\n', median(AngularErrors));
+fprintf('Mean angular error (recovery) %f (reproduction) %f\n', mean(AngularErrors));
+fprintf('Median angular error (recovery) %f (reproduction) %f\n', median(AngularErrors));
+fprintf('Trimean angular error (recovery) %f (reproduction) %f\n', TrimeanError(AngularErrors));
 fprintf('Average luminance difference [%f %f %f]\n', mean(abs(LuminanceDiffs)));
 
 end

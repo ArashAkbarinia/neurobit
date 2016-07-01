@@ -11,7 +11,8 @@ function [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConst
 % outputs
 %   EstimatedLuminance    estimated luminance of the selected method.
 %   CurrentAngularError   the angular error between groundtruth and
-%                         estimated luminance.
+%                         estimated luminance. Index 1 is recovery error
+%                         and index 2 is reproduction error.
 %
 
 if nargin < 5 || isempty(isxyz)
@@ -25,7 +26,8 @@ GroundtruthNorm = sum(GroundtruthLuminance(:));
 GroundtruthLuminance = GroundtruthLuminance ./ GroundtruthNorm;
 
 % calculating the angular error
-CurrentAngularError = AngularError(EstimatedLuminance, GroundtruthLuminance);
+CurrentAngularError(1) = AngularError(EstimatedLuminance, GroundtruthLuminance);
+CurrentAngularError(2) = ReproductionAngularError(EstimatedLuminance', GroundtruthLuminance);
 
 CurrentLumDiff = (GroundtruthLuminance ./ max(GroundtruthLuminance)) - reshape(EstimatedLuminance ./ max(EstimatedLuminance), 1, 3);
 

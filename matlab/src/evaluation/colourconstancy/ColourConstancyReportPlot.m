@@ -33,6 +33,6 @@ if plotme
   imshow(GroundTruthImage); title('Colour constant groundtruth');
 end
 
-fprintf('%d - angular error %f\n', ImageIndex, CurrentAngularError);
+fprintf('%d - angular error (recovery) %f (reproduction) %f\n', ImageIndex, CurrentAngularError);
 
 end
