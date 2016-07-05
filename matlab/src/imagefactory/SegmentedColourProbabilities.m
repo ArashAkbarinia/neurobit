@@ -18,20 +18,23 @@ if nargin < 3
 end
 rgbs = floor(double(rgbs) ./ quantize) + 1;
 
+% finding unique rgbs
 [ColourBoxesImage, ~, IndUniqes] = unique(rgbs, 'rows');
 ColourBoxesImage = uint8(ColourBoxesImage .* quantize - 1);
 
-OriginalDimension = size(rgbs, 1);
 UniqueDimension = size(ColourBoxesImage, 1);
-GroundTruthImage = zeros(UniqueDimension, 1, 11);
-
-for i = 1:OriginalDimension
-  GroundTruthImage(IndUniqes(i), 1, :) = GroundTruthImage(IndUniqes(i), 1, :) + gts(i, 1, :);
+GroundTruthImage = zeros(UniqueDimension, 11);
+% summing the ground truth values of unique rgbs
+for i = 1: 11
+  GroundTruthImage(:, i) = accumarray(IndUniqes, gts(:, i));
 end
 
-SumProbs = sum(GroundTruthImage, 3);
+GroundTruthImage = reshape(GroundTruthImage, size(GroundTruthImage, 1), 1, size(GroundTruthImage, 2));
+GroundTruthCount = sum(GroundTruthImage, 3);
+save('EbayPixelPoints.mat', 'ColourBoxesImage', 'GroundTruthCount', 'GroundTruthImage');
+
 for i = 1:UniqueDimension
-  GroundTruthImage(i, 1, :) = GroundTruthImage(i, 1, :) ./ SumProbs(i);
+  GroundTruthImage(i, 1, :) = GroundTruthImage(i, 1, :) ./ GroundTruthCount(i);
 end
 
 end
