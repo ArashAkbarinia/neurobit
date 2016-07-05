@@ -1,4 +1,4 @@
-function [ColourBoxesImage, GroundTruthImage] = NonZeroColourProbabilities(DirPaths, nLimistPoitns, quantize)
+function [ColourBoxesImage, GroundTruthImage] = NonZeroColourProbabilities(DirPaths, nLimistPoitns, quantize, ContrastDependant)
 %NonZeroColourProbabilities Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -7,7 +7,10 @@ if nargin < 1
   DirPaths = {[OuterPath, 'Small_object/'], [OuterPath, 'Car/'], [OuterPath, 'MCN/']};
 end
 if nargin < 2
-  nLimistPoitns = 1000;
+  nLimistPoitns = inf;
+end
+if nargin < 4
+  ContrastDependant = false;
 end
 
 rgbs = [];
@@ -33,6 +36,12 @@ for d = 1:numel(DirPaths)
     disp([ImagesPath, ImageFiles(i).name]);
     ImageRGB = imread([ImagesPath, ImageFiles(i).name]);
     
+    if ContrastDependant
+      ImageRGB = double(ImageRGB) ./ 255;
+      rfresponse = ContrastDependantGaussian(ImageRGB, 1.5);
+      ImageRGB = uint8(rfresponse .* 255);
+    end
+    
     MaskPath = [GtsPath, lower(ImageFiles(i).name(1:end - 3)), 'mat'];
     GtMat = load(MaskPath);
     BelongingImageGt = GtMat.BelongingImageGt;
@@ -53,6 +62,8 @@ for d = 1:numel(DirPaths)
     
     rgbs = [rgbs; ImageRGB]; %#ok
     gts = [gts; BelongingImageGt]; %#ok
+    
+    [rgbs, gts] = UnifiedRgbs(rgbs, gts);
   end
   
 end
@@ -64,21 +75,24 @@ if nargin < 3
 end
 rgbs = floor(double(rgbs) ./ quantize) + 1;
 
-[ColourBoxesImage, ~, IndUniqes] = unique(rgbs, 'rows');
-ColourBoxesImage = uint8(ColourBoxesImage .* quantize - 1);
+ColourBoxesImage = uint8(rgbs .* quantize - 1);
+GroundTruthImage = gts;
+GroundTruthCount = sum(GroundTruthImage, 3);
+save('YuanliuPixelPoints.mat', 'ColourBoxesImage', 'GroundTruthCount', 'GroundTruthImage');
 
-OriginalDimension = size(rgbs, 1);
-UniqueDimension = size(ColourBoxesImage, 1);
-GroundTruthImage = zeros(UniqueDimension, 1, 11);
-GroundTruthCount = zeros(UniqueDimension, 1, 11);
-
-for i = 1:OriginalDimension
-  GroundTruthImage(IndUniqes(i), 1, :) = GroundTruthImage(IndUniqes(i), 1, :) + gts(i, 1, :);
-  GroundTruthCount(IndUniqes(i), 1, :) = GroundTruthCount(IndUniqes(i), 1, :) + 1;
+for i = 1:size(ColourBoxesImage, 1)
+  GroundTruthImage(i, 1, :) = GroundTruthImage(i, 1, :) ./ GroundTruthCount(i);
 end
 
-for i = 1:UniqueDimension
-  GroundTruthImage(i, 1, :) = GroundTruthImage(i, 1, :) ./ GroundTruthCount(i, 1, :);
+end
+
+function [rgbs, gts] = UnifiedRgbs(ColourBoxesImage, GroundTruthImage)
+
+[rgbs, ~, IndUniqes] = unique(ColourBoxesImage, 'rows');
+
+gts = zeros(size(rgbs, 1), 11);
+for i = 1: 11
+  gts(:, i) = accumarray(IndUniqes, GroundTruthImage(:, i));
 end
 
 end
