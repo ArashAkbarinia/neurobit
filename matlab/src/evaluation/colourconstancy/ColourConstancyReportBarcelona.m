@@ -28,8 +28,8 @@ MatFilePath = strrep(FunctionPath, 'matlab/src/evaluation/colourconstancy/Colour
 DataSetPath = strrep(FunctionPath, 'matlab/src/evaluation/colourconstancy/ColourConstancyReportBarcelona', DataSetFolder);
 GreyBallImageListMat = load(MatFilePath);
 
-BarcelonaImageNames = GreyBallImageListMat.BarcelonaImageNamesMAT;
-BarcelonaGroundtruthIlluminations = GreyBallImageListMat.BarcelonaGroundtruthIlluminationsRGB;
+BarcelonaImageNames = GreyBallImageListMat.BarcelonaImageNames;
+BarcelonaGroundtruthIlluminations = GreyBallImageListMat.BarcelonaGroundtruthIlluminations;
 
 nimages = numel(BarcelonaImageNames);
 if nargin < 3
@@ -44,15 +44,12 @@ parfor i = 1:nimages
     continue;
   end
   
-  %   CurrentImage = imread([DataSetPath, BarcelonaImageNames{i}]);
-  CurrentImage = load([DataSetPath, BarcelonaImageNames{i}]);
-  CurrentImage = CurrentImage.foveon_processed;
-  CurrentImage = CurrentImage ./ max(CurrentImage(:));
-  %   CurrentImage = uint16(CurrentImage .* ((2 ^ 16) - 1));
-  %   CurrentImage = applycform(CurrentImage, makecform('xyz2srgb'));
+  DebugImagePath = [DataSetPath, BarcelonaImageNames{i}];
+  CurrentImage = double(imread(DebugImagePath));
+  CurrentImage = CurrentImage ./ ((2 ^ 8) - 1);
   
   GroundtruthLuminance = BarcelonaGroundtruthIlluminations(i, :);
-  [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, method, GroundtruthLuminance, true);
+  [EstimatedLuminance, CurrentAngularError, CurrentLumDiff] = ColourConstancyReportAlgoithms(CurrentImage, DebugImagePath, method, GroundtruthLuminance);
   
   ColourConstancyReportPlot(CurrentImage, EstimatedLuminance, GroundtruthLuminance, CurrentAngularError, i, plotme);
   
