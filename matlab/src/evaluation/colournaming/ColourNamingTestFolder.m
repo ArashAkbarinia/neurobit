@@ -1,10 +1,11 @@
-function ErrorMats = ColourNamingTestFolder(DirPath, method, EvaluateGroundTruth, GroundTruthColour, GtIndex)
+function ErrorMats = ColourNamingTestFolder(DirPath, method, EvaluateGroundTruth, GroundTruthColour, GtIndex, ContrastDependant)
 
-if nargin < 4
+if nargin < 5
   DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/soccer/psv/';
   method = 'ourlab';
   EvaluateGroundTruth = false;
   GtIndex = [];
+  ContrastDependant = false;
 end
 GtPattern = ['*', num2str(GtIndex), '.png'];
 
@@ -27,6 +28,9 @@ else
     ConfigsMat.ParFileName3 = 'TSE_JOSA_Params3.mat';
     ConversionMat = EllipsoidDicMat.robert2ellipsoid;
     MethodNumber = 3;
+  elseif exist([method, '.mat'], 'file')
+    ConfigsMat = load(method);
+    MethodNumber = 1;
   else
     error(['Method ', method, ' is not supported']);
   end
@@ -64,6 +68,13 @@ end
 for i = 1:nimages
   ImagePath = [DirPath, ImageFiles(i).name];
   ImageRGB = imread(ImagePath);
+  
+  if ContrastDependant
+    ImageRGB = double(ImageRGB) ./ 255;
+    rfresponse = ContrastDependantGaussian(ImageRGB, 1.5);
+    ImageRGB = uint8(rfresponse .* 255);
+  end
+  
   disp(ImagePath);
   switch MethodNumber
     case 1
