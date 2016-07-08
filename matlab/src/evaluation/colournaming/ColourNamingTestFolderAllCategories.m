@@ -1,11 +1,12 @@
-function ErrorMats = ColourNamingTestFolderAllCategories(DirPath, method, EvaluateGroundTruth)
+function ErrorMats = ColourNamingTestFolderAllCategories(DirPath, method, EvaluateGroundTruth, ContrastDependant)
 %ColourNamingTestFolderAllCategories Summary of this function goes here
 %   Detailed explanation goes here
 
-if nargin < 3
-  DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ColorNamingYuanliu/Car/';
+if nargin < 4
+  DirPath = '/home/arash/Software/Repositories/neurobit/data/dataset/ColourNameDataset/ColorNamingYuanliu/Small_object/';
   method = 'ourlab';
   EvaluateGroundTruth = true;
+  ContrastDependant = false;
 end
 
 EllipsoidDicMat = load('EllipsoidDic.mat');
@@ -27,6 +28,9 @@ else
     ConfigsMat.ParFileName3 = 'TSE_JOSA_Params3.mat';
     ConversionMat = EllipsoidDicMat.robert2ellipsoid;
     MethodNumber = 3;
+  elseif exist([method, '.mat'], 'file')
+    ConfigsMat = load(method);
+    MethodNumber = 1;
   else
     error(['Method ', method, ' is not supported']);
   end
@@ -69,6 +73,13 @@ for i = 1:nimages
   ImagePath = [ImagesPath, ImageFiles(i).name];
   ImageRGB = double(imread(ImagePath));
   ImageRGB = uint8(ImageRGB ./ max(ImageRGB(:)) .* 255);
+  
+  if ContrastDependant
+    ImageRGB = double(ImageRGB) ./ 255;
+    rfresponse = ContrastDependantGaussian(ImageRGB, 1.5);
+    ImageRGB = uint8(rfresponse .* 255);
+  end
+  
   disp(ImagePath);
   switch MethodNumber
     case 1
