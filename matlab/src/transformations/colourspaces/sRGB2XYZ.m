@@ -27,7 +27,9 @@ CIERGB2XYZ_D65 = ...
   ];
 
 % scale it to be between [0 1]
-CIERGB = im2double(CIERGB);
+if max(CIERGB(:)) > 1
+  CIERGB = double(CIERGB) ./ 255;
+end
 
 [rows, cols, chns] = size(CIERGB);
 

@@ -11,8 +11,8 @@ if chns == 3
 end
 
 % values outside of this range will be trimmed
-MinChannel = [0, -7000, -7000];
-MaxChannel = [9400, 7000, 7000];
+MinChannel = [0,  -100, -100];
+MaxChannel = [100, 100,  100];
 
 for i = 1:3
   lab(:, i) = max(lab(:, i), MinChannel(i));
