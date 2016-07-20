@@ -12,11 +12,11 @@ function OutputImage = GammaCorrection(InputImage, GammaValue)
 
 if nargin < 2
   GammaValue = 1;
-elseif nargin ==2 && GammaValue < 0
+elseif nargin == 2 && GammaValue < 0
   GammaValue = 1;
 end
 
 InputImage = double(InputImage);
-OutputImage = uint8(255 * (InputImage ./ 255) .^ GammaValue);
+OutputImage = uint8(255 .* ((InputImage ./ 255) .^ GammaValue));
 
 end
