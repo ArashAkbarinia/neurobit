@@ -63,7 +63,7 @@ parfor i = 1:nimages
   GroundTruthImage = double(imread([pathGT, ImageNames{i}, '.png']));
   MaskImage = double(imread([pathMasks, ImageNames{i}, '.png']));
   
-  CurrentImage = CurrentImage ./ ((2 ^ 14) - 1);
+  CurrentImage = CurrentImage ./ ((2 ^ 16) - 1);
   
   EstimatedLuminanceI = ColourConstancySwitchAlgorithms(CurrentImage, [], method, false);
   if length(EstimatedLuminanceI) == 3
@@ -77,14 +77,64 @@ parfor i = 1:nimages
   EstiLuminances{i} = EstimatedLuminanceRep;
   LuminanceDiffs{i} = GroundTruthImage .* repmat(MaskImage, [1, 1, 3]) - EstimatedLuminanceRep;
   
-  adist = PixelAngularError(GroundTruthImage .* repmat(MaskImage, [1, 1, 3]), EstimatedLuminanceRep);
+  GroundTruthImage = GroundTruthImage .* repmat(MaskImage, [1, 1, 3]);
+  EstimatedLuminanceRep = EstimatedLuminanceRep .* repmat(MaskImage, [1, 1, 3]);
+  adist = PixelAngularError(GroundTruthImage, EstimatedLuminanceRep);
   % error in degrees
   AngularErrors(i) = mean(adist) / pi * 180;
   
-  %   ColourConstancyReportPlot(CurrentImage, EstimatedLuminance, GroundtruthLuminance, CurrentAngularError, i, plotme);
+  ColourConstancyReportPlotMulti(CurrentImage, EstimatedLuminanceRep, GroundTruthImage, AngularErrors(i), i, plotme);
 end
 
-fprintf('Average angular error mean %f\n', mean(AngularErrors));
-fprintf('Average angular error median %f\n', median(AngularErrors));
+fprintf('Mean angular error (recovery) %f\n', mean(AngularErrors));
+fprintf('Median angular error (recovery) %f\n', median(AngularErrors));
+fprintf('Trimean angular error (recovery) %f\n', TrimeanError(AngularErrors));
 
 end
+
+function [ ] = ColourConstancyReportPlotMulti(CurrentImage, EstimatedLuminance, GroundtruthLuminance, CurrentAngularError, ImageIndex, plotme)
+%ColourConstancyReportPlotMulti  plottig results of colour constancy reports.
+%
+% inputs
+%   CurrentImage          the original image.
+%   EstimatedLuminance    the estimated luminance of an algorithm.
+%   GroundtruthLuminance  the groundtruth luminance.
+%   CurrentAngularError   the angular error.
+%   ImageIndex            index of the image.
+%   plotme                if true it plots the results
+%
+% outputs
+%
+
+if plotme
+  EstimatedLuminance = EstimatedLuminance ./ sum(EstimatedLuminance(:));
+  GroundtruthLuminance = GroundtruthLuminance ./ sum(GroundtruthLuminance(:));
+  EstimatedLuminance = max(EstimatedLuminance, min(EstimatedLuminance(EstimatedLuminance > 0)));
+  GroundtruthLuminance = max(GroundtruthLuminance, min(GroundtruthLuminance(GroundtruthLuminance > 0)));
+  
+  ColourConstantImage = zeros(size(CurrentImage));
+  GroundTruthImage = zeros(size(CurrentImage));
+  for k = 1:3
+    ColourConstantImage(:, :, k) = CurrentImage(:, :, k) ./ EstimatedLuminance(:, :, k);
+    GroundTruthImage(:, :, k) = CurrentImage(:, :, k) ./ GroundtruthLuminance(:, :, k);
+  end
+  ColourConstantImage = ColourConstantImage ./ max(ColourConstantImage(:));
+  ColourConstantImage = uint8(ColourConstantImage .* 255);
+  
+  GroundTruthImage = GroundTruthImage ./ max(GroundTruthImage(:));
+  GroundTruthImage = uint8(GroundTruthImage .* 255);
+  
+  OriginalImage = uint8(NormaliseChannel(double(CurrentImage), 0, 255, 0, max(CurrentImage(:))));
+  
+  figure;
+  subplot(1, 3 , 1);
+  imshow(OriginalImage); title(['original ', num2str(ImageIndex)]);
+  subplot(1, 3 , 2);
+  imshow(ColourConstantImage); title(['Colour constant estimated - angular error ', num2str(CurrentAngularError)]);
+  subplot(1, 3 , 3);
+  imshow(GroundTruthImage); title('Colour constant groundtruth');
+end
+
+fprintf('%d - angular error (recovery) %f\n', ImageIndex, CurrentAngularError);
+
+ end
