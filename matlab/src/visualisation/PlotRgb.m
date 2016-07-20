@@ -29,7 +29,7 @@ mim = uint8(mim);
 FigureNumber = figure;
 subplot(2, 2, 1); imshow(InputImage); title('original');
 subplot(2, 2, 2); imshow(lim); title('R Channel');
-subplot(2, 2, 3); imshow(sim); title('G Channel');
-subplot(2, 2, 4); imshow(mim); title('B Channel');
+subplot(2, 2, 3); imshow(sim); title('B Channel');
+subplot(2, 2, 4); imshow(mim); title('G Channel');
 
 end
