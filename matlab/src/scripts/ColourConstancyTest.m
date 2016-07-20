@@ -13,9 +13,9 @@ parpool(mycluster);
 % SFU LAB [-0.870000000000000,-0.634887779498451,0.950648987143858,0.991387687664998,0,0.0135309907901242]
 params = {3, 1.5, 2, 5, -0.77, -0.67, 1, 1, 4, 'multi'};
 tic
-AngularErrors = ColourConstancyReportMirf(params, false);
+[Laboratory.AngularErrors, Laboratory.LuminanceDiffs, Laboratory.EstiLuminances] = ColourConstancyReportMirf(params, false);
 disp('real images:');
-AngularErrors = ColourConstancyReportMirf(params, true);
+[Real.AngularErrors, Real.LuminanceDiffs, Real.EstiLuminances] = ColourConstancyReportMirf(params, true);
 % [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(params, false);
 toc
 % [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall(params, false);
