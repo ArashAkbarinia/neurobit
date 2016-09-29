@@ -1,4 +1,4 @@
-function net = cnn_cifar_init_nin(varargin)
+function net = cnn_cifar_10_init_nin(varargin)
 opts.networkType = 'simplenn' ;
 opts = vl_argparse(opts, varargin) ;
 

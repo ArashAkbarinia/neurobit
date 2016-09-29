@@ -50,8 +50,8 @@ net.meta.classes.name = imdb.meta.classes(:)';
 % -------------------------------------------------------------------------
 
 switch opts.networkType
-  case 'simplenn', trainfn = @cnn_train;
-  case 'dagnn', trainfn = @cnn_train_dag;
+  case 'simplenn', trainfn = @cnn_train_a;
+  case 'dagnn', trainfn = @cnn_train_dag_a;
 end
 
 [net, info] = trainfn(net, imdb, getBatch(opts), ...
