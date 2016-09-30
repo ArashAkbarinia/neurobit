@@ -13,4 +13,6 @@ MeanImage = sum(InputImge, 3);
 
 IsoilluminatedImage = InputImge ./ repmat(MeanImage, [1, 1, 3]);
 
+IsoilluminatedImage(isnan(IsoilluminatedImage)) = 0;
+
 end
