@@ -184,35 +184,46 @@ v1sigma = 0.5 * 2.7;
 v1v2 = 2.7;
 SurroundEnlagre = 5;
 
+xsigma = v1sigma * v1v2;
+% consider make this a parameter based on number of thetas
+ysigma = xsigma / 8;
+
+[rows, cols, chns] = size(EdgeImageResponse);
+v2responsec = zeros(rows, cols, chns, nThetas);
+v2responses = v2responsec;
+
+for t = 1:nThetas
+  theta = (t - 1) * pi / nThetas;
+  theta = theta + (pi / 2);
+  
+  v2responsec(:, :, :, t) = imfilter(EdgeImageResponse, GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
+  v2responses(:, :, :, t) = imfilter(EdgeImageResponse, GaussianFilter2(xsigma * SurroundEnlagre, ysigma * SurroundEnlagre, 0, 0, theta), 'symmetric');
+end
+
+% consider calculating the contrast with a larger window size approperiate
+% for V2.
+si = CircularLocalStdContrast(EdgeImageResponse, 45 / 2);
+si = si ./ repmat(max(max(si)), [rows, cols, 1]);
+si = repmat(max(max(si)), [rows, cols, 1]) - si;
+si = NormaliseChannel(si, 0.7, 1.0, min(min(si)), max(max(si)));
+si = repmat(si, [1, 1, 1, nThetas]);
+
+v2response = v2responsec - si .* v2responses;
+
 % V2 area pie-wedge shape
 for c = 1:size(EdgeImageResponse, 3)
   CurrentChannel = EdgeImageResponse(:, :, c);
   CurrentOrientation = FinalOrientations(:, :, c);
   
-  % consider calculating the contrast with a larger window size
-  % approperiate for V2.
-  si = CircularLocalStdContrast(CurrentChannel, 45 / 2);
-  si = si ./ max(si(:));
-  si = max(si(:)) - si;
-  si = NormaliseChannel(si, 0.7, 1.0, [], []);
-  
   for t = 1:nThetas
-    theta = (t - 1) * pi / nThetas;
-    theta = theta + (pi / 2);
+    CurrentChannelV2response = v2response(:, :, c, t);
     
-    xsigma = v1sigma * v1v2;
-    % consider make this a parameter based on number of thetas
-    ysigma = xsigma / 8;
-    
-    v2responsec = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma, ysigma, 0, 0, theta), 'symmetric');
-    v2responses = imfilter(EdgeImageResponse(:, :, c), GaussianFilter2(xsigma * SurroundEnlagre, ysigma * SurroundEnlagre, 0, 0, theta), 'symmetric');
-    
-    v2response = max(v2responsec - si .* v2responses, 0);
-    
-    CurrentChannel(CurrentOrientation == t) = v2response(CurrentOrientation == t);
+    CurrentChannel(CurrentOrientation == t) = CurrentChannelV2response(CurrentOrientation == t);
   end
   EdgeImageResponse(:, :, c) = CurrentChannel;
 end
+
+EdgeImageResponse = max(EdgeImageResponse, 0);
 
 % STD before V2 is not good
 EdgeImageResponse = EdgeImageResponse .* (StdImg + 1);
