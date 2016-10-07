@@ -325,7 +325,7 @@ rfresponse = zeros(rows2, cols2, nThetas);
 for t = 1:nThetas
   theta1 = thetas(t);
   
-  dorf = DivGauss2D(sigma, theta1, ElongatedFactor);
+  dorf = Gaussian2Gradient1(sigma, theta1, ElongatedFactor);
   doresponse = abs(imfilter(InputImage, dorf, 'symmetric') .* lsnr);
   
   rfresponse(:, :, t) = doresponse;
