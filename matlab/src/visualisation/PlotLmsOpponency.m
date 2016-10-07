@@ -8,12 +8,14 @@ function FigureNumber = PlotLmsOpponency(InputImage)
 %   FigureNumber  the reference to the figure.
 %
 
-imlms = rgb2lms(InputImage);
-FigureNumber = PlotRgbOpponency(imlms);
-
-figure(FigureNumber);
+FigureNumber = figure('name', 'Opponency Channels');
 subplot(2, 2, 1:2); imshow(InputImage); title('original');
-subplot(2, 2, 3); title('L-M Opponency');
-subplot(2, 2, 4); title('S-(L+M) Opponency');
+
+imlms = rgb2lms(InputImage);
+
+rgim = ColouredImageRedGreen(imlms(:, :, 1) - imlms(:, :, 2));
+ybim = ColouredImageYellowBlue(0.5 .* imlms(:, :, 1) + 0.5 .* imlms(:, :, 2) - imlms(:, :, 3));
+subplot(2, 2, 3); imshow(rgim); title('L-M Opponency');
+subplot(2, 2, 4); imshow(ybim); title('S-(L+M) Opponency');
 
 end

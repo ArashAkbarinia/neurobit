@@ -8,13 +8,21 @@ function FigureNumber = PlotLms(InputImage)
 %   FigureNumber  the reference to the figure.
 %
 
-imlms = rgb2lms(InputImage);
-FigureNumber = PlotRgb(imlms);
-
-figure(FigureNumber);
+FigureNumber = figure('name', 'LMS Channels');
 subplot(2, 2, 1); imshow(InputImage); title('original');
-subplot(2, 2, 2); title('L Channel');
-subplot(2, 2, 3); title('M Channel');
-subplot(2, 2, 4); title('S Channel');
+
+imlms = rgb2lms(InputImage);
+
+rch = imlms(:, :, 1);
+gch = imlms(:, :, 2);
+bch = imlms(:, :, 3);
+
+lim = ColouredImageRedGreen(rch);
+mim = ColouredImageGreen(gch);
+sim = ColouredImageBlue(bch);
+
+subplot(2, 2, 2); imshow(lim); title('L Channel');
+subplot(2, 2, 3); imshow(mim); title('M Channel');
+subplot(2, 2, 4); imshow(sim); title('S Channel');
 
 end
