@@ -1,20 +1,26 @@
-function g1 = Gaussian2Gradient1(GaussianKernel, theta)
-%Gaussian2Gradient1  calculating the gradient of 2D Gaussian.
+function g1 = Gaussian2Gradient1(sigma, theta, seta)
+%Gaussian2Gradient1  the first derivative Gaussian kernel.
+%   Explanation  http://mathworld.wolfram.com/GaussianFunction.html
 %
 % inputs
-%   GaussianKernel  the Gaussian filter.
-%   theta           the gradient angle.
+%   sigma  width of the Gaussian kernel.
+%   theta  direction of derivative.
+%   seta   rspatial aspect ratio, default 0.5;
 %
 % outputs
-%   g1  the derivative at angle theta.
+%   g1  the first derivative of Gaussian kernel.
 %
 
-if nargin < 2
-  theta = 0;
+if nargin < 3
+  seta = 0.50;
 end
 
-[gx, gy] = gradient(GaussianKernel);
+width = CalculateGaussianWidth(sigma);
 
-g1 = cos(theta) * gx + sin(theta) * gy;
+[xs, ys] = meshgrid(-width:width, -width:width);
+x1 = xs .* cos(theta) + ys .* sin(theta);
+y1 = -xs .* sin(theta) + ys .* cos(theta);
+
+g1 = -x1 .* exp(-((x1 .^ 2) + (y1 .^ 2) * (seta ^ 2)) / (2 * (sigma ^ 2))) / (pi * (sigma ^ 2));
 
 end
