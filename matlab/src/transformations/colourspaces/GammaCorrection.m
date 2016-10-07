@@ -10,10 +10,9 @@ function OutputImage = GammaCorrection(InputImage, GammaValue)
 %   OutputImage  the gamma corrected image.
 %
 
-if nargin < 2
-  GammaValue = 1;
-elseif nargin == 2 && GammaValue < 0
-  GammaValue = 1;
+if nargin < 2 || GammaValue <= 0
+  OutputImage = InputImage;
+  return;
 end
 
 InputImage = double(InputImage);
