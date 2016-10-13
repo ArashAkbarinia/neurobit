@@ -10,8 +10,11 @@ function rgb = hsi2rgb(hsi, illuminant)
 %   rgb  the converted RGB image
 %
 
+FunctionPath = mfilename('fullpath');
+FolderPath = strrep(FunctionPath, 'matlab/src/transformations/hsi/hsi2rgb', 'matlab/data/mats/hsi/');
+
 if nargin < 2
-  IlluminantsMat = load('illuminants.mat');
+  IlluminantsMat = load([FolderPath, 'illuminants.mat']);
   illuminant = IlluminantsMat.illum_6500;
 end
 
@@ -24,7 +27,10 @@ illuminant = reshape(illuminant, 1, 1, w);
 radiances = hsi .* repmat(illuminant, [r, c, 1]);
 radiances = reshape(radiances, r * c, w);
 
-xyzmat = load('xyzbar.mat');
+xyzmat = load([FolderPath, 'xyzbar.mat']);
+if length(xyzmat.xyzbar) ~= w
+  xyzmat.xyzbar = imresize(xyzmat.xyzbar, [w, 3]);
+end
 xyz = (xyzmat.xyzbar' * radiances')';
 
 xyz = reshape(xyz, r, c, 3);
