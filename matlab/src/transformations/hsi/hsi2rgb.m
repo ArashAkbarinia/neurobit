@@ -14,7 +14,7 @@ FunctionPath = mfilename('fullpath');
 FolderPath = strrep(FunctionPath, 'matlab/src/transformations/hsi/hsi2rgb', 'matlab/data/mats/hsi/');
 
 if nargin < 2
-  IlluminantsMat = load([FolderPath, 'illuminants.mat']);
+  IlluminantsMat = load([FolderPath, 'FosterIlluminants.mat']);
   illuminant = IlluminantsMat.illum_6500;
 end
 
@@ -27,7 +27,7 @@ illuminant = reshape(illuminant, 1, 1, w);
 radiances = hsi .* repmat(illuminant, [r, c, 1]);
 radiances = reshape(radiances, r * c, w);
 
-xyzmat = load([FolderPath, 'xyzbar.mat']);
+xyzmat = load([FolderPath, 'FosterXYZbar.mat']);
 if length(xyzmat.xyzbar) ~= w
   xyzmat.xyzbar = imresize(xyzmat.xyzbar, [w, 3]);
 end
