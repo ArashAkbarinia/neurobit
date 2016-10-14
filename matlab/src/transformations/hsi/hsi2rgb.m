@@ -1,6 +1,9 @@
-function rgb = hsi2rgb(hsi, illuminant)
+function rgb = hsi2rgb(hsi, illuminant, xyzspectra)
 % HSI2RGB  converts a hyperspectral image into an RGB one.
 %   Explanation http://personalpages.manchester.ac.uk/staff/d.h.foster/Tutorial_HSI2RGB/Tutorial_HSI2RGB.html
+%
+%   We are assuming that hsi, illuminant and xyzspectra are in the same
+%   wavelength range.
 %
 % inputs
 %   hsi         the hyperspectral image
@@ -27,11 +30,15 @@ illuminant = reshape(illuminant, 1, 1, w);
 radiances = hsi .* repmat(illuminant, [r, c, 1]);
 radiances = reshape(radiances, r * c, w);
 
-xyzmat = load([FolderPath, 'FosterXYZbar.mat']);
-if length(xyzmat.xyzbar) ~= w
-  xyzmat.xyzbar = imresize(xyzmat.xyzbar, [w, 3]);
+if nargin < 3
+  xyzmat = load([FolderPath, 'FosterXYZbar.mat']);
+  xyzspectra = xyzmat.xyzbar;
 end
-xyz = (xyzmat.xyzbar' * radiances')';
+
+if length(xyzspectra) ~= w
+  xyzspectra = imresize(xyzspectra, [w, 3]);
+end
+xyz = (xyzspectra' * radiances')';
 
 xyz = reshape(xyz, r, c, 3);
 xyz = max(xyz, 0);
