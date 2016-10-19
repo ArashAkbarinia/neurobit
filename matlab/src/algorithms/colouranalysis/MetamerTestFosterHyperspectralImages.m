@@ -29,7 +29,7 @@ end
 MetamerDiffs = cell(nimages, 1);
 ScaledSignals = cell(nimages, 1);
 
-gap = 20;
+gap = 10;
 
 for i = 1:nimages
   if isempty(find(ImageNumbers == i, 1))
@@ -51,6 +51,9 @@ for i = 1:nimages
   msum = sum(MetamerDiffs{i}.metamers);
   
   ScaledSignals{i} = hsi .* repmat(msum, [size(hsi, 1), 1]);
+  
+  PlotTopMetamers(MetamerDiffs{i}, hsi, 9, illuminants.wavelength(inds));
+  PlotMetamerGroups(MetamerDiffs{i}.MetamerGroups, hsi, illuminants.wavelength(inds));
 end
 
 SumScaledSignals = 0;

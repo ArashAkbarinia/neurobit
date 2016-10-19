@@ -35,7 +35,7 @@ for j = 1:nIlluminants
   ConeResponses(:, :, j) = (ColourReceptors' * ReflectedLights(:, :, j))';
 end
 
-% TODO: should we normalise the cone responses and reflected lights? Then 
+% TODO: should we normalise the cone responses and reflected lights? Then
 % achromatic ones seem metameric!
 ConeResponses = ConeResponses ./ repmat(max(ConeResponses, [], 2), [1, t, 1]);
 ReflectedLights = ReflectedLights ./ repmat(max(ReflectedLights, [], 2), [1, cols, 1]);
@@ -61,5 +61,6 @@ MetamerReport.ConeDiffs = ConeDiffs;
 MetamerReport.SgnlDiffs = SgnlDiffs;
 
 MetamerReport.metamers = SgnlDiffs > settings.signalthr & ConeDiffs < settings.conethr;
+MetamerReport.MetamerGroups = FindMetamerGroups(ConeResponses, settings.conethr);
 
 end
