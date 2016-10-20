@@ -11,13 +11,19 @@ parpool(mycluster);
 
 % params = {'arash', 3, 1.5, 2, 5, -0.87, -0.63, 0.95, 0.99, 4, -0.01, 0};
 % SFU LAB [-0.870000000000000,-0.634887779498451,0.950648987143858,0.991387687664998,0,0.0135309907901242]
-params = {3, 1.5, 2, 5, -0.77, -0.67, 1, 1, 4, 'multi'};
-tic
-[Laboratory.AngularErrors, Laboratory.LuminanceDiffs, Laboratory.EstiLuminances] = ColourConstancyReportMirf(params, false);
-disp('real images:');
-[Real.AngularErrors, Real.LuminanceDiffs, Real.EstiLuminances] = ColourConstancyReportMirf(params, true);
-% [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(params, false);
-toc
+% params = {3, 1.5, 2, 5, -0.77, -0.67, 1, 1, 4, 'multi'};
+params = {3, 1.5, 2, 5, -0.77, -0.67, 1, 1, 4, 'single'};
+[AngularErrors1, LuminanceDiffs1, EstiLuminances1] = ColourConstancyReportSfuLab(params, false);
+% [AngularErrors2, LuminanceDiffs2, EstiLuminances2] = ColourConstancyReportGreyBall(params, false);
+% [AngularErrors3, LuminanceDiffs3, EstiLuminances3] = ColourConstancyReportGehlershi(params, false);
+
+
+% tic
+% [Laboratory.AngularErrors, Laboratory.LuminanceDiffs, Laboratory.EstiLuminances] = ColourConstancyReportMirf(params, false);
+% disp('real images:');
+% [Real.AngularErrors, Real.LuminanceDiffs, Real.EstiLuminances] = ColourConstancyReportMirf(params, true);
+% toc
+
 % [AngularErrors, LuminanceDiffs] = ColourConstancyReportGreyBall(params, false);
 % [AngularErrors, LuminanceDiffs] = ColourConstancyReportGehlershi(params, false);
 % [AngularErrors, LuminanceDiffs] = ColourConstancyReportSfuLab(params, false, 1:3:321); mean(AngularErrors(1:3:321)), median(AngularErrors(1:3:321))
