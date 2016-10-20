@@ -51,10 +51,12 @@ load('SegmentedColourProbabilities255Averaged.mat');
 % this allows us to only test one colour, the rest of the colour get the
 % latest ellipsoid parameters.
 if strcmpi(ColourSpace, 'lsy')
-  ColourPoints = XYZ2lsY(sRGB2XYZ(WcsColourTable + 1, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
+  %   ColourPoints = XYZ2lsY(sRGB2XYZ(WcsColourTable + 1, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
+  ColourPoints = srgb2lsy(WcsColourTable);
   GoodResult = load('lsy_ellipsoid_params.mat');
 elseif strcmpi(ColourSpace, 'lab')
   ColourPoints = double(applycform(WcsColourTable, makecform('srgb2lab')));
+  %   ColourPoints = srgb2lab(WcsColourTable);
   GoodResult = load('lab_ellipsoid_params.mat');
 end
 ColourEllipsoids(:, 1:10) = GoodResult.ColourEllipsoids(:, 1:10);
@@ -66,6 +68,7 @@ if plotme
 end
 
 for i = 1:ncolours
+  tic;
   switch WhichColours{i}
     case {'g', 'green'}
       ColourEllipsoids(1, :) = DoColour(GroundTruth, ColourPoints, 1, 'green', plotme);
@@ -92,6 +95,7 @@ for i = 1:ncolours
     otherwise
       disp('Wrong category, returning the latest ellipsoid parameters.');
   end
+  toc;
 end
 
 if saveme
