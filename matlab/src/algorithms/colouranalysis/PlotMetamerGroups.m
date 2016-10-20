@@ -17,6 +17,11 @@ if nargin < 3
   wavelength = 1:size(signals, 1);
 end
 
+nGroups = min(nGroups, 25);
+if nGroups == 0
+  FigureHandler = [];
+  return;
+end
 r = round(sqrt(nGroups));
 c = ceil(sqrt(nGroups));
 
@@ -27,7 +32,7 @@ for i = 1:nGroups
   hold on;
   for j = 1:length(rows)
     row = rows(j);
-    plot(wavelength, signals(:, row) ./ max(signals(:, row)), 'color', rand(1, 3));
+    plot(wavelength, signals(:, row) ./ sum(signals(:, row)), 'color', rand(1, 3));
   end
   xlim([wavelength(1), wavelength(end)]);
 end

@@ -21,7 +21,7 @@ if t ~= 3
 end
 
 % TODO: should we normalise the colour receptors?
-ColourReceptors = ColourReceptors ./ repmat(max(ColourReceptors), [w, 1]);
+ColourReceptors = ColourReceptors ./ repmat(sum(ColourReceptors), [w, 1]);
 
 [rows, cols] = size(InputSignal);
 nIlluminants = size(illuminants, 2);
@@ -38,14 +38,16 @@ end
 % TODO: should we normalise the cone responses and reflected lights? Then
 % achromatic ones seem metameric!
 ConeResponses = ConeResponses ./ repmat(max(ConeResponses, [], 2), [1, t, 1]);
-ReflectedLights = ReflectedLights ./ repmat(max(ReflectedLights, [], 2), [1, cols, 1]);
+% ConeResponses = ConeResponses ./ repmat(sum(ConeResponses, 2), [1, t, 1]);
+% ReflectedLights = ReflectedLights ./ repmat(max(ReflectedLights), [rows, 1, 1]);
+ReflectedLights = ReflectedLights ./ repmat(sum(ReflectedLights), [rows, 1, 1]);
 
 ConeDiffs = zeros(cols, cols, nIlluminants);
 SgnlDiffs = zeros(cols, cols, nIlluminants);
 
 if nargin < 4
   settings.signalcomp = @(x, y) sqrt(sum((x - y) .^ 2));
-  settings.signalthr = 1;
+  settings.signalthr = 0.1;
   settings.conecomp = settings.signalcomp;
   settings.conethr = 0.01;
 end
@@ -61,6 +63,7 @@ MetamerReport.ConeDiffs = ConeDiffs;
 MetamerReport.SgnlDiffs = SgnlDiffs;
 
 MetamerReport.metamers = SgnlDiffs > settings.signalthr & ConeDiffs < settings.conethr;
-MetamerReport.MetamerGroups = FindMetamerGroups(ConeResponses, settings.conethr);
+MetamerReport.MetamerGroups = FindMetamerGroups(ConeResponses, 0.001);
+MetamerReport.ConeResponses = ConeResponses;
 
 end

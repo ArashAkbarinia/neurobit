@@ -37,8 +37,8 @@ for i = 1:nTops
   col = col(1);
   subplot(r, c, i);
   hold on;
-  plot(wavelength, signals(:, row) ./ max(signals(:, row)), 'color', rand(1,3));
-  plot(wavelength, signals(:, col) ./ max(signals(:, col)), 'color', rand(1,3));
+  plot(wavelength, signals(:, row) ./ sum(signals(:, row)), 'color', rand(1,3));
+  plot(wavelength, signals(:, col) ./ sum(signals(:, col)), 'color', rand(1,3));
   xlim([wavelength(1), wavelength(end)]);
 end
 
