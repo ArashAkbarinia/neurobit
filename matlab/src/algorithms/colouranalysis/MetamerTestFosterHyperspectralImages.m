@@ -22,20 +22,13 @@ ConeSpectralSensitivity = FundamentalsMat.ConeSpectralSensitivity;
 HyperspectralImageNames = HyperspectralImageListMat.HyperspectralImageNames;
 
 nimages = numel(HyperspectralImageNames);
-if nargin < 3
-  ImageNumbers = 1:nimages;
-end
 
 MetamerDiffs = cell(nimages, 1);
 ScaledSignals = cell(nimages, 1);
 
-gap = 10;
+gap = 50;
 
 for i = 1:nimages
-  if isempty(find(ImageNumbers == i, 1))
-    continue;
-  end
-  
   DebugImagePath = [DataSetPath, HyperspectralImageNames{i}(1:end-3), 'mat'];
   CurrentMat = load(DebugImagePath);
   
