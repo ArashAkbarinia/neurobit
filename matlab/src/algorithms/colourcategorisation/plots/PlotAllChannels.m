@@ -10,7 +10,7 @@ end
 if isempty(EllipsoidsTitles)
   FunctionLocalPath = 'matlab/src/algorithms/colourcategorisation/plots/PlotAllChannels';
   FunctionPath = mfilename('fullpath');
-  EllipsoidDicMatPath = strrep(FunctionPath, FunctionLocalPath, 'matlab/data/mats/EllipsoidDic.mat');
+  EllipsoidDicMatPath = strrep(FunctionPath, FunctionLocalPath, 'matlab/data/mats/colourcategorisation/EllipsoidDic.mat');
   EllipsoidDicMat = load(EllipsoidDicMatPath);
   ncolours = size(BelongingImage, 3);
   for i = 1:ncolours

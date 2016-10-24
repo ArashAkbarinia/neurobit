@@ -3,7 +3,7 @@ function ChipsTable = BenaventeColourBoundries()
 %   Detailed explanation goes here
 
 FunctionPath = mfilename('fullpath');
-ChipsTablePath = strrep(FunctionPath, 'matlab/src/experiments/wcs/BenaventeColourBoundries', 'matlab/data/mats/BenaventeColourBoundries.mat');
+ChipsTablePath = strrep(FunctionPath, 'matlab/src/experiments/wcs/BenaventeColourBoundries', 'matlab/data/mats/colourcategorisation/BenaventeColourBoundries.mat');
 ChipsTableMat = load(ChipsTablePath);
 
 ChipsTable = ChipsTableMat.ChipsTable();

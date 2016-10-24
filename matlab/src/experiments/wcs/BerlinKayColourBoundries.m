@@ -39,7 +39,7 @@ ChipsColours(ChipsColours == 2) = 1;
 ChipsTable = WcsChipsTable(WcsChips, ChipsColours);
 
 if ConvertToEllipsoidColours
-  EllipsoidDicMatPath = strrep(FunctionPath, FunctionLocalPath, 'matlab/data/mats/EllipsoidDic.mat');
+  EllipsoidDicMatPath = strrep(FunctionPath, FunctionLocalPath, 'matlab/data/mats/colourcategorisation/EllipsoidDic.mat');
   EllipsoidDicMat = load(EllipsoidDicMatPath);
   
   ChipsTableTmp = ChipsTable;

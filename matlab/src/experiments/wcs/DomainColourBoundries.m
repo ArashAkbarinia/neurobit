@@ -3,7 +3,7 @@ function [FocalChipsTable, DomainChipsTable] = DomainColourBoundries()
 %   Detailed explanation goes here
 
 FunctionPath = mfilename('fullpath');
-ChipsTablePath = strrep(FunctionPath, 'matlab/src/experiments/wcs/DomainColourBoundries', 'matlab/data/mats/DomainColourBoundries.mat');
+ChipsTablePath = strrep(FunctionPath, 'matlab/src/experiments/wcs/DomainColourBoundries', 'matlab/data/mats/colourcategorisation/DomainColourBoundries.mat');
 ChipsTableMat = load(ChipsTablePath);
 
 FocalChipsTable1 = WcsResults({'benavente'});
