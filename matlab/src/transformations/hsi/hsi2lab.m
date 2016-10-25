@@ -1,4 +1,4 @@
-function lab = hsi2lab(hsi, illuminant, xyzspectra)
+function lab = hsi2lab(hsi, illuminant, xyzspectra, wp)
 % HSI2LAB  converts a hyperspectral image into an LAB one.
 %
 %   We are assuming that hsi, illuminant and xyzspectra are in the same

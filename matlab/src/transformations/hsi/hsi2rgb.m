@@ -44,9 +44,12 @@ xyz = reshape(xyz, r, c, 3);
 xyz = max(xyz, 0);
 xyz = xyz / max(xyz(:));
 
-rgb = xyz2srgb_exgamma(xyz);
-rgb = max(rgb, 0);
-rgb = min(rgb, 1);
+% rgb = xyz2srgb_exgamma(xyz);
+% rgb = max(rgb, 0);
+% rgb = min(rgb, 1);
+
+% to have similar results as hsi2lab
+rgb = xyz2rgb(xyz);
 
 end
 
