@@ -3,7 +3,7 @@ function MetamerReport = MetamerAnalysis(InputSignal, ColourReceptors, illuminan
 %
 
 FunctionPath = mfilename('fullpath');
-FolderPath = strrep(FunctionPath, 'matlab/src/algorithms/algorithms/MetamerAnalysis', 'matlab/data/mats/hsi/');
+FolderPath = strrep(FunctionPath, 'matlab/src/algorithms/colouranalysis/MetamerAnalysis', 'matlab/data/mats/hsi/');
 
 if nargin < 2 || isempty(ColourReceptors)
   ColourReceptorsMat = load([FolderPath, 'ConeSpectralSensitivity.mat']);
