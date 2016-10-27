@@ -20,6 +20,7 @@ end
 
 MetamersDis = MetamerDiff.SgnlDiffs;
 MetamersDis(MetamerDiff.metamers == 0) = 0;
+MetamersDis(isinf(MetamersDis)) = 0;
 
 UniqueDistances = sort(unique(MetamersDis(:)), 'descend');
 if UniqueDistances == 0
