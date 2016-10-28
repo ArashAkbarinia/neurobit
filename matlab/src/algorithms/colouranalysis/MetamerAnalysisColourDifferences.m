@@ -1,22 +1,6 @@
-function MetamerReport = MetamerAnalysisColourDifferences(InputSignal, ColourReceptors, illuminant)
+function MetamerReport = MetamerAnalysisColourDifferences(InputSignal, ColourReceptors, illuminant, wp, plotme)
 %MetamerAnalysisColourDifferences Summary of this function goes here
 %   Detailed explanation goes here
-
-FunctionPath = mfilename('fullpath');
-FolderPath = strrep(FunctionPath, 'matlab/src/algorithms/colouranalysis/MetamerAnalysisColourDifferences', 'matlab/data/mats/hsi/');
-
-if nargin < 2 || isempty(ColourReceptors)
-  ColourReceptorsMat = load([FolderPath, 'Xyz1931SpectralSensitivity.mat']);
-  % spectral sensitivities of 1931 observers
-  ColourReceptors = ColourReceptorsMat.Xyz1931SpectralSensitivity;
-  
-  IlluminantsMat = load([FolderPath, 'illuminants.mat']);
-  illuminant = IlluminantsMat.d65;
-  % TODO: fix the hard coded values
-  illuminant = illuminant(11:10:311);
-  
-  wp = whitepoint('d65');
-end
 
 lab = hsi2lab(InputSignal, illuminant, ColourReceptors, wp);
 
@@ -41,8 +25,11 @@ MetamerReport.metamers = CompMat1976 < 0.5 & CompMat1994 < 0.5 & CompMat2000 < 0
 nAll = (sum(MetamerReport.metamers(:)) - nSignals) / 2;
 disp(['Metamer percentage: ', num2str(nAll / ((nSignals * (nSignals - 1)) / 2))]);
 
-SignalLength = size(InputSignal, 3);
-MetamerReport.SgnlDiffs = 1 ./ MetamerReport.CompMat2000;
-PlotTopMetamers(MetamerReport, reshape(InputSignal, nSignals, SignalLength)', 25);
+if plotme
+  SignalLength = size(InputSignal, 3);
+  MetamerPlot = MetamerReport;
+  MetamerPlot.SgnlDiffs = 1 ./ MetamerPlot.CompMat2000;
+  PlotTopMetamers(MetamerPlot, reshape(InputSignal, nSignals, SignalLength)', 25);
+end
 
 end

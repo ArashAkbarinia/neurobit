@@ -10,52 +10,37 @@ HyperspectralImageListMat = load(MatFilePath);
 
 IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/illuminants.mat');
 illuminants = load(IlluminantstPath);
-d65 = illuminants.d65;
 
 % 400 - 720 nm
 inds = find(illuminants.wavelength == 400):10:find(illuminants.wavelength == 720);
 
-FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/ConeSpectralSensitivity.mat');
-FundamentalsMat = load(FundamentalsPath);
-ConeSpectralSensitivity = FundamentalsMat.ConeSpectralSensitivity;
-
 HyperspectralImageNames = HyperspectralImageListMat.HyperspectralImageNames;
-
 nimages = numel(HyperspectralImageNames);
 
 MetamerDiffs = cell(nimages, 1);
-ScaledSignals = cell(nimages, 1);
 
-gap = 50;
+FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
+ColourReceptorsMat = load([FundamentalsPath, 'Xyz1931SpectralSensitivity.mat']);
+% spectral sensitivities of 1931 observers
+ColourReceptors = ColourReceptorsMat.Xyz1931SpectralSensitivity;
 
-for i = 1:nimages
+IlluminantsMat = load([FundamentalsPath, 'illuminants.mat']);
+illuminant = IlluminantsMat.d65;
+illuminant = illuminant(inds);
+
+wp = whitepoint('d65');
+plotme = false;
+
+nPixels = 2000;
+
+for i = 1:2
   DebugImagePath = [DataSetPath, HyperspectralImageNames{i}(1:end-3), 'mat'];
   CurrentMat = load(DebugImagePath);
   
   hsi = CurrentMat.hsi;
   
-  hsi = hsi(1:gap:end, 1:gap:end, :);
-  [rows, cols, chns] = size(hsi);
-  
-  hsi = reshape(hsi, rows * cols, chns)';
-  
-  MetamerDiffs{i} = MetamerAnalysis(hsi, ConeSpectralSensitivity(inds, :), d65(inds));
-  
-  msum = sum(MetamerDiffs{i}.metamers);
-  
-  ScaledSignals{i} = hsi .* repmat(msum, [size(hsi, 1), 1]);
-  
-  PlotTopMetamers(MetamerDiffs{i}, hsi, 9, illuminants.wavelength(inds));
-  PlotMetamerGroups(MetamerDiffs{i}.MetamerGroups, hsi, illuminants.wavelength(inds));
+  hsi = reshape(hsi, size(hsi, 1) * size(hsi, 2), 1, size(hsi, 3));
+  MetamerDiffs{i} = MetamerAnalysisColourDifferences(hsi(randi(size(hsi, 1), [nPixels, 1]), :, :), ColourReceptors, illuminant, wp, plotme);
 end
-
-SumScaledSignals = 0;
-for i = 1:nimages
-  SumScaledSignals = SumScaledSignals + sum(ScaledSignals{i}, 2);
-end
-
-figure;
-hold on;
-plot(illuminants.wavelength(inds), SumScaledSignals);
 
 end
