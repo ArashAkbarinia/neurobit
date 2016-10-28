@@ -18,9 +18,11 @@ MetamerReport.CompMat1976 = CompMat1976;
 MetamerReport.CompMat1994 = CompMat1994;
 MetamerReport.CompMat2000 = CompMat2000;
 
-MetamerReport.metamers = CompMat1976 < 0.5 & CompMat1994 < 0.5 & CompMat2000 < 0.5;
+threshold = 0.5;
+MetamerReport.metamers = CompMat1976 < threshold & CompMat1994 < threshold & CompMat2000 < threshold;
+MetamerReport.metamers(logical(eye(size(MetamerReport.metamers)))) = 0;
 
-nAll = (sum(MetamerReport.metamers(:)) - nSignals) / 2;
+nAll = sum(MetamerReport.metamers(:)) / 2;
 disp(['Metamer percentage: ', num2str(nAll / ((nSignals * (nSignals - 1)) / 2))]);
 
 end

@@ -23,6 +23,7 @@ MetamersDis(MetamerDiff.metamers == 0) = 0;
 MetamersDis(isinf(MetamersDis)) = 0;
 
 UniqueDistances = sort(unique(MetamersDis(:)), 'descend');
+UniqueDistances = UniqueDistances(UniqueDistances > 0);
 if UniqueDistances == 0
   FigureHandler = [];
   return;
