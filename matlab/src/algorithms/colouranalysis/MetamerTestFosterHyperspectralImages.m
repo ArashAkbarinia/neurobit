@@ -29,7 +29,7 @@ illuminant = IlluminantsMat.d65;
 illuminant = illuminant(inds);
 
 wp = whitepoint('d65');
-plotme = false;
+plotme = true;
 
 nPixels = 2000;
 
@@ -40,7 +40,16 @@ for i = 1:nimages
   hsi = CurrentMat.hsi;
   
   hsi = reshape(hsi, size(hsi, 1) * size(hsi, 2), 1, size(hsi, 3));
-  MetamerDiffs{i} = MetamerAnalysisColourDifferences(hsi(randi(size(hsi, 1), [nPixels, 1]), :, :), ColourReceptors, illuminant, wp, plotme);
+  InputSignal = hsi(randi(size(hsi, 1), [nPixels, 1]), :, :);
+  lab = hsi2lab(InputSignal, illuminant, ColourReceptors, wp);
+  MetamerDiffs{i} = MetamerAnalysisColourDifferences(lab);
+  if plotme
+    SignalLength = size(InputSignal, 3);
+    MetamerPlot = MetamerDiffs{i};
+    MetamerPlot.SgnlDiffs = 1 ./ MetamerPlot.CompMat2000;
+    nSignals = size(lab, 1);
+    PlotTopMetamers(MetamerPlot, reshape(InputSignal, nSignals, SignalLength)', 25);
+  end
 end
 
 end
