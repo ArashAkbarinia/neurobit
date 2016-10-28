@@ -33,7 +33,7 @@ plotme = false;
 
 nPixels = 2000;
 
-for i = 1:2
+for i = 1:nimages
   DebugImagePath = [DataSetPath, HyperspectralImageNames{i}(1:end-3), 'mat'];
   CurrentMat = load(DebugImagePath);
   
