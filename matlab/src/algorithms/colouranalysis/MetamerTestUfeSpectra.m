@@ -8,8 +8,13 @@ DataSetPath = strrep(FunctionPath, ['matlab/', FunctionRelativePath], DataSetFol
 IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/illuminants.mat');
 illuminants = load(IlluminantstPath);
 
-[natural, NaturalWavelength] = NaturalSpectra(DataSetPath);
-[forest, ForestWavelength] = ForestSpectra(DataSetPath);
+[originals.munsell, wavelengths.munsell] = MunsellSpectra(DataSetPath);
+[originals.candy, wavelengths.candy] = CandySpectra(DataSetPath);
+[originals.agfa, wavelengths.agfa] = AgfaitSpectra(DataSetPath);
+[originals.natural, wavelengths.natural] = NaturalSpectra(DataSetPath);
+[originals.forest, wavelengths.forest] = ForestSpectra(DataSetPath);
+[originals.lumber, wavelengths.lumber] = LumberSpectra(DataSetPath);
+[originals.paper, wavelengths.paper] = PaperSpectra(DataSetPath);
 
 FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
 ColourReceptorsMat = load([FundamentalsPath, 'Xyz1931SpectralSensitivity.mat']);
@@ -20,73 +25,134 @@ IlluminantsMat = load([FundamentalsPath, 'illuminants.mat']);
 illuminant = IlluminantsMat.d65;
 
 wp = whitepoint('d65');
-plotmenatural = true;
-plotmeforest = true;
+plotme.munsell = true;
+plotme.candy = true;
+plotme.agfa = true;
+plotme.natural = true;
+plotme.forest = true;
+plotme.lumber = true;
+plotme.paper = true;
 
-NaturalInds = find(illuminants.wavelength == NaturalWavelength(1)):5:find(illuminants.wavelength == NaturalWavelength(end));
-NaturalColourReceptorsInds = find(ColourReceptorsMat.wavelength == NaturalWavelength(1)):find(ColourReceptorsMat.wavelength == NaturalWavelength(end));
+SignalNames = fieldnames(plotme);
+nSignals = numel(SignalNames);
 
-ForestInds = find(illuminants.wavelength == ForestWavelength(1)):5:391;
-ForestColourReceptorsInds = find(ColourReceptorsMat.wavelength == ForestWavelength(1)):81;
+lab = [];
+for i = 1:nSignals
+  LabVals.(SignalNames{i}) = ComputeLab(originals.(SignalNames{i}), wavelengths.(SignalNames{i}), illuminant, illuminants.wavelength, ColourReceptors, ColourReceptorsMat.wavelength, wp);
+  lab = cat(1, lab, LabVals.(SignalNames{i}));
+  MetamerDiffs.(SignalNames{i}) = MetamerAnalysisColourDifferences(LabVals.(SignalNames{i}));
+end
 
-NaturalLab = hsi2lab(natural, illuminant(NaturalInds'), ColourReceptors(NaturalColourReceptorsInds', :), wp);
-ForestLab = hsi2lab(forest(:, :, 1:79), illuminant(ForestInds'), ColourReceptors(ForestColourReceptorsInds', :), wp);
-lab = cat(1, NaturalLab, ForestLab);
-MetamerDiffs.natural = MetamerAnalysisColourDifferences(NaturalLab);
-MetamerDiffs.forest = MetamerAnalysisColourDifferences(ForestLab);
 MetamerDiffs.nfall = MetamerAnalysisColourDifferences(lab);
 
-if plotmenatural
-  SignalLength = size(natural, 3);
-  MetamerPlot = MetamerDiffs.natural;
-  MetamerPlot.SgnlDiffs = 1 ./ MetamerPlot.CompMat2000;
-  nSignals = size(natural, 1);
-  PlotTopMetamers(MetamerPlot, reshape(natural, nSignals, SignalLength)', 25);
+for i = 1:nSignals
+  PlotElementSignals(originals.(SignalNames{i}), MetamerDiffs.(SignalNames{i}));
 end
 
-if plotmeforest
-  SignalLength = size(forest, 3);
-  MetamerPlot = MetamerDiffs.forest;
-  MetamerPlot.SgnlDiffs = 1 ./ MetamerPlot.CompMat2000;
-  nSignals = size(forest, 1);
-  PlotTopMetamers(MetamerPlot, reshape(forest, nSignals, SignalLength)', 25);
 end
+
+function lab = ComputeLab(ev, ew, iv, iw, cv, cw, wp)
+
+[~, ia1, ib] = intersect(ew, iw);
+% TODO: it's more accurate to find the intersection of all 3 vectors.
+% I assumed the colour receptor and illuminants are similar size.
+[~, ia2, ic] = intersect(ew, cw);
+
+lab = hsi2lab(ev(:, :, ia1), iv(ib'), cv(ic', :), wp);
+
+end
+
+function [] = PlotElementSignals(element, MetamerPlot)
+
+SignalLength = size(element, 3);
+MetamerPlot.SgnlDiffs = 1 ./ MetamerPlot.CompMat2000;
+nSignals = size(element, 1);
+PlotTopMetamers(MetamerPlot, reshape(element, nSignals, SignalLength)', 25);
+
+end
+
+function [munsell, wavelength] = MunsellSpectra(DataSetPath)
+
+MunsellPath = [DataSetPath, 'munsell380_780_1_glossy/munsell380_780_1_glossy.mat'];
+MunsellMat = load(MunsellPath);
+
+WavelengthSize = size(MunsellMat.glossy, 1);
+munsell = MunsellMat.glossy';
+munsell = reshape(munsell, size(munsell, 1), 1, WavelengthSize);
+
+wavelength = MunsellMat.wavelength;
+
+end
+
+function [candy, wavelength] = CandySpectra(DataSetPath)
+
+CandyPath = [DataSetPath, 'candy_matlab/candy_matlab.mat'];
+CandyMat = load(CandyPath);
+
+WavelengthSize = size(CandyMat.candy, 1);
+candy = CandyMat.candy';
+candy = reshape(candy, size(candy, 1), 1, WavelengthSize);
+
+wavelength = CandyMat.wavelength;
+
+end
+
+function [agfa, wavelength] = AgfaitSpectra(DataSetPath)
+
+AgfaitPath = [DataSetPath, 'agfait872/agfait872.mat'];
+AgfaitMat = load(AgfaitPath);
+
+WavelengthSize = size(AgfaitMat.agfa, 1);
+agfa = AgfaitMat.agfa';
+agfa = reshape(agfa, size(agfa, 1), 1, WavelengthSize);
+
+wavelength = AgfaitMat.wavelength;
 
 end
 
 function [natural, wavelength] = NaturalSpectra(DataSetPath)
 
 NaturalPath = [DataSetPath, 'natural400_700_5/natural400_700_5.mat'];
-NaturalMat = load(NaturalPath);
-
-spectra = NaturalMat.spectra;
-SignalNames = fieldnames(spectra);
-nSignals = numel(SignalNames);
-
-WavelengthSize = size(NaturalMat.wavelength, 1);
-natural = zeros(nSignals, 1, WavelengthSize);
-for i = 1:nSignals
-  natural(i, :, :) = reshape(spectra.(SignalNames{i}), 1, 1, WavelengthSize);
-end
-
-wavelength = NaturalMat.wavelength;
+[natural, wavelength] = LoadSignal(NaturalPath);
 
 end
 
 function [forest, wavelength] = ForestSpectra(DataSetPath)
 
 ForestPath = [DataSetPath, 'forest_matlab/forest_matlab.mat'];
-ForestMat = load(ForestPath);
+[forest, wavelength] = LoadSignal(ForestPath);
 
-WavelengthSize = size(ForestMat.birch, 1);
-birch = ForestMat.birch';
-birch = reshape(birch, size(birch, 1), 1, WavelengthSize);
-pine = ForestMat.pine';
-pine = reshape(pine, size(pine, 1), 1, WavelengthSize);
-spruce = ForestMat.spruce';
-spruce = reshape(spruce, size(spruce, 1), 1, WavelengthSize);
+end
 
-forest = cat(1, birch, pine, spruce);
-wavelength = ForestMat.wavelength;
+function [lumber, wavelength] = LumberSpectra(DataSetPath)
+
+LumberPath = [DataSetPath, 'lumber_matlab/lumber_matlab.mat'];
+[lumber, wavelength] = LoadSignal(LumberPath);
+
+end
+
+function [paper, wavelength] = PaperSpectra(DataSetPath)
+
+PaperPath = [DataSetPath, 'paper_matlab/paper_matlab.mat'];
+[paper, wavelength] = LoadSignal(PaperPath);
+
+end
+
+function [LoadedSignal, wavelength] = LoadSignal(SignalPath)
+
+matfile = load(SignalPath);
+
+spectra = matfile.spectra;
+SignalNames = fieldnames(spectra);
+nSignals = numel(SignalNames);
+
+WavelengthSize = size(matfile.wavelength, 1);
+LoadedSignal = [];
+for i = 1:nSignals
+  CurrentSpectra = spectra.(SignalNames{i})';
+  LoadedSignal = [LoadedSignal; reshape(CurrentSpectra, size(CurrentSpectra, 1), 1, WavelengthSize)]; %#ok
+end
+
+wavelength = matfile.wavelength;
 
 end
