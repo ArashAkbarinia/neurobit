@@ -1,20 +1,25 @@
 function MetamerDiffs = MetamerTestUfeSpectra()
 
 FunctionPath = mfilename('fullpath');
-DataSetFolder = 'data/dataset/hsi/uef/';
+UefDataSetFolder = 'data/dataset/hsi/uef/';
+OthersDataSetFolder = 'data/dataset/hsi/others/';
 FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestUfeSpectra';
-DataSetPath = strrep(FunctionPath, ['matlab/', FunctionRelativePath], DataSetFolder);
+UefDataSetPath = strrep(FunctionPath, ['matlab/', FunctionRelativePath], UefDataSetFolder);
+OthersDataSetPath = strrep(FunctionPath, ['matlab/', FunctionRelativePath], OthersDataSetFolder);
 
 IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/illuminants.mat');
 illuminants = load(IlluminantstPath);
 
-[originals.munsell, wavelengths.munsell] = MunsellSpectra(DataSetPath);
-[originals.candy, wavelengths.candy] = CandySpectra(DataSetPath);
-[originals.agfa, wavelengths.agfa] = AgfaitSpectra(DataSetPath);
-[originals.natural, wavelengths.natural] = NaturalSpectra(DataSetPath);
-[originals.forest, wavelengths.forest] = ForestSpectra(DataSetPath);
-[originals.lumber, wavelengths.lumber] = LumberSpectra(DataSetPath);
-[originals.paper, wavelengths.paper] = PaperSpectra(DataSetPath);
+[originals.munsell, wavelengths.munsell] = MunsellSpectra(UefDataSetPath);
+[originals.candy, wavelengths.candy] = CandySpectra(UefDataSetPath);
+[originals.agfa, wavelengths.agfa] = AgfaitSpectra(UefDataSetPath);
+[originals.natural, wavelengths.natural] = NaturalSpectra(UefDataSetPath);
+[originals.forest, wavelengths.forest] = ForestSpectra(UefDataSetPath);
+[originals.lumber, wavelengths.lumber] = LumberSpectra(UefDataSetPath);
+[originals.paper, wavelengths.paper] = PaperSpectra(UefDataSetPath);
+[originals.cambridge, wavelengths.cambridge] = CambridgeSpectra(OthersDataSetPath);
+[originals.fred400, wavelengths.fred400] = Fred400Spectra(OthersDataSetPath);
+[originals.fred401, wavelengths.fred401] = Fred401Spectra(OthersDataSetPath);
 
 FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
 ColourReceptorsMat = load([FundamentalsPath, 'Xyz1931SpectralSensitivity.mat']);
@@ -32,8 +37,11 @@ plotme.natural = true;
 plotme.forest = true;
 plotme.lumber = true;
 plotme.paper = true;
+plotme.cambridge = true;
+plotme.fred400 = true;
+plotme.fred401 = true;
 
-SignalNames = fieldnames(plotme);
+SignalNames = fieldnames(originals);
 nSignals = numel(SignalNames);
 
 lab = [];
@@ -135,6 +143,33 @@ function [paper, wavelength] = PaperSpectra(DataSetPath)
 
 PaperPath = [DataSetPath, 'paper_matlab/paper_matlab.mat'];
 [paper, wavelength] = LoadSignal(PaperPath);
+
+end
+
+function [cambridge, wavelength] = CambridgeSpectra(DataSetPath)
+
+CambridgePath = [DataSetPath, 'CambridgeAll.mat'];
+CambridgeMat = load(CambridgePath);
+
+WavelengthSize = size(CambridgeMat.spectra, 1);
+cambridge = CambridgeMat.spectra';
+cambridge = reshape(cambridge, size(cambridge, 1), 1, WavelengthSize);
+
+wavelength = CambridgeMat.wavelength;
+
+end
+
+function [fred, wavelength] = Fred400Spectra(DataSetPath)
+
+FredPath = [DataSetPath, 'FReD400.mat'];
+[fred, wavelength] = LoadSignal(FredPath);
+
+end
+
+function [fred, wavelength] = Fred401Spectra(DataSetPath)
+
+FredPath = [DataSetPath, 'FReD401.mat'];
+[fred, wavelength] = LoadSignal(FredPath);
 
 end
 
