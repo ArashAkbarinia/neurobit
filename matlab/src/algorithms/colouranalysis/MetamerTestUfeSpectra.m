@@ -22,6 +22,7 @@ illuminants = load(IlluminantstPath);
 [originals.fred401, wavelengths.fred401] = Fred401Spectra(OthersDataSetPath);
 [originals.barnard, wavelengths.barnard] = BarnardSpectra(OthersDataSetPath);
 [originals.matsumoto, wavelengths.matsumoto] = MatsumotoSpectra(OthersDataSetPath);
+[originals.westland, wavelengths.westland] = WestlandSpectra(OthersDataSetPath);
 
 FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
 ColourReceptorsMat = load([FundamentalsPath, 'Xyz1931SpectralSensitivity.mat']);
@@ -44,6 +45,7 @@ plotme.fred400 = true;
 plotme.fred401 = true;
 plotme.barnard = true;
 plotme.matsumoto = true;
+plotme.westland = true;
 
 SignalNames = fieldnames(originals);
 nSignals = numel(SignalNames);
@@ -196,6 +198,19 @@ function [matsumoto, wavelength] = MatsumotoSpectra(DataSetPath)
 
 MatsumotoPath = [DataSetPath, 'matsumoto.mat'];
 [matsumoto, wavelength] = LoadSignal(MatsumotoPath);
+
+end
+
+function [westland, wavelength] = WestlandSpectra(DataSetPath)
+
+WestlandPath = [DataSetPath, 'westland.mat'];
+WestlandMat = load(WestlandPath);
+
+WavelengthSize = size(WestlandMat.spectra, 1);
+westland = WestlandMat.spectra';
+westland = reshape(westland, size(westland, 1), 1, WavelengthSize);
+
+wavelength = WestlandMat.wavelength;
 
 end
 
