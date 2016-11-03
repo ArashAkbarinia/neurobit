@@ -20,6 +20,7 @@ illuminants = load(IlluminantstPath);
 [originals.cambridge, wavelengths.cambridge] = CambridgeSpectra(OthersDataSetPath);
 [originals.fred400, wavelengths.fred400] = Fred400Spectra(OthersDataSetPath);
 [originals.fred401, wavelengths.fred401] = Fred401Spectra(OthersDataSetPath);
+[originals.barnard, wavelengths.barnard] = BarnardSpectra(OthersDataSetPath);
 
 FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
 ColourReceptorsMat = load([FundamentalsPath, 'Xyz1931SpectralSensitivity.mat']);
@@ -40,6 +41,7 @@ plotme.paper = true;
 plotme.cambridge = true;
 plotme.fred400 = true;
 plotme.fred401 = true;
+plotme.barnard = true;
 
 SignalNames = fieldnames(originals);
 nSignals = numel(SignalNames);
@@ -52,9 +54,10 @@ for i = 1:nSignals
   MetamerDiffs.(SignalNames{i}) = MetamerAnalysisColourDifferences(LabVals.(SignalNames{i}));
 end
 
+disp(['Processing all');
 MetamerDiffs.nfall = MetamerAnalysisColourDifferences(lab);
 
-for i = 1:nSignals
+for i = nSignals
   PlotElementSignals(originals.(SignalNames{i}), MetamerDiffs.(SignalNames{i}), wavelengths.(SignalNames{i}), LabVals.(SignalNames{i}));
 end
 
@@ -171,6 +174,19 @@ function [fred, wavelength] = Fred401Spectra(DataSetPath)
 
 FredPath = [DataSetPath, 'FReD401.mat'];
 [fred, wavelength] = LoadSignal(FredPath);
+
+end
+
+function [barnard, wavelength] = BarnardSpectra(DataSetPath)
+
+BarnardPath = [DataSetPath, 'BarnardNoMunsellNoMacbeth.mat'];
+BarnardMat = load(BarnardPath);
+
+WavelengthSize = size(BarnardMat.spectra, 1);
+barnard = BarnardMat.spectra';
+barnard = reshape(barnard, size(barnard, 1), 1, WavelengthSize);
+
+wavelength = BarnardMat.wavelength;
 
 end
 
