@@ -46,6 +46,7 @@ nSignals = numel(SignalNames);
 
 lab = [];
 for i = 1:nSignals
+  disp(['Processing ', SignalNames{i}]);
   LabVals.(SignalNames{i}) = ComputeLab(originals.(SignalNames{i}), wavelengths.(SignalNames{i}), illuminant, illuminants.wavelength, ColourReceptors, ColourReceptorsMat.wavelength, wp);
   lab = cat(1, lab, LabVals.(SignalNames{i}));
   MetamerDiffs.(SignalNames{i}) = MetamerAnalysisColourDifferences(LabVals.(SignalNames{i}));
@@ -54,7 +55,7 @@ end
 MetamerDiffs.nfall = MetamerAnalysisColourDifferences(lab);
 
 for i = 1:nSignals
-  PlotElementSignals(originals.(SignalNames{i}), MetamerDiffs.(SignalNames{i}));
+  PlotElementSignals(originals.(SignalNames{i}), MetamerDiffs.(SignalNames{i}), wavelengths.(SignalNames{i}), LabVals.(SignalNames{i}));
 end
 
 end
@@ -70,12 +71,12 @@ lab = hsi2lab(ev(:, :, ia1), iv(ib'), cv(ic', :), wp);
 
 end
 
-function [] = PlotElementSignals(element, MetamerPlot)
+function [] = PlotElementSignals(element, MetamerPlot, wavelength, lab)
 
 SignalLength = size(element, 3);
 MetamerPlot.SgnlDiffs = 1 ./ MetamerPlot.CompMat2000;
 nSignals = size(element, 1);
-PlotTopMetamers(MetamerPlot, reshape(element, nSignals, SignalLength)', 25);
+PlotTopMetamers(MetamerPlot, reshape(element, nSignals, SignalLength)', 25, wavelength, lab);
 
 end
 
