@@ -55,6 +55,7 @@ for i = 1:nTops
   figure(FigureHandler.r);
   subplot(r, c, i);
   image([rgb(row, :, :), rgb(row, :, :), black, rgb(col, :, :), rgb(col, :, :)]);
+  axis off;
 end
 
 end
