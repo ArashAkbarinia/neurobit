@@ -42,7 +42,7 @@ toc;
 
 GroundtruthDirectory = [FolderPath, 'ground-truth/images/', TypeName];
 PlotsDirectory = [FolderPath, 'plot/', TypeName, '/', TestName];
-nthresh = 5;
+nthresh = 99;
 
 tic;
 if dothresh
