@@ -1,4 +1,43 @@
-function MetamerDiffs = MetamerTestUfeSpectra()
+function MetamerMat = MetamerTestUfeSpectra()
+
+FunctionPath = mfilename('fullpath');
+FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestUfeSpectra';
+
+IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/illuminants.mat');
+illuminants = load(IlluminantstPath);
+
+FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
+ColourReceptorsMat = load([FundamentalsPath, 'Xyz1931SpectralSensitivity.mat']);
+
+IlluminantNames = {'d65', 'a', 'c'};
+plotme = false;
+AllSpectra = GetSpectra();
+
+for i = 1:numel(IlluminantNames)
+  disp(['Illuminant ', IlluminantNames{i}]);
+  wp = whitepoint(IlluminantNames{i});
+  illuminants.spectra = illuminants.(IlluminantNames{i});
+  MetamerDiffs.(IlluminantNames{i}) = MetamerTestIlluminant(AllSpectra, illuminants, ColourReceptorsMat, wp, plotme);
+end
+
+MetamerMat = MetamerDiffs.(IlluminantNames{1});
+SignalNames = fieldnames(MetamerMat);
+nSignals = numel(SignalNames);
+MetaInfoNames = fieldnames(MetamerMat.(SignalNames{1}));
+nMetaInfo = numel(MetaInfoNames);
+for i = 2:numel(IlluminantNames)
+  for j = 1:nSignals
+    for k = 1:nMetaInfo
+      CatMetamers = MetamerMat.(SignalNames{j}).(MetaInfoNames{k});
+      CatMetamers(:, :, end + 1) = MetamerDiffs.(IlluminantNames{i}).(SignalNames{j}).(MetaInfoNames{k}); %#ok
+      MetamerMat.(SignalNames{j}).(MetaInfoNames{k}) = CatMetamers;
+    end
+  end
+end
+
+end
+
+function AllSpectra = GetSpectra()
 
 FunctionPath = mfilename('fullpath');
 UefDataSetFolder = 'data/dataset/hsi/uef/';
@@ -6,9 +45,6 @@ OthersDataSetFolder = 'data/dataset/hsi/others/';
 FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestUfeSpectra';
 UefDataSetPath = strrep(FunctionPath, ['matlab/', FunctionRelativePath], UefDataSetFolder);
 OthersDataSetPath = strrep(FunctionPath, ['matlab/', FunctionRelativePath], OthersDataSetFolder);
-
-IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/illuminants.mat');
-illuminants = load(IlluminantstPath);
 
 [originals.munsell, wavelengths.munsell] = MunsellSpectra(UefDataSetPath);
 [originals.candy, wavelengths.candy] = CandySpectra(UefDataSetPath);
@@ -24,45 +60,51 @@ illuminants = load(IlluminantstPath);
 [originals.matsumoto, wavelengths.matsumoto] = MatsumotoSpectra(OthersDataSetPath);
 [originals.westland, wavelengths.westland] = WestlandSpectra(OthersDataSetPath);
 
-FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
-ColourReceptorsMat = load([FundamentalsPath, 'Xyz1931SpectralSensitivity.mat']);
-% spectral sensitivities of 1931 observers
-ColourReceptors = ColourReceptorsMat.Xyz1931SpectralSensitivity;
+AllSpectra.originals = originals;
+AllSpectra.wavelengths = wavelengths;
 
-IlluminantsMat = load([FundamentalsPath, 'illuminants.mat']);
-illuminant = IlluminantsMat.d65;
+end
 
-wp = whitepoint('d65');
-plotme.munsell = true;
-plotme.candy = true;
-plotme.agfa = true;
-plotme.natural = true;
-plotme.forest = true;
-plotme.lumber = true;
-plotme.paper = true;
-plotme.cambridge = true;
-plotme.fred400 = true;
-plotme.fred401 = true;
-plotme.barnard = true;
-plotme.matsumoto = true;
-plotme.westland = true;
+function MetamerDiffs = MetamerTestIlluminant(AllSpectra, illuminants, ColourReceptors, wp, plotmeall)
+
+originals = AllSpectra.originals;
+wavelengths = AllSpectra.wavelengths;
+
+plotme.munsell = plotmeall;
+plotme.candy = plotmeall;
+plotme.agfa = plotmeall;
+plotme.natural = plotmeall;
+plotme.forest = plotmeall;
+plotme.lumber = plotmeall;
+plotme.paper = plotmeall;
+plotme.cambridge = plotmeall;
+plotme.fred400 = plotmeall;
+plotme.fred401 = plotmeall;
+plotme.barnard = plotmeall;
+plotme.matsumoto = plotmeall;
+plotme.westland = plotmeall;
 
 SignalNames = fieldnames(originals);
 nSignals = numel(SignalNames);
 
 lab = [];
 for i = 1:nSignals
-  disp(['Processing ', SignalNames{i}]);
-  LabVals.(SignalNames{i}) = ComputeLab(originals.(SignalNames{i}), wavelengths.(SignalNames{i}), illuminant, illuminants.wavelength, ColourReceptors, ColourReceptorsMat.wavelength, wp);
+  disp(['  Processing ', SignalNames{i}]);
+  LabVals.(SignalNames{i}) = ComputeLab(originals.(SignalNames{i}), wavelengths.(SignalNames{i}), ...
+    illuminants.spectra, illuminants.wavelength, ...
+    ColourReceptors.Xyz1931SpectralSensitivity, ColourReceptors.wavelength, ...
+    wp);
   lab = cat(1, lab, LabVals.(SignalNames{i}));
   MetamerDiffs.(SignalNames{i}) = MetamerAnalysisColourDifferences(LabVals.(SignalNames{i}));
 end
 
-disp('Processing all');
+disp('  Processing all');
 MetamerDiffs.nfall = MetamerAnalysisColourDifferences(lab);
 
 for i = 1:nSignals
-  PlotElementSignals(originals.(SignalNames{i}), MetamerDiffs.(SignalNames{i}), wavelengths.(SignalNames{i}), LabVals.(SignalNames{i}));
+  if plotme.(SignalNames{i})
+    PlotElementSignals(originals.(SignalNames{i}), MetamerDiffs.(SignalNames{i}), wavelengths.(SignalNames{i}), LabVals.(SignalNames{i}));
+  end
 end
 
 end
