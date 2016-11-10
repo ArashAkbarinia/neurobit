@@ -14,25 +14,19 @@ for i = 1:nSignals
   CompMat2000(i, :) = deltae2000(RowI, lab);
 end
 
-MetamerReport.CompMat1976 = CompMat1976;
-MetamerReport.CompMat1994 = CompMat1994;
-MetamerReport.CompMat2000 = CompMat2000;
+MetamerReport.m1976.CompMat = CompMat1976;
+MetamerReport.m1994.CompMat = CompMat1994;
+MetamerReport.m2000.CompMat = CompMat2000;
+MetamerReport.mall.CompMat = (CompMat1976 + CompMat1994 + CompMat2000) / 3;
 
 threshold = 0.5;
-MetamerReport.metamers1976 = CompMat1976 < threshold;
-MetamerReport.metamers1976(logical(eye(size(MetamerReport.metamers1976)))) = 0;
-MetamerReport.metamers1994 = CompMat1994 < threshold;
-MetamerReport.metamers1994(logical(eye(size(MetamerReport.metamers1994)))) = 0;
-MetamerReport.metamers2000 = CompMat2000 < threshold;
-MetamerReport.metamers2000(logical(eye(size(MetamerReport.metamers2000)))) = 0;
-MetamerReport.metamers = CompMat1976 < threshold & CompMat1994 < threshold & CompMat2000 < threshold;
-MetamerReport.metamers(logical(eye(size(MetamerReport.metamers)))) = 0;
-
-nAll = sum(MetamerReport.metamers1976(:)) / 2;
-disp(['Metamer-1976 percentage: ', num2str(nAll / ((nSignals * (nSignals - 1)) / 2))]);
-nAll = sum(MetamerReport.metamers1994(:)) / 2;
-disp(['Metamer-1994 percentage: ', num2str(nAll / ((nSignals * (nSignals - 1)) / 2))]);
-nAll = sum(MetamerReport.metamers2000(:)) / 2;
-disp(['Metamer-2000 percentage: ', num2str(nAll / ((nSignals * (nSignals - 1)) / 2))]);
+MetamerReport.m1976.metamers = CompMat1976 < threshold;
+MetamerReport.m1976.metamers(logical(eye(size(MetamerReport.m1976.metamers)))) = 0;
+MetamerReport.m1994.metamers = CompMat1994 < threshold;
+MetamerReport.m1994.metamers(logical(eye(size(MetamerReport.m1994.metamers)))) = 0;
+MetamerReport.m2000.metamers = CompMat2000 < threshold;
+MetamerReport.m2000.metamers(logical(eye(size(MetamerReport.m2000.metamers)))) = 0;
+MetamerReport.mall.metamers = CompMat1976 < threshold & CompMat1994 < threshold & CompMat2000 < threshold;
+MetamerReport.mall.metamers(logical(eye(size(MetamerReport.mall.metamers)))) = 0;
 
 end

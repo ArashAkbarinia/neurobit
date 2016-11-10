@@ -1,4 +1,4 @@
-function FigureHandler = PlotTopMetamers(MetamerDiff, signals, nTops, wavelength, lab)
+function FigureHandler = PlotTopMetamers(MetamerDiff, signals, nTops, wavelength, lab, name)
 %PlotTopMetamers  plots each metamer group into a subplot.
 %
 % inputs
@@ -21,6 +21,9 @@ end
 if nargin < 5
   lab = [];
 end
+if nargin < 6
+  name = '';
+end
 
 MetamersDis = MetamerDiff.SgnlDiffs;
 MetamersDis(MetamerDiff.metamers == 0) = 0;
@@ -36,9 +39,9 @@ nTops = min(nTops, length(UniqueDistances));
 r = round(sqrt(nTops));
 c = ceil(sqrt(nTops));
 
-FigureHandler.m = figure('name', 'most different metamers');
+FigureHandler.m = figure('name', ['metamers signals ', name]);
 if ~isempty(lab)
-  FigureHandler.r = figure('name', 'metamers RGBs');
+  FigureHandler.r = figure('name', ['metamers RGBs ', name ]);
   rgb = lab2rgb(lab);
 end
 black = reshape([0, 0, 0], 1, 1, 3);
@@ -52,10 +55,12 @@ for i = 1:nTops
   plot(wavelength, signals(:, row) ./ sum(signals(:, row)), 'color', rand(1,3));
   plot(wavelength, signals(:, col) ./ sum(signals(:, col)), 'color', rand(1,3));
   xlim([wavelength(1), wavelength(end)]);
-  figure(FigureHandler.r);
-  subplot(r, c, i);
-  image([rgb(row, :, :), rgb(row, :, :), black, rgb(col, :, :), rgb(col, :, :)]);
-  axis off;
+  if ~isempty(lab)
+    figure(FigureHandler.r);
+    subplot(r, c, i);
+    image([rgb(row, :, :), rgb(row, :, :), black, rgb(col, :, :), rgb(col, :, :)]);
+    axis off;
+  end
 end
 
 end
