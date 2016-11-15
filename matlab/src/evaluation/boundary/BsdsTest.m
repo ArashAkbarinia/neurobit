@@ -1,4 +1,4 @@
-function bench_bsds500(FolderPath, TestName, SubFolderName, doedge, dothresh, TestFolder, GreyFlag)
+function BsdsTest(FolderPath, TestName, SubFolderName, doedge, dothresh, TestFolder, GreyFlag)
 
 if nargin < 7
   GreyFlag = false;
@@ -38,14 +38,16 @@ end
 
 ImageDirectory = [FolderPath, 'BSDS500/data/images/', SubFolderName];
 ResultDirectory = [FolderPath, 'BSDS500/', ResultFolder, TestFolder];
-mkdir(ResultDirectory);
+if ~exist(ResultDirectory, 'dir')
+  mkdir(ResultDirectory);
+end
 
 ImageList = dir([ImageDirectory, '/*.jpg']);
 nfiles = length(ImageList);
 
 tic;
 if doedge
-  for i = 1:nfiles
+  parfor i = 1:nfiles
     disp(['processing ', ImageList(i).name]);
     CurrentFileName = ImageList(i).name;
     ImagePath = [ImageDirectory, '/', CurrentFileName];
