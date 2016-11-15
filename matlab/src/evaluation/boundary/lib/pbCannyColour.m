@@ -31,7 +31,7 @@ if nthresh<1, error('Invalid nthresh value'); end
 
 % start with the pb from gradient magnitude...
 pbgm = zeros(size(im));
-for i = 1:3
+for i = 1:size(im, 3)
   pbgm(:, :, i) = pbGM(im(:, :, i),sigma);
 end
 pbgm = sum(pbgm, 3);

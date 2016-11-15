@@ -9,33 +9,38 @@ function fb = SCOBoundary(map,sigma,angles,weights,ws)
 % outputs:
 %         fb  ------ final soft boundary
 %
-% Main function for performing boundary detection system based 
+% Main function for performing boundary detection system based
 % in paper:
 % (1) Kaifu Yang, Shaobing Gao, Chaoyi Li, and Yongjie Li*.
 % Efficient Color Boundary Detection with Color-opponent Mechanisms. CVPR,2013.
 % (2) Kai-Fu Yang, Shao-Bing Gao,Ce-Feng Guo, Chao-Yi Li, and Yong-Jie Li*.
 % Boundary Detection Using Double-Opponency and Spatial Sparseness Constraint.TIP,2015.
-% 
+%
 % Contact:
 % Visual Cognition and Computation Lab(VCCL),
 % Key Laboratory for NeuroInformation of Ministry of Education,
-% School of Life Science and Technology(SLST), 
+% School of Life Science and Technology(SLST),
 % University of Electrical Science and Technology of China(UESTC).
 % Address: No.4, Section 2, North Jianshe Road,Chengdu,Sichuan,P.R.China, 610054
 % Website: http://www.neuro.uestc.edu.cn/vccl/home.html
 
-% µç×Ó¿Æ¼¼´óÑ§£¬ÉúÃü¿ÆÑ§Óë¼¼ÊõÑ§Ôº£¬
-% Éñ¾­ÐÅÏ¢½ÌÓý²¿ÖØµãÊµÑéÊÒ£¬ÊÓ¾õÈÏÖªÓë¼ÆËã×é
-% ÖÐ¹ú£¬ËÄ´¨£¬³É¶¼£¬½¨Éè±±Â·¶þ¶Î4ºÅ£¬610054
+% ï¿½ï¿½ï¿½Ó¿Æ¼ï¿½ï¿½ï¿½Ñ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ§ï¿½ë¼¼ï¿½ï¿½Ñ§Ôºï¿½ï¿½
+% ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½Êµï¿½ï¿½ï¿½Ò£ï¿½ï¿½Ó¾ï¿½ï¿½ï¿½Öªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+% ï¿½Ð¹ï¿½ï¿½Ä´ï¿½ï¿½ï¿½ï¿½É¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è±±Â·ï¿½ï¿½ï¿½ï¿½4ï¿½Å£ï¿½610054
 
-% Ñî¿ª¸»/Kaifu Yang <yang_kf@163.com>;
-% ÀîÓÀ½Ü/Yongjie Li <liyj@uestc.edu.cn>;
+% ï¿½î¿ªï¿½ï¿½/Kaifu Yang <yang_kf@163.com>;
+% ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/Yongjie Li <liyj@uestc.edu.cn>;
 % May 2015
 %
 %========================================================================%
 if nargin < 5, ws= 5; end
 if nargin < 4, weights= -0.7; end
 if nargin < 3,  angles = 8;  end
+
+if size(map, 3) == 1
+  map(:, :, 2) = map(:, :, 1);
+  map(:, :, 3) = map(:, :, 1);
+end
 
 % obtain the final response
 [Res theta] = resSCO(map,sigma,angles,weights,ws);
