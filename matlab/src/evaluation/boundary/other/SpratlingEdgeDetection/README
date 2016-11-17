@@ -1,0 +1,52 @@
+----------------------------------------------------------------------------
+INTRODUCTION
+----------------------------------------------------------------------------
+
+This code implements the simulation results reported in:
+
+     M. W. Spratling (2013) Image Segmentation Using a Sparse Coding Model of
+     Cortical Area V1. IEEE Transactions on Image Processing, 22(4):1631-43.
+		 
+
+Please cite this paper if this code is used in, or to motivate, any publications. 
+
+----------------------------------------------------------------------------
+USAGE
+----------------------------------------------------------------------------
+
+This code requires MATLAB and the Image Processing Toolbox. It was tested with
+MATLAB Version 7.8 (R2009a) and Image Processing Toolbox Version 6.3 (R2009a).
+
+Simulations will run much faster if you install the MATLAB function convnfft 
+written by Bruno Luong, which is available here:
+http://www.mathworks.com/matlabcentral/fileexchange/24504-fft-based-convolution
+
+
+To apply the PC/BC model to an image, do the following:
+
+%LOAD THE IMAGE
+I=im2single(imread('file.pgm'));
+
+%PRE-PROCESS IMAGE TO GENERATE INPUT TO V1 MODEL
+X=preprocess_V1_input(I);
+
+%APPLY PC/BC OF V1 TO THE IMAGE
+[y,s,r]=v1_edge_detection(X);
+
+
+The outputs are a cell array, y, containing the activations of the prediction
+neurons; a scalar, s, giving Hoyer's sparsity index for the prediction neuron
+activations; and, a reconstruction, r, of the boundary edges in the image.
+
+ 
+To apply the algorithm to the BSDS300 dataset, you will need to install the
+images and code for performing this benchmark, both of which are available here:
+http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/segbench/
+
+Function berkeley_benchmark.m (with the paths edited appropriately) will apply
+the PC/BC algorithm to this benchmark. Alternatively, to speed things up
+benchmarking can be performed in parallel across multiple CPU cores using the
+function berkeley_benchmark_multicore.m together with the code written by Markus
+Buehren, which is available here:
+http://www.mathworks.com/matlabcentral/fileexchange/13775-multicore-parallel-processing-on-multiple-cores
+
