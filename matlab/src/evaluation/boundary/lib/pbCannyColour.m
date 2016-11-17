@@ -34,7 +34,7 @@ pbgm = zeros(size(im));
 for i = 1:size(im, 3)
   pbgm(:, :, i) = pbGM(im(:, :, i),sigma);
 end
-pbgm = sum(pbgm, 3);
+pbgm = mean(pbgm, 3);
 % ...and apply hysteresis thresholding
 pb = zeros(size(im, 1), size(im, 2));
 thresh = linspace(1/nthresh,1-1/nthresh,nthresh);
