@@ -40,11 +40,13 @@ if doedge
     CurrentImage = double(CurrentImage) ./ 255;
     
     if strcmpi(TestName, 'sco')
-      EdgeImage = SCOBoundary(CurrentImage, 1.1, 6, -0.7, 5);
+      EdgeImage = SCOBoundary(CurrentImage, 1.1, 8, -0.7, 5);
     elseif strcmpi(TestName, 'co')
-      EdgeImage = SCOBoundary(CurrentImage, 1.1, 6, -0.7, 0);
+      EdgeImage = SCOBoundary(CurrentImage, 1.1, 8, -0.7, 0);
     elseif strcmpi(TestName, 'canny')
       EdgeImage = pbCannyColour(CurrentImage);
+    elseif strcmpi(TestName, 'spratling')
+      EdgeImage = SpratlingDemo(CurrentImage);
     elseif strcmpi(TestName, 'mci')
       EdgeImage = MCIContour(CurrentImage);
     else
