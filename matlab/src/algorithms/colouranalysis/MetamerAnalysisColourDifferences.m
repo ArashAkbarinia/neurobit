@@ -1,32 +1,52 @@
-function MetamerReport = MetamerAnalysisColourDifferences(lab)
+function MetamerReport = MetamerAnalysisColourDifferences(lab, threshold, do1976, do1994, do2000)
 %MetamerAnalysisColourDifferences Summary of this function goes here
 %   Detailed explanation goes here
 
-nSignals = size(lab, 1);
-lab = reshape(lab, nSignals, 3);
-CompMat1976 = zeros(nSignals, nSignals);
-CompMat1994 = zeros(nSignals, nSignals);
-CompMat2000 = zeros(nSignals, nSignals);
-for i = 1:nSignals
-  RowI = repmat(lab(i, :), [nSignals, 1]);
-  CompMat1976(i, :) = deltae1976(RowI, lab);
-  CompMat1994(i, :) = deltae1994(RowI, lab);
-  CompMat2000(i, :) = deltae2000(RowI, lab);
+if nargin < 2
+  threshold = 0.5;
+end
+if nargin < 3
+  do1976 = true;
+  do1994 = true;
+  do2000 = true;
 end
 
-MetamerReport.m1976.CompMat = CompMat1976;
-MetamerReport.m1994.CompMat = CompMat1994;
-MetamerReport.m2000.CompMat = CompMat2000;
-MetamerReport.mall.CompMat = (CompMat1976 + CompMat1994 + CompMat2000) / 3;
+nSignals = size(lab, 1);
+lab = reshape(lab, nSignals, 3);
+if do1976
+  MetamerReport.m1976.CompMat = zeros(nSignals, nSignals);
+end
+if do1994
+  MetamerReport.m1994.CompMat = zeros(nSignals, nSignals);
+end
+if do2000
+  MetamerReport.m2000.CompMat = zeros(nSignals, nSignals);
+end
 
-threshold = 0.5;
-MetamerReport.m1976.metamers = CompMat1976 < threshold;
-MetamerReport.m1976.metamers(logical(eye(size(MetamerReport.m1976.metamers)))) = 0;
-MetamerReport.m1994.metamers = CompMat1994 < threshold;
-MetamerReport.m1994.metamers(logical(eye(size(MetamerReport.m1994.metamers)))) = 0;
-MetamerReport.m2000.metamers = CompMat2000 < threshold;
-MetamerReport.m2000.metamers(logical(eye(size(MetamerReport.m2000.metamers)))) = 0;
-MetamerReport.mall.metamers = CompMat1976 < threshold & CompMat1994 < threshold & CompMat2000 < threshold;
-MetamerReport.mall.metamers(logical(eye(size(MetamerReport.mall.metamers)))) = 0;
+for i = 1:nSignals
+  RowI = repmat(lab(i, :), [nSignals, 1]);
+  if do1976
+    MetamerReport.m1976.CompMat(i, :) = deltae1976(RowI, lab);
+  end
+  if do1994
+    MetamerReport.m1994.CompMat(i, :) = deltae1994(RowI, lab);
+  end
+  if do2000
+    MetamerReport.m2000.CompMat(i, :) = deltae2000(RowI, lab);
+  end
+end
+
+if do1976
+  MetamerReport.m1976.metamers = MetamerReport.m1976.CompMat < threshold;
+  MetamerReport.m1976.metamers(logical(eye(size(MetamerReport.m1976.metamers)))) = 0;
+end
+if do1994
+  MetamerReport.m1994.metamers = MetamerReport.m1994.CompMat < threshold;
+  MetamerReport.m1994.metamers(logical(eye(size(MetamerReport.m1994.metamers)))) = 0;
+end
+if do2000
+  MetamerReport.m2000.metamers = MetamerReport.m2000.CompMat < threshold;
+  MetamerReport.m2000.metamers(logical(eye(size(MetamerReport.m2000.metamers)))) = 0;
+end
 
 end

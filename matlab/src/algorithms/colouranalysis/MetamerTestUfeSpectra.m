@@ -7,7 +7,10 @@ IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/ill
 illuminants = load(IlluminantstPath);
 
 FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
+% TODO: set this as a parameter
 ColourReceptorsMat = load([FundamentalsPath, 'Xyz1931SpectralSensitivity.mat']);
+ColourReceptors.spectra = ColourReceptorsMat.Xyz1931SpectralSensitivity;
+ColourReceptors.wavelength = ColourReceptorsMat.wavelength;
 
 IlluminantNames = {'d65', 'a', 'c'};
 plotme = false;
@@ -18,7 +21,7 @@ for i = 1:numel(IlluminantNames)
   disp(['Illuminant ', IlluminantNames{i}]);
   wp = whitepoint(IlluminantNames{i});
   illuminants.spectra = illuminants.(IlluminantNames{i});
-  MetamerDiffs.(IlluminantNames{i}) = MetamerTestIlluminant(AllSpectra, illuminants, ColourReceptorsMat, wp, plotme);
+  MetamerDiffs.(IlluminantNames{i}) = MetamerTestIlluminant(AllSpectra, illuminants, ColourReceptors, wp, plotme);
 end
 
 MetamerMats = MetamerDiffs.(IlluminantNames{1});
@@ -123,10 +126,10 @@ for i = 1:nSignals
   disp(['  Processing ', SignalNames{i}]);
   LabVals.(SignalNames{i}) = ComputeLab(originals.(SignalNames{i}), wavelengths.(SignalNames{i}), ...
     illuminants.spectra, illuminants.wavelength, ...
-    ColourReceptors.Xyz1931SpectralSensitivity, ColourReceptors.wavelength, ...
+    ColourReceptors.spectra, ColourReceptors.wavelength, ...
     wp);
   lab = cat(1, lab, LabVals.(SignalNames{i}));
-  MetamerReport = MetamerAnalysisColourDifferences(LabVals.(SignalNames{i}));
+  MetamerReport = MetamerAnalysisColourDifferences(LabVals.(SignalNames{i}), 0.5, false, false, true);
   MetamerDiffs.(SignalNames{i}) = MetamerReport;
   
   nCurrentSignals = size(lab, 1);
@@ -139,7 +142,7 @@ end
 
 % TODO: too much memory optimise it
 disp('  Processing all');
-MetamerDiffs.nfall = MetamerAnalysisColourDifferences(lab);
+MetamerDiffs.nfall = MetamerAnalysisColourDifferences(lab, 0.5, false, false, true);
 printinfo(MetamerDiffs.nfall, nCurrentSignals);
 
 end
@@ -150,8 +153,8 @@ if nargin < 2
   nCurrentSignals = size(MetamerReport.m1976.metamers, 1);
 end
 
-printinfoyear(MetamerReport.m1976.metamers, '    Metamer-1976: ', nCurrentSignals);
-printinfoyear(MetamerReport.m1994.metamers, '    Metamer-1994: ', nCurrentSignals);
+% printinfoyear(MetamerReport.m1976.metamers, '    Metamer-1976: ', nCurrentSignals);
+% printinfoyear(MetamerReport.m1994.metamers, '    Metamer-1994: ', nCurrentSignals);
 printinfoyear(MetamerReport.m2000.metamers, '    Metamer-2000: ', nCurrentSignals);
 
 end
