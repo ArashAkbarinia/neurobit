@@ -21,7 +21,7 @@ for i = 1:numel(IlluminantNames)
   disp(['Illuminant ', IlluminantNames{i}]);
   wp = whitepoint(IlluminantNames{i});
   illuminants.spectra = illuminants.(IlluminantNames{i});
-  MetamerDiffs.(IlluminantNames{i}) = MetamerTestIlluminant(AllSpectra, illuminants, ColourReceptors, wp, plotme);
+  MetamerDiffs.(IlluminantNames{i}) = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors, wp);
 end
 
 MetamerMats = MetamerDiffs.(IlluminantNames{1});
@@ -99,7 +99,31 @@ AllSpectra.wavelengths = wavelengths;
 
 end
 
-function MetamerDiffs = MetamerTestIlluminant(AllSpectra, illuminants, ColourReceptors, wp, plotmeall)
+function MetamerDiffs = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors, wp)
+
+originals = AllSpectra.originals;
+wavelengths = AllSpectra.wavelengths;
+
+SignalNames = fieldnames(originals);
+nSignals = numel(SignalNames);
+
+lab = [];
+for i = 1:nSignals
+  LabVals.(SignalNames{i}) = ComputeLab(originals.(SignalNames{i}), wavelengths.(SignalNames{i}), ...
+    illuminants.spectra, illuminants.wavelength, ...
+    ColourReceptors.spectra, ColourReceptors.wavelength, ...
+    wp);
+  lab = cat(1, lab, LabVals.(SignalNames{i}));
+end
+
+% TODO: too much memory optimise it
+disp('  Processing all');
+MetamerDiffs.nfall = MetamerAnalysisColourDifferences(lab, 0.5, false, false, true);
+printinfo(MetamerDiffs.nfall, size(lab, 1));
+
+end
+
+function MetamerDiffs = MetamerTestIlluminantSingle(AllSpectra, illuminants, ColourReceptors, wp, plotmeall)
 
 originals = AllSpectra.originals;
 wavelengths = AllSpectra.wavelengths;
@@ -139,11 +163,6 @@ for i = 1:nSignals
     PlotElementSignals(originals.(SignalNames{i}), MetamerDiffs.(SignalNames{i}), wavelengths.(SignalNames{i}), LabVals.(SignalNames{i}), SignalNames{i});
   end
 end
-
-% TODO: too much memory optimise it
-disp('  Processing all');
-MetamerDiffs.nfall = MetamerAnalysisColourDifferences(lab, 0.5, false, false, true);
-printinfo(MetamerDiffs.nfall, nCurrentSignals);
 
 end
 
