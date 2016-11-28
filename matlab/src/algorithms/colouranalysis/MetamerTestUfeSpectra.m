@@ -1,4 +1,4 @@
-function [MetamerMats, UniqueMetaners] = MetamerTestUfeSpectra()
+function [MetamerMats, UniqueMetaners] = MetamerTestUfeSpectra(ColourReceptors, IlluminantNames)
 
 FunctionPath = mfilename('fullpath');
 FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestUfeSpectra';
@@ -7,12 +7,16 @@ IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/ill
 illuminants = load(IlluminantstPath);
 
 FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
-% TODO: set this as a parameter
-ColourReceptorsMat = load([FundamentalsPath, 'Xyz1931SpectralSensitivity.mat']);
-ColourReceptors.spectra = ColourReceptorsMat.Xyz1931SpectralSensitivity;
-ColourReceptors.wavelength = ColourReceptorsMat.wavelength;
 
-IlluminantNames = {'d65', 'a', 'c'};
+if nargin < 1 || isempty(ColourReceptors)
+  ColourReceptorsMat = load([FundamentalsPath, 'XyzSpectralSensitivity.mat']);
+  ColourReceptors.spectra = ColourReceptorsMat.Xyz1931SpectralSensitivity;
+  ColourReceptors.wavelength = ColourReceptorsMat.wavelength;
+end
+
+if nargin < 2 || isempty(IlluminantNames)
+  IlluminantNames = {'d65'};
+end
 plotme = false;
 plotmeunique = true;
 AllSpectra = GetSpectra();
@@ -23,6 +27,10 @@ for i = 1:numel(IlluminantNames)
   illuminants.spectra = illuminants.(IlluminantNames{i});
   MetamerDiffs.(IlluminantNames{i}) = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors, wp);
 end
+
+MetamerMats = MetamerDiffs;
+UniqueMetaners = [];
+return;
 
 MetamerMats = MetamerDiffs.(IlluminantNames{1});
 SignalNames = fieldnames(MetamerMats);
