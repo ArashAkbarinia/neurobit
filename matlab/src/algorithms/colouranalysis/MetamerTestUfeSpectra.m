@@ -70,7 +70,7 @@ printinfo(MetamerDiffs.nfall, size(lab, 1));
 
 end
 
-function MetamerDiffs = MetamerTestIlluminantSingle(AllSpectra, illuminants, ColourReceptors, wp, plotmeall)
+function MetamerDiffs = MetamerTestIlluminantSingle(AllSpectra, illuminants, ColourReceptors, plotmeall)
 
 originals = AllSpectra.originals;
 wavelengths = AllSpectra.wavelengths;
@@ -98,7 +98,7 @@ for i = 1:nSignals
   LabVals.(SignalNames{i}) = ComputeLab(originals.(SignalNames{i}), wavelengths.(SignalNames{i}), ...
     illuminants.spectra, illuminants.wavelength, ...
     ColourReceptors.spectra, ColourReceptors.wavelength, ...
-    wp);
+    illuminants.wp);
   lab = cat(1, lab, LabVals.(SignalNames{i}));
   MetamerReport = MetamerAnalysisColourDifferences(LabVals.(SignalNames{i}), 0.5, false, false, true);
   MetamerDiffs.(SignalNames{i}) = MetamerReport;
