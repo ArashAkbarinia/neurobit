@@ -27,7 +27,7 @@ end
 % TODO: try CMYK as well
 if strcmpi(ColourSpace, 'lsy')
   if isempty(ConfigsMat)
-    ConfigsMat = load('lsy_ellipsoid_params_new');
+    ConfigsMat = load('lsy_ellipsoid_params');
   end
   % TODO: make a more permanent solution, this is just becuase 0 goes to the
   % end of the world (ImageRGB + 1)
@@ -37,7 +37,7 @@ if strcmpi(ColourSpace, 'lsy')
   axes = {'l', 's', 'y'};
 elseif strcmpi(ColourSpace, 'lab')
   if isempty(ConfigsMat)
-    ConfigsMat = load('lab_ellipsoid_params_new');
+    ConfigsMat = load('lab_ellipsoid_params');
   end
   ImageOpponent = double(applycform(ImageRGB, makecform('srgb2lab')));
   %   ImageOpponent = srgb2lab(ImageRGB);
