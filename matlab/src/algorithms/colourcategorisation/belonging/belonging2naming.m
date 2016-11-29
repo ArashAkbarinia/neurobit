@@ -60,4 +60,6 @@ if chns > 1
   MaxProbabilityImage = reshape(MaxProbabilityImage, rows, cols);
 end
 
+NamingImage = int8(NamingImage);
+
 end
