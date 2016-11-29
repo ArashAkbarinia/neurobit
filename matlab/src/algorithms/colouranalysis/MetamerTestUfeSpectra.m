@@ -1,10 +1,7 @@
-function [MetamerMats, UniqueMetaners] = MetamerTestUfeSpectra(ColourReceptors, IlluminantNames)
+function [MetamerMats, UniqueMetaners] = MetamerTestUfeSpectra(ColourReceptors, illuminants)
 
 FunctionPath = mfilename('fullpath');
 FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestUfeSpectra';
-
-IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/illuminants.mat');
-illuminants = load(IlluminantstPath);
 
 FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
 
@@ -14,21 +11,28 @@ if nargin < 1 || isempty(ColourReceptors)
   ColourReceptors.wavelength = ColourReceptorsMat.wavelength;
 end
 
-if nargin < 2 || isempty(IlluminantNames)
-  IlluminantNames = {'d65'};
+if nargin < 2 || isempty(illuminants)
+  IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/illuminants.mat');
+  IlluminantsMat = load(IlluminantstPath);
+  IlluminantName = 'd65';
+  illuminants.spectra = IlluminantsMat.(IlluminantName);
+  illuminants.wavelength = IlluminantsMat.wavelength;
+  illuminants.wp = whitepoint(IlluminantName);
 end
+
+% making the illumiant and colour receptor the same size
+[illuminants, ColourReceptors] = IntersectIlluminantColourReceptors(illuminants, ColourReceptors);
+
 plotme = false;
 plotmeunique = true;
 AllSpectra = GetSpectra();
 
-for i = 1:numel(IlluminantNames)
-  disp(['Illuminant ', IlluminantNames{i}]);
-  wp = whitepoint(IlluminantNames{i});
-  illuminants.spectra = illuminants.(IlluminantNames{i});
-  MetamerDiffs.(IlluminantNames{i}) = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors, wp);
+% checkign the wp
+if ~isfield(illuminants, 'wp')
+  illuminants.wp = ComputeWhitePoint(illuminants, ColourReceptors, FunctionPath, FunctionRelativePath);
 end
 
-MetamerMats = MetamerDiffs;
+MetamerMats = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors);
 UniqueMetaners = [];
 return;
 
@@ -79,6 +83,18 @@ end
 
 end
 
+function [illuminants, ColourReceptors] = IntersectIlluminantColourReceptors(illuminants, ColourReceptors)
+
+if size(illuminants.wavelength, 1) ~= size(ColourReceptors.wavelength, 1) || illuminants.wavelength ~= ColourReceptors.wavelength
+  [~, ia, ib] = intersect(illuminants.wavelength, ColourReceptors.wavelength);
+  illuminants.wavelength = illuminants.wavelength(ia');
+  illuminants.spectra = illuminants.spectra(ia');
+  ColourReceptors.wavelength = ColourReceptors.wavelength(ib');
+  ColourReceptors.spectra = ColourReceptors.spectra(ib', :);
+end
+
+end
+
 function AllSpectra = GetSpectra()
 
 FunctionPath = mfilename('fullpath');
@@ -107,7 +123,27 @@ AllSpectra.wavelengths = wavelengths;
 
 end
 
-function MetamerDiffs = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors, wp)
+function wp = ComputeWhitePoint(illuminant, ColourReceptors, FunctionPath, FunctionRelativePath)
+
+MacbethPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/MacbethReflectances.mat');
+MacbethMat = load(MacbethPath);
+w = 391;
+WhitePixel = reshape(MacbethMat.MacbethReflectances(:, 19)', 1, 1, w);
+
+[WhitePixel, illuminant, ColourReceptors] = IntersectThree(WhitePixel, MacbethMat.wavelength, ...
+  illuminant.spectra, illuminant.wavelength, ColourReceptors.spectra, ColourReceptors.wavelength);
+
+radiances = reshape(WhitePixel, size(WhitePixel, 3), 1) .* illuminant;
+
+xyz = ColourReceptors' * radiances;
+xyz = max(xyz, 0);
+xyz = xyz';
+
+wp = xyz ./ sum(xyz(:));
+
+end
+
+function MetamerDiffs = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors)
 
 originals = AllSpectra.originals;
 wavelengths = AllSpectra.wavelengths;
@@ -120,7 +156,7 @@ for i = 1:nSignals
   LabVals.(SignalNames{i}) = ComputeLab(originals.(SignalNames{i}), wavelengths.(SignalNames{i}), ...
     illuminants.spectra, illuminants.wavelength, ...
     ColourReceptors.spectra, ColourReceptors.wavelength, ...
-    wp);
+    illuminants.wp);
   lab = cat(1, lab, LabVals.(SignalNames{i}));
 end
 
@@ -191,14 +227,26 @@ nAll = sum(MetamerReport(:)) / 2;
 disp([PreText, num2str(nAll / ((nCurrentSignals * (nCurrentSignals - 1)) / 2))]);
 end
 
-function lab = ComputeLab(ev, ew, iv, iw, cv, cw, wp)
+function [ev, iv, cv] = IntersectThree(ev, ew, iv, iw, cv, cw)
+
+% TODO: return the common wavelength as well.
 
 [~, ia1, ib] = intersect(ew, iw);
 % TODO: it's more accurate to find the intersection of all 3 vectors.
 % I assumed the colour receptor and illuminants are similar size.
-[~, ia2, ic] = intersect(ew, cw);
+[~, ~, ic] = intersect(ew, cw);
 
-lab = hsi2lab(ev(:, :, ia1), iv(ib'), cv(ic', :), wp);
+ev = ev(:, :, ia1);
+iv = iv(ib');
+cv = cv(ic', :);
+
+end
+
+function lab = ComputeLab(ev, ew, iv, iw, cv, cw, wp)
+
+[ev, iv, cv] = IntersectThree(ev, ew, iv, iw, cv, cw);
+
+lab = hsi2lab(ev, iv, cv, wp);
 
 end
 
