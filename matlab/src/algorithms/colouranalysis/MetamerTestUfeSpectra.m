@@ -23,13 +23,11 @@ end
 % making the illumiant and colour receptor the same size
 [illuminants, ColourReceptors] = IntersectIlluminantColourReceptors(illuminants, ColourReceptors);
 
-plotme = false;
-plotmeunique = true;
 AllSpectra = ReadSpectraData();
 
 % checkign the wp
 if ~isfield(illuminants, 'wp')
-  illuminants.wp = ComputeWhitePoint(illuminants, ColourReceptors, FunctionPath, FunctionRelativePath);
+  illuminants.wp = ComputeWhitePoint(illuminants, ColourReceptors);
 end
 
 MetamerMats = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors);
@@ -92,26 +90,6 @@ if size(illuminants.wavelength, 1) ~= size(ColourReceptors.wavelength, 1) || ill
   ColourReceptors.wavelength = ColourReceptors.wavelength(ib');
   ColourReceptors.spectra = ColourReceptors.spectra(ib', :);
 end
-
-end
-
-function wp = ComputeWhitePoint(illuminant, ColourReceptors, FunctionPath, FunctionRelativePath)
-
-MacbethPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/MacbethReflectances.mat');
-MacbethMat = load(MacbethPath);
-w = 391;
-WhitePixel = reshape(MacbethMat.MacbethReflectances(:, 19)', 1, 1, w);
-
-[WhitePixel, illuminant, ColourReceptors] = IntersectThree(WhitePixel, MacbethMat.wavelength, ...
-  illuminant.spectra, illuminant.wavelength, ColourReceptors.spectra, ColourReceptors.wavelength);
-
-radiances = reshape(WhitePixel, size(WhitePixel, 3), 1) .* illuminant;
-
-xyz = ColourReceptors' * radiances;
-xyz = max(xyz, 0);
-xyz = xyz';
-
-wp = xyz ./ sum(xyz(:));
 
 end
 
@@ -197,21 +175,6 @@ end
 function [] = printinfoyear(MetamerReport, PreText, nCurrentSignals)
 nAll = sum(MetamerReport(:)) / 2;
 disp([PreText, num2str(nAll / ((nCurrentSignals * (nCurrentSignals - 1)) / 2))]);
-end
-
-function [ev, iv, cv] = IntersectThree(ev, ew, iv, iw, cv, cw)
-
-% TODO: return the common wavelength as well.
-
-[~, ia1, ib] = intersect(ew, iw);
-% TODO: it's more accurate to find the intersection of all 3 vectors.
-% I assumed the colour receptor and illuminants are similar size.
-[~, ~, ic] = intersect(ew, cw);
-
-ev = ev(:, :, ia1);
-iv = iv(ib');
-cv = cv(ic', :);
-
 end
 
 function lab = ComputeLab(ev, ew, iv, iw, cv, cw, wp)
