@@ -1,4 +1,4 @@
-function [MetamerMats, UniqueMetaners] = MetamerTestUfeSpectra(ColourReceptors, illuminants)
+function MetamerMats = MetamerTestUfeSpectra(ColourReceptors, illuminants)
 
 FunctionPath = mfilename('fullpath');
 FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestUfeSpectra';
@@ -31,53 +31,6 @@ if ~isfield(illuminants, 'wp')
 end
 
 MetamerMats = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors);
-UniqueMetaners = [];
-return;
-
-MetamerMats = MetamerDiffs.(IlluminantNames{1});
-SignalNames = fieldnames(MetamerMats);
-nSignals = numel(SignalNames);
-ColourDifferenceMeasures = fieldnames(MetamerMats.(SignalNames{1}));
-nColourDifferences = numel(ColourDifferenceMeasures);
-MetaInfos = fieldnames(MetamerMats.(SignalNames{1}).(ColourDifferenceMeasures{1}));
-nMetaInfos = numel(MetaInfos);
-
-% set the illuminants as channels
-for i = 2:numel(IlluminantNames)
-  for j = 1:nSignals
-    for k = 1:nColourDifferences
-      for l = 1:nMetaInfos
-        CatMetamers = MetamerMats.(SignalNames{j}).(ColourDifferenceMeasures{k}).(MetaInfos{l});
-        CatMetamers(:, :, end + 1) = MetamerDiffs.(IlluminantNames{i}).(SignalNames{j}).(ColourDifferenceMeasures{k}).(MetaInfos{l}); %#ok
-        MetamerMats.(SignalNames{j}).(ColourDifferenceMeasures{k}).(MetaInfos{l}) = CatMetamers;
-      end
-    end
-  end
-end
-
-disp('***Unique metamers***');
-UniqueMetaners = struct();
-for j = 1:nSignals
-  disp(SignalNames{j});
-  for k = 1:numel(ColourDifferenceMeasures)
-    CurrentMetamers = MetamerMats.(SignalNames{j}).(ColourDifferenceMeasures{k}).metamers;
-    AnyMetamers = any(CurrentMetamers, 3);
-    AllMetamers = all(CurrentMetamers, 3);
-    AnyMetamers(AllMetamers) = false;
-    
-    CurrentCompMat = mean(MetamerMats.(SignalNames{j}).(ColourDifferenceMeasures{k}).CompMat, 3);
-    
-    UniqueMetaners.(SignalNames{j}).(ColourDifferenceMeasures{k}).metamers = AnyMetamers;
-    UniqueMetaners.(SignalNames{j}).(ColourDifferenceMeasures{k}).CompMat = CurrentCompMat;
-  end
-  PrintMetamer = UniqueMetaners.(SignalNames{j});
-  printinfo(PrintMetamer);
-  
-  if plotmeunique && ~strcmpi(SignalNames{j}, 'nfall')
-    % LabVals.(SignalNames{j})
-    PlotElementSignals(AllSpectra.originals.(SignalNames{j}), UniqueMetaners.(SignalNames{j}), AllSpectra.wavelengths.(SignalNames{j}), [], SignalNames{i});
-  end
-end
 
 end
 
