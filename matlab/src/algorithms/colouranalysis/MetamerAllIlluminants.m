@@ -25,7 +25,7 @@ CatNames = {'Munsell', 'Candy', 'Agfa', 'Natural', 'Forest', 'Lumber', 'Paper', 
 for i = 1:nfiles
   disp(['reading: ', MatList(i).name]);
   CurrentMat = load([MetamerPath, '/', MatList(i).name]);
-  CompMat(:, :, i) = CurrentMat.CompMat(10531:end,10531:end); %#ok
+  CompMat(:, :, i) = CurrentMat.CompMat; %#ok
 end
 
 clear CurrentMat;
