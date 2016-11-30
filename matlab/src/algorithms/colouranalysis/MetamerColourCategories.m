@@ -1,4 +1,4 @@
-function AllSpectraColourCategories = MetamerColourCategories( ColourReceptors, illuminants )
+function AllSpectraColourCategories = MetamerColourCategories( ColourReceptors, illuminants, ColourCategorisationModel )
 %MetamerColourCategories Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -22,6 +22,10 @@ if nargin < 2 || isempty(illuminants)
   illuminants.wp = whitepoint(IlluminantName);
 end
 
+if nargin < 3 || isempty(ColourCategorisationModel)
+  ColourCategorisationModel = 'ourlab';
+end
+
 % making the illumiant and colour receptor the same size
 [illuminants, ColourReceptors] = IntersectIlluminantColourReceptors(illuminants, ColourReceptors);
 
@@ -32,7 +36,7 @@ if ~isfield(illuminants, 'wp')
   illuminants.wp = ComputeWhitePoint(illuminants, ColourReceptors);
 end
 
-AllSpectraColourCategories = ColourCategoryEachSpectra(AllSpectra, illuminants, ColourReceptors);
+AllSpectraColourCategories = ColourCategoryEachSpectra(AllSpectra, illuminants, ColourReceptors,ColourCategorisationModel);
 
 end
 
@@ -48,7 +52,7 @@ end
 
 end
 
-function ColourNames = ColourCategoryEachSpectra(AllSpectra, illuminants, ColourReceptors)
+function ColourNames = ColourCategoryEachSpectra(AllSpectra, illuminants, ColourReceptors, ColourCategorisationModel)
 
 originals = AllSpectra.originals;
 wavelengths = AllSpectra.wavelengths;
@@ -64,8 +68,7 @@ for i = 1:nSignals
     illuminants.wp);
   rgb = lab2rgb(lab, 'WhitePoint', illuminants.wp);
   rgb = uint8(min(max(rgb, 0), 1) .* 255);
-%   CurrentNames = belonging2naming(rgb2belonging(rgb));
-  [~, CurrentNames] = ColourNamingTestImage(rgb, 'joost', false);
+  [~, CurrentNames] = ColourNamingTestImage(rgb, ColourCategorisationModel, false);
   
   ColourNames = cat(1, ColourNames, CurrentNames);
 end
