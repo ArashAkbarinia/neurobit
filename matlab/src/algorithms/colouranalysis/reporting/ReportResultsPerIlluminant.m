@@ -21,7 +21,7 @@ th = 0.5;
 CatEls = [1600, 21, 289, 182, 1056, 272, 803, 3283, 2323, 702, 339, 404];
 CatNames = {'Munsell', 'Candy', 'Agfa', 'Natural', 'Forest', 'Lumber', 'Paper', 'Cambridge', 'Flowers', 'Barnard', 'Matsumoto', 'Westland'};
 
-for i = 7:7 % 1:nfiles
+for i = 1:nfiles
   disp(['Processing: ', MatList(i).name]);
   CurrentMat = load([MetamerPath, '/', MatList(i).name]);
   fileid = fopen([ReportsPath, '/', MatList(i).name(1:end - 3), 'txt'], 'w');
