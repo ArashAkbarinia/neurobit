@@ -38,7 +38,9 @@ else
     ConversionMat = EllipsoidDicMat.robert2ellipsoid;
     MethodNumber = 3;
   else
-    error(['Method ', method, ' is not supported']);
+    warning(['Method ', method, ' is not supported. Running Our Lab']);
+    ConfigsMat = load('lab_ellipsoid_params');
+    MethodNumber = 1;
   end
 end
 method = lower(method);
