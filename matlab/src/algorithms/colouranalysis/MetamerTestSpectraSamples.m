@@ -1,4 +1,4 @@
-function MetamerMats = MetamerTestUfeSpectra(ColourReceptors, illuminants)
+function MetamerMats = MetamerTestSpectraSamples(ColourReceptors, illuminants)
 
 FunctionPath = mfilename('fullpath');
 FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestUfeSpectra';
