@@ -36,7 +36,7 @@ for i = 1:nfiles
   CompDiff(:, :, i) = CurrentDif.CompMat; %#ok
   
   CurrentLab = load([LabCaPoPath, '/', MatList(i).name]);
-  LabPoint.car(:, :, i) = CurrentLab.car(10531:end, :); 
+  LabPoint.car(:, :, i) = CurrentLab.car; 
   LabPoint.wp(i, :) = CurrentLab.wp;
 end
 
@@ -115,7 +115,7 @@ DiffReport.max = max(DiffMat(:));
 DiffReport.min = min(DiffMat(DiffMat(:) >= 0));
 DiffReport.avg = mean(DiffMat(DiffMat(:) >= 0));
 
-fprintf(fileid, '  uth %.1f:\t%f percent metamers\n', k, AbsoluteMetamersJK / nPixels);
+fprintf(fileid, '  Max: %f  Min: %f  Avg: %f\n', DiffReport.max, DiffReport.min, DiffReport.avg);
 
 end
 
