@@ -93,6 +93,9 @@ end
 
 MetamerReport = struct();
 
+% some tricks to get the upper part of the matrix only
+CompMat = CompMat - tril(ones(size(CompMat)));
+
 [rows, cols] = size(CompMat);
 nPixels = rows * (cols - 1) / 2;
 
@@ -100,7 +103,7 @@ MetamerReport.NumElements = rows;
 
 for j = 0:nthreshes
   CurrentThreshold = th * (2 ^ j);
-  mml = CompMat < CurrentThreshold & CompMat ~= 0;
+  mml = CompMat < CurrentThreshold & CompMat >= 0;
   AbsoluteMetamers = sum(mml(:));
   fprintf(fileid, ' (%s)\tth %.1f:\t%f percent metamers (num elements %d)\n', PrintPreText, CurrentThreshold, AbsoluteMetamers / nPixels, rows);
   MetamerReport.(['th', num2str(j)]).('th') = CurrentThreshold;

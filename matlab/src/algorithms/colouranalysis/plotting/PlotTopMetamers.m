@@ -38,11 +38,11 @@ else
 end
 
 MetamersDis = MetamerDiff.SgnlDiffs;
-MetamersDis(MetamerDiff.metamers == 0) = 0;
-MetamersDis(isinf(MetamersDis)) = 0;
+MetamersDis(MetamerDiff.metamers == 0) = -1;
+MetamersDis(isinf(MetamersDis)) = -1;
 
 UniqueDistances = sort(unique(MetamersDis(:)), 'descend');
-UniqueDistances = UniqueDistances(UniqueDistances > 0);
+UniqueDistances = UniqueDistances(UniqueDistances >= 0);
 if UniqueDistances == 0
   FigureHandler = [];
   return;
@@ -54,7 +54,7 @@ c = ceil(sqrt(nTops));
 FigureHandler.m = figure('name', ['metamers signals ', name], 'visible', isvisible);
 if ~isempty(lab)
   FigureHandler.r = figure('name', ['metamers RGBs ', name ], 'visible', isvisible);
-  rgb = lab2rgb(lab, 'whitepoint', wp);
+  rgb = applycform(lab, makecform('lab2srgb', 'AdaptedWhitePoint', wp));
 end
 black = reshape([0, 0, 0], 1, 1, 3);
 for i = 1:nTops
