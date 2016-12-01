@@ -1,5 +1,5 @@
-function MetamerDiffs = MetamerTest(InputSignals, wavelength)
-%MetamerTest Summary of this function goes here
+function MetamerDiffs = MetamerTestConeSensitivities(InputSignals, wavelength)
+%MetamerTestConeSensitivities Summary of this function goes here
 %   Detailed explanation goes here
 
 FunctionPath = mfilename('fullpath');
