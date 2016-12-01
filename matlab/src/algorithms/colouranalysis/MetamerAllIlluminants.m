@@ -103,7 +103,7 @@ for j = 0:nthreshes
   end
 end
 
-MetamerReport.DiffReport = MetamerDiffReport(CompMat);
+MetamerReport.DiffReport = MetamerDiffReport(fileid, CompMat);
 
 end
 
