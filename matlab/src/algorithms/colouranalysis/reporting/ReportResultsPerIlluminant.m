@@ -50,7 +50,7 @@ for i = 1:nfiles
   %   CurrentSignal.wavelength = AllSpectra.wavelengths.all;
   %   MetamerReport.all = CategoryReport(fileid, CurrentDif.CompMat, th, nthreshes, 'All', ...
   %     plotme, CurrentSignal, CurrentLab.car, CurrentLab.wp, SavemeDirectory);
-  MetamerReport.all = CategoryReport(fileid, CurrentDif.CompMat, th, nthreshes, 'All', ...
+  MetamerReport.(MatList(i).name(1:end - 4)).all = CategoryReport(fileid, CurrentDif.CompMat, th, nthreshes, 'All', ...
     0, [], [], CurrentLab.wp, []);
   
   si = 1;
@@ -68,7 +68,7 @@ for i = 1:nfiles
     inds = si:ei;
     CurrentSignal.spectra = AllSpectra.originals.(lower(CatNames{k}));
     CurrentSignal.wavelength = AllSpectra.wavelengths.(lower(CatNames{k}));
-    MetamerReport.(lower(CatNames{k})) = CategoryReport(fileid, CurrentDif.CompMat(inds, inds), th, nthreshes, CatNames{k}, ...
+    MetamerReport.(MatList(i).name(1:end - 4)).(lower(CatNames{k})) = CategoryReport(fileid, CurrentDif.CompMat(inds, inds), th, nthreshes, CatNames{k}, ...
       plotme, CurrentSignal, CurrentLab.car(inds, :), CurrentLab.wp, SavemeDirectory);
     si = si + CatEls(k);
   end
@@ -78,7 +78,7 @@ for i = 1:nfiles
   end
 end
 
-save([ReportsPath, '/', MatList(i).name], 'MetamerReport');
+save([ReportsPath, '/PerIlluminantReport.mat'], 'MetamerReport');
 
 end
 
