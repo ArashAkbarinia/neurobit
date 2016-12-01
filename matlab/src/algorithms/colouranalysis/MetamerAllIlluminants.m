@@ -103,19 +103,24 @@ for j = 0:nthreshes
   end
 end
 
-MetamerReport.DiffReport = MetamerDiffReport(fileid, CompMat);
+MetamerReport.DiffReport = MetamerDiffReport(CompMat, 0:0.5:20);
+
+fprintf(fileid, '(%s)\tMax: %f  Min: %f  Avg: %f\n', pretext, MetamerReport.DiffReport.max, MetamerReport.DiffReport.min, MetamerReport.DiffReport.avg);
 
 end
 
-function DiffReport = MetamerDiffReport(fileid, CompMat)
+function DiffReport = MetamerDiffReport(CompMat, edges)
 
+MaskMat = CompMat(:, :, 1);
 DiffMat = max(CompMat, [], 3) - min(CompMat, [], 3);
+DiffMat(MaskMat == -1) = -1;
+DiffMat = DiffMat(:);
 
-DiffReport.max = max(DiffMat(:));
-DiffReport.min = min(DiffMat(DiffMat(:) >= 0));
-DiffReport.avg = mean(DiffMat(DiffMat(:) >= 0));
+DiffReport.max = max(DiffMat);
+DiffReport.min = min(DiffMat(DiffMat >= 0));
+DiffReport.avg = mean(DiffMat(DiffMat >= 0));
 
-fprintf(fileid, '  Max: %f  Min: %f  Avg: %f\n', DiffReport.max, DiffReport.min, DiffReport.avg);
+[DiffReport.hist.hcounts, DiffReport.hist.hedges] = histcounts(DiffMat(DiffMat >= 0), edges);
 
 end
 
