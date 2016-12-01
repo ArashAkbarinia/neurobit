@@ -1,4 +1,4 @@
-function FigureHandler = PlotTopMetamers(MetamerDiff, signals, nTops, wavelength, lab, name)
+function FigureHandler = PlotTopMetamers(MetamerDiff, signals, nTops, wavelength, lab, name, wp, ResultDirectory)
 %PlotTopMetamers  plots each metamer group into a subplot.
 %
 % inputs
@@ -24,6 +24,18 @@ end
 if nargin < 6
   name = '';
 end
+if nargin < 7
+  wp = whitepoint('d65');
+end
+if nargin < 8
+  ResultDirectory = [];
+end
+
+if isempty(ResultDirectory)
+  isvisible = 'on';
+else
+  isvisible = 'off';
+end
 
 MetamersDis = MetamerDiff.SgnlDiffs;
 MetamersDis(MetamerDiff.metamers == 0) = 0;
@@ -39,27 +51,36 @@ nTops = min(nTops, length(UniqueDistances));
 r = round(sqrt(nTops));
 c = ceil(sqrt(nTops));
 
-FigureHandler.m = figure('name', ['metamers signals ', name]);
+FigureHandler.m = figure('name', ['metamers signals ', name], 'visible', isvisible);
 if ~isempty(lab)
-  FigureHandler.r = figure('name', ['metamers RGBs ', name ]);
-  rgb = lab2rgb(lab);
+  FigureHandler.r = figure('name', ['metamers RGBs ', name ], 'visible', isvisible);
+  rgb = lab2rgb(lab, 'whitepoint', wp);
 end
 black = reshape([0, 0, 0], 1, 1, 3);
 for i = 1:nTops
   [row, col] = find(MetamersDis == UniqueDistances(i));
   row = row(1);
   col = col(1);
-  figure(FigureHandler.m);
+  set(0, 'CurrentFigure', FigureHandler.m);
   subplot(r, c, i);
   hold on;
   plot(wavelength, signals(:, row) ./ sum(signals(:, row)), 'color', rand(1,3));
   plot(wavelength, signals(:, col) ./ sum(signals(:, col)), 'color', rand(1,3));
   xlim([wavelength(1), wavelength(end)]);
   if ~isempty(lab)
-    figure(FigureHandler.r);
+    set(0, 'CurrentFigure', FigureHandler.r);
     subplot(r, c, i);
     image([rgb(row, :, :), rgb(row, :, :), black, rgb(col, :, :), rgb(col, :, :)]);
     axis off;
+  end
+end
+
+if ~isempty(ResultDirectory)
+  saveas(FigureHandler.m, [ResultDirectory, '/MetamerSignals-', name, '.jpg']);
+  close(FigureHandler.m);
+  if ~isempty(lab)
+    saveas(FigureHandler.r, [ResultDirectory, '/MetamerColours-', name, '.jpg']);
+    close(FigureHandler.r);
   end
 end
 
