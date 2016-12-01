@@ -16,6 +16,6 @@ FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/Con
 FundamentalsMat = load(FundamentalsPath);
 ConeSpectralSensitivity = FundamentalsMat.ConeSpectralSensitivity;
 
-MetamerDiffs = MetamerAnalysis(InputSignals, ConeSpectralSensitivity(inds, :), d65(inds));
+MetamerDiffs = MetamerAnalysisConeDifferences(InputSignals, ConeSpectralSensitivity(inds, :), d65(inds));
 
 end

@@ -1,5 +1,5 @@
-function MetamerReport = MetamerAnalysis(InputSignal, ColourReceptors, illuminants, settings)
-%MetamerAnalysis  analysis the input signal for metamerism
+function MetamerReport = MetamerAnalysisConeDifferences(InputSignal, ColourReceptors, illuminants, settings)
+%MetamerAnalysisConeDifferences  analysis the input signal for metamerism
 %
 
 FunctionPath = mfilename('fullpath');
