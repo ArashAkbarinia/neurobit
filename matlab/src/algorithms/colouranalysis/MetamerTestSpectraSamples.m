@@ -1,7 +1,7 @@
 function MetamerMats = MetamerTestSpectraSamples(ColourReceptors, illuminants)
 
 FunctionPath = mfilename('fullpath');
-FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestUfeSpectra';
+FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestSpectraSamples';
 
 FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
 
