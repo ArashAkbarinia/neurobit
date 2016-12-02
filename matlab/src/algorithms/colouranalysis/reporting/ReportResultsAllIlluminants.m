@@ -61,7 +61,7 @@ end
 CurrentSignal.spectra = AllSpectraMat.spectra;
 CurrentSignal.wavelength = AllSpectraMat.wavelength;
 MetamerReport.all = CategoryReport(fileid, CompDiff, lth, uth, nthreshes, 'All', ...
-  plotmeall, CurrentSignal, LabPoint.car, LabPoint.wp, SavemeDirectory, labels);
+  plotme, CurrentSignal, LabPoint.car, LabPoint.wp, SavemeDirectory, labels);
 
 si = 1;
 for k = 1:numel(CatNames)
