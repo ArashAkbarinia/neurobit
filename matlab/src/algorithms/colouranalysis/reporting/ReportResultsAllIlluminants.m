@@ -21,10 +21,7 @@ nthreshes = 3;
 lth = 0.5;
 uth = [5, 10];
 % 0 means nothing, 1 means plot, 2 means save
-plotme.p = 2;
-plotme.h = 2;
-plotmeall.p = plotme.p;
-plotmeall.h = plotme.h;
+plotme = 2;
 
 CatEls = [1600, 21, 289, 182, 1056, 272, 803, 3283, 1939, 384, 702, 339, 404];
 CatNames = {'Munsell', 'Candy', 'Agfa', 'Natural', 'Forest', 'Lumber', 'Paper', 'Cambridge', 'Fred400', 'Fred401', 'Barnard', 'Matsumoto', 'Westland'};
@@ -50,18 +47,14 @@ clear CurrentLab;
 
 disp('Starting to process:');
 
-if plotme.p == 2
+if plotme == 2
   fileid = fopen([ReportsPath, '/', 'AllAnalysis.txt'], 'w');
-else
-  fileid = 1;
-end
-
-if plotmeall.p == 2 || plotmeall.h == 2
   SavemeDirectory = [ReportsPath, '/all'];
   if ~exist(SavemeDirectory, 'dir')
     mkdir(SavemeDirectory);
   end
 else
+  fileid = 1;
   SavemeDirectory = [];
 end
 
@@ -72,7 +65,7 @@ MetamerReport.all = CategoryReport(fileid, CompDiff, lth, uth, nthreshes, 'All',
 
 si = 1;
 for k = 1:numel(CatNames)
-  if plotme.p == 2 || plotme.h == 2
+  if plotme == 2
     SavemeDirectory = [ReportsPath, '/', lower(CatNames{k})];
     if ~exist(SavemeDirectory, 'dir')
       mkdir(SavemeDirectory);
@@ -90,7 +83,7 @@ for k = 1:numel(CatNames)
   si = si + CatEls(k);
 end
 
-if plotme.p == 2
+if plotme == 2
   fclose(fileid);
 end
 
@@ -114,7 +107,7 @@ nPixels = rows * (cols - 1) / 2;
 
 MetamerReport.NumElements = rows;
 
-if plotme.p > 0
+if plotme > 0
   MaskMat = CompMat(:, :, 1);
   DiffMat = max(CompMat, [], 3) - min(CompMat, [], 3);
   DiffMat(MaskMat == -1) = -1;
@@ -134,7 +127,7 @@ for j = 0:nthreshes
   MetamerReport.(['th', num2str(j)]).('metamers') = AbsoluteMetamersJ / nPixels;
   MetamerReport.(['th', num2str(j)]).('metamernum') = AbsoluteMetamersJ;
   
-  if plotme.p > 0
+  if plotme > 0
     MetamerPlot.metamers = metamers;
     MetamerPlot.SgnlDiffs = DiffMat;
     PlotElementSignals(signal.spectra, MetamerPlot, signal.wavelength, lab, [CategoryName, '-lth', num2str(j)], wp, SavemeDirectory, labels);
@@ -150,7 +143,7 @@ for j = 0:nthreshes
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('metamernum') = AbsoluteMetamersJK;
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('metamerper') = AbsoluteMetamersJK / nPixels;
     
-    if plotme.p > 0
+    if plotme > 0
       MetamerPlot.metamers = metamers;
       MetamerPlot.SgnlDiffs = DiffMat;
       PlotElementSignals(signal.spectra, MetamerPlot, signal.wavelength, lab, [CategoryName, '-lth', num2str(j), '-uth', num2str(k)], wp, SavemeDirectory, labels);
@@ -161,7 +154,7 @@ end
 MetamerReport.DiffReport = MetamerDiffReport(CompMat, 0:0.5:20);
 
 % plotting the diff histogram
-if plotme.h > 0
+if plotme > 0
   if isempty(SavemeDirectory)
     isvisible = 'on';
   else
