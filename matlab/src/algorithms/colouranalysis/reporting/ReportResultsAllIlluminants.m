@@ -23,7 +23,7 @@ uth = [5, 10];
 % 0 means nothing, 1 means plot, 2 means save
 plotme.p = 2;
 plotme.h = 2;
-plotmeall.p = 0;
+plotmeall.p = plotme.p;
 plotmeall.h = plotme.h;
 
 CatEls = [1600, 21, 289, 182, 1056, 272, 803, 3283, 1939, 384, 702, 339, 404];
@@ -57,7 +57,7 @@ else
 end
 
 if plotmeall.p == 2 || plotmeall.h == 2
-  SavemeDirectory = ReportsPath;
+  SavemeDirectory = [ReportsPath, '/all'];
   if ~exist(SavemeDirectory, 'dir')
     mkdir(SavemeDirectory);
   end
@@ -65,8 +65,10 @@ else
   SavemeDirectory = [];
 end
 
+CurrentSignal.spectra = AllSpectraMat.spectra;
+CurrentSignal.wavelength = AllSpectraMat.wavelength;
 MetamerReport.all = CategoryReport(fileid, CompDiff, lth, uth, nthreshes, 'All', ...
-  plotmeall, [], [], [], SavemeDirectory, []);
+  plotmeall, CurrentSignal, LabPoint.car, LabPoint.wp, SavemeDirectory, labels);
 
 si = 1;
 for k = 1:numel(CatNames)
@@ -219,8 +221,6 @@ end
 
 function [] = PlotElementSignals(element, MetamerPlot, wavelength, lab, name, wp, SavemeDirectory, labels)
 
-SignalLength = size(element, 3);
-nSignals = size(element, 1);
-PlotMetamersAllIllum(MetamerPlot, reshape(element, nSignals, SignalLength)', 9, wavelength, lab, name, wp, SavemeDirectory, labels);
+PlotMetamersAllIllum(MetamerPlot, element, 9, wavelength, lab, name, wp, SavemeDirectory, labels);
 
 end

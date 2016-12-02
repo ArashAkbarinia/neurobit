@@ -60,9 +60,24 @@ for i = 1:nTops
   subplot(r, c, PlotInd);
   PlotInd = PlotInd + 1;
   hold on;
-  plot(wavelength, signals(:, row) ./ sum(signals(:, row)), 'color', rand(1,3));
-  plot(wavelength, signals(:, col) ./ sum(signals(:, col)), 'color', rand(1,3));
-  xlim([wavelength(1), wavelength(end)]);
+  if ~iscell(wavelength)
+    wavelength1 = wavelength;
+    wavelength2 = wavelength;
+    signal1 = signals(row, :, :);
+    signal1 = reshape(signal1, size(signal1, 3), 1);
+    signal2 = signals(row, :, :);
+    signal2 = reshape(signal2, size(signal2, 3), 1);
+  else
+    wavelength1 = wavelength{row, :};
+    wavelength2 = wavelength{col, :};
+    signal1 = signals{row, :, :};
+    signal1 = reshape(signal1, size(signal1, 3), 1);
+    signal2 = signals{col, :, :};
+    signal2 = reshape(signal2, size(signal2, 3), 1);
+  end
+  plot(wavelength1, signal1 ./ sum(signal1), 'color', rand(1,3));
+  plot(wavelength2, signal2 ./ sum(signal2), 'color', rand(1,3));
+  xlim([min(wavelength1(1), wavelength2(1)), max(wavelength1(end), wavelength2(end))]);
   if i == 1
     title('Signals');
   end
