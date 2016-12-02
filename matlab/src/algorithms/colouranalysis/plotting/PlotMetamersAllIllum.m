@@ -51,6 +51,7 @@ for i = 1:c - 1
 end
 
 PlotInd = 1;
+black = reshape([0, 0, 0], 1, 1, 3);
 for i = 1:nTops
   [row, col] = find(MetamersDis == UniqueDistances(i));
   row = row(1);
@@ -69,10 +70,11 @@ for i = 1:nTops
   for j = 2:c
     subplot(r, c, PlotInd);
     PlotInd = PlotInd + 1;
-    image(rgb(row, j - 1, :));
+    image([rgb(row, j - 1, :), rgb(row, j - 1, :), black, rgb(col, j - 1, :), rgb(col, j - 1, :)]);
     if i == 1
       title(labels{j - 1});
     end
+    axis off;
   end
 end
 
