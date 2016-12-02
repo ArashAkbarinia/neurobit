@@ -1,4 +1,4 @@
-function MetamerReport = MetamerAllIlluminants( FolderPath )
+function MetamerReport = ReportResultsAllIlluminants( FolderPath )
 %MetamerAllIlluminants  generates the metamer reports based on all illums.
 %   Detailed explanation goes here
 
