@@ -55,8 +55,18 @@ if plotme.p == 2
 else
   fileid = 1;
 end
+
+if plotmeall.p == 2 || plotmeall.h == 2
+  SavemeDirectory = ReportsPath;
+  if ~exist(SavemeDirectory, 'dir')
+    mkdir(SavemeDirectory);
+  end
+else
+  SavemeDirectory = [];
+end
+
 MetamerReport.all = CategoryReport(fileid, CompDiff, lth, uth, nthreshes, 'All', ...
-  plotmeall, [], [], [], [], []);
+  plotmeall, [], [], [], SavemeDirectory, []);
 
 si = 1;
 for k = 1:numel(CatNames)
@@ -155,12 +165,12 @@ if plotme.h > 0
   else
     isvisible = 'off';
   end
-  FigureHandler = figure('name', ['diff histograms ', CategoryName], 'visible', isvisible, 'pos',[1, 1, 2001 2001]);
+  FigureHandler = figure('name', ['diff histograms ', CategoryName], 'visible', isvisible, 'pos', [1, 1, 1280, 720]);
   NormalisedCounts = 100 * MetamerReport.DiffReport.hist.hcounts / sum(MetamerReport.DiffReport.hist.hcounts);
   bar(MetamerReport.DiffReport.hist.hedges, NormalisedCounts, 'barwidth', 1);
   xlabel('Input Value');
   ylabel('Normalised Count [%]');
-  xlim([0, MetamerReport.DiffReport.hist.hedges(end)])
+  xlim([0, MetamerReport.DiffReport.hist.hedges(end)]);
 end
 
 if ~isempty(SavemeDirectory)
