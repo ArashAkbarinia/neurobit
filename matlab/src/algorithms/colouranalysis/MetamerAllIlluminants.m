@@ -11,7 +11,7 @@ end
 MetamerPath = [FolderPath, 'metamers'];
 CategorPath = [FolderPath, 'categorisation'];
 LabCaPoPath = [FolderPath, 'lab'];
-ReportsPath = [FolderPath, 'reports'];
+ReportsPath = [FolderPath, 'reports/multiilluminant'];
 AllSpectraMat = load([FolderPath, 'signals/AllSpectra.mat']);
 AllSpectra = AllSpectraMat.AllSpectra;
 
@@ -36,11 +36,12 @@ for i = 1:nfiles
   CompDiff(:, :, i) = CurrentDif.CompMat; %#ok
   
   CurrentLab = load([LabCaPoPath, '/', MatList(i).name]);
-  LabPoint.car(:, :, i) = CurrentLab.car; 
+  LabPoint.car(:, :, i) = CurrentLab.car;
   LabPoint.wp(i, :) = CurrentLab.wp;
 end
 
 clear CurrentDif;
+clear CurrentLab;
 
 disp('Starting to process:');
 
@@ -49,13 +50,26 @@ if plotme == 2
 else
   fileid = 1;
 end
-MetamerReport.all = CategoryReport(fileid, CompDiff, lth, uth, nthreshes, 'All');
+MetamerReport.all = CategoryReport(fileid, CompDiff, lth, uth, nthreshes, 'All', ...
+  0, [], [], [], []);
 
 si = 1;
 for k = 1:numel(CatNames)
+  if plotme == 2
+    SavemeDirectory = [ReportsPath, '/', MatList(i).name(1:end - 4), '/', lower(CatNames{k})];
+    if ~exist(SavemeDirectory, 'dir')
+      mkdir(SavemeDirectory);
+    end
+  else
+    SavemeDirectory = [];
+  end
+  
   ei = CatEls(k) + si - 1;
   inds = si:ei;
-  MetamerReport.(lower(CatNames{k})) = CategoryReport(fileid, CompDiff(inds, inds, :), lth, uth, nthreshes, CatNames{k});
+  CurrentSignal.spectra = AllSpectra.originals.(lower(CatNames{k}));
+  CurrentSignal.wavelength = AllSpectra.wavelengths.(lower(CatNames{k}));
+  MetamerReport.(lower(CatNames{k})) = CategoryReport(fileid, CompDiff(inds, inds, :), lth, uth, nthreshes, CatNames{k}, ...
+    plotme, CurrentSignal, LabPoint.car(inds, :, :), LabPoint.wp, SavemeDirectory);
   si = si + CatEls(k);
 end
 
@@ -63,11 +77,13 @@ save([ReportsPath, '/AllIlluminantReport.mat'], 'MetamerReport');
 
 end
 
-function MetamerReport = CategoryReport(fileid, CompMat, lth, uth, nthreshes, pretext)
+function MetamerReport = CategoryReport(fileid, CompMat, lth, uth, nthreshes, CategoryName, plotme, signal, lab, wp, SavemeDirectory)
+
+PrintPreText = CategoryName;
 
 % 9 is the length of largest text which is cambridge
-if numel(pretext) < 9
-  pretext = [pretext, ones(1, 9 - numel(pretext)) .* 32]; % 32 is space
+if numel(PrintPreText) < 9
+  PrintPreText = [PrintPreText, ones(1, 9 - numel(PrintPreText)) .* 32]; % 32 is space
 end
 
 MetamerReport = struct();
@@ -77,13 +93,16 @@ nPixels = rows * (cols - 1) / 2;
 
 MetamerReport.NumElements = rows;
 
+%TODO: fix this with plotting all iluminant
+d65ind = 7;
+
 for j = 0:nthreshes
   CurrentThreshold = lth * (2 ^ j);
   mml = CompMat < CurrentThreshold & CompMat >= 0;
   
-  [AbsoluteIsomersJ, AbsoluteMetamersJ] = IsomerVsMetamer(mml);
+  [AbsoluteIsomersJ, AbsoluteMetamersJ, metamers] = IsomerVsMetamer(mml);
   
-  fprintf(fileid, '(%s)\tlth %.1f:\t%f metamers \t%f isomers (num elements %d)\n', pretext, CurrentThreshold, AbsoluteMetamersJ / nPixels, AbsoluteIsomersJ / nPixels, rows);
+  fprintf(fileid, '(%s)\tlth %.1f:\t%f metamers \t%f isomers (num elements %d)\n', PrintPreText, CurrentThreshold, AbsoluteMetamersJ / nPixels, AbsoluteIsomersJ / nPixels, rows);
   
   MetamerReport.(['th', num2str(j)]).('lth') = CurrentThreshold;
   MetamerReport.(['th', num2str(j)]).('isomers') = AbsoluteIsomersJ / nPixels;
@@ -91,21 +110,36 @@ for j = 0:nthreshes
   MetamerReport.(['th', num2str(j)]).('metamers') = AbsoluteMetamersJ / nPixels;
   MetamerReport.(['th', num2str(j)]).('metamernum') = AbsoluteMetamersJ;
   
+  if plotme > 0
+    %TODO: plot the signal under all illuminants
+    MetamerPlot.metamers = metamers;
+    MetamerPlot.SgnlDiffs = CompMat(:, :, d65ind); %7 is d65 just for plotting now
+    PlotElementSignals(signal.spectra, MetamerPlot, signal.wavelength, lab(:, :, d65ind), [CategoryName, '-lth', num2str(j)], wp(d65ind, :), SavemeDirectory);
+  end
+  
   for k = [uth, CurrentThreshold * 2]
     mmu = CompMat > k;
     
-    AbsoluteMetamersJK = LthUthMetamer(mml, mmu);
+    [AbsoluteMetamersJK, metamers] = LthUthMetamer(mml, mmu);
     
     fprintf(fileid, '  uth %.1f:\t%f percent metamers\n', k, AbsoluteMetamersJK / nPixels);
     
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('metamernum') = AbsoluteMetamersJK;
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('metamerper') = AbsoluteMetamersJK / nPixels;
+    
+    if plotme > 0
+      %TODO: plot the signal under all illuminants
+      MetamerPlot.metamers = metamers;
+      MetamerPlot.SgnlDiffs = CompMat(:, :, d65ind); %7 is d65 just for plotting now
+      PlotElementSignals(signal.spectra, MetamerPlot, signal.wavelength, lab(:, :, d65ind), [CategoryName, '-lth', num2str(j), '-uth', num2str(k)], wp(d65ind, :), SavemeDirectory);
+    end
   end
 end
 
 MetamerReport.DiffReport = MetamerDiffReport(CompMat, 0:0.5:20);
 
-fprintf(fileid, '(%s)\tMax: %f  Min: %f  Avg: %f\n', pretext, MetamerReport.DiffReport.max, MetamerReport.DiffReport.min, MetamerReport.DiffReport.avg);
+fprintf(fileid, '(%s)\tMax: %f  Min: %f  Avg: %f  Med: %f\n', ...
+  PrintPreText, MetamerReport.DiffReport.max, MetamerReport.DiffReport.min, MetamerReport.DiffReport.avg, MetamerReport.DiffReport.med);
 
 end
 
@@ -119,12 +153,13 @@ DiffMat = DiffMat(:);
 DiffReport.max = max(DiffMat);
 DiffReport.min = min(DiffMat(DiffMat >= 0));
 DiffReport.avg = mean(DiffMat(DiffMat >= 0));
+DiffReport.med = median(DiffMat(DiffMat >= 0));
 
-[DiffReport.hist.hcounts, DiffReport.hist.hedges] = histcounts(DiffMat(DiffMat >= 0), edges);
+[DiffReport.hist.hcounts, DiffReport.hist.hedges] = hist(DiffMat(DiffMat >= 0), edges);
 
 end
 
-function [AbsoluteIsomers, AbsoluteMetamers] = IsomerVsMetamer(mml)
+function [AbsoluteIsomers, AbsoluteMetamers, metamers] = IsomerVsMetamer(mml)
 
 isomers = all(mml, 3);
 AbsoluteIsomers = sum(isomers(:));
@@ -135,9 +170,18 @@ AbsoluteMetamers = sum(metamers(:));
 
 end
 
-function AbsoluteMetamers = LthUthMetamer(mml, mmu)
+function [AbsoluteMetamers, metamers] = LthUthMetamer(mml, mmu)
 
 metamers = any(mml, 3) & any(mmu, 3);
 AbsoluteMetamers = sum(metamers(:));
+
+end
+
+function [] = PlotElementSignals(element, MetamerPlot, wavelength, lab, name, wp, SavemeDirectory)
+
+SignalLength = size(element, 3);
+nSignals = size(element, 1);
+lab = reshape(lab, size(lab, 1), 1, 3);
+PlotTopMetamers(MetamerPlot, reshape(element, nSignals, SignalLength)', 25, wavelength, lab, name, wp, SavemeDirectory);
 
 end
