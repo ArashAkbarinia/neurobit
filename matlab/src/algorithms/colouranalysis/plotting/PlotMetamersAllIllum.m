@@ -44,7 +44,7 @@ nTops = min(nTops, length(UniqueDistances));
 r = nTops;
 c = 1 + size(lab, 2);
 
-FigureHandler.m = figure('name', ['metamers signals ', name], 'visible', isvisible, 'pos',[1, 1, 2001 2001]);
+FigureHandler.m = figure('name', ['metamers signals ', name], 'visible', isvisible, 'pos', [1, 1, 1280, 720]);
 rgb = zeros(size(lab));
 for i = 1:c - 1
   rgb(:, i, :) = applycform(lab(:, i, :), makecform('lab2srgb', 'AdaptedWhitePoint', wp(i, :)));

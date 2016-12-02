@@ -51,9 +51,9 @@ nTops = min(nTops, length(UniqueDistances));
 r = round(sqrt(nTops));
 c = ceil(sqrt(nTops));
 
-FigureHandler.m = figure('name', ['metamers signals ', name], 'visible', isvisible, 'pos',[1, 1, 2001 2001]);
+FigureHandler.m = figure('name', ['metamers signals ', name], 'visible', isvisible, 'pos', [1, 1, 1280, 720]);
 if ~isempty(lab)
-  FigureHandler.r = figure('name', ['metamers RGBs ', name ], 'visible', isvisible, 'pos',[1, 1, 2001 2001]);
+  FigureHandler.r = figure('name', ['metamers RGBs ', name ], 'visible', isvisible, 'pos', [1, 1, 1280, 720]);
   rgb = applycform(lab, makecform('lab2srgb', 'AdaptedWhitePoint', wp));
 end
 black = reshape([0, 0, 0], 1, 1, 3);
