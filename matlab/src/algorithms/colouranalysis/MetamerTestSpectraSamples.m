@@ -1,4 +1,4 @@
-function MetamerMats = MetamerTestSpectraSamples(ColourReceptors, illuminants)
+function [MetamerMats, lab] = MetamerTestSpectraSamples(ColourReceptors, illuminants)
 
 FunctionPath = mfilename('fullpath');
 FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestSpectraSamples';
@@ -30,23 +30,38 @@ if ~isfield(illuminants, 'wp')
   illuminants.wp = ComputeWhitePoint(illuminants, ColourReceptors);
 end
 
-MetamerMats = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors);
+[MetamerMats, car] = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors);
+lab.car = car;
+lab.wp = illuminants.wp;
 
 end
 
 function [illuminants, ColourReceptors] = IntersectIlluminantColourReceptors(illuminants, ColourReceptors)
 
-if size(illuminants.wavelength, 1) ~= size(ColourReceptors.wavelength, 1) || illuminants.wavelength ~= ColourReceptors.wavelength
-  [~, ia, ib] = intersect(illuminants.wavelength, ColourReceptors.wavelength);
-  illuminants.wavelength = illuminants.wavelength(ia');
-  illuminants.spectra = illuminants.spectra(ia');
-  ColourReceptors.wavelength = ColourReceptors.wavelength(ib');
-  ColourReceptors.spectra = ColourReceptors.spectra(ib', :);
+if size(illuminants.wavelength, 1) < size(ColourReceptors.wavelength, 1)
+  [illuminants, ColourReceptors] = SmallBigIntersect(illuminants, ColourReceptors);
+elseif size(illuminants.wavelength, 1) > size(ColourReceptors.wavelength, 1)
+  [ColourReceptors, illuminants] = SmallBigIntersect(ColourReceptors, illuminants);
+elseif illuminants.wavelength ~= ColourReceptors.wavelength
+  [illuminants, ColourReceptors] = SmallBigIntersect(illuminants, ColourReceptors);
 end
 
 end
 
-function MetamerDiffs = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors)
+function [small, big] = SmallBigIntersect(small, big)
+
+wavelength = interp1(small.wavelength, small.wavelength, big.wavelength);
+spectra = interp1(small.wavelength, small.spectra, big.wavelength);
+NumberInds = ~isnan(wavelength);
+
+small.wavelength = wavelength(NumberInds);
+small.spectra = spectra(NumberInds, :);
+big.wavelength = big.wavelength(NumberInds);
+big.spectra = big.spectra(NumberInds, :);
+
+end
+
+function [MetamerDiffs, lab] = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors)
 
 originals = AllSpectra.originals;
 wavelengths = AllSpectra.wavelengths;
@@ -126,8 +141,10 @@ printinfoyear(MetamerReport.m2000.metamers, '    Metamer-2000: ', nCurrentSignal
 end
 
 function [] = printinfoyear(MetamerReport, PreText, nCurrentSignals)
+
 nAll = sum(MetamerReport(:)) / 2;
 disp([PreText, num2str(nAll / ((nCurrentSignals * (nCurrentSignals - 1)) / 2))]);
+
 end
 
 function lab = ComputeLab(ev, ew, iv, iw, cv, cw, wp)
