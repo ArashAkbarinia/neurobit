@@ -16,16 +16,15 @@ AllSpectraMat = load([FolderPath, 'signals/AllSpectra.mat']);
 AllSpectra = AllSpectraMat.AllSpectra;
 
 MatList = dir([MetamerPath, '/*.mat']);
-MatList = MatList(5:7);
 nfiles = length(MatList);
-nthreshes = 1;
+nthreshes = 3;
 lth = 0.5;
 uth = [5, 10];
 % 0 means nothing, 1 means plot, 2 means save
-plotme = 1;
+plotme = 2;
 
-CatEls = [339, 404];%[1600, 21, 289, 182, 1056, 272, 803, 3283, 1939, 384, 702, 339, 404];
-CatNames = {'Matsumoto', 'Westland'};%{'Munsell', 'Candy', 'Agfa', 'Natural', 'Forest', 'Lumber', 'Paper', 'Cambridge', 'Fred400', 'Fred401', 'Barnard', 'Matsumoto', 'Westland'};
+CatEls = [1600, 21, 289, 182, 1056, 272, 803, 3283, 1939, 384, 702, 339, 404];
+CatNames = {'Munsell', 'Candy', 'Agfa', 'Natural', 'Forest', 'Lumber', 'Paper', 'Cambridge', 'Fred400', 'Fred401', 'Barnard', 'Matsumoto', 'Westland'};
 labels = cell(nfiles);
 
 for i = 1:nfiles
@@ -34,12 +33,12 @@ for i = 1:nfiles
   CurrentDif = load([MetamerPath, '/', MatList(i).name]);
   
   % some tricks to get the upper part of the matrix only
-  CurrentDif.CompMat(10531:end,10531:end) = CurrentDif.CompMat(10531:end,10531:end) - tril(ones(size(CurrentDif.CompMat(10531:end,10531:end))));
+  CurrentDif.CompMat = CurrentDif.CompMat - tril(ones(size(CurrentDif.CompMat)));
   
-  CompDiff(:, :, i) = CurrentDif.CompMat(10531:end,10531:end); %#ok
+  CompDiff(:, :, i) = CurrentDif.CompMat; %#ok
   
   CurrentLab = load([LabCaPoPath, '/', MatList(i).name]);
-  LabPoint.car(:, i, :) = reshape(CurrentLab.car(10531:end, :), size(CurrentLab.car(10531:end, :), 1), 1, 3);
+  LabPoint.car(:, i, :) = reshape(CurrentLab.car, size(CurrentLab.car, 1), 1, 3);
   LabPoint.wp(i, :) = CurrentLab.wp;
 end
 
