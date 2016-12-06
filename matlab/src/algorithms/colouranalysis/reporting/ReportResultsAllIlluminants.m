@@ -27,15 +27,19 @@ CatEls = [1600, 21, 289, 182, 1056, 272, 803, 3283, 1939, 384, 702, 339, 404];
 CatNames = {'Munsell', 'Candy', 'Agfa', 'Natural', 'Forest', 'Lumber', 'Paper', 'Cambridge', 'Fred400', 'Fred401', 'Barnard', 'Matsumoto', 'Westland'};
 labels = cell(nfiles);
 
+ColourNaming = [];
+
 for i = 1:nfiles
   disp(['reading: ', MatList(i).name]);
   labels{i} = MatList(i).name;
   CurrentDif = load([MetamerPath, '/', MatList(i).name]);
+  CurrentCat = load([CategorPath, '/', MatList(i).name]);
   
   % some tricks to get the upper part of the matrix only
   CurrentDif.CompMat = CurrentDif.CompMat - tril(ones(size(CurrentDif.CompMat)));
   
   CompDiff(:, :, i) = CurrentDif.CompMat; %#ok
+  ColourNaming(:, i) = CurrentCat.CurrentNames; %#ok
   
   CurrentLab = load([LabCaPoPath, '/', MatList(i).name]);
   LabPoint.car(:, i, :) = reshape(CurrentLab.car, size(CurrentLab.car, 1), 1, 3);
@@ -61,7 +65,7 @@ end
 CurrentSignal.spectra = AllSpectraMat.spectra;
 CurrentSignal.wavelength = AllSpectraMat.wavelength;
 MetamerReport.all = CategoryReport(fileid, CompDiff, lth, uth, nthreshes, 'All', ...
-  plotme, CurrentSignal, LabPoint.car, LabPoint.wp, SavemeDirectory, labels);
+  plotme, CurrentSignal, LabPoint.car, LabPoint.wp, SavemeDirectory, labels, ColourNaming);
 
 si = 1;
 for k = 1:numel(CatNames)
@@ -79,7 +83,7 @@ for k = 1:numel(CatNames)
   CurrentSignal.spectra = AllSpectra.originals.(lower(CatNames{k}));
   CurrentSignal.wavelength = AllSpectra.wavelengths.(lower(CatNames{k}));
   MetamerReport.(lower(CatNames{k})) = CategoryReport(fileid, CompDiff(inds, inds, :), lth, uth, nthreshes, CatNames{k}, ...
-    plotme, CurrentSignal, LabPoint.car(inds, :, :), LabPoint.wp, SavemeDirectory, labels);
+    plotme, CurrentSignal, LabPoint.car(inds, :, :), LabPoint.wp, SavemeDirectory, labels, ColourNaming);
   si = si + CatEls(k);
 end
 
@@ -91,7 +95,7 @@ save([ReportsPath, '/AllIlluminantReport.mat'], 'MetamerReport');
 
 end
 
-function MetamerReport = CategoryReport(fileid, CompMat, lth, uth, nthreshes, CategoryName, plotme, signal, lab, wp, SavemeDirectory, labels)
+function MetamerReport = CategoryReport(fileid, CompMat, lth, uth, nthreshes, CategoryName, plotme, signal, lab, wp, SavemeDirectory, labels, ColourNaming)
 
 PrintPreText = CategoryName;
 
@@ -138,10 +142,19 @@ for j = 0:nthreshes
     
     [AbsoluteMetamersJK, metamers] = LthUthMetamer(mml, mmu);
     
+    [cnrows, cncols] = find(metamers == 1);
+    % TODO: pass colour name as param here
+    MetamerColourNameReport = ReportColourNamingResults([cnrows, cncols], ColourNaming);
+    AbsoluteColourNameChange = sum(MetamerColourNameReport);
+    ProbabilityColourNameChange = AbsoluteColourNameChange / size(MetamerColourNameReport, 1);
+    
     fprintf(fileid, '  uth %.1f:\t%f percent metamers\n', k, AbsoluteMetamersJK / nPixels);
     
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('metamernum') = AbsoluteMetamersJK;
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('metamerper') = AbsoluteMetamersJK / nPixels;
+    
+    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('collournamenum') = AbsoluteColourNameChange;
+    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('collournameper') = ProbabilityColourNameChange;
     
     if plotme > 0
       MetamerPlot.metamers = metamers;
