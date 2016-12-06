@@ -9,7 +9,7 @@ if nargin < 1
 end
 
 MetamerPath = [FolderPath, 'metamers'];
-CategorPath = [FolderPath, 'categorisation'];
+CategorPath = [FolderPath, 'categorisation/arash'];
 LabCaPoPath = [FolderPath, 'lab'];
 ReportsPath = [FolderPath, 'reports/multiilluminant'];
 AllSpectraMat = load([FolderPath, 'signals/AllSpectra.mat']);
@@ -17,8 +17,7 @@ AllSpectra = AllSpectraMat.AllSpectra;
 
 MatList = dir([MetamerPath, '/*.mat']);
 nfiles = length(MatList);
-nthreshes = 3;
-lth = 0.5;
+lth = 0.5:0.5:5;
 uth = [5, 10];
 % 0 means nothing, 1 means plot, 2 means save
 plotme = 2;
@@ -64,7 +63,7 @@ end
 
 CurrentSignal.spectra = AllSpectraMat.spectra;
 CurrentSignal.wavelength = AllSpectraMat.wavelength;
-MetamerReport.all = CategoryReport(fileid, CompDiff, lth, uth, nthreshes, 'All', ...
+MetamerReport.all = CategoryReport(fileid, CompDiff, lth, uth, 'All', ...
   plotme, CurrentSignal, LabPoint.car, LabPoint.wp, SavemeDirectory, labels, ColourNaming);
 
 si = 1;
@@ -82,7 +81,7 @@ for k = 1:numel(CatNames)
   inds = si:ei;
   CurrentSignal.spectra = AllSpectra.originals.(lower(CatNames{k}));
   CurrentSignal.wavelength = AllSpectra.wavelengths.(lower(CatNames{k}));
-  MetamerReport.(lower(CatNames{k})) = CategoryReport(fileid, CompDiff(inds, inds, :), lth, uth, nthreshes, CatNames{k}, ...
+  MetamerReport.(lower(CatNames{k})) = CategoryReport(fileid, CompDiff(inds, inds, :), lth, uth, CatNames{k}, ...
     plotme, CurrentSignal, LabPoint.car(inds, :, :), LabPoint.wp, SavemeDirectory, labels, ColourNaming);
   si = si + CatEls(k);
 end
@@ -95,7 +94,7 @@ save([ReportsPath, '/AllIlluminantReport.mat'], 'MetamerReport');
 
 end
 
-function MetamerReport = CategoryReport(fileid, CompMat, lth, uth, nthreshes, CategoryName, plotme, signal, lab, wp, SavemeDirectory, labels, ColourNaming)
+function MetamerReport = CategoryReport(fileid, CompMat, lth, uth, CategoryName, plotme, signal, lab, wp, SavemeDirectory, labels, ColourNaming)
 
 PrintPreText = CategoryName;
 
@@ -117,8 +116,8 @@ if plotme > 0
   DiffMat(MaskMat == -1) = -1;
 end
 
-for j = 0:nthreshes
-  CurrentThreshold = lth * (2 ^ j);
+for j = 1:length(lth)
+  CurrentThreshold = lth(j);
   mml = CompMat < CurrentThreshold & CompMat >= 0;
   
   [AbsoluteIsomersJ, AbsoluteMetamersJ, metamers] = IsomerVsMetamer(mml);
