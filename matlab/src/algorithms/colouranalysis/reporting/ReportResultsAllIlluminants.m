@@ -118,17 +118,11 @@ end
 
 for j = 1:length(lth)
   LowThreshold = lth(j);
-  mml = CompMat >= 0 & CompMat < LowThreshold; 
+  mml = CompMat >= 0 & CompMat < LowThreshold;
   
   fprintf(fileid, '(%s)\tlth %.1f:\t(num elements %d)\n', PrintPreText, LowThreshold, rows);
   
   MetamerReport.(['th', num2str(j)]).('lth') = LowThreshold;
-  
-  if plotme > 0
-    MetamerPlot.metamers = metamers;
-    MetamerPlot.SgnlDiffs = DiffMat;
-    PlotElementSignals(signal.spectra, MetamerPlot, signal.wavelength, lab, [CategoryName, '-lth', num2str(j)], wp, SavemeDirectory, labels);
-  end
   
   for k = 1:length(uth)
     HighThreshold = uth(k);
