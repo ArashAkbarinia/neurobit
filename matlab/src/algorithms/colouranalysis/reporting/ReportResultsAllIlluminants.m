@@ -18,7 +18,7 @@ AllSpectra = AllSpectraMat.AllSpectra;
 MatList = dir([MetamerPath, '/*.mat']);
 nfiles = length(MatList);
 lth = 0.5:0.5:5;
-uth = [5, 10];
+uth = 0.5:1:20.5;
 % 0 means nothing, 1 means plot, 2 means save
 plotme = 2;
 
@@ -117,18 +117,12 @@ if plotme > 0
 end
 
 for j = 1:length(lth)
-  CurrentThreshold = lth(j);
-  mml = CompMat < CurrentThreshold & CompMat >= 0;
+  LowThreshold = lth(j);
+  mml = CompMat >= 0 & CompMat < LowThreshold; 
   
-  [AbsoluteIsomersJ, AbsoluteMetamersJ, metamers] = IsomerVsMetamer(mml);
+  fprintf(fileid, '(%s)\tlth %.1f:\t(num elements %d)\n', PrintPreText, LowThreshold, rows);
   
-  fprintf(fileid, '(%s)\tlth %.1f:\t%f metamers \t%f isomers (num elements %d)\n', PrintPreText, CurrentThreshold, AbsoluteMetamersJ / nPixels, AbsoluteIsomersJ / nPixels, rows);
-  
-  MetamerReport.(['th', num2str(j)]).('lth') = CurrentThreshold;
-  MetamerReport.(['th', num2str(j)]).('isomers') = AbsoluteIsomersJ / nPixels;
-  MetamerReport.(['th', num2str(j)]).('isomersnum') = AbsoluteIsomersJ;
-  MetamerReport.(['th', num2str(j)]).('metamers') = AbsoluteMetamersJ / nPixels;
-  MetamerReport.(['th', num2str(j)]).('metamernum') = AbsoluteMetamersJ;
+  MetamerReport.(['th', num2str(j)]).('lth') = LowThreshold;
   
   if plotme > 0
     MetamerPlot.metamers = metamers;
@@ -136,19 +130,21 @@ for j = 1:length(lth)
     PlotElementSignals(signal.spectra, MetamerPlot, signal.wavelength, lab, [CategoryName, '-lth', num2str(j)], wp, SavemeDirectory, labels);
   end
   
-  for k = [uth, CurrentThreshold * 2]
-    mmu = CompMat > k;
+  for k = 1:length(uth)
+    HighThreshold = uth(k);
+    mmu = CompMat > HighThreshold;
     
     [AbsoluteMetamersJK, metamers] = LthUthMetamer(mml, mmu);
     
     [cnrows, cncols] = find(metamers == 1);
-    % TODO: pass colour name as param here
+    
     MetamerColourNameReport = ReportColourNamingResults([cnrows, cncols], ColourNaming);
     AbsoluteColourNameChange = sum(MetamerColourNameReport);
     ProbabilityColourNameChange = AbsoluteColourNameChange / size(MetamerColourNameReport, 1);
     
-    fprintf(fileid, '  uth %.1f:\t%f percent metamers\n', k, AbsoluteMetamersJK / nPixels);
+    fprintf(fileid, '  uth %.1f:\t%f percent metamers\n', HighThreshold, AbsoluteMetamersJK / nPixels);
     
+    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('uth') = HighThreshold;
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('metamernum') = AbsoluteMetamersJK;
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('metamerper') = AbsoluteMetamersJK / nPixels;
     
