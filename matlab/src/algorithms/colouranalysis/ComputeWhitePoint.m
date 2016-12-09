@@ -1,4 +1,4 @@
-function wp = ComputeWhitePoint( illuminant, ColourReceptors )
+function wp = ComputeWhitePoint(illuminant, ColourReceptors)
 %ComputeWhitePoint  estimates the white point from the Macbeth white pixel.
 %
 % inputs
@@ -10,9 +10,9 @@ function wp = ComputeWhitePoint( illuminant, ColourReceptors )
 %
 
 FunctionPath = mfilename('fullpath');
-FunctionRelativePath = 'src/algorithms/colouranalysis/ComputeWhitePoint';
+FunctionRelativePath = ['src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'ComputeWhitePoint'];
 
-MacbethPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/MacbethReflectances.mat');
+MacbethPath = strrep(FunctionPath, FunctionRelativePath, ['data', filesep, 'mats', filesep, 'hsi', filesep, 'MacbethReflectances.mat']);
 MacbethMat = load(MacbethPath);
 w = 391;
 WhitePixel = reshape(MacbethMat.MacbethReflectances(:, 19)', 1, 1, w);
