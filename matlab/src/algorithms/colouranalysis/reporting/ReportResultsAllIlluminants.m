@@ -66,6 +66,7 @@ for i = 1:ncategories
   CatEls(i) = size(AllSpectra.originals.(CatNames{i}), 1);
 end
 
+% TODO: fix any custom inds
 if isempty(DebugCategoriesInds)
   DebugCategoriesInds = 1:numel(CatNames);
 end
@@ -153,6 +154,7 @@ function MetamerReport = CategoryReport(fileid, CompMat, lth, uth, CategoryName,
 
 PrintPreText = CategoryName;
 
+% TODO: fix this hard coded 9 spaces
 % 9 is the length of largest text which is cambridge
 if numel(PrintPreText) < 9
   PrintPreText = [PrintPreText, ones(1, 9 - numel(PrintPreText)) .* 32]; % 32 is space
@@ -173,7 +175,7 @@ end
 
 for j = 1:length(lth)
   LowThreshold = lth(j);
-  mml = CompMat >= 0 & CompMat < LowThreshold;
+  mml = CompMat >= 0 & CompMat <= LowThreshold;
   
   fprintf(fileid, '(%s)\tlth %.1f:\t(num elements %d)\n', PrintPreText, LowThreshold, rows);
   
@@ -181,11 +183,18 @@ for j = 1:length(lth)
   
   for k = 1:length(uth)
     HighThreshold = uth(k);
-    mmu = CompMat > HighThreshold;
     
-    [AbsoluteMetamersJK, metamers] = LthUthMetamer(mml, mmu);
+    if HighThreshold < LowThreshold
+      AbsoluteMetamersJK = 0;
+      metamers = false(size(mml, 1), size(mml, 2));
+    else
+      mmu = CompMat >= HighThreshold;
+      [AbsoluteMetamersJK, metamers] = LthUthMetamer(mml, mmu);
+    end
     
     [cnrows, cncols] = find(metamers == 1);
+    
+    MetamerCounter = uint16(sum(metamers, 2));
     
     MetamerColourNameReport = ReportColourNamingResults([cnrows, cncols], ColourNaming);
     AbsoluteColourNameChange = sum(MetamerColourNameReport);
@@ -199,6 +208,8 @@ for j = 1:length(lth)
     
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('collournamenum') = AbsoluteColourNameChange;
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('collournameper') = ProbabilityColourNameChange;
+    
+    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('counter') = MetamerCounter;
     
     if plotme > 0
       MetamerPlot.metamers = metamers;
