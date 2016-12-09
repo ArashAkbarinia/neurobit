@@ -1,4 +1,4 @@
-function [CompMat, lab] = ColourDiffSpectraSamples(ColourReceptors, illuminants)
+function [CompMat, lab] = ColourDiffSpectraSamples(ColourReceptors, illuminants, OldCompMat)
 
 FunctionPath = mfilename('fullpath');
 [~, FunctionName, ~] = fileparts(FunctionPath);
@@ -22,6 +22,10 @@ if nargin < 2 || isempty(illuminants)
   illuminants.wp = whitepoint(IlluminantName);
 end
 
+if nargin < 3
+  OldCompMat = [];
+end
+
 % making the illumiant and colour receptor the same size
 [illuminants, ColourReceptors] = IntersectIlluminantColourReceptors(illuminants, ColourReceptors);
 
@@ -34,7 +38,7 @@ if ~isfield(illuminants, 'wp')
   illuminants.wp = ComputeWhitePoint(illuminants, ColourReceptors);
 end
 
-[CompMat, LabCar] = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors);
+[CompMat, LabCar] = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors, OldCompMat);
 lab.car = LabCar;
 lab.wp = illuminants.wp;
 
@@ -65,7 +69,7 @@ big.spectra = big.spectra(NumberInds, :);
 
 end
 
-function [CompMat, lab] = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors)
+function [CompMat, lab] = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors, OldCompMat)
 
 originals = AllSpectra.originals;
 wavelengths = AllSpectra.wavelengths;
@@ -84,21 +88,25 @@ end
 
 % TODO: too much memory optimise it
 disp('Processing colour differences');
-CompMat = ColourDifferences(lab);
+CompMat = ColourDifferences(lab, OldCompMat);
 
 end
 
-function CompMat = ColourDifferences(lab)
+function CompMat = ColourDifferences(lab, OldCompMat)
 
 nSignals = size(lab, 1);
 lab = reshape(lab, nSignals, 3);
 
 CompMat = zeros(nSignals, nSignals);
+[rows, cols] = size(OldCompMat);
+CompMat(1:rows, 1:cols) = OldCompMat;
 
-% TODO
-for i = 1:nSignals
+for i = 1 + rows:nSignals
   RowI = repmat(lab(i, :), [nSignals, 1]);
   CompMat(i, :) = deltae2000(RowI, lab);
+  if cols ~= 0
+    CompMat(:, i) = CompMat(i, :)';
+  end
 end
 
 end
