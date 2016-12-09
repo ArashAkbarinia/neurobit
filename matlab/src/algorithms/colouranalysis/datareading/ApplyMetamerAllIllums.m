@@ -41,8 +41,8 @@ function [] = ApplyMetamerTest(wavelength, spectra, FilePath, FileName)
 
 illuminant.wavelength = wavelength;
 illuminant.spectra = spectra;
-[MetamerMats, lab] = MetamerTestSpectraSamples([], illuminant);
-CompMat = single(triu(MetamerMats.nfall.m2000.CompMat)); %#ok
+[CompMat, lab] = MetamerTestSpectraSamples([], illuminant);
+CompMat = single(triu(CompMat)); %#ok
 save([FilePath, '/metamers/', FileName], 'CompMat');
 
 car = reshape(lab.car, size(lab.car, 1), 3);

@@ -1,18 +1,19 @@
-function [MetamerMats, lab] = MetamerTestSpectraSamples(ColourReceptors, illuminants)
+function [CompMat, lab] = MetamerTestSpectraSamples(ColourReceptors, illuminants)
 
 FunctionPath = mfilename('fullpath');
-FunctionRelativePath = 'src/algorithms/colouranalysis/MetamerTestSpectraSamples';
+FunctionRelativePath = ['src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'MetamerTestSpectraSamples'];
 
-FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/');
+DataPath = ['data', filesep, 'mats', filesep, 'hsi', filesep];
 
 if nargin < 1 || isempty(ColourReceptors)
-  ColourReceptorsMat = load([FundamentalsPath, 'XyzSpectralSensitivity.mat']);
+  FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, [DataPath, 'XyzSpectralSensitivity.mat']);
+  ColourReceptorsMat = load(FundamentalsPath);
   ColourReceptors.spectra = ColourReceptorsMat.Xyz1931SpectralSensitivity;
   ColourReceptors.wavelength = ColourReceptorsMat.wavelength;
 end
 
 if nargin < 2 || isempty(illuminants)
-  IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'data/mats/hsi/illuminants.mat');
+  IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, [DataPath, 'illuminants.mat']);
   IlluminantsMat = load(IlluminantstPath);
   IlluminantName = 'd65';
   illuminants.spectra = IlluminantsMat.(IlluminantName);
@@ -23,15 +24,17 @@ end
 % making the illumiant and colour receptor the same size
 [illuminants, ColourReceptors] = IntersectIlluminantColourReceptors(illuminants, ColourReceptors);
 
-AllSpectra = ReadSpectraData();
+AllspectraPath = strrep(FunctionPath, FunctionRelativePath, [DataPath, 'AllSpectra.mat']);
+AllSpectraMat = load(AllspectraPath);
+AllSpectra = AllSpectraMat.AllSpectra;
 
 % checkign the wp
 if ~isfield(illuminants, 'wp')
   illuminants.wp = ComputeWhitePoint(illuminants, ColourReceptors);
 end
 
-[MetamerMats, car] = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors);
-lab.car = car;
+[CompMat, LabCar] = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors);
+lab.car = LabCar;
 lab.wp = illuminants.wp;
 
 end
@@ -61,7 +64,7 @@ big.spectra = big.spectra(NumberInds, :);
 
 end
 
-function [MetamerDiffs, lab] = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors)
+function [CompMat, lab] = MetamerTestIlluminantAll(AllSpectra, illuminants, ColourReceptors)
 
 originals = AllSpectra.originals;
 wavelengths = AllSpectra.wavelengths;
@@ -79,71 +82,23 @@ for i = 1:nSignals
 end
 
 % TODO: too much memory optimise it
-disp('  Processing all');
-MetamerDiffs.nfall = MetamerAnalysisColourDifferences(lab, 0.5, false, false, true);
-printinfo(MetamerDiffs.nfall, size(lab, 1));
+disp('Processing colour differences');
+CompMat = ColourDifferences(lab);
 
 end
 
-function MetamerDiffs = MetamerTestIlluminantSingle(AllSpectra, illuminants, ColourReceptors, plotmeall)
+function CompMat = ColourDifferences(lab)
 
-originals = AllSpectra.originals;
-wavelengths = AllSpectra.wavelengths;
+nSignals = size(lab, 1);
+lab = reshape(lab, nSignals, 3);
 
-plotme.munsell = plotmeall;
-plotme.candy = plotmeall;
-plotme.agfa = plotmeall;
-plotme.natural = plotmeall;
-plotme.forest = plotmeall;
-plotme.lumber = plotmeall;
-plotme.paper = plotmeall;
-plotme.cambridge = plotmeall;
-plotme.fred400 = plotmeall;
-plotme.fred401 = plotmeall;
-plotme.barnard = plotmeall;
-plotme.matsumoto = plotmeall;
-plotme.westland = plotmeall;
+CompMat = zeros(nSignals, nSignals);
 
-SignalNames = fieldnames(originals);
-nSignals = numel(SignalNames);
-
-lab = [];
+% TODO
 for i = 1:nSignals
-  disp(['  Processing ', SignalNames{i}]);
-  LabVals.(SignalNames{i}) = ComputeLab(originals.(SignalNames{i}), wavelengths.(SignalNames{i}), ...
-    illuminants.spectra, illuminants.wavelength, ...
-    ColourReceptors.spectra, ColourReceptors.wavelength, ...
-    illuminants.wp);
-  lab = cat(1, lab, LabVals.(SignalNames{i}));
-  MetamerReport = MetamerAnalysisColourDifferences(LabVals.(SignalNames{i}), 0.5, false, false, true);
-  MetamerDiffs.(SignalNames{i}) = MetamerReport;
-  
-  nCurrentSignals = size(lab, 1);
-  printinfo(MetamerReport, nCurrentSignals);
-  
-  if plotme.(SignalNames{i})
-    PlotElementSignals(originals.(SignalNames{i}), MetamerDiffs.(SignalNames{i}), wavelengths.(SignalNames{i}), LabVals.(SignalNames{i}), SignalNames{i});
-  end
+  RowI = repmat(lab(i, :), [nSignals, 1]);
+  CompMat(i, :) = deltae2000(RowI, lab);
 end
-
-end
-
-function printinfo(MetamerReport, nCurrentSignals)
-
-if nargin < 2
-  nCurrentSignals = size(MetamerReport.m1976.metamers, 1);
-end
-
-% printinfoyear(MetamerReport.m1976.metamers, '    Metamer-1976: ', nCurrentSignals);
-% printinfoyear(MetamerReport.m1994.metamers, '    Metamer-1994: ', nCurrentSignals);
-printinfoyear(MetamerReport.m2000.metamers, '    Metamer-2000: ', nCurrentSignals);
-
-end
-
-function [] = printinfoyear(MetamerReport, PreText, nCurrentSignals)
-
-nAll = sum(MetamerReport(:)) / 2;
-disp([PreText, num2str(nAll / ((nCurrentSignals * (nCurrentSignals - 1)) / 2))]);
 
 end
 
@@ -152,17 +107,5 @@ function lab = ComputeLab(ev, ew, iv, iw, cv, cw, wp)
 [ev, iv, cv] = IntersectThree(ev, ew, iv, iw, cv, cw);
 
 lab = hsi2lab(ev, iv, cv, wp);
-
-end
-
-function [] = PlotElementSignals(element, MetamerPlot, wavelength, lab, name)
-
-% TODO: plot for all rather than just 2000
-MetamerPlot = MetamerPlot.m2000;
-
-SignalLength = size(element, 3);
-MetamerPlot.SgnlDiffs = 1 ./ MetamerPlot.CompMat;
-nSignals = size(element, 1);
-PlotTopMetamers(MetamerPlot, reshape(element, nSignals, SignalLength)', 25, wavelength, lab, name);
 
 end
