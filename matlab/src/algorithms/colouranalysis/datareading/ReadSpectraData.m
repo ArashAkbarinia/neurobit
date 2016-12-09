@@ -2,11 +2,11 @@ function AllSpectra = ReadSpectraData()
 %ReadSpectraData  utility function to reads all spectra data we have
 
 FunctionPath = mfilename('fullpath');
-UefDataSetFolder = 'data/dataset/hsi/uef/';
-OthersDataSetFolder = 'data/dataset/hsi/others/';
-FunctionRelativePath = 'src/algorithms/colouranalysis/datareading/ReadSpectraData';
-UefDataSetPath = strrep(FunctionPath, ['matlab/', FunctionRelativePath], UefDataSetFolder);
-OthersDataSetPath = strrep(FunctionPath, ['matlab/', FunctionRelativePath], OthersDataSetFolder);
+UefDataSetFolder = ['data', filesep, 'dataset', filesep, 'hsi', filesep, 'uef', filesep];
+OthersDataSetFolder = ['data', filesep, 'dataset', filesep, 'hsi', filesep, 'others', filesep];
+FunctionRelativePath = ['src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'datareading', filesep, 'ReadSpectraData'];
+UefDataSetPath = strrep(FunctionPath, ['matlab', filesep, FunctionRelativePath], UefDataSetFolder);
+OthersDataSetPath = strrep(FunctionPath, ['matlab', filesep, FunctionRelativePath], OthersDataSetFolder);
 
 [originals.munsell, wavelengths.munsell] = MunsellSpectra(UefDataSetPath);
 [originals.candy, wavelengths.candy] = CandySpectra(UefDataSetPath);
@@ -21,6 +21,7 @@ OthersDataSetPath = strrep(FunctionPath, ['matlab/', FunctionRelativePath], Othe
 [originals.barnard, wavelengths.barnard] = BarnardSpectra(OthersDataSetPath);
 [originals.matsumoto, wavelengths.matsumoto] = MatsumotoSpectra(OthersDataSetPath);
 [originals.westland, wavelengths.westland] = WestlandSpectra(OthersDataSetPath);
+[originals.artist, wavelengths.artist] = ArtistSpectra(OthersDataSetPath);
 
 AllSpectra.originals = originals;
 AllSpectra.wavelengths = wavelengths;
@@ -29,7 +30,7 @@ end
 
 function [munsell, wavelength] = MunsellSpectra(DataSetPath)
 
-MunsellPath = [DataSetPath, 'munsell380_780_1_glossy/munsell380_780_1_glossy.mat'];
+MunsellPath = [DataSetPath, 'munsell380_780_1_glossy', filesep, 'munsell380_780_1_glossy.mat'];
 MunsellMat = load(MunsellPath);
 
 WavelengthSize = size(MunsellMat.glossy, 1);
@@ -42,7 +43,7 @@ end
 
 function [candy, wavelength] = CandySpectra(DataSetPath)
 
-CandyPath = [DataSetPath, 'candy_matlab/candy_matlab.mat'];
+CandyPath = [DataSetPath, 'candy_matlab', filesep, 'candy_matlab.mat'];
 CandyMat = load(CandyPath);
 
 WavelengthSize = size(CandyMat.candy, 1);
@@ -55,7 +56,7 @@ end
 
 function [agfa, wavelength] = AgfaitSpectra(DataSetPath)
 
-AgfaitPath = [DataSetPath, 'agfait872/agfait872.mat'];
+AgfaitPath = [DataSetPath, 'agfait872', filesep, 'agfait872.mat'];
 AgfaitMat = load(AgfaitPath);
 
 WavelengthSize = size(AgfaitMat.agfa, 1);
@@ -68,28 +69,28 @@ end
 
 function [natural, wavelength] = NaturalSpectra(DataSetPath)
 
-NaturalPath = [DataSetPath, 'natural400_700_5/natural400_700_5.mat'];
+NaturalPath = [DataSetPath, 'natural400_700_5', filesep, 'natural400_700_5.mat'];
 [natural, wavelength] = LoadSignal(NaturalPath);
 
 end
 
 function [forest, wavelength] = ForestSpectra(DataSetPath)
 
-ForestPath = [DataSetPath, 'forest_matlab/forest_matlab.mat'];
+ForestPath = [DataSetPath, 'forest_matlab', filesep, 'forest_matlab.mat'];
 [forest, wavelength] = LoadSignal(ForestPath);
 
 end
 
 function [lumber, wavelength] = LumberSpectra(DataSetPath)
 
-LumberPath = [DataSetPath, 'lumber_matlab/lumber_matlab.mat'];
+LumberPath = [DataSetPath, 'lumber_matlab', filesep, 'lumber_matlab.mat'];
 [lumber, wavelength] = LoadSignal(LumberPath);
 
 end
 
 function [paper, wavelength] = PaperSpectra(DataSetPath)
 
-PaperPath = [DataSetPath, 'paper_matlab/paper_matlab.mat'];
+PaperPath = [DataSetPath, 'paper_matlab', filesep, 'paper_matlab.mat'];
 [paper, wavelength] = LoadSignal(PaperPath);
 
 end
@@ -151,6 +152,19 @@ westland = WestlandMat.spectra';
 westland = reshape(westland, size(westland, 1), 1, WavelengthSize);
 
 wavelength = WestlandMat.wavelength;
+
+end
+
+function [artist, wavelength] = ArtistSpectra(DataSetPath)
+
+ArtistPath = [DataSetPath, 'artist_database.mat'];
+ArtistMat = load(ArtistPath);
+
+WavelengthSize = size(ArtistMat.spectra, 1);
+artist = ArtistMat.spectra';
+artist = reshape(artist, size(artist, 1), 1, WavelengthSize);
+
+wavelength = ArtistMat.wavelength;
 
 end
 
