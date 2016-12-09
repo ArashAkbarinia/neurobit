@@ -1,4 +1,4 @@
-function MetamerReport = ReportResultsAllIlluminants(FolderPath, DebugIllumInds, DebugCategoriesInds, lth, uth, plotme)
+function MetamerReport = ReportResultsAllIlluminants(FolderPath, DebugIllumInds, DebugCategoriesInds, lth, uth, plotme, TestName)
 %ReportResultsAllIlluminants  generates the metamer reports based on all illums.
 %   Detailed explanation goes here
 
@@ -13,13 +13,21 @@ if nargin < 1 || isempty(FolderPath)
   GenDataPath = ['data', filesep, 'dataset', filesep, 'hsi', filesep];
   FolderPath = strrep(FunctionPath, FunctionRelativePath, [GenDataPath, 'results', filesep, '1931', filesep]);
 end
+if nargin < 7
+  TestName = 'tmp';
+end
 
 MatDataPath = ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep];
 
 MetamerPath = [FolderPath, 'metamers'];
 CategorPath = [FolderPath, 'categorisation', filesep, 'arash'];
 LabCaPoPath = [FolderPath, 'lab'];
-ReportsPath = [FolderPath, 'reports', filesep, 'multiilluminant'];
+ReportsPath = [FolderPath, 'reports', filesep, 'multiilluminant', filesep, TestName];
+
+if ~exist(ReportsPath, 'dir')
+  mkdir(ReportsPath);
+end
+
 AllSpectraMat = load(strrep(FunctionPath, FunctionRelativePath, [MatDataPath, 'AllSpectra.mat']));
 AllSpectra = AllSpectraMat.AllSpectra;
 
