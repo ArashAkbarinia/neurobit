@@ -1,46 +1,93 @@
-function MetamerReport = ReportResultsAllIlluminants( FolderPath )
-%MetamerAllIlluminants  generates the metamer reports based on all illums.
+function MetamerReport = ReportResultsAllIlluminants(FolderPath, DebugIllumInds, DebugCategoriesInds, lth, uth, plotme)
+%ReportResultsAllIlluminants  generates the metamer reports based on all illums.
 %   Detailed explanation goes here
 
 MetamerReport = struct();
 
-if nargin < 1
-  FolderPath = '/home/arash/Documents/Software/repositories/neurobit/data/dataset/hsi/results/1931/';
+FunctionPath = mfilename('fullpath');
+[~, FunctionName, ~] = fileparts(FunctionPath);
+
+FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'reporting', filesep, FunctionName];
+
+if nargin < 1 || isempty(FolderPath)
+  GenDataPath = ['data', filesep, 'dataset', filesep, 'hsi', filesep];
+  FolderPath = strrep(FunctionPath, FunctionRelativePath, [GenDataPath, 'results', filesep, '1931', filesep]);
 end
 
+MatDataPath = ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep];
+
 MetamerPath = [FolderPath, 'metamers'];
-CategorPath = [FolderPath, 'categorisation/arash'];
+CategorPath = [FolderPath, 'categorisation', filesep, 'arash'];
 LabCaPoPath = [FolderPath, 'lab'];
-ReportsPath = [FolderPath, 'reports/multiilluminant'];
-AllSpectraMat = load([FolderPath, 'signals/AllSpectra.mat']);
+ReportsPath = [FolderPath, 'reports', filesep, 'multiilluminant'];
+AllSpectraMat = load(strrep(FunctionPath, FunctionRelativePath, [MatDataPath, 'AllSpectra.mat']));
 AllSpectra = AllSpectraMat.AllSpectra;
 
-MatList = dir([MetamerPath, '/*.mat']);
-nfiles = length(MatList);
-lth = 0.5:0.5:5;
-uth = 0.5:1:20.5;
-% 0 means nothing, 1 means plot, 2 means save
-plotme = 2;
+% for debugging purposes
+if nargin < 2 || isempty(DebugIllumInds)
+  DebugIllumInds = [];
+end
+if nargin < 3 || isempty(DebugCategoriesInds)
+  DebugCategoriesInds = [];
+end
 
-CatEls = [1600, 21, 289, 182, 1056, 272, 803, 3283, 1939, 384, 702, 339, 404];
-CatNames = {'Munsell', 'Candy', 'Agfa', 'Natural', 'Forest', 'Lumber', 'Paper', 'Cambridge', 'Fred400', 'Fred401', 'Barnard', 'Matsumoto', 'Westland'};
-labels = cell(nfiles);
+MatList = dir([MetamerPath, filesep, '*.mat']);
+if isempty(DebugIllumInds)
+  DebugIllumInds = 1:numel(MatList);
+end
+MatList = MatList(DebugIllumInds);
+nfiles = length(MatList);
+
+% the lower and upper threshold
+if nargin < 4 || isempty(lth)
+  lth = 0.5:0.5:5;
+end
+if nargin < 5 || isempty(uth)
+  uth = 0.5:1:20.5;
+end
+
+% 0 means nothing, 1 means plot, 2 means save
+if nargin < 6 || isempty(plotme)
+  plotme = 2;
+end
+
+CatNames = fieldnames(AllSpectra.originals);
+ncategories = numel(CatNames);
+CatEls = zeros(ncategories, 1);
+for i = 1:ncategories
+  CatEls(i) = size(AllSpectra.originals.(CatNames{i}), 1);
+end
+
+if isempty(DebugCategoriesInds)
+  DebugCategoriesInds = 1:numel(CatNames);
+end
+CatNames = CatNames(DebugCategoriesInds);
+AllInds = sum(CatEls);
+CatEls = CatEls(DebugCategoriesInds);
+StartInd = AllInds - sum(CatEls) + 1;
+DebugPositionInds = StartInd:StartInd + sum(CatEls) - 1;
+
+labels = cell(nfiles, 1);
 
 ColourNaming = [];
 
 for i = 1:nfiles
   disp(['reading: ', MatList(i).name]);
-  labels{i} = MatList(i).name;
-  CurrentDif = load([MetamerPath, '/', MatList(i).name]);
-  CurrentCat = load([CategorPath, '/', MatList(i).name]);
+  labels{i} = MatList(i).name(1:end - 4);
+  CurrentDif = load([MetamerPath, filesep, MatList(i).name]);
+  CurrentDif.CompMat = CurrentDif.CompMat(DebugPositionInds, DebugPositionInds);
   
   % some tricks to get the upper part of the matrix only
   CurrentDif.CompMat = CurrentDif.CompMat - tril(ones(size(CurrentDif.CompMat)));
   
   CompDiff(:, :, i) = CurrentDif.CompMat; %#ok
+  
+  CurrentCat = load([CategorPath, filesep, MatList(i).name]);
+  CurrentCat.CurrentNames = CurrentCat.CurrentNames(DebugPositionInds, :);
   ColourNaming(:, i) = CurrentCat.CurrentNames; %#ok
   
-  CurrentLab = load([LabCaPoPath, '/', MatList(i).name]);
+  CurrentLab = load([LabCaPoPath, filesep, MatList(i).name]);
+  CurrentLab.car = CurrentLab.car(DebugPositionInds, :);
   LabPoint.car(:, i, :) = reshape(CurrentLab.car, size(CurrentLab.car, 1), 1, 3);
   LabPoint.wp(i, :) = CurrentLab.wp;
 end
@@ -51,8 +98,8 @@ clear CurrentLab;
 disp('Starting to process:');
 
 if plotme == 2
-  fileid = fopen([ReportsPath, '/', 'AllAnalysis.txt'], 'w');
-  SavemeDirectory = [ReportsPath, '/all'];
+  fileid = fopen([ReportsPath, filesep, 'AllAnalysis.txt'], 'w');
+  SavemeDirectory = [ReportsPath, filesep, 'all', filesep];
   if ~exist(SavemeDirectory, 'dir')
     mkdir(SavemeDirectory);
   end
@@ -69,7 +116,7 @@ MetamerReport.all = CategoryReport(fileid, CompDiff, lth, uth, 'All', ...
 si = 1;
 for k = 1:numel(CatNames)
   if plotme == 2
-    SavemeDirectory = [ReportsPath, '/', lower(CatNames{k})];
+    SavemeDirectory = [ReportsPath, filesep, lower(CatNames{k}), filesep];
     if ~exist(SavemeDirectory, 'dir')
       mkdir(SavemeDirectory);
     end
@@ -90,7 +137,7 @@ if plotme == 2
   fclose(fileid);
 end
 
-save([ReportsPath, '/AllIlluminantReport.mat'], 'MetamerReport');
+save([ReportsPath, filesep, 'AllIlluminantReport.mat'], 'MetamerReport');
 
 end
 
@@ -155,26 +202,6 @@ end
 
 MetamerReport.DiffReport = MetamerDiffReport(CompMat, 0:0.5:20);
 
-% plotting the diff histogram
-if plotme > 0
-  if isempty(SavemeDirectory)
-    isvisible = 'on';
-  else
-    isvisible = 'off';
-  end
-  FigureHandler = figure('name', ['diff histograms ', CategoryName], 'visible', isvisible, 'pos', [1, 1, 1280, 720]);
-  NormalisedCounts = 100 * MetamerReport.DiffReport.hist.hcounts / sum(MetamerReport.DiffReport.hist.hcounts);
-  bar(MetamerReport.DiffReport.hist.hedges, NormalisedCounts, 'barwidth', 1);
-  xlabel('Input Value');
-  ylabel('Normalised Count [%]');
-  xlim([0, MetamerReport.DiffReport.hist.hedges(end)]);
-end
-
-if ~isempty(SavemeDirectory)
-  saveas(FigureHandler, [SavemeDirectory, '/DiffHistograms-', CategoryName, '.jpg']);
-  close(FigureHandler);
-end
-
 fprintf(fileid, '(%s)\tMax: %f  Min: %f  Avg: %f  Med: %f\n', ...
   PrintPreText, MetamerReport.DiffReport.max, MetamerReport.DiffReport.min, MetamerReport.DiffReport.avg, MetamerReport.DiffReport.med);
 
@@ -196,17 +223,6 @@ DiffReport.med = median(DiffMat(DiffMat >= 0));
 
 end
 
-function [AbsoluteIsomers, AbsoluteMetamers, metamers] = IsomerVsMetamer(mml)
-
-isomers = all(mml, 3);
-AbsoluteIsomers = sum(isomers(:));
-
-PotentialMetamers = any(mml, 3);
-metamers = PotentialMetamers & ~isomers;
-AbsoluteMetamers = sum(metamers(:));
-
-end
-
 function [AbsoluteMetamers, metamers] = LthUthMetamer(mml, mmu)
 
 metamers = any(mml, 3) & any(mmu, 3);
@@ -216,6 +232,11 @@ end
 
 function [] = PlotElementSignals(element, MetamerPlot, wavelength, lab, name, wp, SavemeDirectory, labels)
 
-PlotMetamersAllIllum(MetamerPlot, element, 9, wavelength, lab, name, wp, SavemeDirectory, labels);
+if isempty(SavemeDirectory)
+  PlotMetamersAllIllum(MetamerPlot, element, 25, wavelength, lab, name, wp, labels);
+else
+  illus = SaveMetamersAllIllumMat(MetamerPlot, element, 25, wavelength, lab, wp, labels); %#ok
+  save([SavemeDirectory, 'MetamerSignals-', name, '.mat'], 'illus');
+end
 
 end
