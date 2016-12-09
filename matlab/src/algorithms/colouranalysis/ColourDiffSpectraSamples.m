@@ -1,7 +1,8 @@
-function [CompMat, lab] = MetamerTestSpectraSamples(ColourReceptors, illuminants)
+function [CompMat, lab] = ColourDiffSpectraSamples(ColourReceptors, illuminants)
 
 FunctionPath = mfilename('fullpath');
-FunctionRelativePath = ['src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'MetamerTestSpectraSamples'];
+[~, FunctionName, ~] = fileparts(FunctionPath);
+FunctionRelativePath = ['src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, FunctionName];
 
 DataPath = ['data', filesep, 'mats', filesep, 'hsi', filesep];
 

@@ -41,7 +41,7 @@ function [] = ApplyMetamerTest(wavelength, spectra, FilePath, FileName)
 
 illuminant.wavelength = wavelength;
 illuminant.spectra = spectra;
-[CompMat, lab] = MetamerTestSpectraSamples([], illuminant);
+[CompMat, lab] = ColourDiffSpectraSamples([], illuminant);
 CompMat = single(triu(CompMat)); %#ok
 save([FilePath, '/metamers/', FileName], 'CompMat');
 
