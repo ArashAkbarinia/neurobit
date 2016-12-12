@@ -2,18 +2,18 @@ function FigureHandler = PlotIlluminants()
 %PlotIlluminants  plotting the illuminants tested for metamer analysis
 
 FunctionPath = mfilename('fullpath');
-FunctionRelativePath = 'matlab/src/algorithms/colouranalysis/plotting/PlotIlluminants';
+FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'plotting', filesep, 'PlotIlluminants'];
 
-ArtLightsPath = strrep(FunctionPath, FunctionRelativePath, 'data/dataset/hsi/lights/ArtLights.mat');
+ArtLightsPath = strrep(FunctionPath, FunctionRelativePath, ['data', filesep, 'dataset', filesep, 'hsi', filesep, 'lights', filesep, 'ArtLights.mat']);
 ArtIlluminantsMat = load(ArtLightsPath);
 
-IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, 'matlab/data/mats/hsi/illuminants.mat');
+IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep, 'illuminants.mat']);
 IlluminantsMat = load(IlluminantstPath);
 
-FosterPath = strrep(FunctionPath, FunctionRelativePath, 'matlab/data/mats/hsi/FosterIlluminants.mat');
+FosterPath = strrep(FunctionPath, FunctionRelativePath, ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep, 'FosterIlluminants.mat']);
 FosterIlluminantsMat = load(FosterPath);
 
-DayLightsPath = strrep(FunctionPath, FunctionRelativePath, 'data/dataset/hsi/lights/DayLights.mat');
+DayLightsPath = strrep(FunctionPath, FunctionRelativePath, ['data', filesep, 'dataset', filesep, 'hsi', filesep, 'lights', filesep, 'DayLights.mat']);
 DayIlluminantsMat = load(DayLightsPath);
 
 FigureHandler = figure('name', 'Tested Illuminants');
