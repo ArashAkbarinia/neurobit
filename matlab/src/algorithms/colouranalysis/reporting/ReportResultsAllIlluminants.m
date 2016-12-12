@@ -104,6 +104,8 @@ end
 clear CurrentDif;
 clear CurrentLab;
 
+MetamerReport.illuminants = labels;
+
 disp('Starting to process:');
 
 if plotme == 2
@@ -173,14 +175,16 @@ if plotme > 0
   DiffMat(MaskMat == -1) = -1;
 end
 
+LowThreshReport = struct();
 for j = 1:length(lth)
   LowThreshold = lth(j);
   mml = CompMat >= 0 & CompMat <= LowThreshold;
   
   fprintf(fileid, '(%s)\tlth %.1f:\t(num elements %d)\n', PrintPreText, LowThreshold, rows);
   
-  MetamerReport.(['th', num2str(j)]).('lth') = LowThreshold;
+  LowThreshReport.(['th', num2str(j)]).('lth') = LowThreshold;
   
+  HighThreshReport = struct();
   for k = 1:length(uth)
     HighThreshold = uth(k);
     
@@ -203,15 +207,15 @@ for j = 1:length(lth)
     
     fprintf(fileid, '  uth %.1f:\t%f percent metamers\n', HighThreshold, AbsoluteMetamersJK / nPixels);
     
-    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('uth') = HighThreshold;
-    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('metamernum') = AbsoluteMetamersJK;
-    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('metamerper') = AbsoluteMetamersJK / nPixels;
+    HighThreshReport.(['uth', num2str(k)]).('uth') = HighThreshold;
+    HighThreshReport.(['uth', num2str(k)]).('metamernum') = AbsoluteMetamersJK;
+    HighThreshReport.(['uth', num2str(k)]).('metamerper') = AbsoluteMetamersJK / nPixels;
     
-    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('collournamenum') = AbsoluteColourNameChange;
-    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('collournameper') = ProbabilityColourNameChange;
+    HighThreshReport.(['uth', num2str(k)]).('collournamenum') = AbsoluteColourNameChange;
+    HighThreshReport.(['uth', num2str(k)]).('collournameper') = ProbabilityColourNameChange;
     
-    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('SpectraCounter') = MetamerCounter;
-    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('IllumCounter') = IllumCounter;
+    HighThreshReport.(['uth', num2str(k)]).('SpectraCounter') = MetamerCounter;
+    HighThreshReport.(['uth', num2str(k)]).('IllumCounter') = IllumCounter;
     
     if plotme > 0
       MetamerPlot.metamers = metamers;
@@ -219,8 +223,10 @@ for j = 1:length(lth)
       PlotElementSignals(signal.spectra, MetamerPlot, signal.wavelength, lab, [CategoryName, '-lth', num2str(j), '-uth', num2str(k)], wp, SavemeDirectory, labels);
     end
   end
+  LowThreshReport.(['th', num2str(j)]).('uths') = HighThreshReport;
 end
 
+MetamerReport.('lths') = LowThreshReport;
 MetamerReport.DiffReport = MetamerDiffReport(CompMat, 0:0.5:20);
 
 fprintf(fileid, '(%s)\tMax: %f  Min: %f  Avg: %f  Med: %f\n', ...
