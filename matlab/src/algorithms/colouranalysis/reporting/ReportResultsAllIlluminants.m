@@ -187,14 +187,15 @@ for j = 1:length(lth)
     if HighThreshold < LowThreshold
       AbsoluteMetamersJK = 0;
       metamers = false(size(mml, 1), size(mml, 2));
+      IllumCounter = uint8(zeros(size(mml, 1), 1, size(mml, 3)));
     else
       mmu = CompMat >= HighThreshold;
-      [AbsoluteMetamersJK, metamers] = LthUthMetamer(mml, mmu);
+      [AbsoluteMetamersJK, metamers, IllumCounter] = LthUthMetamer(mml, mmu);
     end
     
     [cnrows, cncols] = find(metamers == 1);
     
-    MetamerCounter = uint16(sum(metamers, 2));
+    MetamerCounter = uint16(sum(metamers + metamers', 2));
     
     MetamerColourNameReport = ReportColourNamingResults([cnrows, cncols], ColourNaming);
     AbsoluteColourNameChange = sum(MetamerColourNameReport);
@@ -209,7 +210,8 @@ for j = 1:length(lth)
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('collournamenum') = AbsoluteColourNameChange;
     MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('collournameper') = ProbabilityColourNameChange;
     
-    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('counter') = MetamerCounter;
+    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('SpectraCounter') = MetamerCounter;
+    MetamerReport.(['th', num2str(j)]).(['uth', num2str(k)]).('IllumCounter') = IllumCounter;
     
     if plotme > 0
       MetamerPlot.metamers = metamers;
@@ -242,10 +244,17 @@ DiffReport.med = median(DiffMat(DiffMat >= 0));
 
 end
 
-function [AbsoluteMetamers, metamers] = LthUthMetamer(mml, mmu)
+function [AbsoluteMetamers, metamers, MetamerIllum] = LthUthMetamer(mml, mmu)
 
 metamers = any(mml, 3) & any(mmu, 3);
 AbsoluteMetamers = sum(metamers(:));
+
+% computing metamer per illuminants
+MetamerIllum = repmat(metamers, [1, 1, size(mmu, 3)]) & mmu;
+
+MetamerIllum = permute(MetamerIllum, [2, 1, 3]) + MetamerIllum;
+
+MetamerIllum = uint16(sum(MetamerIllum, 2));
 
 end
 
