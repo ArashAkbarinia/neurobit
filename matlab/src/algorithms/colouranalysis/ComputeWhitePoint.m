@@ -1,28 +1,36 @@
 function wp = ComputeWhitePoint(illuminant, ColourReceptors)
-%ComputeWhitePoint  estimates the white point from the Macbeth white pixel.
+%ComputeWhitePoint  estimates the white point based on the unity energy.
+%   Explnation https://en.wikipedia.org/wiki/White_point
 %
 % inputs
 %   illuminant       the spectral power distribution of source of light.
 %   ColourReceptors  the spectral sensitivity function of colour receptors.
+%                    by default the 1931 spectra sensitivities.
 %
 % outputs
-%   wp  the estimated white point
+%   wp  the estimated white point.
 %
 
 FunctionPath = mfilename('fullpath');
 FunctionRelativePath = ['src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'ComputeWhitePoint'];
 
-MacbethPath = strrep(FunctionPath, FunctionRelativePath, ['data', filesep, 'mats', filesep, 'hsi', filesep, 'MacbethReflectances.mat']);
-MacbethMat = load(MacbethPath);
-w = 391;
-WhitePixel = reshape(MacbethMat.MacbethReflectances(:, 19)', 1, 1, w);
+DataPath = ['data', filesep, 'mats', filesep, 'hsi', filesep];
 
-[WhitePixel, illuminant, ColourReceptors] = IntersectThree(WhitePixel, MacbethMat.wavelength, ...
-  illuminant.spectra, illuminant.wavelength, ColourReceptors.spectra, ColourReceptors.wavelength);
+if nargin < 2
+  FundamentalsPath = strrep(FunctionPath, FunctionRelativePath, [DataPath, 'XyzSpectralSensitivity.mat']);
+  ColourReceptorsMat = load(FundamentalsPath);
+  ColourReceptors.spectra = ColourReceptorsMat.Xyz1931SpectralSensitivity;
+  ColourReceptors.wavelength = ColourReceptorsMat.wavelength;
+end
 
-radiances = reshape(WhitePixel, size(WhitePixel, 3), 1) .* illuminant;
+% making the illumiant and colour receptor the same size
+[illuminant, ColourReceptors] = IntersectIlluminantColourReceptors(illuminant, ColourReceptors);
 
-xyz = ColourReceptors' * radiances;
+WhitePixel = 1;
+
+radiances = WhitePixel .* illuminant.spectra;
+
+xyz = ColourReceptors.spectra' * radiances;
 xyz = max(xyz, 0);
 xyz = xyz';
 
