@@ -217,6 +217,8 @@ for j = 1:length(lth)
     HighThreshReport.(['uth', num2str(k)]).('SpectraCounter') = MetamerCounter;
     HighThreshReport.(['uth', num2str(k)]).('IllumCounter') = IllumCounter;
     
+    HighThreshReport.(['uth', num2str(k)]).('metamerpairs') = [cnrows, cncols];
+    
     if plotme > 0
       MetamerPlot.metamers = metamers;
       MetamerPlot.SgnlDiffs = DiffMat;
