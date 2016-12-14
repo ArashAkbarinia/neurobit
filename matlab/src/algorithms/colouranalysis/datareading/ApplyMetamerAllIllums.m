@@ -1,4 +1,4 @@
-function [ ] = ApplyMetamerAllIllums(ResultFolder)
+function [ ] = ApplyMetamerAllIllums(ResultFolder, IllumNames)
 %ApplyMetamerAllIllums Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -7,36 +7,21 @@ FunctionPath = mfilename('fullpath');
 FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'datareading', filesep, FunctionName];
 
 GenDataPath = ['data', filesep, 'dataset', filesep, 'hsi', filesep];
-MatDataPath = ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep];
 
-if nargin < 1
+if nargin < 1 || isempty(ResultFolder)
   ResultFolder = strrep(FunctionPath, FunctionRelativePath, [GenDataPath, 'results', filesep, '1931']);
 end
 
-ArtLightsPath = strrep(FunctionPath, FunctionRelativePath, [GenDataPath, 'lights', filesep, 'ArtLights.mat']);
-ArtIlluminantsMat = load(ArtLightsPath);
+IlluminantsPath = strrep(FunctionPath, FunctionRelativePath, ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep, 'AllIlluminants.mat']);
+AllIlluminants = load(IlluminantsPath);
 
-IlluminantstPath = strrep(FunctionPath, FunctionRelativePath, [MatDataPath, 'illuminants.mat']);
-IlluminantsMat = load(IlluminantstPath);
-
-FosterPath = strrep(FunctionPath, FunctionRelativePath, [MatDataPath, 'FosterIlluminants.mat']);
-FosterIlluminantsMat = load(FosterPath);
-
-DayLightsPath = strrep(FunctionPath, FunctionRelativePath, [GenDataPath, 'lights', filesep, 'DayLights.mat']);
-DayIlluminantsMat = load(DayLightsPath);
-
-for i = 1:4
-  ApplyMetamerTest(ArtIlluminantsMat.wavelength, ArtIlluminantsMat.lights(:, i), ResultFolder, ['ArtLights', num2str(i), '.mat']);
+if nargin < 2
+  IllumNames = fieldnames(AllIlluminants.spectras);
 end
 
-ApplyMetamerTest(IlluminantsMat.wavelength, IlluminantsMat.a, ResultFolder, 'a.mat');
-ApplyMetamerTest(IlluminantsMat.wavelength, IlluminantsMat.c, ResultFolder, 'c.mat');
-ApplyMetamerTest(IlluminantsMat.wavelength, IlluminantsMat.d65, ResultFolder, 'd65.mat');
-ApplyMetamerTest(FosterIlluminantsMat.wavelength, FosterIlluminantsMat.illum_25000, ResultFolder, 'illum_25000.mat');
-ApplyMetamerTest(FosterIlluminantsMat.wavelength, FosterIlluminantsMat.illum_4000, ResultFolder, 'illum_4000.mat');
-
-for i = 1:15
-  ApplyMetamerTest(DayIlluminantsMat.wavelength, DayIlluminantsMat.sky(:, i), ResultFolder, ['sky', num2str(i), '.mat']);
+for i = 1:numel(IllumNames)
+  CurrentLabel = IllumNames{i};
+  ApplyMetamerTest(AllIlluminants.wavelengths.(CurrentLabel), AllIlluminants.spectras.(CurrentLabel), ResultFolder, CurrentLabel);
 end
 
 end
