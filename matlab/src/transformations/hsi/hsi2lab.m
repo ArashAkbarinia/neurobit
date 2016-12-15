@@ -1,45 +1,49 @@
-function lab = hsi2lab(hsi, illuminant, xyzspectra, wp)
+function lab = hsi2lab(hsi, illuminant, ColourReceptor, wp)
 % HSI2LAB  converts a hyperspectral image into an LAB one.
 %
-%   We are assuming that hsi, illuminant and xyzspectra are in the same
-%   wavelength range.
-%
 % inputs
-%   hsi         the hyperspectral image
-%   illuminant  the illumination signal
+%   hsi             the hyperspectral image
+%   illuminant      the illumination signal
+%   ColourReceptor  the xyz sensitivity function.
+%   wp              white reference.
 %
 % outputs
 %   lab  the converted image into the CIE L*a*b* colour space.
 %
 
 FunctionPath = mfilename('fullpath');
-FolderPath = strrep(FunctionPath, 'matlab/src/transformations/hsi/hsi2lab', 'matlab/data/mats/hsi/');
+DataFolder = ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep];
+FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'transformations', filesep, 'hsi', filesep, 'hsi2lab'];
+FolderPath = strrep(FunctionPath, FunctionRelativePath, DataFolder);
 
-%TODO: create a set of default illuminants that can be tested rapidly.
-if nargin < 2
+if nargin < 2 || isempty(illuminant)
   IlluminantsMat = load([FolderPath, 'FosterIlluminants.mat']);
-  illuminant = IlluminantsMat.illum_6500;
-  wp = whitepoint('d65');
+  illuminant.spectra = IlluminantsMat.illum_6500;
+  illuminant.wavelength = IlluminantsMat.wavelength;
 end
 
-[r, c, w] = size(hsi);
-if length(illuminant) ~= w
-  illuminant = imresize(illuminant, [w, 1]);
+if nargin < 3 || isempty(ColourReceptor)
+  xyzmat = load([FolderPath, 'FosterXYZbar.mat']);
+  ColourReceptor.spectra = xyzmat.xyzbar;
+  ColourReceptor.wavelength = xyzmat.wavelength;
 end
-illuminant = reshape(illuminant, 1, 1, w);
 
-radiances = hsi .* repmat(illuminant, [r, c, 1]);
+if nargin < 4 || isempty(wp)
+  wp = ComputeWhitePoint(illuminant, ColourReceptor);
+end
+
+% making the illumiant and colour receptor the same size
+[illuminant, ColourReceptor] = IntersectIlluminantColourReceptors(illuminant, ColourReceptor);
+
+[rs, is, cs] = IntersectThree(hsi.spectra, hsi.wavelength, illuminant.spectra, illuminant.wavelength, ColourReceptor.spectra, ColourReceptor.wavelength);
+
+[r, c, w] = size(rs);
+is = reshape(is, 1, 1, w);
+
+radiances = rs .* repmat(is, [r, c, 1]);
 radiances = reshape(radiances, r * c, w);
 
-if nargin < 3
-  xyzmat = load([FolderPath, 'FosterXYZbar.mat']);
-  xyzspectra = xyzmat.xyzbar;
-end
-
-if length(xyzspectra) ~= w
-  xyzspectra = imresize(xyzspectra, [w, 3]);
-end
-xyz = (xyzspectra' * radiances')';
+xyz = (cs' * radiances')';
 
 xyz = reshape(xyz, r, c, 3);
 xyz = max(xyz, 0);

@@ -1,9 +1,6 @@
-function rgb = hsi2rgb(hsi, illuminant, xyzspectra)
+function rgb = hsi2rgb(hsi, illuminant, ColourReceptor)
 % HSI2RGB  converts a hyperspectral image into an RGB one.
 %   Explanation http://personalpages.manchester.ac.uk/staff/d.h.foster/Tutorial_HSI2RGB/Tutorial_HSI2RGB.html
-%
-%   We are assuming that hsi, illuminant and xyzspectra are in the same
-%   wavelength range.
 %
 % inputs
 %   hsi         the hyperspectral image
@@ -14,31 +11,34 @@ function rgb = hsi2rgb(hsi, illuminant, xyzspectra)
 %
 
 FunctionPath = mfilename('fullpath');
-FolderPath = strrep(FunctionPath, 'matlab/src/transformations/hsi/hsi2rgb', 'matlab/data/mats/hsi/');
+DataFolder = ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep];
+FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'transformations', filesep, 'hsi', filesep, 'hsi2rgb'];
+FolderPath = strrep(FunctionPath, FunctionRelativePath, DataFolder);
 
-if nargin < 2
+if nargin < 2 || isempty(illuminant)
   IlluminantsMat = load([FolderPath, 'FosterIlluminants.mat']);
-  illuminant = IlluminantsMat.illum_6500;
+  illuminant.spectra = IlluminantsMat.illum_6500;
+  illuminant.wavelength = IlluminantsMat.wavelength;
 end
 
-[r, c, w] = size(hsi);
-if length(illuminant) ~= w
-  illuminant = imresize(illuminant, [w, 1]);
+if nargin < 3 || isempty(ColourReceptor)
+  xyzmat = load([FolderPath, 'FosterXYZbar.mat']);
+  ColourReceptor.spectra = xyzmat.xyzbar;
+  ColourReceptor.wavelength = xyzmat.wavelength;
 end
-illuminant = reshape(illuminant, 1, 1, w);
 
-radiances = hsi .* repmat(illuminant, [r, c, 1]);
+% making the illumiant and colour receptor the same size
+[illuminant, ColourReceptor] = IntersectIlluminantColourReceptors(illuminant, ColourReceptor);
+
+[rs, is, cs] = IntersectThree(hsi.spectra, hsi.wavelength, illuminant.spectra, illuminant.wavelength, ColourReceptor.spectra, ColourReceptor.wavelength);
+
+[r, c, w] = size(rs);
+is = reshape(is, 1, 1, w);
+
+radiances = rs .* repmat(is, [r, c, 1]);
 radiances = reshape(radiances, r * c, w);
 
-if nargin < 3
-  xyzmat = load([FolderPath, 'FosterXYZbar.mat']);
-  xyzspectra = xyzmat.xyzbar;
-end
-
-if length(xyzspectra) ~= w
-  xyzspectra = imresize(xyzspectra, [w, 3]);
-end
-xyz = (xyzspectra' * radiances')';
+xyz = (cs' * radiances')';
 
 xyz = reshape(xyz, r, c, 3);
 xyz = max(xyz, 0);
@@ -50,34 +50,5 @@ xyz = xyz / max(xyz(:));
 
 % to have similar results as hsi2lab
 rgb = xyz2rgb(xyz);
-
-end
-
-function srgb = xyz2srgb_exgamma(xyz)
-
-% See IEC_61966-2-1.pdf
-% No gamma correction has been incorporated here, nor any clipping, so this
-% transformation remains strictly linear.  Nor is there any data-checking.
-
-% Image dimensions
-d = size(xyz);
-r = prod(d(1:end-1));   % product of sizes of all dimensions except last, wavelength
-w = d(end);             % size of last dimension, wavelength
-
-% Reshape for calculation, converting to w columns with r rows.
-xyz = reshape(xyz, [r, w]);
-
-% Forward transformation from 1931 CIE XYZ values to sRGB values (Eqn 6 in
-% IEC_61966-2-1.pdf).
-M = ...
-  [
-  +3.2406, -1.5372, -0.4986
-  -0.9689, +1.8758, +0.0414
-  +0.0557, -0.2040, +1.0570
-  ];
-srgb = (M * xyz')';
-
-% Reshape to recover shape of original input.
-srgb = reshape(srgb, d);
 
 end
