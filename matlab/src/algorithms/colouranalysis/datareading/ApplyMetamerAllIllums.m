@@ -30,7 +30,7 @@ function [] = ApplyMetamerTest(wavelength, spectra, FilePath, FileName)
 
 disp(['Illumuninat ', FileName, ' is being processed.']);
 
-MatResPath = [FilePath, filesep, 'metamers', filesep, FileName];
+MatResPath = [FilePath, filesep, 'metamers', filesep, FileName, '.mat'];
 if exist(MatResPath, 'file')
   OldComptMat = load(MatResPath);
   OldComptMat = double(OldComptMat.CompMat);
