@@ -14,7 +14,7 @@ theta = linspace(0, 2 * pi, 100);
 [rag, thg] = meshgrid(radii, theta);
 [x, y] = pol2cart(thg, rag);
 pcolor(x, y, thg);
-colormap('hsv');
+colormap(LabColourMap);
 
 shading('flat');
 axis('equal');
