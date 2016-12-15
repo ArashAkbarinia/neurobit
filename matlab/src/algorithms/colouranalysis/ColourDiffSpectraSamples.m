@@ -86,10 +86,14 @@ end
 
 end
 
-function lab = ComputeLab(ev, ew, iv, iw, cv, cw, wp)
+function lab = ComputeLab(rs, rw, is, iw, cs, cw, wp)
 
-[ev, iv, cv] = IntersectThree(ev, ew, iv, iw, cv, cw);
-
-lab = hsi2lab(ev, iv, cv, wp);
+reflectance.spectra = rs;
+reflectance.wavelength = rw;
+illuminant.spectra = is;
+illuminant.wavelength = iw;
+colour.spectra = cs;
+colour.wavelength = cw;
+lab = hsi2lab(reflectance, illuminant, colour, wp);
 
 end
