@@ -1,10 +1,12 @@
-function rgb = hsi2rgb(hsi, illuminant, ColourReceptor)
-% HSI2RGB  converts a hyperspectral image into an RGB one.
+function rgb = hsi2rgb(hsi, illuminant, ColourReceptor, wp)
+%HSI2RGB  converts a hyperspectral image into an RGB one.
 %   Explanation http://personalpages.manchester.ac.uk/staff/d.h.foster/Tutorial_HSI2RGB/Tutorial_HSI2RGB.html
 %
 % inputs
-%   hsi         the hyperspectral image
-%   illuminant  the illumination signal
+%   hsi             the hyperspectral image
+%   illuminant      the illumination signal
+%   ColourReceptor  the xyz sensitivity function.
+%   wp              white reference.
 %
 % outputs
 %   rgb  the converted RGB image
@@ -27,28 +29,13 @@ if nargin < 3 || isempty(ColourReceptor)
   ColourReceptor.wavelength = xyzmat.wavelength;
 end
 
-% making the illumiant and colour receptor the same size
-[illuminant, ColourReceptor] = IntersectIlluminantColourReceptors(illuminant, ColourReceptor);
+if nargin < 4 || isempty(wp)
+  wp = ComputeWhitePoint(illuminant, ColourReceptor);
+end
 
-[rs, is, cs] = IntersectThree(hsi.spectra, hsi.wavelength, illuminant.spectra, illuminant.wavelength, ColourReceptor.spectra, ColourReceptor.wavelength);
-
-[r, c, w] = size(rs);
-is = reshape(is, 1, 1, w);
-
-radiances = rs .* repmat(is, [r, c, 1]);
-radiances = reshape(radiances, r * c, w);
-
-xyz = (cs' * radiances')';
-
-xyz = reshape(xyz, r, c, 3);
-xyz = max(xyz, 0);
-xyz = xyz / max(xyz(:));
-
-% rgb = xyz2srgb_exgamma(xyz);
-% rgb = max(rgb, 0);
-% rgb = min(rgb, 1);
+xyz = hsi2xyz(hsi, illuminant, ColourReceptor);
 
 % to have similar results as hsi2lab
-rgb = xyz2rgb(xyz);
+rgb = xyz2rgb(xyz, 'WhitePoint', wp);
 
 end

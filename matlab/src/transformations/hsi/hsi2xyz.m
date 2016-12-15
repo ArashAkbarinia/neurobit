@@ -1,19 +1,18 @@
-function lab = hsi2lab(hsi, illuminant, ColourReceptor, wp)
+function xyz = hsi2xyz(hsi, illuminant, ColourReceptor)
 %HSI2LAB  converts a hyperspectral image into an LAB one.
 %
 % inputs
 %   hsi             the hyperspectral image
 %   illuminant      the illumination signal
 %   ColourReceptor  the xyz sensitivity function.
-%   wp              white reference.
 %
 % outputs
-%   lab  the converted image into the CIE L*a*b* colour space.
+%   xyz  the converted image into the CIE XYZ colour space.
 %
 
 FunctionPath = mfilename('fullpath');
 DataFolder = ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep];
-FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'transformations', filesep, 'hsi', filesep, 'hsi2lab'];
+FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'transformations', filesep, 'hsi', filesep, 'hsi2xyz'];
 FolderPath = strrep(FunctionPath, FunctionRelativePath, DataFolder);
 
 if nargin < 2 || isempty(illuminant)
@@ -28,12 +27,21 @@ if nargin < 3 || isempty(ColourReceptor)
   ColourReceptor.wavelength = xyzmat.wavelength;
 end
 
-if nargin < 4 || isempty(wp)
-  wp = ComputeWhitePoint(illuminant, ColourReceptor);
-end
+% making the illumiant and colour receptor the same size
+[illuminant, ColourReceptor] = IntersectIlluminantColourReceptors(illuminant, ColourReceptor);
 
-xyz = hsi2xyz(hsi, illuminant, ColourReceptor);
+[rs, is, cs] = IntersectThree(hsi.spectra, hsi.wavelength, illuminant.spectra, illuminant.wavelength, ColourReceptor.spectra, ColourReceptor.wavelength);
 
-lab = xyz2lab(xyz, 'WhitePoint', wp);
+[r, c, w] = size(rs);
+is = reshape(is, 1, 1, w);
+
+radiances = rs .* repmat(is, [r, c, 1]);
+radiances = reshape(radiances, r * c, w);
+
+xyz = (cs' * radiances')';
+
+xyz = reshape(xyz, r, c, 3);
+xyz = max(xyz, 0);
+xyz = xyz / max(xyz(:));
 
 end
