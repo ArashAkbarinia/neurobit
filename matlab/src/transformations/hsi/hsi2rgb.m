@@ -38,4 +38,8 @@ xyz = hsi2xyz(hsi, illuminant, ColourReceptor);
 % to have similar results as hsi2lab
 rgb = xyz2rgb(xyz, 'WhitePoint', wp);
 
+% values below 0 have to correspondes in RGB
+rgb = max(rgb, 0);
+rgb = NormaliseChannel(rgb, [], [], [], []);
+
 end

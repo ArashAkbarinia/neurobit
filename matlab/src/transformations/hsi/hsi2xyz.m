@@ -1,5 +1,5 @@
 function xyz = hsi2xyz(hsi, illuminant, ColourReceptor)
-%HSI2LAB  converts a hyperspectral image into an LAB one.
+%HSI2XYZ  converts a hyperspectral image into an XYZ one.
 %
 % inputs
 %   hsi             the hyperspectral image
@@ -32,6 +32,8 @@ end
 
 [rs, is, cs] = IntersectThree(hsi.spectra, hsi.wavelength, illuminant.spectra, illuminant.wavelength, ColourReceptor.spectra, ColourReceptor.wavelength);
 
+WhiteSpectra = reshape(cs' * is, 1, 1, 3);
+
 [r, c, w] = size(rs);
 is = reshape(is, 1, 1, w);
 
@@ -42,6 +44,8 @@ xyz = (cs' * radiances')';
 
 xyz = reshape(xyz, r, c, 3);
 xyz = max(xyz, 0);
-xyz = xyz / max(xyz(:));
+
+% tristimulus values should be scaled such that the luminance Y = 1
+xyz = xyz / WhiteSpectra(2);
 
 end
