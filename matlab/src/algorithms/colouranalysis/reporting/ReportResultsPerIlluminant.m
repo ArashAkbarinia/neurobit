@@ -12,7 +12,7 @@ MetamerPath = [FolderPath, 'metamers'];
 CategorPath = [FolderPath, 'categorisation'];
 LabCaPoPath = [FolderPath, 'lab'];
 ReportsPath = [FolderPath, 'reports'];
-AllSpectraMat = load([FolderPath, 'signals/AllSpectra.mat']);
+AllSpectraMat = load([FolderPath, 'signals/AllSpectraNormalised.mat']);
 AllSpectra = AllSpectraMat.AllSpectra;
 
 MatList = dir([MetamerPath, '/*.mat']);

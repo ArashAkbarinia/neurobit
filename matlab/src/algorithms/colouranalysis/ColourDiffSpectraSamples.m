@@ -29,7 +29,7 @@ end
 % making the illumiant and colour receptor the same size
 [illuminants, ColourReceptors] = IntersectIlluminantColourReceptors(illuminants, ColourReceptors);
 
-AllspectraPath = strrep(FunctionPath, FunctionRelativePath, [DataPath, 'AllSpectra.mat']);
+AllspectraPath = strrep(FunctionPath, FunctionRelativePath, [DataPath, 'AllSpectraNormalised.mat']);
 AllSpectraMat = load(AllspectraPath);
 AllSpectra = AllSpectraMat.AllSpectra;
 

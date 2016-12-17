@@ -28,7 +28,7 @@ if ~exist(ReportsPath, 'dir')
   mkdir(ReportsPath);
 end
 
-AllSpectraMat = load(strrep(FunctionPath, FunctionRelativePath, [MatDataPath, 'AllSpectra.mat']));
+AllSpectraMat = load(strrep(FunctionPath, FunctionRelativePath, [MatDataPath, 'AllSpectraNormalised.mat']));
 AllSpectra = AllSpectraMat.AllSpectra;
 
 % for debugging purposes
