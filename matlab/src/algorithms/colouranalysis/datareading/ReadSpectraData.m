@@ -41,8 +41,8 @@ for i = 1:numel(CatNames)
       AllSpectra.originals.(name)(j, :, :) = max(AllSpectra.originals.(name)(j, :, :), AllSpectra.ranges.(name)(1));
       AllSpectra.originals.(name)(j, :, :) = AllSpectra.originals.(name)(j, :, :) / AllSpectra.ranges.(name)(2);
     end
-    spectra{si} = AllSpectra.originals.(name)(j, :, :); %#ok
-    wavelength{si} = AllSpectra.wavelengths.(name); %#ok
+    spectra{si, 1} = AllSpectra.originals.(name)(j, :, :); %#ok
+    wavelength{si, 1} = AllSpectra.wavelengths.(name); %#ok
     si = si + 1;
   end
   AllSpectra.ranges.(name) = [0, 1];
