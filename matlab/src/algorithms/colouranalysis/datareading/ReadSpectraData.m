@@ -1,9 +1,14 @@
-function [AllSpectra, spectra, wavelength] = ReadSpectraData(normalised)
+function [AllSpectra, spectra, wavelength] = ReadSpectraData(normalised, UniformedWavelength)
 %ReadSpectraData  utility function to reads all spectra data we have
 
 if nargin < 1
   normalised = false;
 end
+if nargin < 2
+  UniformedWavelength = false;
+end
+
+UniformWavelength = 400:699;
 
 FunctionPath = mfilename('fullpath');
 UefDataSetFolder = ['data', filesep, 'dataset', filesep, 'hsi', filesep, 'uef', filesep];
@@ -35,12 +40,18 @@ CatNames = fieldnames(AllSpectra.originals);
 si = 1;
 for i = 1:numel(CatNames)
   name = CatNames{i};
+  if normalised
+    AllSpectra.originals.(name) = min(AllSpectra.originals.(name), AllSpectra.ranges.(name)(2));
+    AllSpectra.originals.(name) = max(AllSpectra.originals.(name), AllSpectra.ranges.(name)(1));
+    AllSpectra.originals.(name) = AllSpectra.originals.(name) / AllSpectra.ranges.(name)(2);
+  end
+  if UniformedWavelength
+    CurrentSignal = permute(AllSpectra.originals.(name), [3, 1, 2]);
+    CurrentSignal = interp1(AllSpectra.wavelengths.(name), CurrentSignal, UniformWavelength');
+    AllSpectra.originals.(name) = reshape(CurrentSignal', size(CurrentSignal, 2), 1, size(CurrentSignal, 1));
+    AllSpectra.wavelengths.(name) = UniformWavelength;
+  end
   for j = 1:size(AllSpectra.originals.(name), 1)
-    if normalised
-      AllSpectra.originals.(name)(j, :, :) = min(AllSpectra.originals.(name)(j, :, :), AllSpectra.ranges.(name)(2));
-      AllSpectra.originals.(name)(j, :, :) = max(AllSpectra.originals.(name)(j, :, :), AllSpectra.ranges.(name)(1));
-      AllSpectra.originals.(name)(j, :, :) = AllSpectra.originals.(name)(j, :, :) / AllSpectra.ranges.(name)(2);
-    end
     spectra{si, 1} = AllSpectra.originals.(name)(j, :, :); %#ok
     wavelength{si, 1} = AllSpectra.wavelengths.(name); %#ok
     si = si + 1;
