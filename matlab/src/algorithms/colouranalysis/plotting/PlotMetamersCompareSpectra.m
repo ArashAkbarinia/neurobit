@@ -1,4 +1,4 @@
-function [AllSpectraCounter, AverageMetamerSignal] = PlotCompareSpectra(MetamerReport, ResultsFolder, WhichLth, WhichUth, WhichData)
+function [AllSpectraCounter, AverageMetamerSignal] = PlotMetamersCompareSpectra(MetamerReport, ResultsFolder, WhichLth, WhichUth, WhichData)
 %PlotCompareSpectra Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -81,22 +81,7 @@ SpectraMat = permute(SpectraMat, [1, 3, 2]);
 nWavelength = size(SpectraMat, 2);
 AverageMetamerSignal = mean(SpectraMat .* repmat(AllSpectraCounter, [1, nWavelength]), 1);
 
-% plotting the avreage metamers
-uwave = AllSpectraMat.wavelength{1};
-mall = mean(SpectraMat, 1); mall = mall ./ sum(mall);
-mmet = AverageMetamerSignal ./ sum(AverageMetamerSignal);
-mrat = mmet ./ mall; mrat = mrat ./ sum(mrat);
-
-isvisible = 'off';
-FigureHandler = figure('name', 'Average Metamer Spectra', 'visible', isvisible);
-hold on;
-title('Comparison of metamer spectra with original spectra');
-plot(uwave, mall, 'color', 'red', 'DisplayName', 'original spectra');
-plot(uwave, mmet, 'color', 'blue', 'DisplayName', 'metamer spectra');
-plot(uwave, mrat, 'color', 'green', 'DisplayName', 'metamer ratio');
-legend('show');
-xlim([400, 700]);
-print(FigureHandler, [ResultsFolder, filesep, 'AverageMetamers.jpg'], '-djpeg', '-r0')
+PlotMetamersSpectraVector(AllSpectraCounter, AllSpectraMat, [ResultsFolder, filesep]);
 
 end
 
