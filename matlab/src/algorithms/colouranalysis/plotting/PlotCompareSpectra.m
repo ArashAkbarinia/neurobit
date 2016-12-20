@@ -1,4 +1,4 @@
-function [ ] = PlotCompareSpectra(MetamerReport, ResultsFolder, WhichLth, WhichUth, WhichData)
+function [AllSpectraCounter, AverageMetamerSignal] = PlotCompareSpectra(MetamerReport, ResultsFolder, WhichLth, WhichUth, WhichData)
 %PlotCompareSpectra Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -68,7 +68,6 @@ for i = 1:nLowThreshes
       if isempty(WhichUth) || ismember(HighThreshold.uth, WhichUth)
         SpectraCounter = HighThreshold.SpectraCounter(SpectraInds, :);
         AllSpectraCounter = AllSpectraCounter + SpectraCounter;
-        disp([num2str(i), '  ', num2str(j)]);
       end
     end
   end
