@@ -1,4 +1,4 @@
-function [] = PlotMetamersPairResults(IlluminantPairReport, ResultsFolder)
+function LthUthReport = PlotMetamersPairResults(IlluminantPairReport, ResultsFolder)
 %PlotMetamersPairResults Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -36,6 +36,8 @@ fileid = fopen([ResultsFolder, 'IlluminantRanking.txt'], 'w');
 LthUthRanking = cell(nillus, nlth * nuth);
 LthUthAbsolute = cell(nillus, nlth * nuth);
 LthUthRankingHeaders = cell(1, nlth * nuth);
+AllByAllLthUthPer = zeros(nuth, nlth);
+AllByAllLthUthAbs = zeros(nuth, nlth);
 
 ColumnNumber = 1;
 for l = 1:nlth
@@ -44,6 +46,8 @@ for l = 1:nlth
     for i = 1:nillus - 1
       for j = i + 1:nillus
         CurrentLthUth(i, j) = IllumPairsPlot{i, j}.LowHighAbs(u, l);
+        AllByAllLthUthPer(u, l) = AllByAllLthUthPer(u, l) + IllumPairsPlot{i, j}.LowHighPer(u, l);
+        AllByAllLthUthAbs(u, l) = AllByAllLthUthAbs(u, l) + IllumPairsPlot{i, j}.LowHighAbs(u, l);
       end
     end
     CurrentLthUth = CurrentLthUth + CurrentLthUth';
@@ -61,6 +65,14 @@ for l = 1:nlth
     ColumnNumber = ColumnNumber + 1;
   end
 end
+
+AllByAllLthUthPer = AllByAllLthUthPer ./ (nillus * (nillus - 1) / 2);
+AllByAllLthUthAbs = AllByAllLthUthAbs ./ (nillus * (nillus - 1) / 2);
+
+LthUthReport.LowHighPer = AllByAllLthUthPer;
+LthUthReport.LowHighAbs = AllByAllLthUthAbs;
+LthUthReport.lths = lths;
+LthUthReport.uths = uths;
 
 fclose(fileid);
 
