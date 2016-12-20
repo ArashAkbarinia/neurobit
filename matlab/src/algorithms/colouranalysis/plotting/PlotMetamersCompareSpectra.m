@@ -1,7 +1,10 @@
-function [AllSpectraCounter, AverageMetamerSignal] = PlotMetamersCompareSpectra(MetamerReport, ResultsFolder, WhichLth, WhichUth, WhichData)
+function [AllSpectraCounter, AverageMetamerSignal] = PlotMetamersCompareSpectra(MetamerReport, ResultsFolder, WhichLth, WhichUth, WhichData, plotme)
 %PlotCompareSpectra Summary of this function goes here
 %   Detailed explanation goes here
 
+if nargin < 6 || isempty(plotme)
+  plotme = true;
+end
 if nargin < 5
   WhichData = [];
 end
@@ -74,14 +77,18 @@ for i = 1:nLowThreshes
 end
 AllSpectraCounter = double(AllSpectraCounter);
 
-PlotMetameristSpectraReflectance(AllSpectraCounter, AllSpectraMat, ResultsFolder);
+if plotme
+  PlotMetameristSpectraReflectance(AllSpectraCounter, AllSpectraMat, ResultsFolder);
+end
 
 SpectraMat = cell2mat(AllSpectraMat.spectra);
 SpectraMat = permute(SpectraMat, [1, 3, 2]);
 nWavelength = size(SpectraMat, 2);
 AverageMetamerSignal = mean(SpectraMat .* repmat(AllSpectraCounter, [1, nWavelength]), 1);
 
-PlotMetamersSpectraVector(AllSpectraCounter, AllSpectraMat, [ResultsFolder, filesep]);
+if plotme
+  PlotMetamersSpectraVector(AllSpectraCounter, AllSpectraMat, [ResultsFolder, filesep]);
+end
 
 end
 
