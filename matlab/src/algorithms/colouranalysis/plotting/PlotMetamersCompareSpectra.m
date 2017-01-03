@@ -124,7 +124,7 @@ end
 xlim([400, 700]);
 legend('show', 'location', 'westoutside');
 title(['Top metamers, ratios scaled from ', num2str(max(SpectraCounter))]);
-print(FigureHandler, [ResultsFolder, filesep, 'TopMetamers.jpg'], '-djpeg', '-r0')
+print(FigureHandler, [ResultsFolder, filesep, 'TopMetamers.jpg'], '-djpeg', '-r0');
 close(FigureHandler);
 
 % plotting the zero metamers
@@ -139,7 +139,7 @@ end
 xlim([400, 700]);
 legend('show', 'location', 'westoutside');
 title('Bottom metamers (all 0 ones)');
-print(FigureHandler, [ResultsFolder, filesep, 'BottomMetamers.jpg'], '-djpeg', '-r0')
+print(FigureHandler, [ResultsFolder, filesep, 'BottomMetamers.jpg'], '-djpeg', '-r0');
 close(FigureHandler);
 
 end
