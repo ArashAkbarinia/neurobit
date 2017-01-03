@@ -51,7 +51,7 @@ for l = 1:nlth
       end
     end
     CurrentLthUth = CurrentLthUth + CurrentLthUth';
-    MeanIllumMetamer = mean(CurrentLthUth);
+    MeanIllumMetamer = sum(CurrentLthUth) ./ (nillus - 1);
     [SortedAbs, SortedInds] = sort(MeanIllumMetamer, 'descend');
     fprintf(fileid, 'Ranking for lth=[%f] and uth=[%f]\n', lths(l), uths(nuth - u + 1));
     for i = 1:nillus
