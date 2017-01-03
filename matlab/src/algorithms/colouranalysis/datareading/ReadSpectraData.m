@@ -44,6 +44,7 @@ for i = 1:numel(CatNames)
     AllSpectra.originals.(name) = min(AllSpectra.originals.(name), AllSpectra.ranges.(name)(2));
     AllSpectra.originals.(name) = max(AllSpectra.originals.(name), AllSpectra.ranges.(name)(1));
     AllSpectra.originals.(name) = AllSpectra.originals.(name) / AllSpectra.ranges.(name)(2);
+    AllSpectra.ranges.(name) = [0, 1];
   end
   if UniformedWavelength
     CurrentSignal = permute(AllSpectra.originals.(name), [3, 1, 2]);
@@ -56,7 +57,6 @@ for i = 1:numel(CatNames)
     wavelength{si, 1} = AllSpectra.wavelengths.(name); %#ok
     si = si + 1;
   end
-  AllSpectra.ranges.(name) = [0, 1];
 end
 
 end
