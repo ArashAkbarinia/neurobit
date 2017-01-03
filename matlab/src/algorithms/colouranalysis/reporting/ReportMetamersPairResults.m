@@ -41,6 +41,7 @@ for s = 1:nCombinations
   
   MetamerReportMat = load([CurrentSubFolder, 'AllIlluminantReport']);
   MetamerReport = MetamerReportMat.MetamerReport;
+  
   [AllSpectraCounter, AverageMetamerSignal] = PlotMetamersCompareSpectra(MetamerReport, CurrentSubFolder, [], [], [], plotme);
   
   if plotme

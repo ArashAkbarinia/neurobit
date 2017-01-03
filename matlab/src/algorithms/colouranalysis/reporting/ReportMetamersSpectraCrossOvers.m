@@ -20,32 +20,7 @@ nLowThreshes = numel(ThresholdNames);
 nHighThreshes = numel(fieldnames(MetamerReport.all.lths.th1.uths));
 
 % handling which data
-if isempty(WhichData)
-  SpectraInds = 1:MetamerReport.all.NumElements;
-else
-  CatNames = fieldnames(AllSpectraMat.AllSpectra.originals);
-  ncategories = numel(CatNames);
-  CatEls = zeros(ncategories, 1);
-  for i = 1:ncategories
-    CatEls(i) = size(AllSpectraMat.AllSpectra.originals.(CatNames{i}), 1);
-  end
-  CatEls = cumsum(CatEls);
-  SpectraInds = [];
-  
-  % only the selected datasets
-  for i = 1:numel(WhichData)
-    name = WhichData{i};
-    [~, NameInd] = ismember(name, CatNames);
-    if NameInd == 1
-      StartInd = 1;
-    else
-      StartInd = CatEls(NameInd - 1, 1) + 1;
-    end
-    SpectraInds = [SpectraInds, StartInd:CatEls(NameInd, 1)]; %#ok
-  end
-  
-  SpectraInds = SpectraInds';
-end
+SpectraInds = ExtractDatasetIndices(MetamerReport.all, AllSpectraMat.AllSpectra, WhichData);
 
 TmpReport = struct();
 AllCrossOvers = [];
