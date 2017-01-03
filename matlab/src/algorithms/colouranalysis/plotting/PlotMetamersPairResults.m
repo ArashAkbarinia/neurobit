@@ -19,7 +19,7 @@ uths = IlluminantPairReport.uths;
 
 nillus = numel(IllumNamesOrder);
 
-if nargin < 3
+if nargin < 2
   PlotsFolder = ['data', filesep, 'dataset', filesep, 'hsi', filesep, 'results', filesep, '1931', filesep, 'plots', filesep, 'illuminantspair', filesep];
   ResultsFolder = strrep(FunctionPath, FunctionRelativePath, PlotsFolder);
 end
@@ -29,9 +29,9 @@ PlotAverageSpectra(ResultsFolder, IllumPairsPlot, IllumNamesOrder, nillus, AllSp
 
 [nuth, nlth] = size(IllumPairsPlot{1, 2}.LowHighAbs);
 
-ExcelFileName = [ResultsFolder, 'IlluminantRanking.xlsx'];
+ExcelFileName = [ResultsFolder, 'IlluminantComparison.xlsx'];
 
-fileid = fopen([ResultsFolder, 'IlluminantRanking.txt'], 'w');
+fileid = fopen([ResultsFolder, 'IlluminantComparison.txt'], 'w');
 
 LthUthRanking = cell(nillus, nlth * nuth);
 LthUthAbsolute = cell(nillus, nlth * nuth);
