@@ -1,4 +1,4 @@
-function FigureHandler = PlotMetamersSpectraCrossOvers(CrossOversReport, WhichLth, WhichUth, NormaliseByAllCrossOvers)
+function [AllCrossOvers, FigureHandler] = PlotMetamersSpectraCrossOvers(CrossOversReport, WhichLth, WhichUth, NormaliseByAllCrossOvers)
 %PlotMetamersSpectraCrossOvers Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -18,7 +18,9 @@ step = 10;
 ew = 699;
 WavelengthRange = sw:step:ew;
 
-FigureHandler = figure('name', 'histogram of crossovers');
+if nargout > 1
+  FigureHandler = figure('name', 'histogram of crossovers');
+end
 
 if isempty(WhichLth) && isempty(WhichUth)
   AllCrossOvers = CrossOversReport.all.crossovers(:, 1);
@@ -58,7 +60,8 @@ if NormaliseByAllCrossOvers
 else
   r = m;
 end
-plot(WavelengthRange(1:end - 1), r);
+AllCrossOvers = r ./ sum(r);
+plot(WavelengthRange(1:end - 1), AllCrossOvers);
 xlim([sw, ew]);
 
 end
