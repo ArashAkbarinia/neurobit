@@ -29,7 +29,7 @@ m = histcounts(AllCrossOvers, WavelengthRange, 'Normalization', 'Probability');
 if NormaliseByAllCrossOvers
   FunctionPath = mfilename('fullpath');
   [~, FunctionName, ~] = fileparts(FunctionPath);
-  FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'plotting', filesep, FunctionName];
+  FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'crossovers', filesep, FunctionName];
   
   DataPath = ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep];
   

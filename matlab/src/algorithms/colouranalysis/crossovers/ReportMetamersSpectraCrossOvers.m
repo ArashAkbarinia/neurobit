@@ -8,7 +8,7 @@ end
 
 FunctionPath = mfilename('fullpath');
 [~, FunctionName, ~] = fileparts(FunctionPath);
-FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'reporting', filesep, FunctionName];
+FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'algorithms', filesep, 'colouranalysis', filesep, 'crossovers', filesep, FunctionName];
 
 DataPath = ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep];
 
