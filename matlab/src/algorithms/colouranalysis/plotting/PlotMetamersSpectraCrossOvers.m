@@ -18,34 +18,13 @@ step = 10;
 ew = 699;
 WavelengthRange = sw:step:ew;
 
-if nargout > 1
-  FigureHandler = figure('name', 'histogram of crossovers');
-end
-
-if isempty(WhichLth) && isempty(WhichUth)
-  AllCrossOvers = CrossOversReport.all.crossovers(:, 1);
+if isstruct(CrossOversReport)
+  AllCrossOvers = ExtractMetamersSpectraCrossOvers(CrossOversReport, WhichLth, WhichUth);
 else
-  ThresholdNames = fieldnames(CrossOversReport.all.lths);
-  nLowThreshes = numel(ThresholdNames);
-  nHighThreshes = numel(fieldnames(CrossOversReport.all.lths.th1.uths));
-  
-  AllCrossOvers = [];
-  for i = 1:nLowThreshes
-    LowThreshold = CrossOversReport.all.lths.(ThresholdNames{i});
-    if isempty(WhichLth) || ismember(LowThreshold.lth, WhichLth)
-      for j = 1:nHighThreshes
-        HighThreshold = LowThreshold.uths.(['uth', num2str(j)]);
-        if isempty(WhichUth) || ismember(HighThreshold.uth, WhichUth)
-          if ~isempty(HighThreshold.crossovers)
-            crossovers = HighThreshold.crossovers(:, 1);
-            AllCrossOvers = [AllCrossOvers; crossovers]; %#ok
-          end
-        end
-      end
-    end
-  end
+  AllCrossOvers = CrossOversReport;
 end
 
+TotalCrossOvers = size(AllCrossOvers, 1);
 m = histcounts(AllCrossOvers, WavelengthRange, 'Normalization', 'Probability');
 if NormaliseByAllCrossOvers
   FunctionPath = mfilename('fullpath');
@@ -61,7 +40,12 @@ else
   r = m;
 end
 AllCrossOvers = r ./ sum(r);
-plot(WavelengthRange(1:end - 1), AllCrossOvers);
+
+if nargout > 1
+  FigureHandler = figure('name', 'histogram of crossovers');
+end
+plot(WavelengthRange(1:end - 1), AllCrossOvers, 'DisplayName', ['T: ', num2str(TotalCrossOvers)]);
+legend('show');
 xlim([sw, ew]);
 
 end

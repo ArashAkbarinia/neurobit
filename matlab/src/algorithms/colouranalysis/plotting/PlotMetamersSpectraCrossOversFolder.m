@@ -19,6 +19,7 @@ if nargin < 4 || isempty(FigureName)
 else
   isvisible = 'off';
 end
+
 NormaliseByAllCrossOvers = true;
 
 nlths = numel(WhichLth);
@@ -32,22 +33,31 @@ WavelengthRange = sw:step:ew;
 FigPos = [0, 0, 50, 25];
 
 FigureHandler = figure('name', FigureName, 'PaperUnits', 'centimeters', 'PaperPosition', FigPos, 'visible', isvisible);
+
 AllCrossOvers = zeros(nfiles, size(WavelengthRange, 2) - 1);
 for i = 1:nfiles
   CurrentFileName = MatList(i).name;
   MatPath = [ResultsFolder, CurrentFileName];
   CrossOversMat = load(MatPath);
   
-  subplot(rows, cols, i); hold on;
+  % subplot should be so PlotMetamersSpectraCrossOvers can plots it
+  subplot(rows, cols, i);
+  hold on;
+  
   for l = 1:nlths
     for u = 1:nuths
       AllCrossOvers(i, :) = AllCrossOvers(i, :) + PlotMetamersSpectraCrossOvers(CrossOversMat.CrossOversReport, WhichLth{l}, WhichUth{u}, NormaliseByAllCrossOvers);
     end
   end
-  AllCrossOvers(i, :) = AllCrossOvers(i, :) ./ sum(AllCrossOvers(i, :));
-  AllCrossOvers(isnan(AllCrossOvers)) = 0;
-  plot(WavelengthRange(1:end - 1), AllCrossOvers(i, :));
-  xlim([sw, ew]);
+  
+  if nlths > 1 || nuths > 1
+    AllCrossOvers(i, :) = AllCrossOvers(i, :) ./ sum(AllCrossOvers(i, :));
+    AllCrossOvers(isnan(AllCrossOvers)) = 0;
+    
+    plot(WavelengthRange(1:end - 1), AllCrossOvers(i, :));
+    xlim([sw, ew]);
+  end
+  
   TilteName = strrep(CurrentFileName, 'CrossOversReport', '');
   TilteName = strrep(TilteName, '.mat', '');
   if isempty(TilteName)
