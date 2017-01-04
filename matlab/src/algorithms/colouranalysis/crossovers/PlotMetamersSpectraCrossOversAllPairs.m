@@ -1,9 +1,9 @@
-function [  ] = PlotMetamersSpectraCrossOversAllPairs(ResultsFolder, WhichDatasets, SelectedIllums, isInclude)
+function [  ] = PlotMetamersSpectraCrossOversAllPairs(ResultsFolder, WhichDatasets, SelectedIllums, isInclude, WhichLth, WhichUth)
 %PlotMetamersSpectraCrossOversAllPairs Summary of this function goes here
 %   Detailed explanation goes here
 
 if nargin < 2 || isempty(WhichDatasets)
-  WhichDatasets = [];
+  WhichDatasets = {'', 'barnard'};
 end
 if nargin < 3 || isempty(SelectedIllums)
   SelectedIllums = [];
@@ -11,12 +11,15 @@ end
 if nargin < 4 || isempty(isInclude)
   isInclude = true;
 end
+if nargin < 5 || isempty(WhichLth)
+  WhichLth = {[]};
+end
+if nargin < 6 || isempty(WhichUth)
+  WhichUth = {[]};
+end
 
 SubFolders = GetSubFolders(ResultsFolder);
 nCombinations = numel(SubFolders);
-
-WhichLth = {0.5:0.5:1.5};
-WhichUth = {4.5:6.5};
 
 if ~isempty(WhichDatasets)
   AllSpectraCrossovers = [];

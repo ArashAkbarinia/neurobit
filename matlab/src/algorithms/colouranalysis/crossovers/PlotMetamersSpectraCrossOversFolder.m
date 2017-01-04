@@ -7,11 +7,11 @@ nfiles = length(MatList);
 rows = round(sqrt(nfiles));
 cols = ceil(sqrt(nfiles));
 
-if nargin < 2 || isempty(WhichLth)
-  WhichLth = num2cell(0.5:0.5:5);
+if nargin < 2
+  WhichLth = {[]};
 end
-if nargin < 3 || isempty(WhichUth)
-  WhichUth = num2cell(0.5:1:20.5);
+if nargin < 3
+  WhichUth = {[]};
 end
 if nargin < 4 || isempty(FigureName)
   FigureName = 'CrossOversReport';
