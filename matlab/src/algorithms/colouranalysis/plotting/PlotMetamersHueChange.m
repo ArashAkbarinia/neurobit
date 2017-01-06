@@ -66,7 +66,7 @@ for s = 1:nCombinations
   MetamerReport = MetamerReportMat.MetamerReport;
   
   % handling which data
-  SpectraInds = ExtractDatasetIndices(MetamerReport.all, AllSpectraMat.AllSpectra, ExcludeDatasets, true);
+  SpectraInds = ExtractDatasetIndices(MetamerReport.all, AllSpectraMat.AllSpectra, ExcludeDatasets, false);
   
   LabCars11 = [];
   LabCars12 = [];
@@ -142,8 +142,8 @@ end
 DeltaE2000(:, 1) = deltae2000(LabCars11, LabCars12);
 DeltaE2000(:, 2) = deltae2000(LabCars21, LabCars22);
 
-m1n2 = DeltaE2000(:, 1) < 0.5;
-m2n1 = DeltaE2000(:, 2) < 0.5;
+m1n2 = DeltaE2000(:, 1) < DeltaE2000(:, 2);
+m2n1 = DeltaE2000(:, 2) < DeltaE2000(:, 1);
 
 FigPos = [0, 0, 50, 25];
 if saveme
