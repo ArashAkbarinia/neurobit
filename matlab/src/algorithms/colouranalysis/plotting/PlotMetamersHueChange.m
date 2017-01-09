@@ -1,4 +1,4 @@
-function IllumPairsShiftStats = PlotMetamersHueChange(ResultsFolder, LabFolder, saveme, WhichLth, WhichUth, ExcludeDatasets)
+function IllumPairsShiftStats = PlotMetamersHueChange(ResultsFolder, LabFolder, saveme, WhichLth, WhichUth, ExcludeDatasets, SelectedIllums, PrefixName)
 %PlotMetamersHueChange Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -8,7 +8,15 @@ FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'algorithms', filesep
 
 GenDataPath = ['data', filesep, 'dataset', filesep, 'hsi', filesep];
 
-if nargin < 6 || isempty(ExcludeDatasets)
+isSelectedIllumsInclude = true;
+
+if nargin < 8
+  PrefixName = '';
+end
+if nargin < 7
+  SelectedIllums = [];
+end
+if nargin < 6
   ExcludeDatasets = [];
 end
 if nargin < 5
@@ -61,6 +69,20 @@ for s = 1:nCombinations
   if ~exist([CurrentSubFolder, 'AllIlluminantReport.mat'], 'file')
     disp([CurrentSubFolder, 'AllIlluminantReport. mat']);
     continue;
+  elseif ~isempty(SelectedIllums)
+    MetamerReportMat = load([CurrentSubFolder, 'AllIlluminantReport.mat']);
+    CurrentIlluminants = MetamerReportMat.MetamerReport.illuminants;
+    BreakFor = isSelectedIllumsInclude;
+    for i = 1:numel(SelectedIllums)
+      if strcmpi(CurrentIlluminants{1}, SelectedIllums{i}) || ...
+          strcmpi(CurrentIlluminants{2}, SelectedIllums{i})
+        BreakFor = ~isSelectedIllumsInclude;
+        break;
+      end
+    end
+    if BreakFor
+      continue;
+    end
   end
   disp(['Processing: ', SubFolders{s}]);
   
@@ -115,7 +137,7 @@ for s = 1:nCombinations
     end
   end
   
-  ShiftStats = PlotLabCarsOnHueCircle(LabCars11, LabCars12, LabCars21, LabCars22, CurrentIllums, CurrentSubFolder, LabHist.(CurrentIllums{1}), LabHist.(CurrentIllums{2}), saveme);
+  ShiftStats = PlotLabCarsOnHueCircle(LabCars11, LabCars12, LabCars21, LabCars22, CurrentIllums, [CurrentSubFolder, PrefixName], LabHist.(CurrentIllums{1}), LabHist.(CurrentIllums{2}), saveme);
   IllumPairsShiftStats.shifts{il1, il2} = ShiftStats;
   IllumPairsShiftStats.shifts{il2, il1} = ShiftStats;
 end
