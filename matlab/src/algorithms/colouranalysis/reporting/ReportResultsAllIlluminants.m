@@ -20,7 +20,7 @@ end
 MatDataPath = ['matlab', filesep, 'data', filesep, 'mats', filesep, 'hsi', filesep];
 
 MetamerPath = [FolderPath, 'metamers'];
-CategorPath = [FolderPath, 'categorisation', filesep, 'arash'];
+CategorPath = [FolderPath, 'categorisation', filesep, 'ellipsoid'];
 LabCaPoPath = [FolderPath, 'lab'];
 ReportsPath = [FolderPath, 'reports', filesep, 'multiilluminant', filesep, TestName];
 

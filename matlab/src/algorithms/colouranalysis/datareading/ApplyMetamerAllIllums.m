@@ -51,9 +51,13 @@ wp = lab.wp;
 save([FilePath, filesep, 'lab', filesep, FileName], 'car', 'pol', 'wp');
 
 rgb = lab2rgb(reshape(car, size(car, 1), 1, 3), 'WhitePoint', wp);
-rgb = uint8(min(max(rgb, 0), 1) .* 255);
+% I set these values (0.25 and 1.55) based on the spectra reflectance of
+% munsell chart. Apparently the dark objects don't work very good with
+% spectrameters.
+rgb = min(max(rgb, 0.25), 1.55);
+rgb = uint8(NormaliseChannel(rgb, 0, 1, min(min(rgb)), max(max(rgb))) .* 255);
 [~, CurrentNames] = ColourNamingTestImage(rgb, 'ourlab', false); %#ok
 
-save([FilePath, filesep, 'categorisation', filesep, 'arash', filesep, FileName], 'CurrentNames');
+save([FilePath, filesep, 'categorisation', filesep, 'ellipsoid', filesep, FileName], 'CurrentNames');
 
 end
