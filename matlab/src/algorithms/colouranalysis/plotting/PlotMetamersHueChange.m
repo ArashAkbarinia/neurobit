@@ -50,7 +50,9 @@ AllSpectraPath = strrep(FunctionPath, FunctionRelativePath, [DataPath, 'AllSpect
 AllSpectraMat = load(AllSpectraPath);
 
 % output
-IllumPairsShiftStats = cell(nIllums, nIllums);
+IllumPairsShiftStats = struct();
+IllumPairsShiftStats.shifts = cell(nIllums, nIllums);
+IllumPairsShiftStats.labhist = cell(nIllums, 1);
 IllumNamesOrder = cell(nIllums, 1);
 LastIllumIndx = 1;
 
@@ -82,6 +84,7 @@ for s = 1:nCombinations
     LabHist.(CurrentIllums{1}) = OriginalDataLabHist(LabMats.(CurrentIllums{1}).pol(SpectraInds, :), nbins);
     IllumNamesOrder{LastIllumIndx} = CurrentIllums{1};
     il1 = LastIllumIndx;
+    IllumPairsShiftStats.labhist{LastIllumIndx}= LabHist.(CurrentIllums{1});
     LastIllumIndx = LastIllumIndx + 1;
   end
   il2 = find(strcmp(IllumNamesOrder, CurrentIllums{2}));
@@ -90,6 +93,7 @@ for s = 1:nCombinations
     LabHist.(CurrentIllums{2}) = OriginalDataLabHist(LabMats.(CurrentIllums{2}).pol, nbins);
     IllumNamesOrder{LastIllumIndx} = CurrentIllums{2};
     il2 = LastIllumIndx;
+    IllumPairsShiftStats.labhist{LastIllumIndx}= LabHist.(CurrentIllums{2});
     LastIllumIndx = LastIllumIndx + 1;
   end
   
