@@ -116,8 +116,8 @@ for s = 1:nCombinations
   end
   
   ShiftStats = PlotLabCarsOnHueCircle(LabCars11, LabCars12, LabCars21, LabCars22, CurrentIllums, CurrentSubFolder, LabHist.(CurrentIllums{1}), LabHist.(CurrentIllums{2}), saveme);
-  IllumPairsShiftStats{il1, il2} = ShiftStats;
-  IllumPairsShiftStats{il2, il1} = ShiftStats;
+  IllumPairsShiftStats.shifts{il1, il2} = ShiftStats;
+  IllumPairsShiftStats.shifts{il2, il1} = ShiftStats;
 end
 
 end
