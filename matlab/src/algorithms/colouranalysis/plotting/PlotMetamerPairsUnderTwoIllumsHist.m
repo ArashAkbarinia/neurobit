@@ -77,7 +77,7 @@ DrawHueCircle(MaxRadius1);
 hold on;
 polar(t11, r11, 'black');
 polar(t12, r12, '--white');
-title(['P1 (black) P2(white) ''', IllumNames{1}, '''', ' rd=[', r1d,']', ' td=[', t1d,']']);
+title(['P1 (black) P2 (white) ''', IllumNames{1}, '''', ' rd=[', r1d,']', ' td=[', t1d,']']);
 
 h = subplot(rows, cols, 2);
 WindRose(rad2deg(t1s), r1s, 'parent', h, 'cmap', gray, 'n', ShiftBins)
@@ -88,7 +88,7 @@ DrawHueCircle(MaxRadius2);
 hold on;
 polar(t21, r21, 'black');
 polar(t22, r22, '--white');
-title(['P1 (black) P2(white) ''', IllumNames{2}, '''', ' rd=[', r2d,']', ' td=[', t2d,']']);
+title(['P1 (black) P2 (white) ''', IllumNames{2}, '''', ' rd=[', r2d,']', ' td=[', t2d,']']);
 
 h = subplot(rows, cols, 4);
 WindRose(rad2deg(t2s), r2s, 'parent', h, 'cmap', gray, 'n', ShiftBins)
