@@ -3,7 +3,7 @@ function ChipsTable = SturgesWhitfielColourBoundries()
 %   Detailed explanation goes here
 
 FunctionPath = mfilename('fullpath');
-ChipsTablePath = strrep(FunctionPath, 'matlab/src/experiments/wcs/SturgesWhitfielColourBoundries', 'matlab/data/mats/colourcategorisation/SturgesWhitfielColourBoundries.mat');
+ChipsTablePath = strrep(FunctionPath, ['matlab', filesep, 'src', filesep, 'experiments', filesep, 'wcs', filesep, 'SturgesWhitfielColourBoundries'], ['matlab', filesep, 'data', filesep, 'mats', filesep, 'colourcategorisation', filesep, 'SturgesWhitfielColourBoundries.mat']);
 ChipsTableMat = load(ChipsTablePath);
 
 ChipsTable = ChipsTableMat.ChipsTable();

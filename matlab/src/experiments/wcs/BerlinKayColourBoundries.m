@@ -6,11 +6,11 @@ if nargin < 1
   ConvertToEllipsoidColours = false;
 end
 
-FunctionLocalPath = 'matlab/src/experiments/wcs/BerlinKayColourBoundries';
+FunctionLocalPath = ['matlab', filesep, 'src', filesep, 'experiments', filesep, 'wcs', filesep, 'BerlinKayColourBoundries'];
 FunctionPath = mfilename('fullpath');
-TermsPath = strrep(FunctionPath, FunctionLocalPath, 'data/ColourNaming/WCS-Data-20110316/BK-term.txt');
-DicPath = strrep(FunctionPath, FunctionLocalPath, 'data/ColourNaming/WCS-Data-20110316/BK-dict.txt');
-ChipsTablePath = strrep(FunctionPath, FunctionLocalPath, 'data/ColourNaming/WCS-Data-20110316/cnum-vhcm-lab-new.txt');
+TermsPath = strrep(FunctionPath, FunctionLocalPath, ['data', filesep, 'ColourNaming', filesep, 'WCS-Data-20110316', filesep, 'BK-term.txt']);
+DicPath = strrep(FunctionPath, FunctionLocalPath, ['data', filesep, 'ColourNaming', filesep, 'WCS-Data-20110316', filesep, 'BK-dict.txt']);
+ChipsTablePath = strrep(FunctionPath, FunctionLocalPath, ['data', filesep, 'ColourNaming', filesep, 'WCS-Data-20110316', filesep, 'cnum-vhcm-lab-new.txt']);
 
 WcsTerms = tdfread(TermsPath);
 WcsDic = tdfread(DicPath);
@@ -39,7 +39,7 @@ ChipsColours(ChipsColours == 2) = 1;
 ChipsTable = WcsChipsTable(WcsChips, ChipsColours);
 
 if ConvertToEllipsoidColours
-  EllipsoidDicMatPath = strrep(FunctionPath, FunctionLocalPath, 'matlab/data/mats/colourcategorisation/EllipsoidDic.mat');
+  EllipsoidDicMatPath = strrep(FunctionPath, FunctionLocalPath, ['matlab', filesep, 'data', filesep, 'mats', filesep, 'colourcategorisation', filesep, 'EllipsoidDic.mat']);
   EllipsoidDicMat = load(EllipsoidDicMatPath);
   
   ChipsTableTmp = ChipsTable;
