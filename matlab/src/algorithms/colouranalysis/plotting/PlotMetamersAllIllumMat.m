@@ -33,8 +33,8 @@ for i = 1:nTops
   wavelength1 = illus.wavelength1{i, :};
   wavelength2 = illus.wavelength2{i, :};
   
-  plot(wavelength1, signal1 ./ max(signal1), 'color', rand(1,3));
-  plot(wavelength2, signal2 ./ max(signal2), 'color', rand(1,3));
+  plot(wavelength1, signal1, 'color', rand(1,3));
+  plot(wavelength2, signal2, 'color', rand(1,3));
   
   % plotting just over the visible spectrum
   xlim([400, 700]);
