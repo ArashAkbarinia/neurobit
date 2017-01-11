@@ -30,7 +30,12 @@ function [] = ApplyMetamerTest(wavelength, spectra, FilePath, FileName)
 
 disp(['Illumuninat ', FileName, ' is being processed.']);
 
-MatResPath = [FilePath, filesep, 'metamers', filesep, FileName, '.mat'];
+MatResFolder = [FilePath, filesep, 'metamers', filesep];
+if ~exist(MatResFolder, 'dir')
+  mkdir(MatResFolder);
+end
+
+MatResPath = [MatResFolder, FileName, '.mat'];
 if exist(MatResPath, 'file')
   OldComptMat = load(MatResPath);
   OldComptMat = double(OldComptMat.CompMat);
@@ -48,7 +53,11 @@ car = reshape(lab.car, size(lab.car, 1), 3);
 pol = cart2pol3(car(:, [2, 3, 1])); %#ok
 wp = lab.wp;
 
-save([FilePath, filesep, 'lab', filesep, FileName], 'car', 'pol', 'wp');
+LabFolder = [FilePath, filesep, 'lab', filesep];
+if ~exist(LabFolder, 'dir')
+  mkdir(LabFolder);
+end
+save([LabFolder, FileName], 'car', 'pol', 'wp');
 
 rgb = lab2rgb(reshape(car, size(car, 1), 1, 3), 'WhitePoint', wp);
 % I set these values (0.25 and 1.55) based on the spectra reflectance of
@@ -58,6 +67,10 @@ rgb = min(max(rgb, 0.25), 1.55);
 rgb = uint8(NormaliseChannel(rgb, 0, 1, min(min(rgb)), max(max(rgb))) .* 255);
 [~, CurrentNames] = ColourNamingTestImage(rgb, 'ourlab', false); %#ok
 
-save([FilePath, filesep, 'categorisation', filesep, 'ellipsoid', filesep, FileName], 'CurrentNames');
+CategoriesFolder = [FilePath, filesep, 'categorisation', filesep, 'ellipsoid', filesep];
+if ~exist(CategoriesFolder, 'dir')
+  mkdir(CategoriesFolder);
+end
+save([CategoriesFolder, FileName], 'CurrentNames');
 
 end
