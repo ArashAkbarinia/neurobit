@@ -164,7 +164,7 @@ end
 
 MetamerReport = struct();
 
-[rows, cols] = size(CompMat);
+[rows, cols, ~] = size(CompMat);
 nPixels = rows * (cols - 1) / 2;
 
 MetamerReport.NumElements = rows;
