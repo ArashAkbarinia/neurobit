@@ -258,7 +258,7 @@ metamers = any(mml, 3) & any(mmu, 3);
 AbsoluteMetamers = sum(metamers(:));
 
 % computing metamer per illuminants
-MetamerIllum = repmat(metamers, [1, 1, size(mmu, 3)]) & mmu;
+MetamerIllum = repmat(metamers, [1, 1, size(mmu, 3)]) & mml;
 
 MetamerIllum = permute(MetamerIllum, [2, 1, 3]) + MetamerIllum;
 
