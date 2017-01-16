@@ -15,7 +15,7 @@ end
 %TODO: I should have written these numbers in mat file for generality
 sw = 400;
 step = 10;
-ew = 699;
+ew = 709;
 WavelengthRange = sw:step:ew;
 
 if isstruct(CrossOversReport)
@@ -40,12 +40,14 @@ else
   r = m;
 end
 AllCrossOvers = r ./ sum(r);
+% in the last index no crossovers.
+AllCrossOvers(end + 1) = 0;
 
 if nargout > 1
   FigureHandler = figure('name', 'histogram of crossovers');
 end
-plot(WavelengthRange(1:end - 1), AllCrossOvers, 'DisplayName', ['T: ', num2str(TotalCrossOvers)]);
+plot(WavelengthRange, AllCrossOvers, 'DisplayName', ['T: ', num2str(TotalCrossOvers)]);
 legend('show');
-xlim([sw, ew]);
+xlim([WavelengthRange(1), WavelengthRange(end)]);
 
 end
