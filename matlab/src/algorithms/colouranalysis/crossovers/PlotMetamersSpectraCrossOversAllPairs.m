@@ -60,7 +60,7 @@ end
 
 sw = 400;
 step = 10;
-ew = 699;
+ew = 709;
 WavelengthRange = sw:step:ew;
 figure
 

@@ -27,14 +27,14 @@ nuths = numel(WhichUth);
 
 sw = 400;
 step = 10;
-ew = 699;
+ew = 709;
 WavelengthRange = sw:step:ew;
 
 FigPos = [0, 0, 50, 25];
 
 FigureHandler = figure('name', FigureName, 'PaperUnits', 'centimeters', 'PaperPosition', FigPos, 'visible', isvisible);
 
-AllCrossOvers = zeros(nfiles, size(WavelengthRange, 2) - 1);
+AllCrossOvers = zeros(nfiles, size(WavelengthRange, 2));
 for i = 1:nfiles
   CurrentFileName = MatList(i).name;
   MatPath = [ResultsFolder, CurrentFileName];
@@ -54,8 +54,8 @@ for i = 1:nfiles
     AllCrossOvers(i, :) = AllCrossOvers(i, :) ./ sum(AllCrossOvers(i, :));
     AllCrossOvers(isnan(AllCrossOvers)) = 0;
     
-    plot(WavelengthRange(1:end - 1), AllCrossOvers(i, :));
-    xlim([sw, ew]);
+    plot(WavelengthRange, AllCrossOvers(i, :));
+    xlim([WavelengthRange(1), WavelengthRange(end)]);
   end
   
   TilteName = strrep(CurrentFileName, 'CrossOversReport', '');
