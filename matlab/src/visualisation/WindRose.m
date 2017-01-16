@@ -335,10 +335,10 @@ end
 % N S E W labels:
 bg='none';
 args={'FontSize',8};
-h(1)=text(-g-ri, 0,'WEST', 'VerticalAlignment','top',   'HorizontalAlignment','left', args{:});
-h(2)=text( g+ri, 0,'EAST', 'VerticalAlignment','top',   'HorizontalAlignment','right',args{:});
-h(3)=text( 0,-g-ri,'SOUTH','VerticalAlignment','bottom','HorizontalAlignment','left', args{:});
-h(4)=text( 0, g+ri,'NORTH','VerticalAlignment','top',   'HorizontalAlignment','left', args{:});
+h(1)=text(-g-ri, 0,'180', 'VerticalAlignment','top',   'HorizontalAlignment','left', args{:});
+h(2)=text( g+ri, 0,'0', 'VerticalAlignment','top',   'HorizontalAlignment','right',args{:});
+h(3)=text( 0,-g-ri,'270','VerticalAlignment','bottom','HorizontalAlignment','left', args{:});
+h(4)=text( 0, g+ri,'90','VerticalAlignment','top',   'HorizontalAlignment','left', args{:});
 handles=[handles h];
 
 % scale legend:
