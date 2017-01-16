@@ -9,13 +9,13 @@ pol12 = cart2pol3(lab12(minds, [2, 3, 1]));
 pol22 = cart2pol3(lab22(minds, [2, 3, 1]));
 
 % for title compute the radius and theta differences
-t1d = pdist2(pol11(:, 1)', pol12(:, 1)', @PdistAbsAngDiff);
+t1d = mean(AbsAngDiff(pol11(:, 1)', pol12(:, 1)'));
 t1d = num2str(rad2deg(t1d), 2);
-r1d = pdist2(pol11(:, 2)', pol12(:, 2)');
+r1d = mean(abs(pol11(:, 2)' - pol12(:, 2)'));
 r1d = num2str(r1d, 2);
-t2d = pdist2(pol21(:, 1)', pol22(:, 1)', @PdistAbsAngDiff);
+t2d = mean(AbsAngDiff(pol21(:, 1)', pol22(:, 1)'));
 t2d = num2str(rad2deg(t2d), 2);
-r2d = pdist2(pol21(:, 2)', pol22(:, 2)');
+r2d = mean(abs(pol21(:, 2)' - pol22(:, 2)'));
 r2d = num2str(r2d, 2);
 
 % compute the shifts
@@ -63,7 +63,7 @@ DrawHueCircle(MaxRadius1);
 hold on;
 h = polar(pol11(:, 1), pol11(:, 2), '.');
 set(h, 'MarkerEdgeColor', [0.5, 0.5, 0.5]);
-polar(pol12(:, 1), pol12(:, 2), 'o');
+polar(pol12(:, 1), pol12(:, 2), 'oblack');
 title(['Pair-1 (black) and Pair-2 (white) under ''', IllumNames{1}, '''']);
 
 h = subplot(rows, cols, 2);
@@ -75,7 +75,7 @@ DrawHueCircle(MaxRadius2);
 hold on;
 h = polar(pol21(:, 1), pol21(:, 2), '.');
 set(h, 'MarkerEdgeColor', [0.5, 0.5, 0.5]);
-polar(pol22(:, 1), pol22(:, 2), 'o');
+polar(pol22(:, 1), pol22(:, 2), 'oblack');
 title(['Pair-1 (black) and Pair-2 (white) under ''', IllumNames{2}, '''']);
 
 h = subplot(rows, cols, 4);
