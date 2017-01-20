@@ -42,14 +42,12 @@ end
 AllCrossOvers = r ./ sum(r);
 % in the last index no crossovers.
 AllCrossOvers(end + 1) = 0;
+AllCrossOvers = AllCrossOvers .* TotalCrossOvers;
 
 if nargout > 1
   FigureHandler = figure('name', 'histogram of crossovers');
 end
-plot(WavelengthRange, AllCrossOvers, 'DisplayName', ['#Crossovers: ', num2str(TotalCrossOvers)]);
-legend('show');
-legend('Location', 'north')
-legend('boxoff')
+plot(WavelengthRange, AllCrossOvers);
 xlim([WavelengthRange(1), WavelengthRange(end)]);
 
 end
