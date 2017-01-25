@@ -1,7 +1,8 @@
-function [xs, ys] = ComputeCorssOverPerPair(MetamerPairs, spectras, wavelengths)
+function [xs, ys, mpairs] = ComputeCorssOverPerPair(MetamerPairs, spectras, wavelengths)
 
 xs = [];
 ys = [];
+mpairs = [];
 for i = 1:size(MetamerPairs, 1)
   row = MetamerPairs(i, 1);
   col = MetamerPairs(i, 2);
@@ -15,6 +16,7 @@ for i = 1:size(MetamerPairs, 1)
   [xi, yi] = CorssOverSpectra(spectra1, wavelengths{row}, spectra2, wavelengths{col}, true);
   xs = [xs; xi]; %#ok
   ys = [ys; yi]; %#ok
+  mpairs = [mpairs; repmat([row, col], [length(xi), 1])]; %#ok
 end
 
 end

@@ -24,6 +24,7 @@ SpectraInds = ExtractDatasetIndices(MetamerReport.all, AllSpectraMat.AllSpectra,
 
 TmpReport = struct();
 AllCrossOvers = [];
+AllMpairs = [];
 for i = 1:nLowThreshes
   LowThreshold = MetamerReport.all.lths.(ThresholdNames{i});
   TmpReport.(ThresholdNames{i}).lth = LowThreshold.lth;
@@ -31,14 +32,17 @@ for i = 1:nLowThreshes
     HighThreshold = LowThreshold.uths.(['uth', num2str(j)]);
     MetamerPairs = HighThreshold.metamerpairs;
     MetamerPairs = MetamerPairs(any(ismember(MetamerPairs, SpectraInds), 2), :);
-    [xi, yi] = ComputeCorssOverPerPair(MetamerPairs, AllSpectraMat.spectra, AllSpectraMat.wavelength);
+    [xi, yi, mpairs] = ComputeCorssOverPerPair(MetamerPairs, AllSpectraMat.spectra, AllSpectraMat.wavelength);
     TmpReport.(ThresholdNames{i}).uths.(['uth', num2str(j)]).uth = HighThreshold.uth;
     TmpReport.(ThresholdNames{i}).uths.(['uth', num2str(j)]).crossovers = [xi, yi];
+    TmpReport.(ThresholdNames{i}).uths.(['uth', num2str(j)]).mpairs = mpairs;
     AllCrossOvers = [AllCrossOvers; xi, yi]; %#ok
+    AllMpairs = [AllMpairs; mpairs]; %#ok
   end
 end
 
 CrossOversReport.all.lths = TmpReport;
 CrossOversReport.all.crossovers = AllCrossOvers;
+CrossOversReport.all.mpairs = AllMpairs;
 
 end
