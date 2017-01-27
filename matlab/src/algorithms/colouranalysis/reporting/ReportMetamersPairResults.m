@@ -15,6 +15,7 @@ nLowThreshes = numel(ThresholdNames);
 nHighThreshes = numel(fieldnames(MetamerReport.all.lths.th1.uths));
 
 IllumPairsPlot = cell(nIllums, nIllums);
+DiffReports = cell(nIllums, nIllums);
 IllumNamesOrder = cell(nIllums, 1);
 LastIllumIndx = 1;
 
@@ -78,11 +79,14 @@ for s = 1:nCombinations
   
   IllumPairsPlot{il1, il2} = CurrentPairReport;
   IllumPairsPlot{il2, il1} = CurrentPairReport;
+  DiffReports{il1, il2} = MetamerReport.all.DiffReport;
+  DiffReports{il2, il1} = MetamerReport.all.DiffReport;
 end
 
 IlluminantPairReport.IllumPairsPlot = IllumPairsPlot;
 IlluminantPairReport.IllumNamesOrder = IllumNamesOrder;
 IlluminantPairReport.lths = lths;
 IlluminantPairReport.uths = uths;
+IlluminantPairReport.DiffReports = DiffReports;
 
 end
