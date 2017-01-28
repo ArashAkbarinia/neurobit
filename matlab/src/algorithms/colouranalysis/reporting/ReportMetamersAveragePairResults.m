@@ -6,6 +6,7 @@ nIllums = numel(IlluminantPairReport.IllumNamesOrder);
 
 nuth = size(IlluminantPairReport.uths, 2);
 nlth = size(IlluminantPairReport.lths, 2);
+AvgDiffHist = 0;
 AvgLowHighAbs = zeros(nuth, nlth);
 MaxLowHighAbs = zeros(nuth, nlth);
 MinLowHighAbs = inf(nuth, nlth);
@@ -21,6 +22,7 @@ for i = 1:nIllums
     if i == j
       continue;
     end
+    AvgDiffHist = AvgDiffHist + IlluminantPairReport.DiffReports{i, j}.hist.hcounts;
     AvgLowHighAbs = AvgLowHighAbs + IlluminantPairReport.IllumPairsPlot{i, j}.LowHighAbs;
     MaxLowHighAbs = max(MaxLowHighAbs, IlluminantPairReport.IllumPairsPlot{i, j}.LowHighAbs);
     MinLowHighAbs = min(MinLowHighAbs, IlluminantPairReport.IllumPairsPlot{i, j}.LowHighAbs);
@@ -46,6 +48,8 @@ for i = 1:nIllums
 end
 
 AvgLowHighAbs = AvgLowHighAbs ./ (nIllums * (nIllums - 1));
+
+LthUthReport.diff = AvgDiffHist;
 
 LthUthReport.avg.LowHighAbs = AvgLowHighAbs;
 LthUthReport.avg.LowHighPer = AvgLowHighAbs ./ nPixels;
