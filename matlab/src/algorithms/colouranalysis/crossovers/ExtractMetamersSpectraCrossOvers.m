@@ -1,4 +1,4 @@
-function AllCrossOvers = ExtractMetamersSpectraCrossOvers(CrossOversReport, WhichLth, WhichUth)
+function AllCrossOvers = ExtractMetamersSpectraCrossOvers(CrossOversReport, WhichLth, WhichUth, yth)
 %ExtractMetamersSpectraCrossOvers  extrating the crossovers for specific
 %                                  lower and upper thresholds.
 
@@ -7,6 +7,9 @@ if nargin < 2
 end
 if nargin < 3
   WhichUth = [];
+end
+if nargin < 4
+  yth = -inf;
 end
 
 if isempty(WhichLth) && isempty(WhichUth)
@@ -24,7 +27,8 @@ else
         HighThreshold = LowThreshold.uths.(['uth', num2str(j)]);
         if isempty(WhichUth) || ismember(HighThreshold.uth, WhichUth)
           if ~isempty(HighThreshold.crossovers)
-            crossovers = HighThreshold.crossovers(:, 1);
+            PosYs = HighThreshold.crossovers(:, 2) > yth;
+            crossovers = HighThreshold.crossovers(PosYs, 1);
             AllCrossOvers = [AllCrossOvers; crossovers]; %#ok
           end
         end
