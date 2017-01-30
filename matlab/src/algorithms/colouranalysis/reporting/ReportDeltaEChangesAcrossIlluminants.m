@@ -20,29 +20,32 @@ for i = 1:nillums
   labs.(IlluminantNames{i}) = LabMat.car;
 end
 
-DeltaEReport.de = cell(nillums, nillums);
+DeltaEReport.de.all = cell(nillums, nillums);
+DeltaEReport.de.avg = cell(nillums, nillums);
 for i = 1:nillums - 1
   for j = i + 1:nillums
-    DeltaEReport.de{i, j} = deltae2000(labs.(IlluminantNames{i}), labs.(IlluminantNames{j}));
-    DeltaEReport.de{j, i} = DeltaEReport.de{i, j};
+    DeltaEReport.de.all{i, j} = deltae2000(labs.(IlluminantNames{i}), labs.(IlluminantNames{j}));
+    DeltaEReport.de.all{j, i} = DeltaEReport.de.all{i, j};
+    
+    DeltaEReport.de.avg{i, j} = mean(DeltaEReport.de.all{i, j});
+    DeltaEReport.de.avg{j, i} = DeltaEReport.de.avg{i, j};
   end
 end
 
-nSpectra = size(DeltaEReport.de{1, 2}, 1);
+nSpectra = size(DeltaEReport.de.all{1, 2}, 1);
 AvgDe = zeros(nSpectra, 1);
 MaxDe = zeros(nSpectra, 1);
 MinDe = inf(nSpectra, 1);
 
 MaxInds = zeros(nSpectra, 2);
 MinInds = zeros(nSpectra, 2);
-
 for i = 1:nillums - 1
   for j = i + 1:nillums
-    AvgDe = AvgDe + DeltaEReport.de{i, j};
-    MaxDe = max(MaxDe, DeltaEReport.de{i, j});
-    MinDe = min(MinDe, DeltaEReport.de{i, j});
+    AvgDe = AvgDe + DeltaEReport.de.all{i, j};
+    MaxDe = max(MaxDe, DeltaEReport.de.all{i, j});
+    MinDe = min(MinDe, DeltaEReport.de.all{i, j});
     
-    CurrentMaxInds = MaxDe == DeltaEReport.de{i, j};
+    CurrentMaxInds = MaxDe == DeltaEReport.de.all{i, j};
     MaxInds1 = MaxInds(:, 1);
     MaxInds1(CurrentMaxInds) = i;
     MaxInds(:, 1) = MaxInds1;
@@ -51,7 +54,7 @@ for i = 1:nillums - 1
     MaxInds2(CurrentMaxInds) = j;
     MaxInds(:, 2) = MaxInds2;
     
-    CurrentMinInds = MinDe == DeltaEReport.de{i, j};
+    CurrentMinInds = MinDe == DeltaEReport.de.all{i, j};
     MinInds1 = MinInds(:, 1);
     MinInds1(CurrentMinInds) = i;
     MinInds(:, 1) = MinInds1;
@@ -62,7 +65,7 @@ for i = 1:nillums - 1
   end
 end
 
-AvgDe = AvgDe ./ (nillums * (nillums - 1));
+AvgDe = AvgDe ./ ((nillums * (nillums - 1)) / 2);
 
 DeltaEReport.stats.avg = AvgDe;
 DeltaEReport.stats.max = MaxDe;
