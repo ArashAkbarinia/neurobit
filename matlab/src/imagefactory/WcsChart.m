@@ -14,7 +14,10 @@ if nargin < 1
 end
 
 FunctionPath = mfilename('fullpath');
-FilePath = strrep(FunctionPath, 'matlab/src/imagefactory/WcsChart', 'data/ColourNaming/WCS-Data-20110316/cnum-vhcm-lab-new.txt');
+[~, FunctionName, ~] = fileparts(FunctionPath);
+FunctionRelativePath = ['matlab', filesep, 'src', filesep, 'imagefactory', filesep, FunctionName];
+WcsRelativePath = ['data', filesep, 'ColourNaming', filesep, 'WCS-Data-20110316', filesep, 'cnum-vhcm-lab-new.txt'];
+FilePath = strrep(FunctionPath, FunctionRelativePath, WcsRelativePath);
 MunsellLab = tdfread(FilePath);
 
 nchips = size(MunsellLab.x0x23cnum, 1);
