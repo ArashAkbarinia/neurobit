@@ -30,6 +30,7 @@ nVertices = 4;
 
 VerticesDeltaEs = zeros(nEllipses, 3);
 CentreDeltaEs = zeros(nEllipses, 3);
+DistanceToCentresXYZ = zeros(nEllipses, 1);
 
 for i = 1:nEllipses
   CurrentEllipse = MacAdamEllipses(i, :);
@@ -53,19 +54,25 @@ for i = 1:nEllipses
   CompMat76 = zeros(nVertices, nVertices);
   CompMat94 = zeros(nVertices, nVertices);
   CompMat00 = zeros(nVertices, nVertices);
+  CurrentDistanceToCentresXYZ = zeros(nVertices, 1);
   for j = 1:nVertices
     RowI = repmat(VertticesLAB(j, :), [nVertices, 1]);
     CompMat76(j, :) = deltae1976(RowI, VertticesLAB);
     CompMat94(j, :) = deltae1994(RowI, VertticesLAB);
     CompMat00(j, :) = deltae2000(RowI, VertticesLAB);
+    
+    % distance to centre
+    CurrentDistanceToCentresXYZ(j, 1) = sqrt(sum((CentreXYZ - VerticesXYZ(j, :)) .^ 2));
   end
   
   VerticesDeltaEs(i, :) = [max(CompMat76(:)), max(CompMat94(:)), max(CompMat00(:))];
   CentreDeltaEs(i, :) = [max(CompMat76Centre(:)), max(CompMat94Centre(:)), max(CompMat00Centre(:))];
+  DistanceToCentresXYZ(i) = max(CurrentDistanceToCentresXYZ);
 end
 
 macstats.deltae.vert = VerticesDeltaEs;
 macstats.deltae.cent = CentreDeltaEs;
+macstats.dist = DistanceToCentresXYZ;
 
 fprintf('Centre\n');
 fprintf('Min: 76 %.2f\t94 %.2f\t00 %.2f\n', min(CentreDeltaEs));
