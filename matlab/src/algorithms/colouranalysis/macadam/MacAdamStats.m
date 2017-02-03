@@ -1,8 +1,9 @@
-function macstats = MacAdamStats(AxisPercentile)
+function macstats = MacAdamStats(AxisPercentile, WhitePoint)
 %MacAdamStats  computes different statistics of MacAdam ellipses
 %
 % inputs
 %   AxisPercentile  portion of axis to be considered, default 1.
+%   WhitePoint      by default the white point of illumination C.
 %
 % outputs
 %   DeltaEs  Delta Es for each ellipse, in three columns: 76, 94 and 2000.
@@ -10,6 +11,9 @@ function macstats = MacAdamStats(AxisPercentile)
 
 if nargin < 1
   AxisPercentile = 1;
+end
+if nargin < 2
+  WhitePoint = whitepoint('c');
 end
 
 FunctionPath = mfilename('fullpath');
@@ -25,24 +29,28 @@ MacAdamEllipses(:, 3:4) = MacAdamEllipses(:, 3:4) .* AxisPercentile;
 
 nEllipses = size(MacAdamEllipses, 1);
 
+MacAdamLuminance = 50;
 luminance = 1;
 nVertices = 4;
 
 VerticesDeltaEs = zeros(nEllipses, 3);
 CentreDeltaEs = zeros(nEllipses, 3);
 DistanceToCentresXYZ = zeros(nEllipses, 1);
+LabVars = zeros(nEllipses, 5);
 
 for i = 1:nEllipses
   CurrentEllipse = MacAdamEllipses(i, :);
   
   CentreXY = CurrentEllipse(1:2);
   CentreXYZ = xyLum2XYZ([CentreXY, luminance]);
-  CentreLAB = xyz2lab(CentreXYZ, 'WhitePoint', whitepoint('d65'));
+  CentreLAB = XYZ2Lab(CentreXYZ, WhitePoint);
+  CentreLAB(1) = MacAdamLuminance;
   
   [a1, a2, b1, b2] = PointsEllipseAxes(CurrentEllipse);
   VerticesXY = [a1'; a2'; b1'; b2'];
   VerticesXYZ = xyLum2XYZ([VerticesXY, repmat(luminance, [nVertices, 1])]);
-  VertticesLAB = xyz2lab(VerticesXYZ, 'WhitePoint', whitepoint('d65'));
+  VertticesLAB = XYZ2Lab(VerticesXYZ, WhitePoint);
+  VertticesLAB(:, 1) = MacAdamLuminance;
   
   % centre delta E
   RowI = repmat(CentreLAB, [nVertices, 1]);
@@ -68,19 +76,16 @@ for i = 1:nEllipses
   VerticesDeltaEs(i, :) = [max(CompMat76(:)), max(CompMat94(:)), max(CompMat00(:))];
   CentreDeltaEs(i, :) = [max(CompMat76Centre(:)), max(CompMat94Centre(:)), max(CompMat00Centre(:))];
   DistanceToCentresXYZ(i) = max(CurrentDistanceToCentresXYZ);
+  
+  LabAx1 = sqrt(sum((VertticesLAB(1, 2:3) - VertticesLAB(2, 2:3)) .^ 2));
+  LabAx2 = sqrt(sum((VertticesLAB(3, 2:3) - VertticesLAB(4, 2:3)) .^ 2));
+  LabAngle = AngleVectors([VertticesLAB(2, 2:3) - VertticesLAB(1, 2:3), 0], [1, 0, 0]);
+  LabVars(i, :) = [CentreLAB(2:3), LabAx1 / 2, LabAx2 /2, LabAngle];
 end
 
 macstats.deltae.vert = VerticesDeltaEs;
 macstats.deltae.cent = CentreDeltaEs;
 macstats.dist = DistanceToCentresXYZ;
-
-fprintf('Centre\n');
-fprintf('Min: 76 %.2f\t94 %.2f\t00 %.2f\n', min(CentreDeltaEs));
-fprintf('Avg: 76 %.2f\t94 %.2f\t00 %.2f\n', mean(CentreDeltaEs));
-fprintf('Max: 76 %.2f\t94 %.2f\t00 %.2f\n', max(CentreDeltaEs));
-fprintf('Vertices\n');
-fprintf('Min: 76 %.2f\t94 %.2f\t00 %.2f\n', min(VerticesDeltaEs));
-fprintf('Avg: 76 %.2f\t94 %.2f\t00 %.2f\n', mean(VerticesDeltaEs));
-fprintf('Max: 76 %.2f\t94 %.2f\t00 %.2f\n', max(VerticesDeltaEs));
+macstats.lab = LabVars;
 
 end
