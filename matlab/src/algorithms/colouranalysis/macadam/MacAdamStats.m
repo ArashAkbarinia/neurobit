@@ -38,7 +38,7 @@ MacAdamEllipses(:, 3:4) = MacAdamEllipses(:, 3:4) .* AxisPercentile;
 nEllipses = size(MacAdamEllipses, 1);
 
 MacAdamLuminance = 48;
-WhitePoint = WhitePoint .* (48 / WhitePoint(2));
+WhitePoint = WhitePoint .* (MacAdamLuminance / WhitePoint(2));
 nVertices = 4;
 nCircumferencePoints = 36;
 
