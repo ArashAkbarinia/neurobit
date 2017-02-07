@@ -116,7 +116,7 @@ if plotme
   
   figure;
   hold on;
-  for i = 1:25
+  for i = 1:nEllipses
     DrawEllipse(LxxVars(i, :));
   end
   axis equal
