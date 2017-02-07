@@ -1,13 +1,7 @@
-function [] = DrawEllipse(ellipse, varargin)
+function h = DrawEllipse(ellipse, varargin)
 %DrawEllipse Summary of this function goes here
 
-cx = ellipse(1);
-cy = ellipse(2);
-ax = ellipse(3);
-ay = ellipse(4);
-rx = ellipse(5);
-
-ntheta = 32;
+ntheta = 36;
 PlotAlpha = 0.1;
 
 % default set of options for drawing meshes
@@ -30,12 +24,8 @@ while length(varargin) > 1
   varargin(1:2) = [];
 end
 
-crx = cos(rx);
-srx = sin(rx);
-theta = linspace(0, 2 * pi, ntheta);
-cth = cos(theta);
-sth = sin(theta);
-h = line(ax * cth * crx - srx * ay * sth +cx, ax * cth * srx + crx * ay * sth + cy);
+CircumferencePoints = PointsEllipseCircumference(ellipse, ntheta);
+h = line(CircumferencePoints(:, 1), CircumferencePoints(:, 2));
 set(h, options{:});
 
 alpha(PlotAlpha);
