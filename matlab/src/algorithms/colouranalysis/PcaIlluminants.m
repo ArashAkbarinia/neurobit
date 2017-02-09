@@ -1,8 +1,11 @@
-function [u, s, v] = PcaIlluminants(IlluminantNames, plotme)
+function [u, s, v] = PcaIlluminants(IlluminantNames, nComps, plotme)
 %PcaIlluminants Summary of this function goes here
 %   Detailed explanation goes here
 
 if nargin < 2
+  nComps = 3;
+end
+if nargin < 3
   plotme = true;
 end
 
@@ -18,7 +21,7 @@ wavelengths = IllMat.wavelengths;
 
 nIllus = numel(IlluminantNames);
 
-TestedIllums = zeros(nIllus, 300);
+TestedIllums = zeros(nIllus, size(wavelengths.(IlluminantNames{1}), 2));
 for i = 1:nIllus
   TestedIllums(i, :) = spectras.(IlluminantNames{i}) ./  sum(spectras.(IlluminantNames{i}));
 end
@@ -27,11 +30,13 @@ end
 
 [u, s, v] = svd(TestedIllums, 0);
 
+nComps = min(size(v, 2), nComps);
+
 if plotme
   figure;
   hold on
-  for i = 1:3
-    plot(wavelengths.(IlluminantNames{i}), v(:, i)', 'DisplayName', ['Comp-', num2str(i)]);
+  for i = 1:nComps
+    plot(wavelengths.(IlluminantNames{1}), v(:, i)', 'DisplayName', ['Comp-', num2str(i)]);
   end
   
   legend('show');
