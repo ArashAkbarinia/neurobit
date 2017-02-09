@@ -1,14 +1,6 @@
-function [WcsColourTable, GroundTruth] = MergeColourPoints()
-%MERGECOLOURPOINTS Summary of this function goes here
+function [WcsColourTable, GroundTruth] = MergeColourPoints(MatPaths)
+%MergeColourPoints Summary of this function goes here
 %   Detailed explanation goes here
-
-MatPaths = ...
-  {
-  '/home/arash/Software/Repositories/neurobit/matlab/data/mats/colourcategorisation/noconstancy/EbayPixelCounts.mat';
-  '/home/arash/Software/Repositories/neurobit/matlab/data/mats/colourcategorisation/noconstancy/YuanliuCarPixelPoints.mat';
-  '/home/arash/Software/Repositories/neurobit/matlab/data/mats/colourcategorisation/noconstancy/YuanliuMCNPixelPoints.mat';
-  '/home/arash/Software/Repositories/neurobit/matlab/data/mats/colourcategorisation/noconstancy/YuanliuSmallObjectsPixelPoints.mat';
-  };
 
 rgbs = [];
 gts = [];
