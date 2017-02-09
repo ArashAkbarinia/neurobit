@@ -39,7 +39,8 @@ elseif strcmpi(ColourSpace, 'lab')
   if isempty(ConfigsMat)
     ConfigsMat = load('lab_ellipsoid_params');
   end
-  ImageOpponent = double(applycform(ImageRGB, makecform('srgb2lab')));
+  ImageRGB = ApproximateToD65(ImageRGB);
+  ImageOpponent = double(applycform(ImageRGB, makecform('srgb2lab', 'AdaptedWhitePoint', whitepoint('d65'))));
   %   ImageOpponent = srgb2lab(ImageRGB);
   axes = {'l', 'a', 'b'};
 end
