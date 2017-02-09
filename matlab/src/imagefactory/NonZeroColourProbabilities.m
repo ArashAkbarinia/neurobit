@@ -36,6 +36,9 @@ for d = 1:numel(DirPaths)
     disp([ImagesPath, ImageFiles(i).name]);
     ImageRGB = imread([ImagesPath, ImageFiles(i).name]);
     
+    ImageRGB = uint8(double(ImageRGB) ./ 65535 .* 255);
+    ImageRGB = ApproximateToD65(ImageRGB);
+    
     if ContrastDependant
       ImageRGB = double(ImageRGB) ./ 255;
       rfresponse = ContrastDependantGaussian(ImageRGB, 1.5);

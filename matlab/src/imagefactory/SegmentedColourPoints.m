@@ -37,6 +37,8 @@ if isempty(strfind(DirPath, '.mat'))
         ImagePath = [DirPathJK, ImageFiles(i).name];
         ImageRGB = imread(ImagePath);
         
+        ImageRGB = ApproximateToD65(ImageRGB);
+        
         % if it's contrast dependant we first convolve the image with a
         % gaussian kernel of different size based on the contrast of the
         % pixel.
