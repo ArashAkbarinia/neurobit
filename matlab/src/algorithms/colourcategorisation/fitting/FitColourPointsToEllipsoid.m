@@ -1,4 +1,4 @@
-function ColourEllipsoids = FitColourPointsToEllipsoid(ColourSpace, WhichColours, plotme, saveme)
+function ColourEllipsoids = FitColourPointsToEllipsoid(ColourSpace, WhichColours, plotme, saveme, Whichgroundtruth)
 %FitColourPointsToEllipsoid Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -11,6 +11,9 @@ end
 if nargin < 3
   plotme = 0;
   saveme = 1;
+end
+if nargin < 5
+  Whichgroundtruth = 'SegmentedColourProbabilities255Averaged.mat';
 end
 ColourSpace = lower(ColourSpace);
 
@@ -44,7 +47,7 @@ ColourEllipsoids = zeros(11, 10);
 % [WcsColourTable, GroundTruth] = ColourMembershipExperiment();
 
 % [WcsColourTable, GroundTruth] = SegmentedColourPoints('SegmentedColourPoints.mat');
-load('SegmentedColourProbabilities255Averaged.mat');
+load(Whichgroundtruth);
 
 % PlotAllChannels(WcsColourTable, GroundTruth);
 
@@ -55,7 +58,7 @@ if strcmpi(ColourSpace, 'lsy')
   ColourPoints = srgb2lsy(WcsColourTable);
   GoodResult = load('lsy_ellipsoid_params.mat');
 elseif strcmpi(ColourSpace, 'lab')
-  ColourPoints = double(applycform(WcsColourTable, makecform('srgb2lab')));
+  ColourPoints = double(applycform(WcsColourTable, makecform('srgb2lab', 'AdaptedWhitePoint', whitepoint('d65'))));
   %   ColourPoints = srgb2lab(WcsColourTable);
   GoodResult = load('lab_ellipsoid_params.mat');
 end
