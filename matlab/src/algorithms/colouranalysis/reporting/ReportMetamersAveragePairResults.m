@@ -3,6 +3,7 @@ function LthUthReport = ReportMetamersAveragePairResults(IlluminantPairReport)
 %   Detailed explanation goes here
 
 nIllums = numel(IlluminantPairReport.IllumNamesOrder);
+nills = nIllums * (nIllums - 1) / 2;
 
 nuth = size(IlluminantPairReport.uths, 2);
 nlth = size(IlluminantPairReport.lths, 2);
@@ -10,6 +11,7 @@ AvgDiffHist = 0;
 AvgLowHighAbs = zeros(nuth, nlth);
 MaxLowHighAbs = zeros(nuth, nlth);
 MinLowHighAbs = inf(nuth, nlth);
+AllHowHighAbs = zeros(nuth, nlth, nills);
 
 MaxInds = zeros(nuth, nlth, 2);
 MinInds = zeros(nuth, nlth, 2);
@@ -17,11 +19,15 @@ MinInds = zeros(nuth, nlth, 2);
 nSpectra = size(IlluminantPairReport.IllumPairsPlot{1, 2}.AllSpectraCounter, 1);
 nPixels = nSpectra * (nSpectra - 1) / 2;
 
+k = 1;
 for i = 1:nIllums
   for j = 1:nIllums
     if i == j
       continue;
     end
+    AllHowHighAbs(:, :, k) = IlluminantPairReport.IllumPairsPlot{i, j}.LowHighAbs;
+    k = k + 1;
+    
     AvgDiffHist = AvgDiffHist + IlluminantPairReport.DiffReports{i, j}.hist.hcounts;
     AvgLowHighAbs = AvgLowHighAbs + IlluminantPairReport.IllumPairsPlot{i, j}.LowHighAbs;
     MaxLowHighAbs = max(MaxLowHighAbs, IlluminantPairReport.IllumPairsPlot{i, j}.LowHighAbs);
@@ -53,6 +59,8 @@ LthUthReport.diff = AvgDiffHist;
 
 LthUthReport.avg.LowHighAbs = AvgLowHighAbs;
 LthUthReport.avg.LowHighPer = AvgLowHighAbs ./ nPixels;
+
+LthUthReport.std = std(AllHowHighAbs ./ nPixels, [], 3);
 
 LthUthReport.max.LowHighAbs = MaxLowHighAbs;
 LthUthReport.max.LowHighPer = MaxLowHighAbs ./ nPixels;
