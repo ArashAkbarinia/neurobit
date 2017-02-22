@@ -28,18 +28,30 @@ end
 
 % MeanVal = mean(TestedIllums, 1);
 
-[u, s, v] = svd(TestedIllums, 0);
+[u, s, v] = svd(TestedIllums);
 
 nComps = min(size(v, 2), nComps);
 
 if plotme
   figure;
-  hold on
+  hold on;
   for i = 1:nComps
     plot(wavelengths.(IlluminantNames{1}), v(:, i)', 'DisplayName', ['Comp-', num2str(i)]);
   end
   
   legend('show');
+  
+  figure;
+  hold on;
+  DistinguishableColors = distinguishable_colors(nComps);
+  pc = u(:, 1:2) * s(1:2, 1:2);
+  for i = 1:nComps
+    plot(pc(i, 1), pc(i, 2), 'o', 'color', DistinguishableColors(i, :), ...
+      'markersize', 10, 'markerfacecolor', 'w', 'displayname', [num2str(i), ' - ' IlluminantNames{i}]);
+    text(pc(i, 1), pc(i, 2), num2str(i), 'FontSize', 8, 'HorizontalAlignment', 'center');
+  end
+  axis equal;
+  legend('show', 'location', 'eastoutside');
 end
 
 end
