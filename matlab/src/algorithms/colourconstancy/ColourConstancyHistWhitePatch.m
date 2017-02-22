@@ -20,7 +20,7 @@ function [ColourConstantImage, luminance] = ColourConstancyHistWhitePatch(InputI
 % See also: ColourConstancyWhitePatch, ColourConstancy
 %
 
-InputImage = double(InputImage);
+InputImage = im2double(InputImage);
 
 if nargin < 2
   CutoffPercentage = 0.01;
