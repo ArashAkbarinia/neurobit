@@ -55,6 +55,8 @@ for d = 1:numel(DirPaths)
     
     ImageRGB(all(BelongingImageGt == 0, 2), :) = [];
     BelongingImageGt(all(BelongingImageGt == 0, 2), :) = [];
+    % making th maximum as 1 and rest as 0
+    BelongingImageGt = double(bsxfun(@eq, BelongingImageGt, max(BelongingImageGt, [], 2)));
     
     nCurrentPoitns = size(BelongingImageGt, 1);
     if nCurrentPoitns > nLimistPoitns
