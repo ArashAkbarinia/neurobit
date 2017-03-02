@@ -125,10 +125,10 @@ if plotme
 end
 
 if size(PositivePoints, 1) > 1
-  initial = [mean(PositivePoints), std(PositivePoints), 0, 0, 0, 1];
+  initial = [mean(PositivePoints), std(PositivePoints), 0, 0, 0, 0.5];
   %   initial = [115, 138, 133, std(PositivePoints), 0, 0, 0];
 else
-  initial = [PositivePoints, 10, 10, 10, 0, 0, 0, 1];
+  initial = [PositivePoints, 10, 10, 10, 0, 0, 0, 0.5];
 end
 lb = ...
   [
@@ -136,7 +136,7 @@ lb = ...
   ];
 ub = ...
   [
-  inf, inf, inf, inf, inf, inf, pi, pi, pi, 1;
+  inf, inf, inf, 255, 255, 255, pi, pi, pi, 1;
   ];
 options = optimoptions(@fmincon,'Algorithm', 'sqp', 'Display', 'off', 'MaxIter', 1e6, 'TolFun', 1e-10, 'MaxFunEvals', 1e6);
 
