@@ -1,6 +1,12 @@
 function WhitePoint = ApproximateWp(InputImage)
-%ApproximateWp Summary of this function goes here
-%   Detailed explanation goes here
+%ApproximateWp  approximated the white point as the maximum RGB.
+%
+% inputs
+%   InputImage  the RGB image.
+%
+% outputs
+%   WhitePoint  the pixel with the maxium values.
+%
 
 DoubleIm = im2double(InputImage);
 SumAll = sum(DoubleIm, 3);
