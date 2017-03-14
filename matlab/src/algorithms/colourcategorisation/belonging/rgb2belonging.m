@@ -32,8 +32,8 @@ if strcmpi(ColourSpace, 'lsy')
   % TODO: make a more permanent solution, this is just becuase 0 goes to the
   % end of the world (ImageRGB + 1)
   % gammacorrect = true, max pix value > 1, max luminance = daylight
-  %   ImageOpponent = XYZ2lsY(sRGB2XYZ(ImageRGB + 1, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
-  ImageOpponent = srgb2lsy(ImageRGB);
+  ImageOpponent = XYZ2lsY(sRGB2XYZ(ImageRGB + 1, true, [10 ^ 2, 10 ^ 2, 10 ^ 2]), 'evenly_ditributed_stds');
+  %   ImageOpponent = srgb2lsy(ImageRGB);
   axes = {'l', 's', 'y'};
 elseif strcmpi(ColourSpace, 'lab')
   if isempty(ConfigsMat)
