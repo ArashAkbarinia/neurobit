@@ -71,8 +71,12 @@ if EvaluateGroundTruth
 end
 for i = 1:nimages
   ImagePath = [ImagesPath, ImageFiles(i).name];
-  ImageRGB = double(imread(ImagePath));
-  ImageRGB = uint8(ImageRGB ./ max(ImageRGB(:)) .* 255);
+  ImageRGB = imread(ImagePath);
+  isuint16 = isa(ImageRGB, 'uint16');
+  if isuint16
+    ImageRGB = double(ImageRGB);
+    ImageRGB = uint8(ImageRGB ./ max(ImageRGB(:)) .* 255);
+  end
   
   if ContrastDependant
     ImageRGB = double(ImageRGB) ./ 255;
