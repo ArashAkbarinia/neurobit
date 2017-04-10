@@ -1,9 +1,9 @@
-function g2 = Gaussian2Gradient2(GaussianKernel, theta)
+function g2 = Gaussian2Gradient2(sigma, theta)
 %Gaussian2Gradient2  calculating the second  gradient of 2D Gaussian.
 %
 % inputs
-%   GaussianKernel  the Gaussian filter.
-%   theta           the gradient angle.
+%   sigma  width of the Gaussian kernel.
+%   theta  the gradient angle.
 %
 % outputs
 %   g2   the second derivative at angle theta.
@@ -13,7 +13,7 @@ if nargin < 2
   theta = 0;
 end
 
-g1 = Gaussian2Gradient1(GaussianKernel, theta);
+g1 = Gaussian2Gradient1(sigma, theta);
 
 [gx, gy] = gradient(g1);
 
