@@ -34,7 +34,7 @@ elseif strcmpi(method, 'colour edge')
 elseif strcmpi(method, 'gao')
   EstimatedLuminance = GaoDOCC_demo(CurrentImage, params{2}, params{3}, params{4});
 elseif strcmpi(method, 'joost')
-  EstimatedLuminance = JoostColorConstancyDemo(CurrentImage);
+  EstimatedLuminance = JoostColorConstancyDemo(CurrentImage, params{2}, params{3}, params{4});
 elseif strcmpi(method, 'gamut mapping')
   EstimatedLuminance = GamutMappingColourConstancy(CurrentImage);
 elseif strcmpi(method, 'bayesian')

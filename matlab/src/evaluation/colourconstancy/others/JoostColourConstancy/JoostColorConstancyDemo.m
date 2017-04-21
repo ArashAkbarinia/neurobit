@@ -1,4 +1,4 @@
-function luminance = JoostColorConstancyDemo(input_im)
+function luminance = JoostColorConstancyDemo(input_im, sigma, isContrastVariantpooling, diff_order)
 
 input_im = double(input_im);
 
@@ -31,9 +31,19 @@ input_im = double(input_im);
 % title('Shades of Grey');
 
 % Grey-Edge
-mink_norm=5;    % any number between 1 and infinity
-sigma=2;        % sigma 
-diff_order=1;   % differentiation order (1 or 2)
+if nargin < 2
+  sigma=2;        % sigma
+end
+if nargin < 3
+  mink_norm=5;    % any number between 1 and infinity
+elseif isContrastVariantpooling
+  mink_norm = -2;
+else
+  mink_norm = -1;
+end
+if nargin < 4
+  diff_order=1;   % differentiation order (1 or 2)
+end
 
 [wR,wG,wB]=general_cc(input_im,diff_order,mink_norm,sigma);
 luminance = [wR, wG, wB];
