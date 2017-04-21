@@ -1,10 +1,10 @@
-function EstimatedLuminance = ColourConstancySwitchAlgorithms(CurrentImage, DebugImagePath, method, isxyz)
+function EstimatedLuminance = ColourConstancySwitchAlgorithms(CurrentImage, DebugImagePath, params, isxyz)
 %ColourConstancySwitchAlgorithms  estimatied luminance of an algorithm.
 %
 % inputs
 %   CurrentImage          the image to be processed.
 %   DebugImagePath        the path to the image, for debugging proposes.
-%   method                desired method.
+%   params                desired method and its parameters.
 %   isxyz                 if the image is in XYZ space, default false.
 %
 % outputs
@@ -14,6 +14,8 @@ function EstimatedLuminance = ColourConstancySwitchAlgorithms(CurrentImage, Debu
 if nargin < 3 || isempty(isxyz)
   isxyz = false;
 end
+
+method = params{1};
 
 if strcmpi(method, 'nothing')
   EstimatedLuminance = [1, 1, 1];
@@ -30,7 +32,7 @@ elseif strcmpi(method, 'local std')
 elseif strcmpi(method, 'colour edge')
   [~, EstimatedLuminance] = ColourConstancyColourEdge(CurrentImage);
 elseif strcmpi(method, 'gao')
-  EstimatedLuminance = GaoDOCC_demo(CurrentImage);
+  EstimatedLuminance = GaoDOCC_demo(CurrentImage, params{2}, params{3}, params{4});
 elseif strcmpi(method, 'joost')
   EstimatedLuminance = JoostColorConstancyDemo(CurrentImage);
 elseif strcmpi(method, 'gamut mapping')

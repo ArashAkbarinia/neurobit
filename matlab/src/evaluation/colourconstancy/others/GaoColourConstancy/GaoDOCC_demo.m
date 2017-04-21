@@ -11,7 +11,7 @@
 % North Jianshe Road,
 % Chengdu, 610054, China
 
-function luminance = GaoDOCC_demo(temporypicture)
+function luminance = GaoDOCC_demo(temporypicture, k, sigma, isContrastVariantpooling)
 
 
 %demo
@@ -32,8 +32,11 @@ inversematrix=inv(transformatix);
 % The two parameters contained in our model.
 % Ideally, those parameters are image dependent, and you can set it an optimal value for each image.
 % In the work of ICCV13 and the extended work submitted to journal, we set optimal parameters for each datasets.
-k=0.6;
-sigma=3.0;
+if nargin < 4
+  k=0.6;
+  sigma=3.0;
+  isContrastVariantpooling = false;
+end
 
 % i=60;
 % temporypicture=imread('clothes3_solux-4100.tif');
@@ -96,9 +99,16 @@ Z5=abs(C3(:));
 %   Z5=max(C3(:),0);
 
 %% illuminant estimation with max pooling    
-Estimate1(1,:)=max(X5);
-Estimate1(2,:)=max(Y5);
-Estimate1(3,:)=max(Z5);
+
+if isContrastVariantpooling
+  Estimate1 = ContrastVariantPooling(RGB_DoBoPicture1, temporypicture)';
+else
+  Estimate1(1,:)=max(X5);
+  Estimate1(2,:)=max(Y5);
+  Estimate1(3,:)=max(Z5);
+end
+
+
 %% LMS space to RGB space
 RGBEstimate1(1,:)=inversematrix(1,1)*Estimate1(1,:)+inversematrix(1,2)*Estimate1(2,:)+inversematrix(1,3)*Estimate1(3,:);
 RGBEstimate1(2,:)=inversematrix(2,1)*Estimate1(1,:)+inversematrix(2,2)*Estimate1(2,:)+inversematrix(2,3)*Estimate1(3,:);
