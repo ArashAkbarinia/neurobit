@@ -67,6 +67,8 @@ if doedge
       EdgeImage = SpratlingDemo(CurrentImage);
     elseif strcmpi(TestName, 'mci')
       EdgeImage = MCIContour(CurrentImage);
+    elseif strcmpi(TestName, 'gpb')
+      EdgeImage = pbBG(CurrentImage);
     else
       EdgeImage = SurroundModulationEdgeDetector(CurrentImage);
     end
