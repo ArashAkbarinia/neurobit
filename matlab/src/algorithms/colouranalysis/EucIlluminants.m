@@ -1,4 +1,4 @@
-function [EuclideanDistances, AngularDistances] = EucIlluminants()
+function [EuclideanDistances, AngularDistances, IllumNames] = EucIlluminants(IllumNames)
 %EucIlluminants Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -11,7 +11,9 @@ IlluminantsPath = strrep(FunctionPath, FunctionRelativePath, ['matlab', filesep,
 IllMat = load(IlluminantsPath);
 spectras = IllMat.spectras;
 
-IllumNames = fieldnames(spectras);
+if nargin < 1
+  IllumNames = fieldnames(spectras);
+end
 nIllus = numel(IllumNames);
 
 EuclideanDistances = zeros(nIllus, nIllus);
